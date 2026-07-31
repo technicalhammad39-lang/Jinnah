@@ -1,22 +1,20 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useApp } from "@/context/AppContext";
-import { PRODUCTS, CATEGORIES, BRANDS, Product } from "@/data/products";
+import { useOverlayActions, useWishlistState } from "@/context/AppContext";
+import { BRANDS, CATEGORIES, PRODUCTS } from "@/data/products";
 import { Navbar } from "@/components/navigation/Navbar";
 import { Footer } from "@/components/navigation/Footer";
 import { ProductCard } from "@/components/products/ProductCard";
-import { SearchOverlay } from "@/components/navigation/SearchOverlay";
-import { CartDrawer } from "@/components/navigation/CartDrawer";
-import { QuickViewModal } from "@/components/products/QuickViewModal";
 import { 
-  SlidersHorizontal, Heart, User, Sparkles, Star, ShoppingBag, Eye, ArrowUpDown, ChevronRight, PhoneCall, ShieldCheck, Mail, Loader2
+  SlidersHorizontal, Heart, User, Sparkles, ShoppingBag, ArrowUpDown, ChevronRight, ShieldCheck, Loader2
 } from "lucide-react";
 import Link from "next/link";
 
 function ShopContent() {
-  const { wishlist, cart, addToCart, setQuickViewProduct } = useApp();
+  const { wishlist } = useWishlistState();
+  const { setQuickViewProduct } = useOverlayActions();
   const searchParams = useSearchParams();
 
   // Active sub-tabs: "products" | "wishlist" | "account"
@@ -35,52 +33,99 @@ function ShopContent() {
   // Sync URL search parameters
   useEffect(() => {
     const catParam = searchParams.get("category");
+    const brandParam = searchParams.get("brand");
     const tabParam = searchParams.get("tab");
     const prodParam = searchParams.get("product");
 
-    setTimeout(() => {
-      if (catParam) {
-        // Find matching category name or slug
-        const found = CATEGORIES.find((c) => c.slug === catParam || c.id === catParam);
-        if (found) {
-          setSelectedCategory(found.name);
-        }
+    if (catParam) {
+      const foundCategory = CATEGORIES.find((category) => category.slug === catParam || category.id === catParam);
+      if (foundCategory) {
+        setSelectedCategory(foundCategory.name);
       }
+    } else {
+      setSelectedCategory("All");
+    }
 
-      if (tabParam === "wishlist") setActiveTab("wishlist");
-      if (tabParam === "account") setActiveTab("account");
+    if (brandParam) {
+      const foundBrand = BRANDS.find(
+        (brand) => brand.id === brandParam || brand.name.toLowerCase() === brandParam.toLowerCase()
+      );
 
-      if (prodParam) {
-        const foundProd = PRODUCTS.find((p) => p.id === prodParam);
-        if (foundProd) {
-          setQuickViewProduct(foundProd);
-        }
+      if (foundBrand) {
+        setSelectedBrand(foundBrand.name);
       }
-    }, 0);
+    } else {
+      setSelectedBrand("All");
+    }
+
+    if (tabParam === "wishlist") {
+      setActiveTab("wishlist");
+    } else if (tabParam === "account") {
+      setActiveTab("account");
+    } else {
+      setActiveTab("products");
+    }
+
+    if (prodParam) {
+      const foundProduct = PRODUCTS.find((product) => product.id === prodParam);
+      if (foundProduct) {
+        setQuickViewProduct(foundProduct);
+      }
+    }
   }, [searchParams, setQuickViewProduct]);
 
-  // Handle live filtering
-  const filteredProducts = PRODUCTS.filter((product) => {
-    const matchesSearch = searchQuery.trim() === "" ||
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.brand.toLowerCase().includes(searchQuery.toLowerCase());
+  const categoryOptions = useMemo(
+    () => ["All", ...CATEGORIES.map((category) => category.name)],
+    []
+  );
 
-    const matchesCategory = selectedCategory === "All" || product.category === selectedCategory;
-    const matchesBrand = selectedBrand === "All" || product.brand === selectedBrand;
-    const matchesPrice = product.price <= priceRange;
+  const brandOptions = useMemo(
+    () => ["All", ...BRANDS.map((brand) => brand.name)],
+    []
+  );
 
-    return matchesSearch && matchesCategory && matchesBrand && matchesPrice;
-  });
+  const normalizedQuery = searchQuery.trim().toLowerCase();
 
-  // Sorting Strategy
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (sortBy === "price-asc") return a.price - b.price;
-    if (sortBy === "price-desc") return b.price - a.price;
-    if (sortBy === "rating") return b.rating - a.rating;
-    return 0; // Default Featured sorting
-  });
+  const filteredProducts = useMemo(
+    () =>
+      PRODUCTS.filter((product) => {
+        const matchesSearch =
+          normalizedQuery === "" ||
+          product.name.toLowerCase().includes(normalizedQuery) ||
+          product.brand.toLowerCase().includes(normalizedQuery);
 
-  const displayedProducts = sortedProducts.slice(0, visibleCount);
+        const matchesCategory =
+          selectedCategory === "All" || product.category === selectedCategory;
+        const matchesBrand = selectedBrand === "All" || product.brand === selectedBrand;
+        const matchesPrice = product.price <= priceRange;
+
+        return matchesSearch && matchesCategory && matchesBrand && matchesPrice;
+      }),
+    [normalizedQuery, priceRange, selectedBrand, selectedCategory]
+  );
+
+  const sortedProducts = useMemo(() => {
+    const products = [...filteredProducts];
+
+    products.sort((a, b) => {
+      if (sortBy === "price-asc") return a.price - b.price;
+      if (sortBy === "price-desc") return b.price - a.price;
+      if (sortBy === "rating") return b.rating - a.rating;
+      return 0;
+    });
+
+    return products;
+  }, [filteredProducts, sortBy]);
+
+  const displayedProducts = useMemo(
+    () => sortedProducts.slice(0, visibleCount),
+    [sortedProducts, visibleCount]
+  );
+
+  const wishlistProducts = useMemo(
+    () => PRODUCTS.filter((product) => wishlist.includes(product.id)),
+    [wishlist]
+  );
 
   // Clear filters helper
   const handleResetFilters = () => {
@@ -182,7 +227,7 @@ function ShopContent() {
               <div className="space-y-2">
                 <span className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Categories</span>
                 <div className="flex flex-col gap-1">
-                  {["All", ...CATEGORIES.map((c) => c.name)].map((cat) => (
+                  {categoryOptions.map((cat) => (
                     <button
                       key={cat}
                       onClick={() => setSelectedCategory(cat)}
@@ -202,7 +247,7 @@ function ShopContent() {
               <div className="space-y-2">
                 <span className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Brands</span>
                 <div className="flex flex-col gap-1">
-                  {["All", ...BRANDS.map((b) => b.name)].map((brand) => (
+                  {brandOptions.map((brand) => (
                     <button
                       key={brand}
                       onClick={() => setSelectedBrand(brand)}
@@ -314,9 +359,9 @@ function ShopContent() {
         {/* Tab 2: Personal Wishlist */}
         {activeTab === "wishlist" && (
           <div className="space-y-6">
-            {wishlist.length > 0 ? (
+            {wishlistProducts.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {PRODUCTS.filter((p) => wishlist.includes(p.id)).map((product) => (
+                {wishlistProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
@@ -446,11 +491,6 @@ function ShopContent() {
       </div>
 
       <Footer />
-
-      {/* Overlays rendered globally */}
-      <SearchOverlay />
-      <CartDrawer />
-      <QuickViewModal />
     </div>
   );
 }

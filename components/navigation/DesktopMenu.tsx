@@ -1,285 +1,347 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
-import { ArrowRight, ChevronDown, Box, PenTool, Lock } from "lucide-react";
+import React, { memo, useEffect, useRef, useState } from "react";
+import { ArrowRight, Box, ChevronDown, Lock, PenTool } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import Image from "next/image";
 import Link from "next/link";
-import { CATEGORIES, BRANDS } from "@/data/products";
+import { BRANDS, CATEGORIES } from "@/data/products";
 
-export const DesktopMenu = () => {
+interface TabProps {
+  children: React.ReactNode;
+  hoveredTab: number | null;
+  href: string;
+  selected: number | null;
+  setHoveredTab: React.Dispatch<React.SetStateAction<number | null>>;
+  setPosition: React.Dispatch<
+    React.SetStateAction<{ left: number; width: number; opacity: number }>
+  >;
+  handleSetSelected: (value: number | null) => void;
+  tab: number;
+}
+
+export const DesktopMenu = memo(function DesktopMenu() {
   return (
     <div className="flex w-full justify-center">
       <Tabs />
     </div>
   );
-};
+});
 
-const Tabs = () => {
+const TABS = [
+  { title: "Home", href: "/", Component: null },
+  { title: "Shop All", href: "/shop", Component: ShopAll },
+  { title: "Categories", href: "/#categories-section", Component: Categories },
+  { title: "Brands", href: "/#brands-section", Component: BrandsMenu },
+  { title: "About", href: "/#about-section", Component: null },
+  { title: "Gallery", href: "/#gallery-section", Component: null },
+  { title: "Contact", href: "/#contact-section", Component: null },
+].map((item, index) => ({ ...item, id: index + 1 }));
+
+function Tabs() {
   const [selected, setSelected] = useState<number | null>(null);
   const [hoveredTab, setHoveredTab] = useState<number | null>(null);
   const [dir, setDir] = useState<"l" | "r" | null>(null);
   const [position, setPosition] = useState({ left: 0, width: 0, opacity: 0 });
 
-  const handleSetSelected = (val: number | null) => {
-    if (typeof selected === "number" && typeof val === "number") {
-      setDir(selected > val ? "r" : "l");
-    } else if (val === null) {
+  const handleSetSelected = (value: number | null) => {
+    if (typeof selected === "number" && typeof value === "number") {
+      setDir(selected > value ? "r" : "l");
+    } else if (value === null) {
       setDir(null);
     }
-    setSelected(val);
+
+    setSelected(value);
   };
 
   return (
-    <div 
+    <div
       onMouseLeave={() => {
         handleSetSelected(null);
         setHoveredTab(null);
-        setPosition((pv) => ({ ...pv, opacity: 0 }));
-      }} 
-      className="relative flex h-fit gap-1 items-center rounded-full border border-black/10 bg-white/90 p-1.5 shadow-[0_12px_30px_rgba(26,25,23,0.08)] backdrop-blur-xl"
+        setPosition((current) => ({ ...current, opacity: 0 }));
+      }}
+      className="relative flex h-fit items-center gap-0.5"
     >
-      {TABS.map((t) => (
-        <Tab 
-          key={t.id} 
+      {TABS.map((tab) => (
+        <Tab
+          key={tab.id}
           hoveredTab={hoveredTab}
-          selected={selected} 
-          handleSetSelected={handleSetSelected} 
+          href={tab.href}
+          selected={selected}
           setHoveredTab={setHoveredTab}
-          tab={t.id}
           setPosition={setPosition}
-          href={t.href}
+          handleSetSelected={handleSetSelected}
+          tab={tab.id}
         >
-          {t.title}
+          {tab.title}
         </Tab>
       ))}
+
       <Cursor position={position} />
 
       <AnimatePresence>
-        {selected && <Content key="content" dir={dir} selected={selected} />}
+        {selected && <Content dir={dir} selected={selected} />}
       </AnimatePresence>
     </div>
   );
-};
+}
 
-const Tab = ({ 
-  children, 
+function Tab({
+  children,
   hoveredTab,
-  tab, 
-  handleSetSelected, 
+  href,
   selected,
-  setPosition,
   setHoveredTab,
-  href
-}: any) => {
+  setPosition,
+  handleSetSelected,
+  tab,
+}: TabProps) {
   const ref = useRef<HTMLAnchorElement>(null);
   const hasDropdown = tab === 2 || tab === 3 || tab === 4;
-  const isHighlighted = hoveredTab === tab;
+  const isHighlighted = hoveredTab === tab || selected === tab;
 
   return (
     <Link
-      href={href || "#"}
+      href={href}
       ref={ref}
       id={`shift-tab-${tab}`}
       onMouseEnter={() => {
         setHoveredTab(tab);
         handleSetSelected(hasDropdown ? tab : null);
-        if (!ref?.current) return;
+
+        if (!ref.current) {
+          return;
+        }
+
         const { width } = ref.current.getBoundingClientRect();
         setPosition({ left: ref.current.offsetLeft, width, opacity: 1 });
       }}
-      onClick={(e) => {
-        if (hasDropdown && href === "#") {
-          e.preventDefault();
-        }
-      }}
-      className={`relative z-10 flex items-center gap-1 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-widest transition-colors ${
-        isHighlighted || selected === tab ? "text-white" : "text-[#3f3932] hover:text-primary"
+      className={`relative z-10 flex items-center gap-1 rounded-full px-3.5 py-2 text-[11px] font-bold uppercase tracking-[0.22em] transition-colors duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] xl:px-4 ${
+        isHighlighted ? "text-white" : "text-[#3f3932] hover:text-primary"
       }`}
     >
       <span className="relative z-10">{children}</span>
       {hasDropdown && (
-        <ChevronDown className={`relative z-10 transition-transform duration-300 ${selected === tab ? "rotate-180" : ""}`} />
+        <ChevronDown
+          className={`relative z-10 h-4 w-4 transition-transform duration-[400ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            selected === tab ? "rotate-180" : ""
+          }`}
+        />
       )}
     </Link>
   );
-};
+}
 
-const Cursor = ({ position }: { position: any }) => {
+function Cursor({
+  position,
+}: {
+  position: { left: number; width: number; opacity: number };
+}) {
   return (
     <motion.div
       initial={{ left: 0, width: 0, opacity: 0 }}
       animate={{ ...position }}
-      className="absolute z-0 h-[34px] rounded-full bg-[#1f1b17] shadow-[0_10px_22px_rgba(26,25,23,0.16)]"
-      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+      transition={{ type: "spring", stiffness: 330, damping: 30, mass: 0.72 }}
+      className="absolute z-0 h-[36px] rounded-full bg-[#1f1b17] shadow-[0_12px_28px_rgba(26,25,23,0.18)]"
     />
   );
-};
+}
 
-const Content = ({ selected, dir }: { selected: number; dir: "l" | "r" | null }) => {
+function Content({ dir, selected }: { dir: "l" | "r" | null; selected: number }) {
   return (
     <motion.div
       id="overlay-content"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 12 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
-      className="absolute left-1/2 top-[calc(100%+16px)] w-[600px] -translate-x-1/2 rounded-3xl border border-black/10 bg-[#fcfbf8]/95 p-6 shadow-2xl backdrop-blur-2xl"
+      transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+      className="absolute left-1/2 top-[calc(100%+14px)] w-[640px] -translate-x-1/2 overflow-hidden rounded-[2rem] border border-white/60 bg-white/78 p-6 shadow-[0_28px_80px_rgba(26,25,23,0.14)] backdrop-blur-2xl"
     >
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-px rounded-[calc(2rem-1px)] bg-[linear-gradient(180deg,rgba(255,255,255,0.62),rgba(255,255,255,0.22))]"
+      />
       <Bridge />
       <Nub selected={selected} />
-      
-      {TABS.map((t) => {
-        return (
-          <div className="overflow-hidden" key={t.id}>
-            {selected === t.id && t.Component && (
-              <motion.div
-                initial={{ opacity: 0, x: dir === "l" ? 50 : dir === "r" ? -50 : 0 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.25, ease: "easeInOut" }}
-              >
-                <t.Component />
-              </motion.div>
-            )}
-          </div>
-        );
-      })}
+
+      {TABS.map((tab) => (
+        <div key={tab.id} className="relative overflow-hidden">
+          {selected === tab.id && tab.Component && (
+            <motion.div
+              initial={{ opacity: 0, x: dir === "l" ? 28 : dir === "r" ? -28 : 0 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+              className="relative"
+            >
+              <tab.Component />
+            </motion.div>
+          )}
+        </div>
+      ))}
     </motion.div>
   );
-};
+}
 
-const Bridge = () => (
-  <div className="absolute -top-[16px] left-0 right-0 h-[16px]" />
-);
+function Bridge() {
+  return <div className="absolute -top-[14px] left-0 right-0 h-[14px]" />;
+}
 
-const Nub = ({ selected }: { selected: number }) => {
+function Nub({ selected }: { selected: number }) {
   const [left, setLeft] = useState<number | null>(null);
 
   useEffect(() => {
-    moveNub();
+    if (!selected) {
+      return;
+    }
+
+    const hoveredTab = document.getElementById(`shift-tab-${selected}`);
+    const overlayContent = document.getElementById("overlay-content");
+
+    if (!hoveredTab || !overlayContent) {
+      return;
+    }
+
+    const tabRect = hoveredTab.getBoundingClientRect();
+    const { left: contentLeft } = overlayContent.getBoundingClientRect();
+    const tabCenter = tabRect.left + tabRect.width / 2 - contentLeft;
+    setLeft(tabCenter);
   }, [selected]);
 
-  const moveNub = () => {
-    if (selected) {
-      const hoveredTab = document.getElementById(`shift-tab-${selected}`);
-      const overlayContent = document.getElementById("overlay-content");
-      if (!hoveredTab || !overlayContent) return;
-      
-      const tabRect = hoveredTab.getBoundingClientRect();
-      const { left: contentLeft } = overlayContent.getBoundingClientRect();
-      const tabCenter = tabRect.left + tabRect.width / 2 - contentLeft;
-      setLeft(tabCenter);
-    }
-  };
-
-  if (left === null) return null;
+  if (left === null) {
+    return null;
+  }
 
   return (
     <motion.div
       style={{ clipPath: "polygon(0 0, 100% 0, 50% 50%, 0% 100%)" }}
-      initial={{ left: left }}
-      animate={{ left: left }}
-      transition={{ duration: 0.25, ease: "easeInOut" }}
-      className="absolute top-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-tl border-l border-t border-black/10 bg-[#fcfbf8]"
+      initial={{ left }}
+      animate={{ left }}
+      transition={{ type: "spring", stiffness: 340, damping: 34, mass: 0.74 }}
+      className="absolute top-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-tl border-l border-t border-white/60 bg-white/88"
     />
   );
-};
+}
 
-const ShopAll = () => {
+function ShopAll() {
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-bold text-foreground">Explore Our Catalog</h3>
-        <Link href="/shop" className="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
-          View All Products &rarr;
+      <div className="mb-6 flex items-center justify-between">
+        <h3 className="text-lg font-bold text-foreground">Explore the Catalog</h3>
+        <Link
+          href="/shop"
+          className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-primary transition-all duration-300 hover:gap-2"
+        >
+          <span>View All Products</span>
+          <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
+
       <div className="grid grid-cols-3 gap-6 divide-x divide-black/5">
         <Link href="/shop?category=architectural" className="group flex flex-col px-2">
-          <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary transition-colors">
-            <Box className="text-primary group-hover:text-white transition-colors" />
+          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 transition-colors group-hover:bg-primary">
+            <Box className="text-primary transition-colors group-hover:text-white" />
           </div>
-          <h4 className="text-sm font-bold mb-1 group-hover:text-primary transition-colors">Architectural</h4>
+          <h4 className="mb-1 text-sm font-bold transition-colors group-hover:text-primary">
+            Architectural
+          </h4>
           <p className="text-xs text-muted-foreground">Premium levers and handles</p>
         </Link>
+
         <Link href="/shop?category=security" className="group flex flex-col px-4">
-          <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary transition-colors">
-            <Lock className="text-primary group-hover:text-white transition-colors" />
+          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 transition-colors group-hover:bg-primary">
+            <Lock className="text-primary transition-colors group-hover:text-white" />
           </div>
-          <h4 className="text-sm font-bold mb-1 group-hover:text-primary transition-colors">Security</h4>
+          <h4 className="mb-1 text-sm font-bold transition-colors group-hover:text-primary">
+            Security
+          </h4>
           <p className="text-xs text-muted-foreground">Smart locks and deadbolts</p>
         </Link>
+
         <Link href="/shop?category=tools" className="group flex flex-col pl-4">
-          <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary transition-colors">
-            <PenTool className="text-primary group-hover:text-white transition-colors" />
+          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 transition-colors group-hover:bg-primary">
+            <PenTool className="text-primary transition-colors group-hover:text-white" />
           </div>
-          <h4 className="text-sm font-bold mb-1 group-hover:text-primary transition-colors">Power Tools</h4>
+          <h4 className="mb-1 text-sm font-bold transition-colors group-hover:text-primary">
+            Power Tools
+          </h4>
           <p className="text-xs text-muted-foreground">Industrial grade equipment</p>
         </Link>
       </div>
     </div>
   );
-};
+}
 
-const Categories = () => {
+function Categories() {
   return (
     <div className="grid grid-cols-2 gap-4">
       {CATEGORIES.slice(0, 6).map((category) => (
-        <Link 
-          key={category.id} 
-          href={`/categories/${category.slug}`}
-          className="flex items-center gap-4 p-3 rounded-2xl hover:bg-black/5 transition-colors group"
+        <Link
+          key={category.id}
+          href={`/shop?category=${category.slug}`}
+          className="group flex items-center gap-4 rounded-2xl p-3 transition-colors hover:bg-black/5"
         >
-          <div className="w-12 h-12 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0">
-            <img src={category.image} alt={category.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+          <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100">
+            <div className="relative h-full w-full">
+              <Image
+                src={category.image}
+                alt={category.name}
+                fill
+                sizes="48px"
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+            </div>
           </div>
           <div>
-            <h4 className="text-sm font-bold group-hover:text-primary transition-colors">{category.name}</h4>
-            <p className="text-xs text-muted-foreground truncate w-40">{category.description}</p>
+            <h4 className="text-sm font-bold transition-colors group-hover:text-primary">
+              {category.name}
+            </h4>
+            <p className="w-40 truncate text-xs text-muted-foreground">
+              {category.description}
+            </p>
           </div>
         </Link>
       ))}
-      <div className="col-span-2 mt-2 text-center border-t border-black/5 pt-4">
-        <Link href="/categories" className="text-xs font-bold uppercase tracking-widest text-primary flex items-center justify-center gap-1 hover:gap-2 transition-all">
+
+      <div className="col-span-2 mt-2 border-t border-black/5 pt-4 text-center">
+        <Link
+          href="/#categories-section"
+          className="inline-flex items-center justify-center gap-1 text-xs font-bold uppercase tracking-widest text-primary transition-all duration-300 hover:gap-2"
+        >
           <span>All Categories</span>
           <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
     </div>
   );
-};
+}
 
-const Brands = () => {
+function BrandsMenu() {
   return (
     <div>
       <div className="grid grid-cols-3 gap-3">
         {BRANDS.map((brand) => (
-          <Link 
+          <Link
             key={brand.id}
-            href={`/brands/${brand.id}`}
-            className="flex flex-col items-center justify-center p-4 rounded-2xl border border-black/5 hover:border-primary/30 hover:bg-primary/5 transition-all group"
+            href={`/shop?brand=${brand.id}`}
+            className="group flex flex-col items-center justify-center rounded-2xl border border-black/5 p-4 transition-all hover:border-primary/30 hover:bg-primary/5"
           >
-            <div className="text-3xl font-black text-gray-300 group-hover:text-primary mb-2 transition-colors">
+            <div className="mb-2 text-3xl font-black text-gray-300 transition-colors group-hover:text-primary">
               {brand.logoText}
             </div>
             <span className="text-xs font-bold">{brand.name}</span>
           </Link>
         ))}
       </div>
+
       <div className="mt-4 text-center">
-        <Link href="/brands" className="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
+        <Link
+          href="/#brands-section"
+          className="text-xs font-bold uppercase tracking-widest text-primary hover:underline"
+        >
           View All Brands
         </Link>
       </div>
     </div>
   );
-};
-
-const TABS = [
-  { title: "Home", href: "/", Component: null },
-  { title: "Shop All", href: "/shop", Component: ShopAll },
-  { title: "Categories", href: "/categories", Component: Categories },
-  { title: "Brands", href: "/brands", Component: Brands },
-  { title: "About", href: "/about", Component: null },
-  { title: "Gallery", href: "/gallery", Component: null },
-  { title: "Contact", href: "/contact", Component: null },
-].map((n, idx) => ({ ...n, id: idx + 1 }));
+}

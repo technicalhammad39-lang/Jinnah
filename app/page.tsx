@@ -1,10 +1,6 @@
-"use client";
-
-import { useApp } from "@/context/AppContext";
 import { PRODUCTS } from "@/data/products";
 import { Navbar } from "@/components/navigation/Navbar";
 import { AnimatedMarqueeHero } from "@/components/hero/AnimatedMarqueeHero";
-import { TrustStrip } from "@/components/sections/TrustStrip";
 import { CategorySection } from "@/components/sections/CategorySection";
 import { ProductCard } from "@/components/products/ProductCard";
 import { ProductShowcase } from "@/components/products/ProductShowcase";
@@ -17,72 +13,53 @@ import { MapSection } from "@/components/sections/MapSection";
 import { ContactSection } from "@/components/sections/ContactSection";
 import { NewsletterCTA } from "@/components/sections/NewsletterCTA";
 import { Footer } from "@/components/navigation/Footer";
-import { SearchOverlay } from "@/components/navigation/SearchOverlay";
-import { CartDrawer } from "@/components/navigation/CartDrawer";
-import { QuickViewModal } from "@/components/products/QuickViewModal";
 import { ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
-  const { cartOpen, searchOpen, quickViewProduct } = useApp();
-
   // Select top 4 products for the Homepage Featured grid
   const featuredProducts = PRODUCTS.slice(0, 4);
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-transparent">
-      
       {/* 1. Global Navigation */}
       <Navbar />
 
       {/* 2. Elite Animated Marquee Hero */}
       <AnimatedMarqueeHero
-        tagline="QUALITY • TRUST • EVERY PROJECT"
-        title="EVERYTHING YOU NEED. BUILT TO LAST."
-        description="Jinnah Hardware Store represents Pakistani elite craftsmanship. Partnering with top-tier global manufacturers, we supply solid forged brass levers, biometric locksets, and high-performance brushless tool kits."
-        ctaText="EXPLORE PRODUCTS"
-        images={[
-          "https://picsum.photos/seed/hwb1/600/800",
-          "https://picsum.photos/seed/hwb2/600/800",
-          "https://picsum.photos/seed/hwb3/600/800",
-          "https://picsum.photos/seed/hwb4/600/800",
-          "https://picsum.photos/seed/hwb5/600/800",
-          "https://picsum.photos/seed/hwb6/600/800",
-          "https://picsum.photos/seed/hwb7/600/800",
-          "https://picsum.photos/seed/hwb8/600/800",
-        ]}
+        tagline="PREMIUM ARCHITECTURAL HARDWARE | TRUSTED ACROSS PAKISTAN"
+        title={"ARCHITECTURAL HARDWARE\nCrafted To Inspire."}
+        description="Discover premium architectural hardware, designer door fittings, smart security solutions, professional tools, and finishing accessories trusted by architects, builders, and homeowners across Pakistan."
+        ctaText="Explore Products"
       />
 
-      {/* 3. Horizontal Trust Banner */}
-      <TrustStrip />
-
-      {/* 4. Shop By Category Bento Layout */}
+      {/* 3. Shop By Category Bento Layout */}
       <CategorySection />
 
-      {/* 5. Featured Products Grid */}
-      <section id="featured-products-section" className="py-24 md:py-32 bg-transparent relative z-10">
-        <div className="absolute top-[30%] left-[5%] w-[35vw] h-[35vw] rounded-full glow-blob-orange opacity-[0.1]" />
-        
-        <div className="max-w-7xl mx-auto px-6">
+      {/* 4. Featured Products Grid */}
+      <section id="featured-products-section" className="relative z-10 bg-transparent py-24 md:py-32">
+        <div className="absolute top-[30%] left-[5%] h-[35vw] w-[35vw] rounded-full glow-blob-orange opacity-[0.1]" />
+
+        <div className="mx-auto max-w-7xl px-6">
           {/* Header */}
-          <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-16 md:mb-20 gap-4">
-            <div className="space-y-4 max-w-2xl text-left">
-              <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+          <div className="mb-16 flex flex-col items-start justify-between gap-4 md:mb-20 md:flex-row md:items-end">
+            <div className="max-w-2xl space-y-4 text-left">
+              <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                 <Sparkles className="h-3.5 w-3.5 text-primary" />
                 <span>Modern Masterpieces</span>
               </div>
-              <h2 className="text-3xl md:text-5xl font-extrabold tracking-tighter text-[#1a1917] uppercase leading-[0.95]">
+              <h2 className="text-3xl font-extrabold uppercase leading-[0.95] tracking-tighter text-[#1a1917] md:text-5xl">
                 Curated <span className="text-primary">Featured Hardware</span>
               </h2>
             </div>
-            
-            <p className="text-sm text-muted-foreground max-w-sm text-left leading-relaxed font-medium">
+
+            <p className="max-w-sm text-left text-sm font-medium leading-relaxed text-muted-foreground">
               Explore our most coveted precision locks, hand-finished brass lever handles, and heavy industrial drills.
             </p>
           </div>
 
           {/* Product Cards Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {featuredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -92,52 +69,44 @@ export default function Home() {
           <div className="mt-14 text-center">
             <Link
               href="/shop"
-              className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#1a1917] hover:bg-primary text-white text-xs font-bold uppercase tracking-widest transition-all duration-300 shadow-md cursor-pointer"
+              className="group inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#1a1917] px-7 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-md transition-all duration-300 hover:bg-primary"
             >
               <span>View All Catalog Innovations</span>
-              <ArrowRight className="h-4 w-4 group-hover:translate-x-1.5 transition-transform" />
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1.5" />
             </Link>
           </div>
         </div>
       </section>
 
-      {/* 6. Advanced Interactive Product Showcase */}
+      {/* 5. Advanced Interactive Product Showcase */}
       <ProductShowcase />
 
-      {/* 7. Brands Column marquee showcase */}
+      {/* 6. Brands Column marquee showcase */}
       <BrandsSection />
 
-      {/* 8. Why Choose Us Core Columns */}
+      {/* 7. Why Choose Us Core Columns */}
       <WhyChooseUs />
 
-      {/* 9. Heritage Story Section */}
+      {/* 8. Heritage Story Section */}
       <AboutSection />
 
-      {/* 10. Real-world project deployments */}
+      {/* 9. Real-world project deployments */}
       <UseCases />
 
-      {/* 11. Custom masonry visual gallery */}
+      {/* 10. Custom masonry visual gallery */}
       <GallerySection />
 
-      {/* 12. Location coordination map */}
+      {/* 11. Location coordination map */}
       <MapSection />
 
-      {/* 13. Dynamic form contacts desk */}
+      {/* 12. Dynamic form contacts desk */}
       <ContactSection />
 
-      {/* 14. Email subscriptions desk */}
+      {/* 13. Email subscriptions desk */}
       <NewsletterCTA />
 
-      {/* 15. Premium Brand Footer */}
+      {/* 14. Premium Brand Footer */}
       <Footer />
-
-      {/* E-Commerce Sidebar Drawers & Overlay modules */}
-      <SearchOverlay />
-      {/* 
-      <CartDrawer />
-      */}
-      <QuickViewModal />
-
     </div>
   );
 }

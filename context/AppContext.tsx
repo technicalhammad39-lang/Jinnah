@@ -1,7 +1,14 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { Product, PRODUCTS } from "@/data/products";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { Product } from "@/data/products";
 
 export interface CartItem {
   product: Product;
@@ -10,89 +17,132 @@ export interface CartItem {
   selectedSize: string;
 }
 
-interface AppContextType {
+interface CartStateContextType {
   cart: CartItem[];
-  wishlist: string[];
-  cartOpen: boolean;
-  searchOpen: boolean;
-  quickViewProduct: Product | null;
-  addToCart: (product: Product, quantity?: number, color?: string, size?: string) => void;
-  removeFromCart: (productId: string, color: string, size: string) => void;
-  updateCartQuantity: (productId: string, color: string, size: string, quantity: number) => void;
-  toggleWishlist: (productId: string) => void;
-  setCartOpen: (open: boolean) => void;
-  setSearchOpen: (open: boolean) => void;
-  setQuickViewProduct: (product: Product | null) => void;
-  clearCart: () => void;
+  cartCount: number;
   cartSubtotal: number;
 }
 
-const AppContext = createContext<AppContextType | undefined>(undefined);
+interface CartActionsContextType {
+  addToCart: (product: Product, quantity?: number, color?: string, size?: string) => void;
+  removeFromCart: (productId: string, color: string, size: string) => void;
+  updateCartQuantity: (productId: string, color: string, size: string, quantity: number) => void;
+  clearCart: () => void;
+}
+
+interface WishlistStateContextType {
+  wishlist: string[];
+  wishlistCount: number;
+}
+
+interface WishlistActionsContextType {
+  toggleWishlist: (productId: string) => void;
+}
+
+interface OverlayStateContextType {
+  cartOpen: boolean;
+  searchOpen: boolean;
+  quickViewProduct: Product | null;
+}
+
+interface OverlayActionsContextType {
+  setCartOpen: (open: boolean) => void;
+  setSearchOpen: (open: boolean) => void;
+  setQuickViewProduct: (product: Product | null) => void;
+}
+
+interface AppContextType
+  extends CartStateContextType,
+    CartActionsContextType,
+    WishlistStateContextType,
+    WishlistActionsContextType,
+    OverlayStateContextType,
+    OverlayActionsContextType {}
+
+const CartStateContext = createContext<CartStateContextType | undefined>(undefined);
+const CartActionsContext = createContext<CartActionsContextType | undefined>(undefined);
+const WishlistStateContext = createContext<WishlistStateContextType | undefined>(undefined);
+const WishlistActionsContext = createContext<WishlistActionsContextType | undefined>(undefined);
+const OverlayStateContext = createContext<OverlayStateContextType | undefined>(undefined);
+const OverlayActionsContext = createContext<OverlayActionsContextType | undefined>(undefined);
+
+const CART_STORAGE_KEY = "jinnah_cart";
+const WISHLIST_STORAGE_KEY = "jinnah_wishlist";
+
+function useRequiredContext<T>(context: React.Context<T | undefined>, name: string) {
+  const value = useContext(context);
+
+  if (!value) {
+    throw new Error(`${name} must be used within an AppProvider`);
+  }
+
+  return value;
+}
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
-  const [cartOpen, setCartOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [cartOpen, setCartOpenState] = useState(false);
+  const [searchOpen, setSearchOpenState] = useState(false);
+  const [quickViewProduct, setQuickViewProductState] = useState<Product | null>(null);
+  const [storageReady, setStorageReady] = useState(false);
 
-  // Load from local storage on mount
   useEffect(() => {
     try {
-      const savedCart = localStorage.getItem("jinnah_cart");
-      const savedWishlist = localStorage.getItem("jinnah_wishlist");
-      setTimeout(() => {
-        if (savedCart) setCart(JSON.parse(savedCart));
-        if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
-      }, 0);
-    } catch (e) {
-      console.error("Error loading local storage state:", e);
+      const savedCart = localStorage.getItem(CART_STORAGE_KEY);
+      const savedWishlist = localStorage.getItem(WISHLIST_STORAGE_KEY);
+
+      if (savedCart) {
+        setCart(JSON.parse(savedCart));
+      }
+
+      if (savedWishlist) {
+        setWishlist(JSON.parse(savedWishlist));
+      }
+    } catch (error) {
+      console.error("Error loading local storage state:", error);
+    } finally {
+      setStorageReady(true);
     }
   }, []);
 
-  // Save to local storage on state changes
   useEffect(() => {
-    try {
-      localStorage.setItem("jinnah_cart", JSON.stringify(cart));
-    } catch (e) {
-      console.error("Error saving cart to local storage:", e);
+    if (!storageReady) {
+      return;
     }
-  }, [cart]);
+
+    try {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+    } catch (error) {
+      console.error("Error saving cart to local storage:", error);
+    }
+  }, [cart, storageReady]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem("jinnah_wishlist", JSON.stringify(wishlist));
-    } catch (e) {
-      console.error("Error saving wishlist to local storage:", e);
+    if (!storageReady) {
+      return;
     }
-  }, [wishlist]);
 
-  const addToCart = (product: Product, quantity = 1, color?: string, size?: string) => {
-    const finalColor = color || product.colors[0] || "Default";
-    const finalSize = size || product.sizes[0] || "Standard";
+    try {
+      localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(wishlist));
+    } catch (error) {
+      console.error("Error saving wishlist to local storage:", error);
+    }
+  }, [wishlist, storageReady]);
 
-    setCart((prev) => {
-      const existingIndex = prev.findIndex(
-        (item) =>
-          item.product.id === product.id &&
-          item.selectedColor === finalColor &&
-          item.selectedSize === finalSize
-      );
+  const setCartOpen = useCallback((open: boolean) => {
+    setCartOpenState(open);
+  }, []);
 
-      if (existingIndex > -1) {
-        const updated = [...prev];
-        updated[existingIndex].quantity += quantity;
-        return updated;
-      }
+  const setSearchOpen = useCallback((open: boolean) => {
+    setSearchOpenState(open);
+  }, []);
 
-      return [...prev, { product, quantity, selectedColor: finalColor, selectedSize: finalSize }];
-    });
-    
-    // Automatically trigger cart open as high-quality feedback
-    setCartOpen(true);
-  };
+  const setQuickViewProduct = useCallback((product: Product | null) => {
+    setQuickViewProductState(product);
+  }, []);
 
-  const removeFromCart = (productId: string, color: string, size: string) => {
+  const removeFromCart = useCallback((productId: string, color: string, size: string) => {
     setCart((prev) =>
       prev.filter(
         (item) =>
@@ -103,64 +153,178 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           )
       )
     );
-  };
+  }, []);
 
-  const updateCartQuantity = (productId: string, color: string, size: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(productId, color, size);
-      return;
-    }
-    setCart((prev) =>
-      prev.map((item) =>
-        item.product.id === productId &&
-        item.selectedColor === color &&
-        item.selectedSize === size
-          ? { ...item, quantity }
-          : item
-      )
-    );
-  };
+  const updateCartQuantity = useCallback(
+    (productId: string, color: string, size: string, quantity: number) => {
+      if (quantity <= 0) {
+        removeFromCart(productId, color, size);
+        return;
+      }
 
-  const toggleWishlist = (productId: string) => {
+      setCart((prev) =>
+        prev.map((item) =>
+          item.product.id === productId &&
+          item.selectedColor === color &&
+          item.selectedSize === size
+            ? { ...item, quantity }
+            : item
+        )
+      );
+    },
+    [removeFromCart]
+  );
+
+  const addToCart = useCallback(
+    (product: Product, quantity = 1, color?: string, size?: string) => {
+      const finalColor = color || product.colors[0] || "Default";
+      const finalSize = size || product.sizes[0] || "Standard";
+
+      setCart((prev) => {
+        const existingIndex = prev.findIndex(
+          (item) =>
+            item.product.id === product.id &&
+            item.selectedColor === finalColor &&
+            item.selectedSize === finalSize
+        );
+
+        if (existingIndex > -1) {
+          const updated = [...prev];
+          updated[existingIndex] = {
+            ...updated[existingIndex],
+            quantity: updated[existingIndex].quantity + quantity,
+          };
+          return updated;
+        }
+
+        return [...prev, { product, quantity, selectedColor: finalColor, selectedSize: finalSize }];
+      });
+
+      setCartOpen(true);
+    },
+    [setCartOpen]
+  );
+
+  const toggleWishlist = useCallback((productId: string) => {
     setWishlist((prev) =>
       prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId]
     );
-  };
+  }, []);
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setCart([]);
-  };
+  }, []);
 
-  const cartSubtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
+  const cartCount = useMemo(
+    () => cart.reduce((sum, item) => sum + item.quantity, 0),
+    [cart]
+  );
+
+  const cartSubtotal = useMemo(
+    () => cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0),
+    [cart]
+  );
+
+  const cartStateValue = useMemo(
+    () => ({
+      cart,
+      cartCount,
+      cartSubtotal,
+    }),
+    [cart, cartCount, cartSubtotal]
+  );
+
+  const cartActionsValue = useMemo(
+    () => ({
+      addToCart,
+      removeFromCart,
+      updateCartQuantity,
+      clearCart,
+    }),
+    [addToCart, removeFromCart, updateCartQuantity, clearCart]
+  );
+
+  const wishlistStateValue = useMemo(
+    () => ({
+      wishlist,
+      wishlistCount: wishlist.length,
+    }),
+    [wishlist]
+  );
+
+  const wishlistActionsValue = useMemo(
+    () => ({
+      toggleWishlist,
+    }),
+    [toggleWishlist]
+  );
+
+  const overlayStateValue = useMemo(
+    () => ({
+      cartOpen,
+      searchOpen,
+      quickViewProduct,
+    }),
+    [cartOpen, searchOpen, quickViewProduct]
+  );
+
+  const overlayActionsValue = useMemo(
+    () => ({
+      setCartOpen,
+      setSearchOpen,
+      setQuickViewProduct,
+    }),
+    [setCartOpen, setSearchOpen, setQuickViewProduct]
+  );
 
   return (
-    <AppContext.Provider
-      value={{
-        cart,
-        wishlist,
-        cartOpen,
-        searchOpen,
-        quickViewProduct,
-        addToCart,
-        removeFromCart,
-        updateCartQuantity,
-        toggleWishlist,
-        setCartOpen,
-        setSearchOpen,
-        setQuickViewProduct,
-        clearCart,
-        cartSubtotal,
-      }}
-    >
-      {children}
-    </AppContext.Provider>
+    <CartStateContext.Provider value={cartStateValue}>
+      <CartActionsContext.Provider value={cartActionsValue}>
+        <WishlistStateContext.Provider value={wishlistStateValue}>
+          <WishlistActionsContext.Provider value={wishlistActionsValue}>
+            <OverlayStateContext.Provider value={overlayStateValue}>
+              <OverlayActionsContext.Provider value={overlayActionsValue}>
+                {children}
+              </OverlayActionsContext.Provider>
+            </OverlayStateContext.Provider>
+          </WishlistActionsContext.Provider>
+        </WishlistStateContext.Provider>
+      </CartActionsContext.Provider>
+    </CartStateContext.Provider>
   );
 }
 
-export function useApp() {
-  const context = useContext(AppContext);
-  if (!context) {
-    throw new Error("useApp must be used within an AppProvider");
-  }
-  return context;
+export function useCartState() {
+  return useRequiredContext(CartStateContext, "useCartState");
+}
+
+export function useCartActions() {
+  return useRequiredContext(CartActionsContext, "useCartActions");
+}
+
+export function useWishlistState() {
+  return useRequiredContext(WishlistStateContext, "useWishlistState");
+}
+
+export function useWishlistActions() {
+  return useRequiredContext(WishlistActionsContext, "useWishlistActions");
+}
+
+export function useOverlayState() {
+  return useRequiredContext(OverlayStateContext, "useOverlayState");
+}
+
+export function useOverlayActions() {
+  return useRequiredContext(OverlayActionsContext, "useOverlayActions");
+}
+
+export function useApp(): AppContextType {
+  return {
+    ...useCartState(),
+    ...useCartActions(),
+    ...useWishlistState(),
+    ...useWishlistActions(),
+    ...useOverlayState(),
+    ...useOverlayActions(),
+  };
 }

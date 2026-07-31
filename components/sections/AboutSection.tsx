@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "motion/react";
 import { ArrowRight, Star, History, Users, Award } from "lucide-react";
 import Link from "next/link";
@@ -40,10 +41,12 @@ export function AboutSection() {
               transition={{ duration: 0.6 }}
               className="absolute left-0 bottom-0 w-[80%] h-[80%] rounded-[32px] overflow-hidden shadow-xl bg-[#efece6] border border-white"
             >
-              <img
+              <Image
                 src="https://picsum.photos/seed/about1/800/800"
                 alt="Jinnah Hardware Store showroom"
-                className="w-full h-full object-cover"
+                fill
+                sizes="(min-width: 1024px) 40vw, 80vw"
+                className="h-full w-full object-cover"
               />
             </motion.div>
 
@@ -55,10 +58,12 @@ export function AboutSection() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="absolute right-0 top-0 w-[60%] h-[60%] rounded-[32px] overflow-hidden shadow-2xl bg-[#efece6] border-4 border-[#faf9f6]"
             >
-              <img
+              <Image
                 src="https://picsum.photos/seed/about2/600/600"
                 alt="Architectural brass handles machined"
-                className="w-full h-full object-cover"
+                fill
+                sizes="(min-width: 1024px) 30vw, 60vw"
+                className="h-full w-full object-cover"
               />
             </motion.div>
 

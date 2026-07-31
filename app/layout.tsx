@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/context/AppContext";
-import { InteractiveBackground } from "@/components/animations/InteractiveBackground";
+import { AppChrome } from "@/components/providers/AppChrome";
 
 const sansFont = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -20,9 +20,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${sansFont.variable} font-sans scroll-smooth`}>
       <body suppressHydrationWarning className="bg-[#faf9f6] text-[#1a1917] antialiased selection:bg-primary/20 selection:text-primary">
         <AppProvider>
-          {/* Custom high-end interactive backgrounds and cursors */}
-          <InteractiveBackground />
           {children}
+          <AppChrome />
         </AppProvider>
       </body>
     </html>

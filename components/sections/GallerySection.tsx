@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { GALLERY_ITEMS } from "@/data/products";
+import Image from "next/image";
 import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -48,10 +49,8 @@ export function GallerySection() {
                 layout
               >
                 {/* Background Image */}
-                <motion.img
-                  src={item.image}
-                  alt={item.title}
-                  className="absolute inset-0 w-full h-full object-cover origin-center"
+                <motion.div
+                  className="absolute inset-0 origin-center"
                   initial={{
                     scale: isActive ? 1 : 1.1,
                     opacity: isActive ? 1 : 0.6,
@@ -61,7 +60,15 @@ export function GallerySection() {
                     opacity: isActive ? 1 : 0.6,
                   }}
                   transition={{ duration: 0.7, ease: [0.32, 0.72, 0, 1] }}
-                />
+                >
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    sizes="(min-width: 1024px) 33vw, 100vw"
+                    className="h-full w-full object-cover"
+                  />
+                </motion.div>
 
                 {/* Gradient Overlay for Text Readability */}
                 <div 

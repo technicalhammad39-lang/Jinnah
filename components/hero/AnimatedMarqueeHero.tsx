@@ -1,230 +1,451 @@
 "use client";
 
-import React, { useRef } from "react";
-import { motion, useScroll, useTransform } from "motion/react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Cormorant_Garamond } from "next/font/google";
+import {
+  motion,
+  useMotionTemplate,
+  useMotionValue,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "motion/react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { ArrowUpRight, MapPin, Store, ChevronRight } from "lucide-react";
-import Link from "next/link";
+import { TrustStrip } from "@/components/sections/TrustStrip";
+import { FloatingHeroActions } from "./FloatingHeroActions";
 
 interface AnimatedMarqueeHeroProps {
   tagline: string;
   title: string;
   description: string;
   ctaText: string;
-  images: string[];
   className?: string;
 }
 
+const DUST_PARTICLES = [
+  { left: "8%", top: "18%", size: 2, duration: 18, delay: 0 },
+  { left: "16%", top: "62%", size: 3, duration: 22, delay: 1.8 },
+  { left: "24%", top: "34%", size: 2, duration: 19, delay: 3.1 },
+  { left: "38%", top: "12%", size: 2, duration: 21, delay: 0.7 },
+  { left: "52%", top: "70%", size: 3, duration: 24, delay: 2.5 },
+  { left: "68%", top: "26%", size: 2, duration: 20, delay: 1.2 },
+  { left: "76%", top: "56%", size: 2, duration: 23, delay: 3.9 },
+  { left: "88%", top: "22%", size: 3, duration: 25, delay: 2.2 },
+];
+
+const emphasisSerif = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  style: ["normal", "italic"],
+});
+
+const WORD_ENTRANCE_EASE = [0.22, 1, 0.36, 1] as const;
+const PRODUCT_REVEAL_EASE = [0.18, 1, 0.3, 1] as const;
+
 export function AnimatedMarqueeHero({
-  tagline = "QUALITY • TRUST • EVERY PROJECT",
-  title = "EVERYTHING YOU NEED. BUILT TO LAST.",
-  description = "A premium, architectural-grade selection of custom hardware, smart security systems, cabinet fittings, and professional power tools for builders, contractors, and elite homes.",
-  ctaText = "EXPLORE PRODUCTS",
-  images = [
-    "https://picsum.photos/seed/hwb1/600/800",
-    "https://picsum.photos/seed/hwb2/600/800",
-    "https://picsum.photos/seed/hwb3/600/800",
-    "https://picsum.photos/seed/hwb4/600/800",
-    "https://picsum.photos/seed/hwb5/600/800",
-    "https://picsum.photos/seed/hwb6/600/800",
-    "https://picsum.photos/seed/hwb7/600/800",
-    "https://picsum.photos/seed/hwb8/600/800",
-  ],
+  tagline = "PREMIUM ARCHITECTURAL HARDWARE | TRUSTED ACROSS PAKISTAN",
+  title = "ARCHITECTURAL HARDWARE\nCrafted To Inspire.",
+  description = "Discover premium architectural hardware, designer door fittings, smart security solutions, professional tools, and finishing accessories trusted by architects, builders, and homeowners across Pakistan.",
+  ctaText: _ctaText = "Explore Products",
   className,
 }: AnimatedMarqueeHeroProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  // Parallax Scroll Effects
-  const { scrollY } = useScroll();
-  const yText = useTransform(scrollY, [0, 500], [0, -70]);
-  const opacityText = useTransform(scrollY, [0, 400], [1, 0]);
-  const scaleMarquee = useTransform(scrollY, [0, 600], [1, 1.05]);
-  const yMarquee = useTransform(scrollY, [0, 600], [0, -30]);
+  const sectionRef = useRef<HTMLElement>(null);
+  const pointerFrameRef = useRef<number | null>(null);
+  const pointerPositionRef = useRef<{ x: number; y: number } | null>(null);
+  const reduceMotion = useReducedMotion();
+  const [canUseParallax, setCanUseParallax] = useState(false);
+  const [glowVisible, setGlowVisible] = useState(false);
+  const instantTransition = { duration: 0 };
+  const entranceDelay = 0.12;
+  const entranceStagger = 0.1;
 
-  // Split title into words
-  const titleWords = title.split(" ");
+  const tiltX = useMotionValue(0);
+  const tiltY = useMotionValue(0);
+  const glowX = useMotionValue(0);
+  const glowY = useMotionValue(0);
+  const glowOpacity = useMotionValue(0);
 
-  const containerVariants = {
-    hidden: {},
-    show: {
-      transition: {
-        staggerChildren: 0.08,
-        delayChildren: 0.1,
-      },
-    },
-  };
+  const smoothTiltX = useSpring(tiltX, { stiffness: 110, damping: 24, mass: 0.42 });
+  const smoothTiltY = useSpring(tiltY, { stiffness: 110, damping: 24, mass: 0.42 });
+  const smoothGlowX = useSpring(glowX, { stiffness: 72, damping: 24, mass: 0.95 });
+  const smoothGlowY = useSpring(glowY, { stiffness: 72, damping: 24, mass: 0.95 });
+  const smoothGlowOpacity = useSpring(glowOpacity, { stiffness: 90, damping: 24, mass: 0.85 });
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    show: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring" as const,
-        stiffness: 100,
-        damping: 18,
-      },
-    },
-  };
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
 
-  const handleVisitStoreClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    const mapSection = document.getElementById("contact-section");
-    if (mapSection) {
-      const offsetTop = mapSection.getBoundingClientRect().top + window.scrollY - 90;
-      window.scrollTo({
-        top: offsetTop,
-        behavior: "smooth",
-      });
+  const contentY = useTransform(scrollYProgress, [0, 0.7], [0, reduceMotion ? 0 : 48]);
+  const contentOpacity = useTransform(
+    scrollYProgress,
+    [0, 0.34, 0.72],
+    [1, 1, reduceMotion ? 1 : 0]
+  );
+  const contentBlur = useTransform(scrollYProgress, [0, 0.42, 0.76], [0, 1.6, 8]);
+  const contentFilter = useMotionTemplate`blur(${contentBlur}px)`;
+  const showcaseY = useTransform(scrollYProgress, [0, 1], [0, reduceMotion ? 0 : -28]);
+  const backgroundY = useTransform(scrollYProgress, [0, 1], [0, reduceMotion ? 0 : -18]);
+  const imageFloatY = useTransform(smoothTiltX, (value) => value * -0.8);
+  const imageFloatX = useTransform(smoothTiltY, (value) => value * 0.7);
+
+  const titleLines = useMemo(
+    () => title.split("\n").map((line) => line.trim()).filter(Boolean),
+    [title]
+  );
+
+  const titleLineData = useMemo(
+    () =>
+      titleLines.reduce<Array<{ words: string[]; startIndex: number }>>((lines, line) => {
+        const words = line.split(" ").filter(Boolean);
+        const previous = lines[lines.length - 1];
+        const startIndex = previous ? previous.startIndex + previous.words.length : 0;
+
+        lines.push({ words, startIndex });
+        return lines;
+      }, []),
+    [titleLines]
+  );
+
+  const titleEmphasisWord = titleLineData.at(-1)?.words.at(-1);
+  const totalTitleWords = titleLineData.reduce((count, line) => count + line.words.length, 0);
+  const descriptionDelay = entranceDelay + (totalTitleWords + 1) * entranceStagger + 0.04;
+  const showcaseRevealDelay = descriptionDelay + 0.28;
+  const tickerRevealDelay = showcaseRevealDelay + 0.22;
+
+  const getEntranceTransition = (delay: number, duration = 0.9) =>
+    reduceMotion
+      ? instantTransition
+      : {
+          duration,
+          ease: WORD_ENTRANCE_EASE,
+          delay,
+        };
+
+  useEffect(() => {
+    const pointerQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    const syncParallaxCapability = () => {
+      setCanUseParallax(pointerQuery.matches && !motionQuery.matches);
+    };
+
+    syncParallaxCapability();
+    pointerQuery.addEventListener("change", syncParallaxCapability);
+    motionQuery.addEventListener("change", syncParallaxCapability);
+
+    return () => {
+      pointerQuery.removeEventListener("change", syncParallaxCapability);
+      motionQuery.removeEventListener("change", syncParallaxCapability);
+
+      if (pointerFrameRef.current !== null) {
+        window.cancelAnimationFrame(pointerFrameRef.current);
+      }
+    };
+  }, []);
+
+  const flushPointerInteraction = () => {
+    pointerFrameRef.current = null;
+
+    if (!canUseParallax || !sectionRef.current || !pointerPositionRef.current) {
+      return;
     }
+
+    const bounds = sectionRef.current.getBoundingClientRect();
+    const { x, y } = pointerPositionRef.current;
+    const localX = x - bounds.left;
+    const localY = y - bounds.top;
+    const normalizedX = localX / bounds.width;
+    const normalizedY = localY / bounds.height;
+
+    tiltX.set((0.5 - normalizedY) * 7);
+    tiltY.set((normalizedX - 0.5) * 10);
+    glowX.set(localX);
+    glowY.set(localY);
   };
 
-  // Duplicate images for infinite loop
-  const duplicatedImages = [...images, ...images, ...images];
+  const handlePointerMove = (event: React.PointerEvent<HTMLElement>) => {
+    if (!canUseParallax) {
+      return;
+    }
+
+    pointerPositionRef.current = {
+      x: event.clientX,
+      y: event.clientY,
+    };
+
+    if (!glowVisible) {
+      setGlowVisible(true);
+    }
+
+    glowOpacity.set(0.1);
+
+    if (pointerFrameRef.current !== null) {
+      return;
+    }
+
+    pointerFrameRef.current = window.requestAnimationFrame(flushPointerInteraction);
+  };
+
+  const handlePointerLeave = () => {
+    if (!canUseParallax) {
+      return;
+    }
+
+    if (pointerFrameRef.current !== null) {
+      window.cancelAnimationFrame(pointerFrameRef.current);
+      pointerFrameRef.current = null;
+    }
+
+    pointerPositionRef.current = null;
+    setGlowVisible(false);
+    glowOpacity.set(0);
+    tiltX.set(0);
+    tiltY.set(0);
+  };
+
+  const resolveWordTone = (
+    lineIndex: number,
+    wordIndex: number,
+    isEmphasisWord: boolean,
+    word: string
+  ) => {
+    if (word.toUpperCase().includes("JINNAH")) {
+      return "text-primary";
+    }
+
+    if (isEmphasisWord) {
+      return "text-[#bc7149]";
+    }
+
+    if (lineIndex === 0) {
+      return wordIndex === 0 ? "text-[#1a1815]" : "text-[#2a2621]";
+    }
+
+    return "text-[#c25d31]";
+  };
 
   return (
-    <section
-      ref={containerRef}
-      className={cn(
-        "relative w-full min-h-screen pt-24 md:pt-32 pb-44 flex flex-col items-center justify-between text-center overflow-hidden bg-transparent",
-        className
-      )}
-    >
-      {/* Visual Depth Accents */}
-      <div className="absolute top-[25%] left-1/2 -translate-x-1/2 w-[55vw] h-[55vw] rounded-full glow-blob-orange opacity-[0.4]" />
-
-      {/* Content Container */}
-      <motion.div
-        style={{ y: yText, opacity: opacityText }}
-        variants={containerVariants}
-        initial="hidden"
-        animate="show"
-        className="relative z-10 w-full max-w-4xl px-6 flex flex-col items-center my-auto"
+    <>
+      <section
+        ref={sectionRef}
+        onPointerMove={canUseParallax ? handlePointerMove : undefined}
+        onPointerLeave={canUseParallax ? handlePointerLeave : undefined}
+        className={cn(
+          "relative isolate flex min-h-[92svh] w-full flex-col overflow-hidden bg-[#f5f2ed] px-4 pt-24 pb-0 text-center sm:px-6 md:px-8 md:pt-28 lg:min-h-screen lg:px-16 xl:px-24 2xl:px-[7.5rem]",
+          className
+        )}
       >
-        {/* Animated Tagline Pill */}
         <motion.div
-          variants={itemVariants}
-          className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4.5 py-1.5 text-[11px] font-extrabold text-primary tracking-widest uppercase shadow-[0_4px_12px_rgba(224,90,43,0.05)]"
+          aria-hidden="true"
+          style={{ y: backgroundY }}
+          className="pointer-events-none absolute inset-0"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-          <span>{tagline}</span>
-        </motion.div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.92),rgba(250,247,242,0.96)_34%,rgba(245,240,233,0.98)_72%,rgba(237,231,222,1)_100%)]" />
+          <div className="architectural-grid absolute inset-0 opacity-60 mix-blend-multiply" />
+          <div className="architectural-grid-fine absolute inset-0 opacity-35 mix-blend-multiply" />
+          <div className="noise-texture absolute inset-0 opacity-100 mix-blend-overlay" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(224,90,43,0.13),transparent_34%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_24%,rgba(33,32,30,0.07),transparent_30%)]" />
+          <div className="glow-blob-orange absolute left-1/2 top-[10%] h-[44rem] w-[44rem] -translate-x-1/2 opacity-70" />
+          <div className="glow-blob-charcoal absolute bottom-[-14rem] left-[-8rem] h-[34rem] w-[34rem] opacity-70" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_52%,rgba(44,34,26,0.12)_100%)]" />
 
-        {/* Headline Word-by-Word Animation */}
-        <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tighter text-foreground uppercase max-w-3xl leading-[0.95] mb-6">
-          {titleWords.map((word, i) => (
-            <motion.div
-              key={i}
-              variants={itemVariants}
-              className={cn(
-                "inline-block mr-3 select-none",
-                word.toLowerCase().includes("last") || word.toLowerCase().includes("need")
-                  ? "text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/80"
-                  : "text-[#1a1917]"
-              )}
-            >
-              {word}
-            </motion.div>
+          {DUST_PARTICLES.map((particle, index) => (
+            <motion.span
+              key={index}
+              aria-hidden="true"
+              className="absolute rounded-full bg-white/65 shadow-[0_0_14px_rgba(255,255,255,0.24)]"
+              style={{
+                left: particle.left,
+                top: particle.top,
+                width: particle.size,
+                height: particle.size,
+              }}
+              animate={
+                reduceMotion
+                  ? undefined
+                  : {
+                      x: [0, 8, 0],
+                      y: [0, -14, 0],
+                      opacity: [0.06, 0.18, 0.06],
+                    }
+              }
+              transition={
+                reduceMotion
+                  ? undefined
+                  : {
+                      duration: particle.duration,
+                      delay: particle.delay,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }
+              }
+            />
           ))}
-        </h1>
 
-        {/* Description */}
-        <motion.p
-          variants={itemVariants}
-          className="max-w-2xl text-sm md:text-base text-muted-foreground leading-relaxed font-medium mb-10"
-        >
-          {description}
-        </motion.p>
+          {canUseParallax && (
+            <motion.div
+              aria-hidden="true"
+              style={{
+                x: smoothGlowX,
+                y: smoothGlowY,
+                opacity: glowVisible ? smoothGlowOpacity : 0,
+              }}
+              className="absolute h-[clamp(22rem,36vw,42rem)] w-[clamp(22rem,36vw,42rem)] will-change-transform"
+            >
+              <div
+                className="absolute inset-0 -translate-x-1/2 -translate-y-1/2 rounded-full blur-[34px]"
+                style={{
+                  background:
+                    "radial-gradient(circle, rgba(224, 90, 43, 0.12) 0%, rgba(224, 90, 43, 0.04) 32%, rgba(224, 90, 43, 0) 72%)",
+                }}
+              />
+            </motion.div>
+          )}
 
-        {/* Action Buttons */}
-        <motion.div
-          variants={itemVariants}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto"
-        >
-          <Link
-            href="/shop"
-            className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-primary hover:bg-primary/95 text-white text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-xl hover:shadow-primary/25 cursor-pointer"
-          >
-            <span>{ctaText}</span>
-            <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
-          </Link>
-
-          <a
-            href="#contact-section"
-            onClick={handleVisitStoreClick}
-            className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full border border-black/10 hover:border-black/25 text-[#1a1917] hover:bg-black/5 text-xs font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer bg-white/40 backdrop-blur-sm"
-          >
-            <Store className="h-4 w-4 text-primary group-hover:scale-110 transition-transform duration-300" />
-            <span>Visit Our Store</span>
-          </a>
-
-          <a
-            href="https://maps.google.com/?q=Jinnah+Hardware+Store"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs font-bold text-muted-foreground hover:text-primary uppercase tracking-wider inline-flex items-center gap-1.5 group cursor-pointer transition-colors"
-          >
-            <MapPin className="h-3.5 w-3.5 text-primary group-hover:translate-y-[-2px] transition-transform" />
-            <span className="border-b border-transparent group-hover:border-primary/30 pb-0.5">
-              Get Directions
-            </span>
-            <ArrowUpRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-all" />
-          </a>
-        </motion.div>
-      </motion.div>
-
-      {/* Interactive, Slanted Horizontal Infinite Image Marquee */}
-      <motion.div
-        style={{ scale: scaleMarquee, y: yMarquee }}
-        className="absolute bottom-4 left-0 w-full h-[220px] md:h-[280px] overflow-hidden pointer-events-auto marquee-mask"
-      >
-        <div className="absolute inset-0 flex items-center">
           <motion.div
-            className="flex gap-6 pl-6 cursor-grab active:cursor-grabbing select-none"
-            initial={{ x: "0%" }}
-            animate={{ x: ["0%", "-33.333%"] }}
-            transition={{
-              ease: "linear",
-              duration: 35,
-              repeat: Infinity,
-            }}
-            whileHover={{ transition: { duration: 55 } }} // Gentle slowdown on hover
+            aria-hidden="true"
+            className="absolute inset-y-0 left-[-30%] w-[42%] bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.5),transparent)] opacity-50 blur-3xl"
+            animate={reduceMotion ? undefined : { x: ["0%", "240%"] }}
+            transition={
+              reduceMotion
+                ? undefined
+                : {
+                    duration: 12,
+                    ease: "linear",
+                    repeat: Infinity,
+                    repeatDelay: 3,
+                  }
+            }
+          />
+        </motion.div>
+
+        <motion.div
+          style={{ y: contentY, opacity: contentOpacity, filter: contentFilter }}
+          className="relative z-20 mx-auto flex w-full max-w-[1740px] flex-1 flex-col items-center justify-center pb-2 sm:pb-3 lg:pb-4 xl:pb-6"
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={getEntranceTransition(entranceDelay, 0.82)}
+            className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-white/70 px-4 py-2 text-[10px] font-extrabold uppercase tracking-[0.32em] text-primary shadow-[0_10px_30px_rgba(224,90,43,0.08)] backdrop-blur-md sm:mb-7 sm:px-5"
           >
-            {duplicatedImages.map((src, index) => {
-              // Mathematical alternating rotators and visual depth offsets
-              const rot = (index % 3 === 0 ? -2.5 : index % 3 === 1 ? 1.5 : -0.5);
-              const heightClass = index % 2 === 0 ? "h-36 md:h-48" : "h-40 md:h-56";
-              
-              return (
-                <motion.div
-                  key={index}
-                  whileHover={{ 
-                    scale: 1.08, 
-                    rotate: `${rot * 0.3}deg`,
-                    y: -10,
-                  }}
-                  transition={{ type: "spring", stiffness: 250, damping: 20 }}
-                  className={cn(
-                    "relative aspect-[3/4] flex-shrink-0 rounded-2xl md:rounded-[24px] overflow-hidden bg-[#efece6] shadow-lg border border-white/40 backdrop-blur-sm group cursor-pointer transition-shadow hover:shadow-2xl hover:shadow-primary/10",
-                    heightClass
-                  )}
-                  style={{ rotate: `${rot}deg` }}
-                  data-cursor="view"
-                >
-                  <img
-                    src={src}
-                    alt={`Hardware showcard ${index + 1}`}
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                    loading="lazy"
-                  />
-                  {/* Subtle brand outline glow */}
-                  <div className="absolute inset-0 border border-transparent group-hover:border-primary/20 rounded-[24px] pointer-events-none transition-colors duration-300" />
-                </motion.div>
-              );
-            })}
+            <span className="h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_12px_rgba(224,90,43,0.65)]" />
+            <span>{tagline}</span>
+          </motion.div>
+
+          <div className="w-full max-w-[92rem] space-y-5 sm:space-y-6 lg:space-y-7">
+            <h1 className="mx-auto max-w-[16ch] text-balance text-[3.1rem] font-black uppercase leading-[0.84] tracking-[-0.052em] sm:text-[4.25rem] md:text-[5rem] lg:max-w-[18ch] lg:text-[5.35rem] xl:max-w-[19ch] xl:text-[6rem] 2xl:text-[6.85rem]">
+              {titleLineData.map((line, lineIndex) => (
+                <span key={lineIndex} className="block overflow-hidden lg:whitespace-nowrap">
+                  {line.words.map((word, wordIndex) => {
+                    const isEmphasisWord =
+                      lineIndex === titleLineData.length - 1 &&
+                      wordIndex === line.words.length - 1 &&
+                      word === titleEmphasisWord;
+                    const delay =
+                      entranceDelay + (line.startIndex + wordIndex + 1) * entranceStagger;
+
+                    return (
+                      <motion.span
+                        key={`${lineIndex}-${wordIndex}-${word}`}
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={getEntranceTransition(delay)}
+                        className={cn(
+                          "inline-block align-top",
+                          resolveWordTone(lineIndex, wordIndex, isEmphasisWord, word),
+                          isEmphasisWord &&
+                            cn(
+                              emphasisSerif.className,
+                              "align-baseline pl-[0.02em] font-semibold italic normal-case tracking-[-0.038em]"
+                            ),
+                          wordIndex < line.words.length - 1 ? "mr-[0.16em] lg:mr-[0.17em]" : ""
+                        )}
+                      >
+                        {word}
+                      </motion.span>
+                    );
+                  })}
+                </span>
+              ))}
+            </h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={getEntranceTransition(descriptionDelay, 0.92)}
+              className="mx-auto max-w-[58rem] px-2 text-sm font-medium leading-7 text-muted-foreground sm:text-base sm:leading-8 md:text-[1.08rem] lg:text-[1.16rem]"
+            >
+              {description}
+            </motion.p>
+          </div>
+        </motion.div>
+
+        <div className="relative z-10 -mt-[clamp(2.75rem,7vw,6.75rem)] w-full overflow-visible">
+          <motion.div
+            initial={{
+              opacity: 0,
+              y: 118,
+              scale: 1.03,
+              filter: "blur(18px)",
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              filter: "blur(0px)",
+            }}
+            transition={
+              reduceMotion
+                ? instantTransition
+                : {
+                    duration: 1.28,
+                    ease: PRODUCT_REVEAL_EASE,
+                    delay: showcaseRevealDelay,
+                  }
+            }
+            className="relative left-1/2 z-10 w-screen -translate-x-1/2 overflow-visible"
+          >
+            <motion.div
+              style={{
+                y: imageFloatY,
+                x: imageFloatX,
+                rotateX: smoothTiltX,
+                rotateY: smoothTiltY,
+                perspective: "1600px",
+              }}
+              className="relative left-1/2 w-[104vw] max-w-none -translate-x-1/2 will-change-transform"
+            >
+              <motion.div style={{ y: showcaseY }} className="relative">
+                <Image
+                  src="/hero-bottom.png"
+                  alt="Premium hardware showcase featuring a smart lock, precision hinge, professional drill, brass lever, and finish samples."
+                  width={1899}
+                  height={705}
+                  priority
+                  sizes="100vw"
+                  className="block h-auto w-full select-none object-contain"
+                />
+              </motion.div>
+            </motion.div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={getEntranceTransition(tickerRevealDelay, 0.85)}
+            className="relative left-1/2 z-30 -mt-[clamp(0.875rem,3vw,3rem)] w-screen -translate-x-1/2"
+          >
+            <TrustStrip />
           </motion.div>
         </div>
-      </motion.div>
-    </section>
+      </section>
+
+      <FloatingHeroActions />
+    </>
   );
 }

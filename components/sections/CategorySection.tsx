@@ -1,6 +1,7 @@
 "use client";
 
 import { CATEGORIES } from "@/data/products";
+import Image from "next/image";
 import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
@@ -50,10 +51,12 @@ export function CategorySection() {
               <Link href={`/shop?category=${category.slug}`} className="block w-full h-full relative">
                 {/* Image overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-10" />
-                <img
+                <Image
                   src={category.image}
                   alt={category.name}
-                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  fill
+                  sizes="(min-width: 768px) 50vw, 100vw"
+                  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                 />
 
                 {/* Content */}

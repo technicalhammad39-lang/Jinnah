@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { ArrowRight, Sparkles, Send, CheckCircle2, Loader2, Store } from "lucide-react";
 import Link from "next/link";
@@ -9,17 +9,31 @@ export function NewsletterCTA() {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const submitTimerRef = useRef<number | null>(null);
+  const resetTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (submitTimerRef.current !== null) {
+        window.clearTimeout(submitTimerRef.current);
+      }
+
+      if (resetTimerRef.current !== null) {
+        window.clearTimeout(resetTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
 
     setIsSubmitting(true);
-    setTimeout(() => {
+    submitTimerRef.current = window.setTimeout(() => {
       setIsSubmitting(false);
       setIsSuccess(true);
       setEmail("");
-      setTimeout(() => setIsSuccess(false), 5000);
+      resetTimerRef.current = window.setTimeout(() => setIsSuccess(false), 5000);
     }, 1000);
   };
 

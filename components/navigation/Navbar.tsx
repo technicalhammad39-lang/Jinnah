@@ -1,173 +1,205 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useApp } from "@/context/AppContext";
-import { motion, AnimatePresence } from "motion/react";
-import { 
-  Search, Heart, ShoppingCart, User, PhoneCall, Menu, X, ArrowRight, MapPin
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useCartState, useOverlayActions } from "@/context/AppContext";
+import { AnimatePresence, motion } from "motion/react";
+import {
+  ArrowRight,
+  Menu,
+  PhoneCall,
+  Search,
+  ShoppingCart,
+  User,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { DesktopMenu } from "./DesktopMenu";
 
+const NAV_LINKS = [
+  { name: "Home", href: "/", isSection: false },
+  { name: "Shop All", href: "/shop", isSection: false },
+  { name: "Categories", href: "#categories-section", isSection: true },
+  { name: "Brands", href: "#brands-section", isSection: true },
+  { name: "About", href: "#about-section", isSection: true },
+  { name: "Gallery", href: "#gallery-section", isSection: true },
+  { name: "Contact", href: "#contact-section", isSection: true },
+] as const;
+
 export function Navbar() {
-  const { cart, wishlist, setCartOpen, setSearchOpen } = useApp();
+  const { cartCount } = useCartState();
+  const { setCartOpen, setSearchOpen } = useOverlayActions();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const isElevated = scrolled || pathname !== "/";
+  const scrollStateRef = useRef(scrolled);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
+    let frameId = 0;
+
+    const updateScrollState = () => {
+      frameId = 0;
+      const nextScrolled = window.scrollY > 20;
+
+      if (scrollStateRef.current !== nextScrolled) {
+        scrollStateRef.current = nextScrolled;
+        setScrolled(nextScrolled);
       }
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    updateScrollState();
+
+    const handleScroll = () => {
+      if (frameId !== 0) {
+        return;
+      }
+
+      frameId = window.requestAnimationFrame(updateScrollState);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      if (frameId !== 0) {
+        window.cancelAnimationFrame(frameId);
+      }
+
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
-  const totalCartItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const totalWishlistItems = wishlist.length;
-
-  const navLinks = [
-    { name: "Home", href: "/", isSection: false },
-    { name: "Shop All", href: "/shop", isSection: false },
-    { name: "Categories", href: "#categories-section", isSection: true },
-    { name: "Brands", href: "#brands-section", isSection: true },
-    { name: "About", href: "#about-section", isSection: true },
-    { name: "Gallery", href: "#gallery-section", isSection: true },
-    { name: "Contact", href: "#contact-section", isSection: true },
-  ];
-
-  const handleNavClick = (e: React.MouseEvent, item: { name: string; href: string; isSection: boolean }) => {
-    if (item.isSection) {
-      e.preventDefault();
-      setMobileMenuOpen(false);
-      
-      if (pathname !== "/") {
-        // If not on homepage, navigate to homepage with hash
-        router.push("/" + item.href);
-      } else {
-        // Smooth scroll on homepage
-        const targetId = item.href.substring(1);
-        const targetEl = document.getElementById(targetId);
-        if (targetEl) {
-          const offsetTop = targetEl.getBoundingClientRect().top + window.scrollY - 90;
-          window.scrollTo({
-            top: offsetTop,
-            behavior: "smooth",
-          });
-        }
-      }
-    } else {
-      setMobileMenuOpen(false);
+  useEffect(() => {
+    if (!mobileMenuOpen) {
+      return;
     }
-  };
+
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [mobileMenuOpen]);
+
+  const handleNavClick = useCallback(
+    (event: React.MouseEvent, item: (typeof NAV_LINKS)[number]) => {
+      if (item.isSection) {
+        event.preventDefault();
+        setMobileMenuOpen(false);
+
+        if (pathname !== "/") {
+          router.push("/" + item.href);
+          return;
+        }
+
+        const targetId = item.href.substring(1);
+        const targetElement = document.getElementById(targetId);
+
+        if (!targetElement) {
+          return;
+        }
+
+        const offsetTop = targetElement.getBoundingClientRect().top + window.scrollY - 90;
+        window.scrollTo({
+          top: offsetTop,
+          behavior: "smooth",
+        });
+
+        return;
+      }
+
+      setMobileMenuOpen(false);
+    },
+    [pathname, router]
+  );
 
   return (
     <>
       <motion.header
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-          isElevated 
-            ? "py-3 px-4 md:px-8" 
-            : "py-5 px-4 md:px-12"
+        transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
+        className={`fixed top-0 left-0 right-0 z-40 transition-[padding] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          isElevated ? "px-4 py-3 md:px-8" : "px-4 py-5 md:px-12"
         }`}
       >
-        <div 
-          className={`max-w-7xl mx-auto rounded-full border transition-all duration-500 flex items-center justify-between px-6 py-2.5 md:py-3.5 ${
+        <div
+          className={`relative mx-auto flex max-w-7xl items-center justify-between rounded-full border px-5 py-2.5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:px-6 md:py-3 ${
             isElevated
-              ? "bg-[#faf9f6]/92 backdrop-blur-xl shadow-[0_16px_40px_rgba(26,25,23,0.08)] border-black/10"
-              : "bg-[#faf9f6]/72 backdrop-blur-lg shadow-[0_10px_24px_rgba(26,25,23,0.05)] border-black/6"
+              ? "border-white/55 bg-white/58 shadow-[0_22px_60px_rgba(26,25,23,0.1)] backdrop-blur-xl"
+              : "border-white/70 bg-white/76 shadow-[0_14px_36px_rgba(26,25,23,0.07)] backdrop-blur-lg"
           }`}
         >
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm shadow-md shadow-primary/20 group-hover:scale-105 transition-all duration-300">
+          <div
+            aria-hidden="true"
+            className={`pointer-events-none absolute inset-px rounded-full transition-opacity duration-500 ${
+              isElevated ? "opacity-100" : "opacity-80"
+            }`}
+          >
+            <div className="absolute inset-0 rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(255,255,255,0.22))]" />
+            <div className="absolute inset-x-[16%] top-0 h-px rounded-full bg-white/70 blur-[0.5px]" />
+          </div>
+
+          <Link href="/" className="relative z-10 group flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white shadow-[0_10px_22px_rgba(224,90,43,0.28)] transition-transform duration-300 group-hover:scale-105">
               J
             </div>
             <div className="flex flex-col">
-              <span className="font-extrabold text-sm md:text-base tracking-tight text-[#1a1917] leading-tight">
+              <span className="text-sm font-extrabold leading-tight tracking-tight text-[#1a1917] md:text-base">
                 JINNAH
               </span>
-              <span className="text-[9px] md:text-[10px] font-bold text-primary tracking-widest leading-none">
+              <span className="text-[9px] font-bold leading-none tracking-widest text-primary md:text-[10px]">
                 HARDWARE STORE
               </span>
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex flex-1 items-center justify-center">
+          <nav className="hidden flex-1 items-center justify-center px-4 lg:flex">
             <DesktopMenu />
           </nav>
 
-          {/* Right Side Actions */}
-          <div className="flex items-center gap-1 md:gap-2.5">
-            {/* Search Icon */}
+          <div className="relative z-10 flex items-center gap-0.5 md:gap-1.5">
             <button
               onClick={() => setSearchOpen(true)}
-              className="p-2 rounded-full hover:bg-black/5 text-[#1a1917] hover:text-primary transition-all duration-200 cursor-pointer"
+              className="cursor-pointer rounded-full p-2 text-[#1a1917] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:bg-black/[0.045] hover:text-primary"
               title="Search"
             >
               <Search className="h-4.5 w-4.5 md:h-5 md:w-5" />
             </button>
 
-            {/* Wishlist Link */}
-            <Link
-              href="/shop?tab=wishlist"
-              className="p-2 rounded-full hover:bg-black/5 text-[#1a1917] hover:text-primary transition-all duration-200 relative"
-              title="Wishlist"
-            >
-              <Heart className="h-4.5 w-4.5 md:h-5 md:w-5" />
-              {totalWishlistItems > 0 && (
-                <span className="absolute top-0.5 right-0.5 h-4 w-4 rounded-full bg-primary text-white text-[9px] font-extrabold flex items-center justify-center animate-pulse">
-                  {totalWishlistItems}
-                </span>
-              )}
-            </Link>
-
-            {/* Cart Button */}
             <button
               onClick={() => setCartOpen(true)}
-              className="p-2 rounded-full hover:bg-black/5 text-[#1a1917] hover:text-primary transition-all duration-200 relative cursor-pointer"
+              className="relative cursor-pointer rounded-full p-2 text-[#1a1917] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:bg-black/[0.045] hover:text-primary"
               title="Cart"
             >
               <ShoppingCart className="h-4.5 w-4.5 md:h-5 md:w-5" />
-              {totalCartItems > 0 && (
-                <span className="absolute top-0.5 right-0.5 h-4 w-4 rounded-full bg-primary text-white text-[9px] font-extrabold flex items-center justify-center">
-                  {totalCartItems}
+              {cartCount > 0 && (
+                <span className="absolute top-0.5 right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-extrabold text-white">
+                  {cartCount}
                 </span>
               )}
             </button>
 
-            {/* Account Icon */}
             <Link
               href="/shop?tab=account"
-              className="p-2 rounded-full hover:bg-black/5 text-[#1a1917] hover:text-primary transition-all duration-200 hidden sm:inline-flex"
+              className="hidden rounded-full p-2 text-[#1a1917] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:bg-black/[0.045] hover:text-primary sm:inline-flex"
               title="Account"
             >
               <User className="h-4.5 w-4.5 md:h-5 md:w-5" />
             </Link>
 
-            {/* Call Now Button */}
             <a
               href="tel:03000421772"
-              className="hidden md:inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-white text-[10px] font-bold uppercase tracking-wider hover:bg-primary/95 hover:shadow-lg hover:shadow-primary/20 transition-all cursor-pointer"
+              className="hidden cursor-pointer items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-white shadow-[0_14px_26px_rgba(224,90,43,0.22)] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:bg-primary/95 hover:shadow-[0_18px_34px_rgba(224,90,43,0.26)] md:inline-flex"
             >
               <PhoneCall className="h-3 w-3" />
               <span>Call Now</span>
             </a>
 
-            {/* Mobile Hamburger Toggle */}
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="p-2 rounded-full hover:bg-black/5 text-[#1a1917] lg:hidden cursor-pointer"
+              className="cursor-pointer rounded-full p-2 text-[#1a1917] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-black/[0.045] lg:hidden"
               title="Open Menu"
             >
               <Menu className="h-5 w-5" />
@@ -176,7 +208,6 @@ export function Navbar() {
         </div>
       </motion.header>
 
-      {/* Mobile Fullscreen Navigation Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -184,58 +215,55 @@ export function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-[#faf9f6]/98 backdrop-blur-xl flex flex-col p-6 lg:hidden"
+            className="fixed inset-0 z-50 flex flex-col bg-[#faf9f6]/92 p-6 backdrop-blur-2xl lg:hidden"
           >
-            {/* Mobile Header */}
-            <div className="flex items-center justify-between py-4 border-b border-black/5">
+            <div className="flex items-center justify-between border-b border-black/5 py-4">
               <Link href="/" className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
-                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
                   J
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-extrabold text-sm tracking-tight text-[#1a1917] leading-tight">
+                  <span className="text-sm font-extrabold leading-tight tracking-tight text-[#1a1917]">
                     JINNAH
                   </span>
-                  <span className="text-[9px] font-bold text-primary tracking-widest leading-none">
+                  <span className="text-[9px] font-bold leading-none tracking-widest text-primary">
                     HARDWARE STORE
                   </span>
                 </div>
               </Link>
               <button
                 onClick={() => setMobileMenuOpen(false)}
-                className="p-2 rounded-full hover:bg-black/5 text-[#1a1917] cursor-pointer"
+                className="cursor-pointer rounded-full p-2 text-[#1a1917] transition-colors duration-300 hover:bg-black/[0.045]"
               >
                 <X className="h-6 w-6" />
               </button>
             </div>
 
-            {/* Nav Links List */}
-            <div className="flex-grow flex flex-col justify-center space-y-4 md:space-y-6 my-8">
-              {navLinks.map((link, idx) => (
+            <div className="my-8 flex flex-grow flex-col justify-center space-y-4 md:space-y-6">
+              {NAV_LINKS.map((link, index) => (
                 <motion.div
+                  key={link.name}
                   initial={{ x: -20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: idx * 0.05 }}
-                  key={link.name}
+                  transition={{ delay: index * 0.05, duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
                 >
                   <Link
                     href={link.href}
-                    onClick={(e) => handleNavClick(e, link)}
-                    className="text-2xl md:text-4xl font-extrabold text-foreground hover:text-primary transition-all duration-200 flex items-center justify-between group"
+                    onClick={(event) => handleNavClick(event, link)}
+                    className="group flex items-center justify-between text-2xl font-extrabold text-foreground transition-colors duration-300 hover:text-primary md:text-4xl"
                   >
                     <span>{link.name}</span>
-                    <ArrowRight className="h-6 w-6 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-primary" />
+                    <ArrowRight className="h-6 w-6 -translate-x-4 text-primary opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100" />
                   </Link>
                 </motion.div>
               ))}
             </div>
 
-            {/* Mobile Footer Area */}
-            <div className="border-t border-black/5 pt-6 space-y-4">
-              <div className="flex justify-around items-center">
+            <div className="space-y-4 border-t border-black/5 pt-6">
+              <div className="flex items-center justify-around">
                 <a
                   href="tel:03000421772"
-                  className="flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-white text-xs font-bold uppercase tracking-widest shadow-md shadow-primary/20 w-full justify-center"
+                  className="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-xs font-bold uppercase tracking-widest text-white shadow-md shadow-primary/20"
                 >
                   <PhoneCall className="h-4 w-4" />
                   <span>Call 0300-0421772</span>

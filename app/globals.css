@@ -124,6 +124,36 @@ body {
   mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
 }
 
+@keyframes trustStripMarquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.trust-strip-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  animation: trustStripMarquee var(--marquee-duration, 22s) linear infinite;
+}
+
+.trust-strip-group {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 3rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trust-strip-track {
+    animation: none;
+  }
+}
+
 .vertical-text-reveal {
   overflow: hidden;
   display: block;

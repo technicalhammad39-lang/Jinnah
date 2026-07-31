@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   Send, Phone, MessageSquare, Clock, MapPin, CheckCircle2, Loader2, ArrowRight
@@ -16,6 +16,20 @@ export function ContactSection() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const submitTimerRef = useRef<number | null>(null);
+  const resetTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (submitTimerRef.current !== null) {
+        window.clearTimeout(submitTimerRef.current);
+      }
+
+      if (resetTimerRef.current !== null) {
+        window.clearTimeout(resetTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,11 +39,11 @@ export function ContactSection() {
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
+    submitTimerRef.current = window.setTimeout(() => {
       setIsSubmitting(false);
       setIsSuccess(true);
       setFormData({ name: "", email: "", phone: "", message: "" });
-      setTimeout(() => setIsSuccess(false), 5000);
+      resetTimerRef.current = window.setTimeout(() => setIsSuccess(false), 5000);
     }, 1200);
   };
 
