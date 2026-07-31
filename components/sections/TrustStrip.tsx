@@ -16,11 +16,11 @@ export function TrustStrip() {
   const repeatedWords = [...words, ...words, ...words, ...words];
 
   return (
-    <div className="relative w-full py-5 md:py-7 bg-primary text-white overflow-hidden border-y border-white/10 z-10 shadow-[0_4px_30px_rgba(224,90,43,0.15)]">
+    <div className="relative z-10 w-full overflow-hidden border-y border-black/5 bg-primary py-5 text-primary-foreground shadow-[0_12px_30px_rgba(224,90,43,0.22)] marquee-mask md:py-7">
       {/* Absolute slide container */}
       <div className="flex whitespace-nowrap">
         <motion.div
-          className="flex gap-12 md:gap-16 items-center"
+          className="flex items-center gap-12 px-6 md:gap-16"
           initial={{ x: "0%" }}
           animate={{ x: ["0%", "-50%"] }}
           transition={{
@@ -33,11 +33,11 @@ export function TrustStrip() {
             const IconComponent = item.icon;
             return (
               <div key={idx} className="flex items-center gap-2.5 md:gap-3.5 flex-shrink-0">
-                <IconComponent className="h-4 w-4 md:h-5 md:w-5 text-white/70" />
-                <span className="text-[11px] md:text-xs font-extrabold tracking-widest uppercase text-white leading-none">
+                <IconComponent className="h-4 w-4 text-white/85 md:h-5 md:w-5" />
+                <span className="text-[11px] font-extrabold leading-none tracking-widest text-white uppercase md:text-xs">
                   {item.text}
                 </span>
-                <span className="w-1.5 h-1.5 rounded-full bg-white/40 block ml-4 md:ml-6" />
+                <span className="ml-4 block h-1.5 w-1.5 rounded-full bg-white/60 md:ml-6" />
               </div>
             );
           })}

@@ -16,6 +16,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  const isElevated = scrolled || pathname !== "/";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -74,16 +75,16 @@ export function Navbar() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-          scrolled 
+          isElevated 
             ? "py-3 px-4 md:px-8" 
             : "py-5 px-4 md:px-12"
         }`}
       >
         <div 
           className={`max-w-7xl mx-auto rounded-full border transition-all duration-500 flex items-center justify-between px-6 py-2.5 md:py-3.5 ${
-            scrolled 
-              ? "bg-[#faf9f6]/80 backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.03)] border-black/5" 
-              : "bg-transparent border-transparent"
+            isElevated
+              ? "bg-[#faf9f6]/92 backdrop-blur-xl shadow-[0_16px_40px_rgba(26,25,23,0.08)] border-black/10"
+              : "bg-[#faf9f6]/72 backdrop-blur-lg shadow-[0_10px_24px_rgba(26,25,23,0.05)] border-black/6"
           }`}
         >
           {/* Logo */}

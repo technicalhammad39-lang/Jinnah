@@ -16,6 +16,7 @@ export const DesktopMenu = () => {
 
 const Tabs = () => {
   const [selected, setSelected] = useState<number | null>(null);
+  const [hoveredTab, setHoveredTab] = useState<number | null>(null);
   const [dir, setDir] = useState<"l" | "r" | null>(null);
   const [position, setPosition] = useState({ left: 0, width: 0, opacity: 0 });
 
@@ -32,15 +33,18 @@ const Tabs = () => {
     <div 
       onMouseLeave={() => {
         handleSetSelected(null);
+        setHoveredTab(null);
         setPosition((pv) => ({ ...pv, opacity: 0 }));
       }} 
-      className="relative flex h-fit gap-1 items-center bg-white/60 backdrop-blur-xl rounded-full p-1.5 border border-black/5 shadow-[0_8px_30px_rgba(0,0,0,0.04)]"
+      className="relative flex h-fit gap-1 items-center rounded-full border border-black/10 bg-white/90 p-1.5 shadow-[0_12px_30px_rgba(26,25,23,0.08)] backdrop-blur-xl"
     >
       {TABS.map((t) => (
         <Tab 
           key={t.id} 
+          hoveredTab={hoveredTab}
           selected={selected} 
           handleSetSelected={handleSetSelected} 
+          setHoveredTab={setHoveredTab}
           tab={t.id}
           setPosition={setPosition}
           href={t.href}
@@ -59,14 +63,17 @@ const Tabs = () => {
 
 const Tab = ({ 
   children, 
+  hoveredTab,
   tab, 
   handleSetSelected, 
   selected,
   setPosition,
+  setHoveredTab,
   href
 }: any) => {
   const ref = useRef<HTMLAnchorElement>(null);
   const hasDropdown = tab === 2 || tab === 3 || tab === 4;
+  const isHighlighted = hoveredTab === tab;
 
   return (
     <Link
@@ -74,6 +81,7 @@ const Tab = ({
       ref={ref}
       id={`shift-tab-${tab}`}
       onMouseEnter={() => {
+        setHoveredTab(tab);
         handleSetSelected(hasDropdown ? tab : null);
         if (!ref?.current) return;
         const { width } = ref.current.getBoundingClientRect();
@@ -85,12 +93,12 @@ const Tab = ({
         }
       }}
       className={`relative z-10 flex items-center gap-1 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-widest transition-colors ${
-        selected === tab ? "text-white" : "text-black/70 hover:text-black"
+        isHighlighted || selected === tab ? "text-white" : "text-[#3f3932] hover:text-primary"
       }`}
     >
-      <span className="relative z-10 mix-blend-exclusion text-white">{children}</span>
+      <span className="relative z-10">{children}</span>
       {hasDropdown && (
-        <ChevronDown className={`relative z-10 mix-blend-exclusion text-white transition-transform duration-300 ${selected === tab ? "rotate-180" : ""}`} />
+        <ChevronDown className={`relative z-10 transition-transform duration-300 ${selected === tab ? "rotate-180" : ""}`} />
       )}
     </Link>
   );
@@ -101,7 +109,7 @@ const Cursor = ({ position }: { position: any }) => {
     <motion.div
       initial={{ left: 0, width: 0, opacity: 0 }}
       animate={{ ...position }}
-      className="absolute z-0 h-[34px] rounded-full bg-[#1a1917]"
+      className="absolute z-0 h-[34px] rounded-full bg-[#1f1b17] shadow-[0_10px_22px_rgba(26,25,23,0.16)]"
       transition={{ type: "spring", stiffness: 400, damping: 30 }}
     />
   );
@@ -115,7 +123,7 @@ const Content = ({ selected, dir }: { selected: number; dir: "l" | "r" | null })
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 12 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
-      className="absolute left-1/2 top-[calc(100%+16px)] w-[600px] -translate-x-1/2 rounded-3xl border border-black/5 bg-white/95 backdrop-blur-2xl p-6 shadow-2xl"
+      className="absolute left-1/2 top-[calc(100%+16px)] w-[600px] -translate-x-1/2 rounded-3xl border border-black/10 bg-[#fcfbf8]/95 p-6 shadow-2xl backdrop-blur-2xl"
     >
       <Bridge />
       <Nub selected={selected} />
@@ -171,7 +179,7 @@ const Nub = ({ selected }: { selected: number }) => {
       initial={{ left: left }}
       animate={{ left: left }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
-      className="absolute top-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-tl border-l border-t border-black/5 bg-white"
+      className="absolute top-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-tl border-l border-t border-black/10 bg-[#fcfbf8]"
     />
   );
 };

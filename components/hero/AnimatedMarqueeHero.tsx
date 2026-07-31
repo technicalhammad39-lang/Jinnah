@@ -200,7 +200,7 @@ export function AnimatedMarqueeHero({
                   key={index}
                   whileHover={{ 
                     scale: 1.08, 
-                    rotate: rot * 0.3,
+                    rotate: `${rot * 0.3}deg`,
                     y: -10,
                   }}
                   transition={{ type: "spring", stiffness: 250, damping: 20 }}

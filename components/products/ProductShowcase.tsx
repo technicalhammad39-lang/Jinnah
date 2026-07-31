@@ -73,7 +73,7 @@ export function ProductShowcase() {
           </p>
 
           {/* Toggle buttons */}
-          <div className="inline-flex p-1.5 rounded-full bg-black/5 border border-black/[0.03] backdrop-blur-sm mt-4">
+          <div className="mt-4 inline-flex rounded-full border border-black/10 bg-[#f1ece4]/90 p-1.5 shadow-[0_8px_20px_rgba(26,25,23,0.05)] backdrop-blur-sm">
             <button
               onClick={() => {
                 setActiveProduct(featuredProduct);
@@ -81,8 +81,8 @@ export function ProductShowcase() {
               }}
               className={`px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
                 activeProduct.id === "prod-1"
-                  ? "bg-white text-primary shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "border border-black/5 bg-white text-[#1a1917] shadow-sm"
+                  : "text-[#655d54] hover:bg-white/70 hover:text-[#1a1917]"
               }`}
             >
               Aurum Brass Lever
@@ -94,8 +94,8 @@ export function ProductShowcase() {
               }}
               className={`px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
                 activeProduct.id === "prod-2"
-                  ? "bg-white text-primary shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "border border-black/5 bg-white text-[#1a1917] shadow-sm"
+                  : "text-[#655d54] hover:bg-white/70 hover:text-[#1a1917]"
               }`}
             >
               Krypter Smart Mortise

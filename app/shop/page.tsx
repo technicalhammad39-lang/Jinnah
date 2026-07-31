@@ -108,11 +108,13 @@ function ShopContent() {
           </div>
 
           {/* Sub-tabs switches */}
-          <div className="flex bg-black/5 p-1 rounded-full border border-black/[0.03] backdrop-blur-sm">
+          <div className="flex rounded-full border border-black/10 bg-[#f1ece4]/90 p-1 shadow-[0_8px_20px_rgba(26,25,23,0.05)] backdrop-blur-sm">
             <button
               onClick={() => setActiveTab("products")}
               className={`px-4.5 py-2 rounded-full text-[11px] font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
-                activeTab === "products" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
+                activeTab === "products"
+                  ? "border border-black/5 bg-white text-[#1a1917] shadow-sm"
+                  : "text-[#655d54] hover:bg-white/70 hover:text-[#1a1917]"
               }`}
             >
               <ShoppingBag className="h-3.5 w-3.5" />
@@ -121,7 +123,9 @@ function ShopContent() {
             <button
               onClick={() => setActiveTab("wishlist")}
               className={`px-4.5 py-2 rounded-full text-[11px] font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
-                activeTab === "wishlist" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
+                activeTab === "wishlist"
+                  ? "border border-black/5 bg-white text-[#1a1917] shadow-sm"
+                  : "text-[#655d54] hover:bg-white/70 hover:text-[#1a1917]"
               }`}
             >
               <Heart className="h-3.5 w-3.5" />
@@ -130,7 +134,9 @@ function ShopContent() {
             <button
               onClick={() => setActiveTab("account")}
               className={`px-4.5 py-2 rounded-full text-[11px] font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
-                activeTab === "account" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
+                activeTab === "account"
+                  ? "border border-black/5 bg-white text-[#1a1917] shadow-sm"
+                  : "text-[#655d54] hover:bg-white/70 hover:text-[#1a1917]"
               }`}
             >
               <User className="h-3.5 w-3.5" />
@@ -146,7 +152,7 @@ function ShopContent() {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
             
             {/* Desktop Filters Sidebar (Col 1) */}
-            <div className="lg:col-span-1 space-y-7 bg-white/50 backdrop-blur-md p-6 rounded-3xl border border-black/5 text-left sticky top-28">
+            <div className="lg:col-span-1 sticky top-28 space-y-7 rounded-3xl border border-black/10 bg-white/85 p-6 text-left shadow-[0_16px_32px_rgba(26,25,23,0.05)] backdrop-blur-md">
               <div className="flex items-center justify-between pb-4 border-b border-black/5">
                 <div className="flex items-center gap-2">
                   <SlidersHorizontal className="h-4 w-4 text-primary" />
@@ -182,8 +188,8 @@ function ShopContent() {
                       onClick={() => setSelectedCategory(cat)}
                       className={`text-xs text-left font-bold py-1.5 px-2.5 rounded-lg transition-colors cursor-pointer ${
                         selectedCategory === cat
-                          ? "bg-primary/10 text-primary"
-                          : "text-muted-foreground hover:bg-black/5 hover:text-foreground"
+                          ? "bg-primary/12 text-primary"
+                          : "text-[#5f5850] hover:bg-[#f3eee7] hover:text-[#1a1917]"
                       }`}
                     >
                       {cat}
@@ -202,8 +208,8 @@ function ShopContent() {
                       onClick={() => setSelectedBrand(brand)}
                       className={`text-xs text-left font-bold py-1.5 px-2.5 rounded-lg transition-colors cursor-pointer ${
                         selectedBrand === brand
-                          ? "bg-primary/10 text-primary"
-                          : "text-muted-foreground hover:bg-black/5 hover:text-foreground"
+                          ? "bg-primary/12 text-primary"
+                          : "text-[#5f5850] hover:bg-[#f3eee7] hover:text-[#1a1917]"
                       }`}
                     >
                       {brand}
@@ -239,7 +245,7 @@ function ShopContent() {
             <div className="lg:col-span-3 space-y-6">
               
               {/* Toolbar */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-white/40 backdrop-blur-md p-4 rounded-2xl border border-black/5 gap-3">
+              <div className="flex flex-col gap-3 rounded-2xl border border-black/10 bg-white/80 p-4 shadow-[0_12px_28px_rgba(26,25,23,0.04)] backdrop-blur-md sm:flex-row sm:items-center sm:justify-between">
                 <div className="text-xs font-semibold text-muted-foreground text-left">
                   Found <span className="font-extrabold text-foreground">{sortedProducts.length}</span> high-end hardware products
                 </div>
@@ -251,7 +257,7 @@ function ShopContent() {
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="p-1.5 rounded-lg border border-black/10 bg-transparent text-xs font-bold outline-none focus:border-primary"
+                    className="rounded-lg border border-black/10 bg-white/90 p-1.5 text-xs font-bold text-[#1a1917] outline-none focus:border-primary"
                   >
                     <option value="featured">Featured Picks</option>
                     <option value="price-asc">Price: Low to High</option>
@@ -269,7 +275,7 @@ function ShopContent() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-24 space-y-4 bg-white/30 backdrop-blur-md rounded-[32px] border border-black/5">
+                <div className="space-y-4 rounded-[32px] border border-black/10 bg-white/75 py-24 text-center shadow-[0_16px_32px_rgba(26,25,23,0.04)] backdrop-blur-md">
                   <div className="w-16 h-16 rounded-full bg-primary/5 text-primary/40 flex items-center justify-center mx-auto">
                     <SlidersHorizontal className="h-8 w-8" />
                   </div>
@@ -315,7 +321,7 @@ function ShopContent() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-24 space-y-4 bg-white/30 backdrop-blur-md rounded-[32px] border border-black/5">
+              <div className="space-y-4 rounded-[32px] border border-black/10 bg-white/75 py-24 text-center shadow-[0_16px_32px_rgba(26,25,23,0.04)] backdrop-blur-md">
                 <div className="w-16 h-16 rounded-full bg-primary/5 text-primary/40 flex items-center justify-center mx-auto animate-pulse">
                   <Heart className="h-8 w-8" />
                 </div>
