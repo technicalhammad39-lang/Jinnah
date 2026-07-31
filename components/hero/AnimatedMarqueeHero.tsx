@@ -84,14 +84,12 @@ export function AnimatedMarqueeHero({
   });
 
   const contentY = useTransform(scrollYProgress, [0, 0.7], [0, reduceMotion ? 0 : 48]);
-  const contentOpacity = useTransform(
-    scrollYProgress,
-    [0, 0.34, 0.72],
-    [1, 1, reduceMotion ? 1 : 0]
-  );
-  const contentBlur = useTransform(scrollYProgress, [0, 0.42, 0.76], [0, 1.6, 8]);
+  const contentScale = useTransform(scrollYProgress, [0, 0.5], [1, reduceMotion ? 1 : 1.15]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 1], [1, 1]); // Keep opacity 1
+  const contentBlur = useTransform(scrollYProgress, [0, 0.25, 0.5], [0, 1.6, 12]);
   const contentFilter = useMotionTemplate`blur(${contentBlur}px)`;
-  const showcaseY = useTransform(scrollYProgress, [0, 1], [0, reduceMotion ? 0 : -28]);
+  const showcaseY = useTransform(scrollYProgress, [0, 1], [0, reduceMotion ? 0 : 350]);
+  const imageScrollOpacity = useTransform(scrollYProgress, [0, 1], [1, 1]); // Keep opacity 1
   const backgroundY = useTransform(scrollYProgress, [0, 1], [0, reduceMotion ? 0 : -18]);
   const imageFloatY = useTransform(smoothTiltX, (value) => value * -0.8);
   const imageFloatX = useTransform(smoothTiltY, (value) => value * 0.7);
@@ -322,7 +320,7 @@ export function AnimatedMarqueeHero({
         </motion.div>
 
         <motion.div
-          style={{ y: contentY, opacity: contentOpacity, filter: contentFilter }}
+          style={{ y: contentY, opacity: contentOpacity, filter: contentFilter, scale: contentScale }}
           className="relative z-20 mx-auto flex w-full max-w-[1740px] flex-1 flex-col items-center justify-center pb-2 sm:pb-3 lg:pb-4 xl:pb-6"
         >
           <motion.div
@@ -347,7 +345,7 @@ export function AnimatedMarqueeHero({
                     return (
                       <motion.span
                         key={`${lineIndex}-${wordIndex}-${word}`}
-                        initial={{ opacity: 0, y: 30 }}
+                        initial={{ opacity: 0, y: -40 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={getEntranceTransition(delay)}
                         className={cn(
@@ -389,9 +387,9 @@ export function AnimatedMarqueeHero({
           <motion.div
             initial={{
               opacity: 0,
-              y: 118,
-              scale: 1.03,
-              filter: "blur(18px)",
+              y: 200,
+              scale: 0.95,
+              filter: "blur(12px)",
             }}
             animate={{
               opacity: 1,
@@ -409,6 +407,7 @@ export function AnimatedMarqueeHero({
                   }
             }
             className="relative left-1/2 z-10 w-screen -translate-x-1/2 overflow-visible"
+            style={{ opacity: imageScrollOpacity }}
           >
             <motion.div
               style={{
