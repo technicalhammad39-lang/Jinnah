@@ -32,7 +32,6 @@ function ProductCardComponent({ product }: ProductCardProps) {
   const { toggleWishlist } = useWishlistActions();
   const { setQuickViewProduct } = useOverlayActions();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [selectedColor, setSelectedColor] = useState(product.colors[0] || "");
   const [selectedSize, setSelectedSize] = useState<string | null>(product.sizes[0] || null);
   const [isAdding, setIsAdding] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -41,7 +40,6 @@ function ProductCardComponent({ product }: ProductCardProps) {
 
   useEffect(() => {
     setCurrentImageIndex(0);
-    setSelectedColor(product.colors[0] || "");
     setSelectedSize(product.sizes[0] || null);
   }, [product]);
 
@@ -91,7 +89,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
     addTimerRef.current = window.setTimeout(() => {
       setIsAdding(false);
       setIsSuccess(true);
-      addToCart(product, 1, selectedColor, selectedSize || undefined);
+      addToCart(product, 1, product.colors[0] || "", selectedSize || undefined);
 
       successTimerRef.current = window.setTimeout(() => {
         setIsSuccess(false);
@@ -110,9 +108,9 @@ function ProductCardComponent({ product }: ProductCardProps) {
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
-      className="group relative flex w-full flex-col overflow-hidden rounded-3xl border border-black/5 bg-[#faf9f6] shadow-sm transition-all duration-500 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5"
+      className="group relative flex w-full flex-col overflow-hidden rounded-3xl border border-black/5 bg-[#faf9f6] shadow-sm transition-all duration-500 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 h-full"
     >
-      <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#efece6]" data-cursor="view">
+      <div className="relative h-[220px] sm:h-[240px] w-full shrink-0 overflow-hidden bg-[#efece6]" data-cursor="view">
         <Link href={`/shop?product=${product.id}`} className="block h-full w-full">
           <motion.div
             key={product.images[currentImageIndex]}
@@ -238,30 +236,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
             )}
           </div>
 
-          <div className="space-y-2.5 border-t border-black/[0.04] pt-3 pb-4 text-left">
-            {product.colors.length > 0 && (
-              <div className="flex items-center gap-2">
-                <span className="min-w-[32px] text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-                  Finish:
-                </span>
-                <div className="flex gap-1.5">
-                  {product.colors.map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => setSelectedColor(color)}
-                      className={`h-4.5 w-4.5 cursor-pointer rounded-full border transition-all ${
-                        selectedColor === color
-                          ? "scale-110 border-primary/20 ring-1.5 ring-primary ring-offset-1"
-                          : "border-black/10 hover:scale-105"
-                      }`}
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {product.sizes.length > 0 && (
+          <div className="space-y-2.5 border-t border-black/[0.04] pt-3 pb-4 text-left">            {product.sizes.length > 0 && (
               <div className="flex items-center gap-2">
                 <span className="min-w-[32px] text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
                   Spec:

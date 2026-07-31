@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/context/AppContext";
 import { AppChrome } from "@/components/providers/AppChrome";
 
-const sansFont = Plus_Jakarta_Sans({
+const sansFont = Poppins({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
   variable: "--font-sans",
 });
 

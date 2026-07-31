@@ -33,7 +33,7 @@ function TrustStripGroup() {
 
 export function TrustStrip() {
   return (
-    <div className="marquee-mask relative z-10 w-full overflow-hidden border-y border-black/5 bg-primary py-5 text-primary-foreground shadow-[0_12px_30px_rgba(224,90,43,0.22)] md:py-7">
+    <div className="relative z-10 w-full overflow-hidden border-y border-black/5 bg-primary py-5 text-primary-foreground shadow-[0_12px_30px_rgba(224,90,43,0.22)] md:py-7">
       <div
         className="trust-strip-track"
         style={{ "--marquee-duration": "22s" } as CSSProperties}

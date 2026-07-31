@@ -45,7 +45,7 @@ export function CategorySection() {
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.5, delay: index * 0.08 }}
               key={category.id}
-              className={`${gridSpanClass} h-[280px] md:h-[380px] rounded-3xl overflow-hidden relative group border border-black/5 bg-white shadow-sm hover:shadow-xl hover:shadow-primary/5 transition-all duration-500`}
+              className={`${gridSpanClass} h-[280px] md:h-[380px] rounded-3xl overflow-hidden relative group border border-black/5 bg-white shadow-sm hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/50 transition-all duration-500`}
               data-cursor="view"
             >
               <Link href={`/shop?category=${category.slug}`} className="block w-full h-full relative">
@@ -66,12 +66,12 @@ export function CategorySection() {
                       <span className="text-[10px] font-extrabold text-primary tracking-widest uppercase">
                         {category.count} Products
                       </span>
-                      <h3 className="text-xl md:text-2xl font-extrabold text-white uppercase tracking-tight mt-1 leading-tight">
+                      <h3 className="text-xl md:text-2xl font-extrabold text-white uppercase tracking-tight mt-1 leading-tight transition-transform duration-500 group-hover:-translate-y-1">
                         {category.name}
                       </h3>
                     </div>
                     <div className="p-3 rounded-full bg-white/10 group-hover:bg-primary group-hover:text-white text-white backdrop-blur-md transition-all duration-300">
-                      <ArrowUpRight className="h-5 w-5 group-hover:rotate-45 transition-transform" />
+                      <ArrowUpRight className="h-5 w-5 group-hover:rotate-45 transition-transform duration-300" />
                     </div>
                   </div>
 

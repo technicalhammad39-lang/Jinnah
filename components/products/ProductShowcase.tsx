@@ -71,7 +71,7 @@ export function ProductShowcase() {
   );
 
   return (
-    <section className="relative z-10 overflow-hidden border-y border-black/5 bg-black/[0.02] py-24 md:py-32">
+    <section className="relative z-10 overflow-hidden border-y border-black/5 bg-black/[0.02] py-16 md:py-24">
       <div className="glow-blob-orange absolute top-[20%] left-[20%] h-[45vw] w-[45vw] rounded-full opacity-[0.2]" />
       <div className="glow-blob-orange absolute right-[10%] bottom-[20%] h-[45vw] w-[45vw] rounded-full opacity-[0.15]" />
 

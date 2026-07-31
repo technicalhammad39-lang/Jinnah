@@ -121,11 +121,11 @@ export function Navbar() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
         className={`fixed top-0 left-0 right-0 z-40 transition-[padding] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-          isElevated ? "px-4 py-3 md:px-8" : "px-4 py-5 md:px-12"
+          isElevated ? "px-4 py-3 md:px-6 lg:px-8" : "px-4 py-5 md:px-8 lg:px-10 xl:px-12"
         }`}
       >
         <div
-          className={`relative mx-auto flex max-w-7xl items-center justify-between rounded-full border px-5 py-2.5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:px-6 md:py-3 ${
+          className={`relative mx-auto flex max-w-7xl items-center justify-between rounded-full border px-5 py-2.5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:px-6 md:py-3 lg:px-4 lg:py-2.5 xl:px-6 xl:py-3 ${
             isElevated
               ? "border-white/55 bg-white/58 shadow-[0_22px_60px_rgba(26,25,23,0.1)] backdrop-blur-xl"
               : "border-white/70 bg-white/76 shadow-[0_14px_36px_rgba(26,25,23,0.07)] backdrop-blur-lg"
@@ -141,7 +141,7 @@ export function Navbar() {
             <div className="absolute inset-x-[16%] top-0 h-px rounded-full bg-white/70 blur-[0.5px]" />
           </div>
 
-          <Link href="/" className="relative z-10 group flex items-center gap-2">
+          <Link href="/" className="relative z-10 group flex flex-shrink-0 items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white shadow-[0_10px_22px_rgba(224,90,43,0.28)] transition-transform duration-300 group-hover:scale-105">
               J
             </div>
@@ -159,7 +159,7 @@ export function Navbar() {
             <DesktopMenu />
           </nav>
 
-          <div className="relative z-10 flex items-center gap-0.5 md:gap-1.5">
+          <div className="relative z-10 flex flex-shrink-0 items-center gap-0.5 md:gap-1.5">
             <button
               onClick={() => setSearchOpen(true)}
               className="cursor-pointer rounded-full p-2 text-[#1a1917] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:bg-black/[0.045] hover:text-primary"

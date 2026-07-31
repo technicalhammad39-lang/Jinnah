@@ -117,7 +117,7 @@ function Tab({
         const { width } = ref.current.getBoundingClientRect();
         setPosition({ left: ref.current.offsetLeft, width, opacity: 1 });
       }}
-      className={`relative z-10 flex items-center gap-1 rounded-full px-3.5 py-2 text-[11px] font-bold uppercase tracking-[0.22em] transition-colors duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] xl:px-4 ${
+      className={`relative z-10 flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-2 lg:px-2 text-[10px] lg:text-[11px] font-bold uppercase tracking-[0.22em] transition-colors duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] xl:px-3 ${
         isHighlighted ? "text-white" : "text-[#3f3932] hover:text-primary"
       }`}
     >
@@ -156,12 +156,8 @@ function Content({ dir, selected }: { dir: "l" | "r" | null; selected: number })
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 12 }}
       transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-      className="absolute left-1/2 top-[calc(100%+14px)] w-[640px] -translate-x-1/2 overflow-hidden rounded-[2rem] border border-white/60 bg-white/78 p-6 shadow-[0_28px_80px_rgba(26,25,23,0.14)] backdrop-blur-2xl"
+      className="absolute left-1/2 top-[calc(100%+14px)] w-[640px] -translate-x-1/2 overflow-hidden rounded-[2rem] border border-black/5 bg-white p-6 shadow-[0_28px_80px_rgba(26,25,23,0.14)]"
     >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-px rounded-[calc(2rem-1px)] bg-[linear-gradient(180deg,rgba(255,255,255,0.62),rgba(255,255,255,0.22))]"
-      />
       <Bridge />
       <Nub selected={selected} />
 
@@ -218,7 +214,7 @@ function Nub({ selected }: { selected: number }) {
       initial={{ left }}
       animate={{ left }}
       transition={{ type: "spring", stiffness: 340, damping: 34, mass: 0.74 }}
-      className="absolute top-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-tl border-l border-t border-white/60 bg-white/88"
+      className="absolute top-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-tl border-l border-t border-black/5 bg-white"
     />
   );
 }

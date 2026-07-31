@@ -28,7 +28,7 @@ export default function Home() {
       {/* 2. Elite Animated Marquee Hero */}
       <AnimatedMarqueeHero
         tagline="PREMIUM ARCHITECTURAL HARDWARE | TRUSTED ACROSS PAKISTAN"
-        title={"ARCHITECTURAL HARDWARE\nCrafted To Inspire."}
+        title={"Premium Hardware\nFor Exceptional Spaces."}
         description="Discover premium architectural hardware, designer door fittings, smart security solutions, professional tools, and finishing accessories trusted by architects, builders, and homeowners across Pakistan."
         ctaText="Explore Products"
       />
@@ -37,7 +37,7 @@ export default function Home() {
       <CategorySection />
 
       {/* 4. Featured Products Grid */}
-      <section id="featured-products-section" className="relative z-10 bg-transparent py-24 md:py-32">
+      <section id="featured-products-section" className="relative z-10 bg-transparent py-16 md:py-24">
         <div className="absolute top-[30%] left-[5%] h-[35vw] w-[35vw] rounded-full glow-blob-orange opacity-[0.1]" />
 
         <div className="mx-auto max-w-7xl px-6">

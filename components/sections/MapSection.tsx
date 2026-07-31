@@ -7,7 +7,7 @@ export function MapSection() {
   const storeInfo = [
     {
       title: "Store Location",
-      desc: "Jinnah Hardware Store, Main Hardware Bazaar, Pakistan",
+      desc: "Shop # 8, 9, 10 Jinnah Hardware Store near Mehmood Pharmacy, G.T Road Gujranwala",
       icon: MapPin,
     },
     {
@@ -80,7 +80,7 @@ export function MapSection() {
             {/* Quick Actions Row */}
             <div className="flex flex-wrap gap-4 pt-2">
               <a
-                href="https://maps.google.com/?q=Jinnah+Hardware+Store"
+                href="https://maps.google.com/?q=Shop+%23+8,+9,+10+Jinnah+Hardware+Store+near+mehmood+pharmacy,+G.T+Road+Gujranwala"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group inline-flex items-center gap-2 px-6.5 py-4 rounded-full bg-primary hover:bg-primary/95 text-white text-xs font-bold uppercase tracking-widest transition-all duration-300 shadow-lg hover:shadow-primary/20 cursor-pointer"
@@ -101,59 +101,17 @@ export function MapSection() {
 
           {/* Right Side: Beautiful Map Placeholder/Interactive Stage */}
           <div className="lg:col-span-7">
-            <div className="relative aspect-[16/10] md:aspect-[16/9] w-full rounded-[32px] overflow-hidden bg-[#efece6] border border-black/5 shadow-xl flex items-center justify-center group">
-              {/* This represents our stylized vector map */}
-              <div className="absolute inset-0 opacity-[0.6] mix-blend-multiply architectural-grid pointer-events-none" />
-              <div className="absolute inset-0 opacity-[0.3] mix-blend-multiply architectural-grid-fine pointer-events-none" />
-
-              {/* Decorative Map Graphics */}
-              <svg className="absolute inset-0 w-full h-full text-black/5" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M-100 200 C150 150, 450 350, 1200 300" stroke="currentColor" strokeWidth="8" strokeDasharray="16 16" />
-                <path d="M400 -50 C450 350, 350 450, 450 850" stroke="currentColor" strokeWidth="4" />
-                <circle cx="450" cy="350" r="180" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" />
-                <rect x="250" y="200" width="120" height="80" rx="12" fill="currentColor" opacity="0.4" />
-                <rect x="520" y="420" width="180" height="120" rx="16" fill="currentColor" opacity="0.4" />
-              </svg>
-
-              {/* Glowing Ambient Radial light under pin */}
-              <div className="absolute top-[55%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full bg-primary/10 filter blur-xl animate-pulse" />
-
-              {/* Animated Rotating Map Coordinates Details */}
-              <motion.div
-                initial={{ y: 0 }}
-                animate={{ y: [-6, 6, -6] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute z-10 flex flex-col items-center cursor-pointer"
-              >
-                {/* Custom glowing map marker */}
-                <div className="relative flex items-center justify-center mb-1">
-                  <div className="absolute w-12 h-12 rounded-full bg-primary/20 border border-primary/40 animate-ping" />
-                  <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white shadow-xl">
-                    <MapPin className="h-5 w-5 fill-white" />
-                  </div>
-                </div>
-
-                {/* Info Card Pop */}
-                <div className="px-4 py-2.5 rounded-xl bg-white shadow-xl border border-black/5 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[11px] font-extrabold text-[#1a1917] tracking-tight uppercase">
-                    JINNAH HARDWARE STORE
-                  </span>
-                </div>
-              </motion.div>
-
-              {/* Glassmorphic overlay guide */}
-              <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-white/60 backdrop-blur-md border border-white/40 flex flex-col sm:flex-row items-center justify-between gap-4 z-10">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4.5 w-4.5 text-emerald-600 flex-shrink-0" />
-                  <p className="text-[11px] font-bold text-[#1a1917] text-left leading-tight">
-                    INTEGRATION READY: Replace map container with Google Maps iframe easily.
-                  </p>
-                </div>
-                <span className="text-[9px] font-extrabold bg-[#1a1917] text-white px-2.5 py-1 rounded-full uppercase tracking-widest leading-none">
-                  Placeholder Map
-                </span>
-              </div>
+            <div className="relative aspect-[16/10] md:aspect-[16/9] w-full rounded-[32px] overflow-hidden bg-black/5 border border-black/5 shadow-xl flex items-center justify-center group">
+              <iframe
+                src="https://maps.google.com/maps?q=Shop%20%23%208%2C%209%2C%2010%20Jinnah%20Hardware%20Store%20near%20mehmood%20pharmacy%2C%20G.T%20Road%20Gujranwala&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="absolute inset-0 w-full h-full grayscale-[0.3] hover:grayscale-0 transition-all duration-700"
+              />
             </div>
           </div>
 

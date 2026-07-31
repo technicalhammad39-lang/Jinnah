@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Cormorant_Garamond } from "next/font/google";
+import { Cormorant_Garamond, Poppins } from "next/font/google";
 import {
   motion,
   useMotionTemplate,
@@ -41,12 +41,17 @@ const emphasisSerif = Cormorant_Garamond({
   style: ["normal", "italic"],
 });
 
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+});
+
 const WORD_ENTRANCE_EASE = [0.22, 1, 0.36, 1] as const;
 const PRODUCT_REVEAL_EASE = [0.18, 1, 0.3, 1] as const;
 
 export function AnimatedMarqueeHero({
   tagline = "PREMIUM ARCHITECTURAL HARDWARE | TRUSTED ACROSS PAKISTAN",
-  title = "ARCHITECTURAL HARDWARE\nCrafted To Inspire.",
+  title = "PREMIUM HARDWARE\nfor Exceptional Spaces.",
   description = "Discover premium architectural hardware, designer door fittings, smart security solutions, professional tools, and finishing accessories trusted by architects, builders, and homeowners across Pakistan.",
   ctaText: _ctaText = "Explore Products",
   className,
@@ -99,7 +104,7 @@ export function AnimatedMarqueeHero({
   const titleLineData = useMemo(
     () =>
       titleLines.reduce<Array<{ words: string[]; startIndex: number }>>((lines, line) => {
-        const words = line.split(" ").filter(Boolean);
+        const words = [line];
         const previous = lines[lines.length - 1];
         const startIndex = previous ? previous.startIndex + previous.words.length : 0;
 
@@ -212,19 +217,12 @@ export function AnimatedMarqueeHero({
     isEmphasisWord: boolean,
     word: string
   ) => {
-    if (word.toUpperCase().includes("JINNAH")) {
-      return "text-primary";
-    }
-
     if (isEmphasisWord) {
       return "text-[#bc7149]";
     }
 
-    if (lineIndex === 0) {
-      return wordIndex === 0 ? "text-[#1a1815]" : "text-[#2a2621]";
-    }
-
-    return "text-[#c25d31]";
+    // Default other lines to black
+    return "text-[#1a1815]";
   };
 
   return (
@@ -338,14 +336,11 @@ export function AnimatedMarqueeHero({
           </motion.div>
 
           <div className="w-full max-w-[92rem] space-y-5 sm:space-y-6 lg:space-y-7">
-            <h1 className="mx-auto max-w-[16ch] text-balance text-[3.1rem] font-black uppercase leading-[0.84] tracking-[-0.052em] sm:text-[4.25rem] md:text-[5rem] lg:max-w-[18ch] lg:text-[5.35rem] xl:max-w-[19ch] xl:text-[6rem] 2xl:text-[6.85rem]">
+            <h1 className="mx-auto w-full text-balance text-[3.1rem] font-black leading-[0.84] tracking-[-0.052em] sm:text-[4.25rem] md:text-[5rem] lg:text-[5.35rem] xl:text-[6rem] 2xl:text-[6.85rem]">
               {titleLineData.map((line, lineIndex) => (
-                <span key={lineIndex} className="block overflow-hidden lg:whitespace-nowrap">
+                <span key={lineIndex} className="flex flex-wrap justify-center">
                   {line.words.map((word, wordIndex) => {
-                    const isEmphasisWord =
-                      lineIndex === titleLineData.length - 1 &&
-                      wordIndex === line.words.length - 1 &&
-                      word === titleEmphasisWord;
+                    const isEmphasisWord = lineIndex === 0;
                     const delay =
                       entranceDelay + (line.startIndex + wordIndex + 1) * entranceStagger;
 
@@ -362,6 +357,11 @@ export function AnimatedMarqueeHero({
                             cn(
                               emphasisSerif.className,
                               "align-baseline pl-[0.02em] font-semibold italic normal-case tracking-[-0.038em]"
+                            ),
+                          !isEmphasisWord && 
+                            cn(
+                              poppins.className,
+                              "font-bold tracking-tight opacity-95 text-[0.85em]"
                             ),
                           wordIndex < line.words.length - 1 ? "mr-[0.16em] lg:mr-[0.17em]" : ""
                         )}
