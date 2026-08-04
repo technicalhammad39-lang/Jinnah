@@ -25,11 +25,12 @@ export function SearchOverlay() {
   useEffect(() => {
     if (!searchOpen) {
       setQuery("");
-      document.body.style.overflow = "unset";
       return;
     }
 
+    const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    window.__lenis?.stop?.();
 
     const frameId = window.requestAnimationFrame(() => {
       inputRef.current?.focus();
@@ -46,7 +47,8 @@ export function SearchOverlay() {
     return () => {
       window.cancelAnimationFrame(frameId);
       window.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = previousOverflow;
+      window.__lenis?.start?.();
     };
   }, [searchOpen, setSearchOpen]);
 
@@ -77,6 +79,7 @@ export function SearchOverlay() {
     <AnimatePresence>
       {searchOpen && (
         <motion.div
+          data-lenis-prevent
           key="overlay"
           id="search-overlay-container"
           initial={{ opacity: 0 }}

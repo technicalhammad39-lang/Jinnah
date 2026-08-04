@@ -2,13 +2,12 @@
 
 import { CATEGORIES } from "@/data/products";
 import Image from "next/image";
-import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
 export function CategorySection() {
   return (
-    <section id="categories-section" className="py-24 md:py-32 max-w-7xl mx-auto px-6 relative z-10">
+    <section id="categories-section" className="pt-16 pb-8 md:pt-24 md:pb-12 max-w-7xl mx-auto px-6 relative z-10">
       {/* Background Accent */}
       <div className="absolute top-[40%] right-[10%] w-[35vw] h-[35vw] rounded-full glow-blob-orange opacity-[0.25]" />
 
@@ -18,9 +17,9 @@ export function CategorySection() {
           <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
             <span>Browse Collections</span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tighter text-[#1a1917] uppercase leading-[0.95]">
-            Everything for Your <br className="hidden sm:inline" />
-            <span className="text-primary">Next Big Project</span>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tighter uppercase text-[#1a1917] max-w-2xl leading-[0.95]">
+            Everything for Your <br />
+            <span className="text-primary font-stylish normal-case text-[1.1em]">Next Big Project</span>
           </h2>
         </div>
         <p className="text-sm text-muted-foreground max-w-sm text-left leading-relaxed font-medium">
@@ -39,13 +38,9 @@ export function CategorySection() {
           if (index === 1) gridSpanClass = "md:col-span-3";
 
           return (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.5, delay: index * 0.08 }}
+            <div
               key={category.id}
-              className={`${gridSpanClass} h-[280px] md:h-[380px] rounded-3xl overflow-hidden relative group border border-black/5 bg-white shadow-sm hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/50 transition-all duration-500`}
+              className={`${gridSpanClass} h-[280px] md:h-[380px] rounded-3xl overflow-hidden relative group border border-black/5 bg-white shadow-sm hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/50 transition-all duration-500 premium-transform`}
               data-cursor="view"
             >
               <Link href={`/shop?category=${category.slug}`} className="block w-full h-full relative">
@@ -80,7 +75,7 @@ export function CategorySection() {
                   </p>
                 </div>
               </Link>
-            </motion.div>
+            </div>
           );
         })}
       </div>

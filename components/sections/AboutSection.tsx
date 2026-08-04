@@ -4,6 +4,7 @@ import Image from "next/image";
 import { motion } from "motion/react";
 import { ArrowRight, Star, History, Users, Award } from "lucide-react";
 import Link from "next/link";
+import { scrollToTarget } from "@/lib/smooth-scroll";
 
 export function AboutSection() {
   const stats = [
@@ -16,11 +17,7 @@ export function AboutSection() {
     e.preventDefault();
     const contactSection = document.getElementById("contact-section");
     if (contactSection) {
-      const offsetTop = contactSection.getBoundingClientRect().top + window.scrollY - 90;
-      window.scrollTo({
-        top: offsetTop,
-        behavior: "smooth",
-      });
+      scrollToTarget(contactSection, { offset: -90 });
     }
   };
 
@@ -97,7 +94,7 @@ export function AboutSection() {
               </div>
               <h2 className="text-3xl md:text-5xl font-extrabold tracking-tighter text-[#1a1917] uppercase leading-[0.95]">
                 Serving Pakistan&apos;s <br />
-                <span className="text-primary">Elite Architecture</span>
+                <span className="text-primary font-stylish normal-case text-[1.1em]">Elite Architecture</span>
               </h2>
               <p className="text-sm md:text-base text-muted-foreground leading-relaxed font-medium">
                 Jinnah Hardware Store has stood as a pioneer of quality fittings and industrial tools since inception. We cater to leading contractors, architectural designers, woodcrafters, and homeowners seeking hardware that operates flawlessly and makes a solid statement of luxury.

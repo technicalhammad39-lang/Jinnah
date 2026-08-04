@@ -1,7 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
-import { MapPin, Phone, Clock, Navigation, CheckCircle2, PhoneCall } from "lucide-react";
+import { MapPin, Phone, Clock, Navigation, PhoneCall } from "lucide-react";
 
 export function MapSection() {
   const storeInfo = [
@@ -110,7 +109,7 @@ export function MapSection() {
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                className="absolute inset-0 w-full h-full grayscale-[0.3] hover:grayscale-0 transition-all duration-700"
+                className="absolute inset-0 w-full h-full"
               />
             </div>
           </div>

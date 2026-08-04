@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { ArrowRight, Sparkles, Send, CheckCircle2, Loader2, Store } from "lucide-react";
 import Link from "next/link";
+import { scrollToTarget } from "@/lib/smooth-scroll";
 
 export function NewsletterCTA() {
   const [email, setEmail] = useState("");
@@ -41,11 +42,7 @@ export function NewsletterCTA() {
     e.preventDefault();
     const mapSection = document.getElementById("contact-section");
     if (mapSection) {
-      const offsetTop = mapSection.getBoundingClientRect().top + window.scrollY - 90;
-      window.scrollTo({
-        top: offsetTop,
-        behavior: "smooth",
-      });
+      scrollToTarget(mapSection, { offset: -90 });
     }
   };
 

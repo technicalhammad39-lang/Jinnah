@@ -35,7 +35,6 @@ export function QuickViewModal() {
 
   useEffect(() => {
     if (!quickViewProduct) {
-      document.body.style.overflow = "unset";
       setActiveImage("");
       setSelectedColor("");
       setSelectedSize("");
@@ -47,7 +46,9 @@ export function QuickViewModal() {
     setActiveImage(quickViewProduct.images[0] || "");
     setSelectedColor(quickViewProduct.colors[0] || "");
     setSelectedSize(quickViewProduct.sizes[0] || "");
+    const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    window.__lenis?.stop?.();
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -59,7 +60,8 @@ export function QuickViewModal() {
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = previousOverflow;
+      window.__lenis?.start?.();
     };
   }, [quickViewProduct, setQuickViewProduct]);
 
@@ -116,6 +118,7 @@ export function QuickViewModal() {
           />
 
           <motion.div
+            data-lenis-prevent
             initial={{ scale: 0.95, opacity: 0, y: 15 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 15 }}

@@ -27,11 +27,12 @@ export function CartDrawer() {
 
   useEffect(() => {
     if (!cartOpen) {
-      document.body.style.overflow = "unset";
       return;
     }
 
+    const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    window.__lenis?.stop?.();
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -43,7 +44,8 @@ export function CartDrawer() {
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = previousOverflow;
+      window.__lenis?.start?.();
     };
   }, [cartOpen, setCartOpen]);
 
@@ -62,6 +64,7 @@ export function CartDrawer() {
           />
 
           <motion.div
+            data-lenis-prevent
             key="drawer"
             id="cart-drawer-container"
             initial={{ x: "100%" }}

@@ -48,6 +48,13 @@
   }
 }
 
+@layer utilities {
+  .font-stylish {
+    font-family: var(--font-serif), serif;
+    font-style: italic;
+  }
+}
+
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
@@ -69,7 +76,8 @@
 
 /* Smooth Scrolling & Custom Cursor Setup */
 html {
-  scroll-behavior: smooth;
+  position: relative;
+  scroll-behavior: auto;
   background-color: #faf9f6;
   color: #1a1917;
   overflow-x: hidden;
@@ -80,6 +88,33 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+.premium-transform {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+a,
+button {
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Architectural blueprint grid background pattern */
@@ -106,6 +141,21 @@ body {
 .glow-blob-charcoal {
   filter: blur(120px);
   background: radial-gradient(circle, rgba(26, 25, 23, 0.03) 0%, rgba(26, 25, 23, 0) 70%);
+}
+
+@media (max-width: 767px) {
+  .glow-blob-orange {
+    filter: blur(86px);
+  }
+
+  .glow-blob-charcoal {
+    filter: blur(78px);
+  }
+
+  .animate-float-slow,
+  .animate-float-slower {
+    animation: none;
+  }
 }
 
 /* Custom noise overlay */
@@ -151,6 +201,62 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .trust-strip-track {
     animation: none;
+  }
+}
+
+@keyframes brandMarqueeLeft {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes brandMarqueeRight {
+  from {
+    transform: translate3d(-50%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.brand-marquee-track {
+  display: flex;
+  min-width: max-content;
+  gap: 2rem;
+  padding-right: 2rem;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  animation: brandMarqueeLeft var(--brand-marquee-duration, 25s) linear infinite;
+}
+
+.brand-marquee-track-reverse {
+  animation-name: brandMarqueeRight;
+  animation-duration: var(--brand-marquee-duration, 30s);
+}
+
+.brand-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-marquee-track,
+  .brand-marquee-track-reverse,
+  .animate-float-slow,
+  .animate-float-slower,
+  .animate-zoom-in {
+    animation: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
 

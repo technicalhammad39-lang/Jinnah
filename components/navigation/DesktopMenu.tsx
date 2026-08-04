@@ -5,7 +5,9 @@ import { ArrowRight, Box, ChevronDown, Lock, PenTool } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { BRANDS, CATEGORIES } from "@/data/products";
+import { scrollToTarget } from "@/lib/smooth-scroll";
 
 interface TabProps {
   children: React.ReactNode;
@@ -17,6 +19,7 @@ interface TabProps {
     React.SetStateAction<{ left: number; width: number; opacity: number }>
   >;
   handleSetSelected: (value: number | null) => void;
+  handleNavigate: (event: React.MouseEvent<HTMLAnchorElement>, href: string) => void;
   tab: number;
 }
 
@@ -43,6 +46,7 @@ function Tabs() {
   const [hoveredTab, setHoveredTab] = useState<number | null>(null);
   const [dir, setDir] = useState<"l" | "r" | null>(null);
   const [position, setPosition] = useState({ left: 0, width: 0, opacity: 0 });
+  const pathname = usePathname();
 
   const handleSetSelected = (value: number | null) => {
     if (typeof selected === "number" && typeof value === "number") {
@@ -52,6 +56,28 @@ function Tabs() {
     }
 
     setSelected(value);
+  };
+
+  const handleNavigate = (event: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    const hashIndex = href.indexOf("#");
+
+    if (hashIndex === -1 || pathname !== "/") {
+      return;
+    }
+
+    const targetId = href.slice(hashIndex + 1);
+    const targetElement = document.getElementById(targetId);
+
+    if (!targetElement) {
+      return;
+    }
+
+    event.preventDefault();
+    handleSetSelected(null);
+    setHoveredTab(null);
+    setPosition((current) => ({ ...current, opacity: 0 }));
+    scrollToTarget(targetElement, { offset: -90 });
+    window.history.pushState(null, "", `#${targetId}`);
   };
 
   return (
@@ -72,6 +98,7 @@ function Tabs() {
           setHoveredTab={setHoveredTab}
           setPosition={setPosition}
           handleSetSelected={handleSetSelected}
+          handleNavigate={handleNavigate}
           tab={tab.id}
         >
           {tab.title}
@@ -95,6 +122,7 @@ function Tab({
   setHoveredTab,
   setPosition,
   handleSetSelected,
+  handleNavigate,
   tab,
 }: TabProps) {
   const ref = useRef<HTMLAnchorElement>(null);
@@ -106,6 +134,7 @@ function Tab({
       href={href}
       ref={ref}
       id={`shift-tab-${tab}`}
+      onClick={(event) => handleNavigate(event, href)}
       onMouseEnter={() => {
         setHoveredTab(tab);
         handleSetSelected(hasDropdown ? tab : null);
@@ -140,10 +169,14 @@ function Cursor({
 }) {
   return (
     <motion.div
-      initial={{ left: 0, width: 0, opacity: 0 }}
-      animate={{ ...position }}
+      initial={{ x: 0, scaleX: 0, opacity: 0 }}
+      animate={{
+        x: position.left,
+        scaleX: position.width > 0 ? position.width / 100 : 0,
+        opacity: position.opacity,
+      }}
       transition={{ type: "spring", stiffness: 330, damping: 30, mass: 0.72 }}
-      className="absolute z-0 h-[36px] rounded-full bg-[#1f1b17] shadow-[0_12px_28px_rgba(26,25,23,0.18)]"
+      className="absolute left-0 z-0 h-[36px] w-[100px] origin-left rounded-full bg-[#1f1b17] shadow-[0_12px_28px_rgba(26,25,23,0.18)] will-change-transform"
     />
   );
 }
@@ -211,10 +244,10 @@ function Nub({ selected }: { selected: number }) {
   return (
     <motion.div
       style={{ clipPath: "polygon(0 0, 100% 0, 50% 50%, 0% 100%)" }}
-      initial={{ left }}
-      animate={{ left }}
+      initial={{ x: left - 8, y: -8, rotate: 45 }}
+      animate={{ x: left - 8, y: -8, rotate: 45 }}
       transition={{ type: "spring", stiffness: 340, damping: 34, mass: 0.74 }}
-      className="absolute top-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-tl border-l border-t border-black/5 bg-white"
+      className="absolute left-0 top-0 h-4 w-4 rounded-tl border-l border-t border-black/5 bg-white will-change-transform"
     />
   );
 }

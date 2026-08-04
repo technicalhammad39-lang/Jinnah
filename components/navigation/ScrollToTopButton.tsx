@@ -1,13 +1,11 @@
 "use client";
 
 import { ArrowUpRight } from "lucide-react";
+import { scrollToTop } from "@/lib/smooth-scroll";
 
 export function ScrollToTopButton() {
   const handleScrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    scrollToTop();
   };
 
   return (

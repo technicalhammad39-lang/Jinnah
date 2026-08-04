@@ -2,6 +2,15 @@
 
 import dynamic from "next/dynamic";
 import { GlobalOverlays } from "@/components/navigation/GlobalOverlays";
+import { LenisScrollProvider } from "@/components/animations/LenisScrollProvider";
+
+const PremiumScrollAnimations = dynamic(
+  () =>
+    import("@/components/animations/PremiumScrollAnimations").then(
+      (module) => module.PremiumScrollAnimations
+    ),
+  { ssr: false }
+);
 
 const InteractiveBackground = dynamic(
   () =>
@@ -14,6 +23,8 @@ const InteractiveBackground = dynamic(
 export function AppChrome() {
   return (
     <>
+      <LenisScrollProvider />
+      <PremiumScrollAnimations />
       <InteractiveBackground />
       <GlobalOverlays />
     </>

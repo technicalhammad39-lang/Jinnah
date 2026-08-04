@@ -2,8 +2,8 @@ import { PRODUCTS } from "@/data/products";
 import { Navbar } from "@/components/navigation/Navbar";
 import { AnimatedMarqueeHero } from "@/components/hero/AnimatedMarqueeHero";
 import { CategorySection } from "@/components/sections/CategorySection";
+import { DiscoverBySpace } from "@/components/sections/DiscoverBySpace";
 import { ProductCard } from "@/components/products/ProductCard";
-import { ProductShowcase } from "@/components/products/ProductShowcase";
 import { BrandsSection } from "@/components/sections/BrandsSection";
 import { WhyChooseUs } from "@/components/sections/WhyChooseUs";
 import { AboutSection } from "@/components/sections/AboutSection";
@@ -37,12 +37,12 @@ export default function Home() {
       <CategorySection />
 
       {/* 4. Featured Products Grid */}
-      <section id="featured-products-section" className="relative z-10 bg-transparent py-16 md:py-24">
+      <section id="featured-products-section" className="relative z-10 bg-transparent pt-8 pb-16 md:pt-12 md:pb-24">
         <div className="absolute top-[30%] left-[5%] h-[35vw] w-[35vw] rounded-full glow-blob-orange opacity-[0.1]" />
 
         <div className="mx-auto max-w-7xl px-6">
           {/* Header */}
-          <div className="mb-16 flex flex-col items-start justify-between gap-4 md:mb-20 md:flex-row md:items-end">
+          <div className="mb-8 flex flex-col items-start justify-between gap-4 md:mb-12 md:flex-row md:items-end">
             <div className="max-w-2xl space-y-4 text-left">
               <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                 <Sparkles className="h-3.5 w-3.5 text-primary" />
@@ -78,8 +78,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. Advanced Interactive Product Showcase */}
-      <ProductShowcase />
+      {/* 5. Discover By Space Premium Section */}
+      <DiscoverBySpace />
 
       {/* 6. Brands Column marquee showcase */}
       <BrandsSection />

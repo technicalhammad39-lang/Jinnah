@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { DesktopMenu } from "./DesktopMenu";
+import { scrollToTarget } from "@/lib/smooth-scroll";
 
 const NAV_LINKS = [
   { name: "Home", href: "/", isSection: false },
@@ -75,10 +76,13 @@ export function Navbar() {
       return;
     }
 
+    const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    window.__lenis?.stop?.();
 
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = previousOverflow;
+      window.__lenis?.start?.();
     };
   }, [mobileMenuOpen]);
 
@@ -100,11 +104,7 @@ export function Navbar() {
           return;
         }
 
-        const offsetTop = targetElement.getBoundingClientRect().top + window.scrollY - 90;
-        window.scrollTo({
-          top: offsetTop,
-          behavior: "smooth",
-        });
+        scrollToTarget(targetElement, { offset: -90 });
 
         return;
       }

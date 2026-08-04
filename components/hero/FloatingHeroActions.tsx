@@ -163,7 +163,7 @@ export function FloatingHeroActions() {
     <div className="pointer-events-none fixed right-4 bottom-4 z-[60] sm:right-6 sm:bottom-6 lg:right-8 lg:bottom-8">
       <div
         ref={containerRef}
-        className="pointer-events-auto flex flex-col items-center gap-2 rounded-[1.75rem] border border-white/45 bg-[linear-gradient(180deg,rgba(255,255,255,0.68),rgba(255,255,255,0.34))] p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.52),0_24px_48px_rgba(22,18,14,0.12)] backdrop-blur-xl"
+        className="pointer-events-auto flex w-[68px] flex-col items-center gap-2 overflow-visible rounded-[1.75rem] border border-white/45 bg-[linear-gradient(180deg,rgba(255,255,255,0.68),rgba(255,255,255,0.34))] p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.52),0_24px_48px_rgba(22,18,14,0.12)] backdrop-blur-xl"
         onMouseEnter={canHover ? () => setIsHovering(true) : undefined}
         onMouseLeave={
           canHover
@@ -185,22 +185,27 @@ export function FloatingHeroActions() {
               rel={action.external ? "noopener noreferrer" : undefined}
               aria-label={action.label}
               onClick={(event) => handleActionClick(event, action)}
-              animate={{ width: isExpanded ? 184 : 52 }}
-              transition={transition}
-              className="group flex h-12 items-center justify-start self-center overflow-hidden rounded-full border border-white/45 bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(255,255,255,0.36))] px-[6px] text-[#181613] shadow-[inset_0_1px_0_rgba(255,255,255,0.58),0_10px_24px_rgba(25,22,18,0.1)] backdrop-blur-xl will-change-[width,transform] hover:-translate-y-0.5"
+              className="group relative flex h-12 w-[184px] items-center justify-end self-end overflow-visible rounded-full text-[#181613] will-change-transform hover:-translate-y-0.5"
             >
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/68 text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.78)] transition-colors duration-300 group-hover:bg-primary group-hover:text-white">
+              <motion.span
+                aria-hidden="true"
+                animate={{ scaleX: isExpanded ? 1 : 52 / 184 }}
+                transition={transition}
+                className="absolute inset-0 origin-right rounded-full border border-white/45 bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(255,255,255,0.36))] shadow-[inset_0_1px_0_rgba(255,255,255,0.58),0_10px_24px_rgba(25,22,18,0.1)] backdrop-blur-xl will-change-transform"
+              />
+
+              <span className="absolute right-[6px] top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/68 text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.78)] transition-colors duration-300 group-hover:bg-primary group-hover:text-white">
                 <Icon className={action.iconClassName ?? "h-5 w-5"} />
               </span>
 
               <motion.span
                 animate={
                   isExpanded
-                    ? { opacity: 1, x: 0, width: 110, marginLeft: 10 }
-                    : { opacity: 0, x: 8, width: 0, marginLeft: 0 }
+                    ? { opacity: 1, x: 0, scale: 1 }
+                    : { opacity: 0, x: 8, scale: 0.98 }
                 }
                 transition={transition}
-                className="block shrink-0 overflow-hidden whitespace-nowrap pr-3 text-sm font-bold tracking-[0.01em]"
+                className="pointer-events-none absolute right-[3.875rem] block w-[110px] origin-right whitespace-nowrap pr-1 text-right text-sm font-bold tracking-[0.01em] will-change-transform"
               >
                 {action.label}
               </motion.span>

@@ -1,8 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "motion/react";
-import { ArrowUpRight, Home, Building2, HardHat, Hammer, Settings } from "lucide-react";
+import { ArrowUpRight, Home, Building2, HardHat, Hammer } from "lucide-react";
 
 export function UseCases() {
   const cases = [
@@ -33,7 +32,7 @@ export function UseCases() {
   ];
 
   return (
-    <section className="py-24 md:py-32 bg-transparent relative z-10 overflow-hidden">
+    <section className="pt-8 pb-24 md:pt-12 md:pb-32 bg-transparent relative z-10 overflow-hidden">
       {/* Background decoration */}
       <div className="absolute top-[40%] right-[10%] w-[35vw] h-[35vw] rounded-full glow-blob-orange opacity-[0.15]" />
 
@@ -53,16 +52,12 @@ export function UseCases() {
 
         {/* Carousel-like card grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {cases.map((item, index) => {
+          {cases.map((item) => {
             const CaseIcon = item.icon;
             return (
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.5, delay: index * 0.08 }}
+              <div
                 key={item.title}
-                className="group relative rounded-[32px] overflow-hidden bg-[#efece6] aspect-[3/4] shadow-md hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 border border-black/5"
+                className="group relative rounded-[32px] overflow-hidden bg-[#efece6] aspect-[3/4] shadow-md hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 border border-black/5 premium-transform"
               >
                 {/* Image Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10" />
@@ -97,7 +92,7 @@ export function UseCases() {
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>

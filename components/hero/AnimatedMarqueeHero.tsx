@@ -1,10 +1,8 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Cormorant_Garamond, Poppins } from "next/font/google";
 import {
   motion,
-  useMotionTemplate,
   useMotionValue,
   useReducedMotion,
   useScroll,
@@ -35,17 +33,6 @@ const DUST_PARTICLES = [
   { left: "88%", top: "22%", size: 3, duration: 25, delay: 2.2 },
 ];
 
-const emphasisSerif = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  style: ["normal", "italic"],
-});
-
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-});
-
 const WORD_ENTRANCE_EASE = [0.22, 1, 0.36, 1] as const;
 const PRODUCT_REVEAL_EASE = [0.18, 1, 0.3, 1] as const;
 
@@ -61,7 +48,6 @@ export function AnimatedMarqueeHero({
   const pointerPositionRef = useRef<{ x: number; y: number } | null>(null);
   const reduceMotion = useReducedMotion();
   const [canUseParallax, setCanUseParallax] = useState(false);
-  const [glowVisible, setGlowVisible] = useState(false);
   const instantTransition = { duration: 0 };
   const entranceDelay = 0.12;
   const entranceStagger = 0.1;
@@ -87,8 +73,6 @@ export function AnimatedMarqueeHero({
   const contentY = useTransform(scrollYProgress, [0, 0.2, 0.4], [0, -10, -30]);
   const contentScale = useTransform(scrollYProgress, [0, 0.2, 0.4], [1, 1.02, 1.05]);
   const contentOpacity = useTransform(scrollYProgress, [0, 0.2, 0.4], [1, 0.8, 0]); 
-  const contentBlur = useTransform(scrollYProgress, [0, 0.2, 0.4], [0, 2, 12]);
-  const contentFilter = useMotionTemplate`blur(${contentBlur}px)`;
   
   const showcaseY = useTransform(scrollYProgress, [0.4, 0.8], [0, 200]);
   const imageScrollOpacity = useTransform(scrollYProgress, [0.4, 0.8], [1, 0]);
@@ -102,22 +86,7 @@ export function AnimatedMarqueeHero({
     [title]
   );
 
-  const titleLineData = useMemo(
-    () =>
-      titleLines.reduce<Array<{ words: string[]; startIndex: number }>>((lines, line) => {
-        const words = line.split(" ");
-        const previous = lines[lines.length - 1];
-        const startIndex = previous ? previous.startIndex + previous.words.length : 0;
-
-        lines.push({ words, startIndex });
-        return lines;
-      }, []),
-    [titleLines]
-  );
-
-  const titleEmphasisWord = titleLineData.at(-1)?.words.at(-1);
-  const totalTitleWords = titleLineData.reduce((count, line) => count + line.words.length, 0);
-  const descriptionDelay = entranceDelay + (totalTitleWords + 1) * entranceStagger + 0.04;
+  const descriptionDelay = entranceDelay + 2 * entranceStagger + 0.1;
   const showcaseRevealDelay = descriptionDelay + 0.28;
   const tickerRevealDelay = showcaseRevealDelay + 0.22;
 
@@ -182,10 +151,6 @@ export function AnimatedMarqueeHero({
       y: event.clientY,
     };
 
-    if (!glowVisible) {
-      setGlowVisible(true);
-    }
-
     glowOpacity.set(0.1);
 
     if (pointerFrameRef.current !== null) {
@@ -206,29 +171,17 @@ export function AnimatedMarqueeHero({
     }
 
     pointerPositionRef.current = null;
-    setGlowVisible(false);
     glowOpacity.set(0);
     tiltX.set(0);
     tiltY.set(0);
   };
 
-  const resolveWordTone = (
-    lineIndex: number,
-    wordIndex: number,
-    isEmphasisWord: boolean,
-    word: string
-  ) => {
-    if (isEmphasisWord) {
-      return "text-[#bc7149]";
-    }
 
-    // Default other lines to black
-    return "text-[#1a1815]";
-  };
 
   return (
     <>
       <section
+        data-hero-root
         ref={sectionRef}
         onPointerMove={canUseParallax ? handlePointerMove : undefined}
         onPointerLeave={canUseParallax ? handlePointerLeave : undefined}
@@ -291,7 +244,7 @@ export function AnimatedMarqueeHero({
               style={{
                 x: smoothGlowX,
                 y: smoothGlowY,
-                opacity: glowVisible ? smoothGlowOpacity : 0,
+                opacity: smoothGlowOpacity,
               }}
               className="absolute h-[clamp(22rem,36vw,42rem)] w-[clamp(22rem,36vw,42rem)] will-change-transform"
             >
@@ -323,55 +276,38 @@ export function AnimatedMarqueeHero({
         </motion.div>
 
         <motion.div
-          style={{ y: contentY, opacity: contentOpacity, filter: contentFilter, scale: contentScale }}
+          style={{ y: contentY, opacity: contentOpacity, scale: contentScale }}
           className="relative z-20 mx-auto flex w-full max-w-[1740px] flex-1 flex-col items-center justify-center pb-2 sm:pb-3 lg:pb-4 xl:pb-6"
         >
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={getEntranceTransition(entranceDelay, 0.82)}
-            className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-white/70 px-4 py-2 text-[10px] font-extrabold uppercase tracking-[0.32em] text-primary shadow-[0_10px_30px_rgba(224,90,43,0.08)] backdrop-blur-md sm:mb-7 sm:px-5"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_12px_rgba(224,90,43,0.65)]" />
-            <span>{tagline}</span>
-          </motion.div>
 
           <div className="w-full max-w-[92rem] space-y-5 sm:space-y-6 lg:space-y-7">
-            <h1 className="mx-auto w-full text-balance text-[3.1rem] font-black leading-[0.84] tracking-[-0.052em] sm:text-[4.25rem] md:text-[5rem] lg:text-[5.35rem] xl:text-[6rem] 2xl:text-[6.85rem]">
-              {titleLineData.map((line, lineIndex) => (
-                <span key={lineIndex} className="flex flex-wrap justify-center">
-                  {line.words.map((word, wordIndex) => {
-                    const isEmphasisWord = lineIndex === 0;
-                    const delay =
-                      entranceDelay + (line.startIndex + wordIndex + 1) * entranceStagger;
-
-                    return (
-                      <motion.span
-                        key={`${lineIndex}-${wordIndex}-${word}`}
-                        initial={{ opacity: 0, y: -30, filter: "blur(4px)" }}
-                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                        transition={getEntranceTransition(delay)}
-                        className={cn(
-                          "inline-block align-top will-change-[transform,opacity,filter]",
-                          poppins.className,
-                          "font-bold tracking-tight opacity-95 text-[0.85em]",
-                          wordIndex < line.words.length - 1 ? "mr-[0.22em] lg:mr-[0.24em]" : ""
-                        )}
-                        style={{ color: "#1a1815" }}
-                      >
-                        {word}
-                      </motion.span>
-                    );
-                  })}
-                </span>
-              ))}
+            <h1 className="mx-auto w-full text-balance text-[3.1rem] font-black leading-[0.95] tracking-[-0.052em] sm:text-[4.25rem] md:text-[5rem] lg:text-[5.35rem] xl:text-[6rem] 2xl:text-[6.85rem]">
+              {titleLines.map((line, lineIndex) => {
+                const isFirstLine = lineIndex === 0;
+                return (
+                  <motion.span
+                    key={lineIndex}
+                    initial={{ opacity: 0, y: -30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={getEntranceTransition(entranceDelay + lineIndex * entranceStagger)}
+                    className={cn(
+                      "block will-change-[transform,opacity]",
+                      isFirstLine 
+                        ? "font-stylish text-primary text-[1.25em] font-medium leading-[0.75] mb-0 sm:mb-1" 
+                        : "font-bold tracking-tight opacity-95 text-[0.85em] text-[#1a1815]"
+                    )}
+                  >
+                    {line}
+                  </motion.span>
+                );
+              })}
             </h1>
 
             <motion.p
-              initial={{ opacity: 0, y: -20, filter: "blur(4px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={getEntranceTransition(descriptionDelay, 0.92)}
-              className="mx-auto max-w-[58rem] px-2 text-sm font-medium leading-7 text-muted-foreground sm:text-base sm:leading-8 md:text-[1.08rem] lg:text-[1.16rem] will-change-[transform,opacity,filter]"
+              className="mx-auto max-w-[58rem] px-2 text-sm font-medium leading-7 text-muted-foreground sm:text-base sm:leading-8 md:text-[1.08rem] lg:text-[1.16rem] will-change-[transform,opacity]"
             >
               {description}
             </motion.p>
@@ -384,13 +320,11 @@ export function AnimatedMarqueeHero({
               opacity: 0,
               y: 150,
               scale: 0.96,
-              filter: "blur(8px)",
             }}
             animate={{
               opacity: 1,
               y: 0,
               scale: 1,
-              filter: "blur(0px)",
             }}
             transition={
               reduceMotion
@@ -422,6 +356,7 @@ export function AnimatedMarqueeHero({
                   height={705}
                   priority
                   sizes="100vw"
+                  decoding="async"
                   className="block h-auto w-full select-none object-contain"
                 />
               </motion.div>

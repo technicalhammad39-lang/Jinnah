@@ -11,7 +11,7 @@ export function GallerySection() {
   const [activeItem, setActiveItem] = useState(GALLERY_ITEMS[0].id);
 
   return (
-    <section id="gallery-section" className="py-24 md:py-32 w-full relative z-10 bg-transparent">
+    <section id="gallery-section" className="pt-8 pb-24 md:pt-12 md:pb-32 w-full relative z-10 bg-transparent">
       <div className="absolute bottom-[10%] right-[5%] w-[45vw] h-[45vw] rounded-full glow-blob-orange opacity-[0.1]" />
 
       <div className="max-w-7xl mx-auto px-6 mb-12 md:mb-16">
@@ -39,14 +39,14 @@ export function GallerySection() {
             
             return (
               <motion.div
+                data-gallery-panel
                 key={item.id}
                 className={cn(
-                  "relative rounded-[2rem] overflow-hidden cursor-pointer transition-all duration-700 ease-in-out border border-black/5 bg-[#efece6]",
+                  "relative rounded-[2rem] overflow-hidden cursor-pointer transition-all duration-700 ease-in-out border border-black/5 bg-[#efece6] premium-transform",
                   isActive ? "flex-[4] lg:flex-[5]" : "flex-[1] hover:flex-[1.2]"
                 )}
                 onClick={() => setActiveItem(item.id)}
                 onMouseEnter={() => setActiveItem(item.id)}
-                layout
               >
                 {/* Background Image */}
                 <motion.div
@@ -117,17 +117,7 @@ export function GallerySection() {
                   </motion.div>
                 </motion.div>
 
-                {/* Inactive Vertical Title (Desktop Only) */}
-                <motion.div 
-                  className={cn(
-                    "absolute inset-0 p-6 flex flex-col justify-end lg:justify-start items-center transition-opacity duration-300",
-                    isActive ? "opacity-0 pointer-events-none" : "opacity-100"
-                  )}
-                >
-                  <h3 className="text-white font-extrabold uppercase tracking-widest text-sm lg:writing-vertical-rl lg:rotate-180 whitespace-nowrap drop-shadow-md">
-                    {item.title}
-                  </h3>
-                </motion.div>
+
               </motion.div>
             );
           })}
