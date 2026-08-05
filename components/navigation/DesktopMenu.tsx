@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo, useEffect, useRef, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Box, ChevronDown, Lock, PenTool } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
@@ -34,8 +34,8 @@ export const DesktopMenu = memo(function DesktopMenu() {
 const TABS = [
   { title: "Home", href: "/", Component: null },
   { title: "Shop All", href: "/shop", Component: ShopAll },
-  { title: "Categories", href: "/#categories-section", Component: Categories },
-  { title: "Brands", href: "/#brands-section", Component: BrandsMenu },
+  { title: "Categories", href: "/categories", Component: Categories },
+  { title: "Brands", href: "/brands", Component: BrandsMenu },
   { title: "About", href: "/about", Component: null },
   { title: "Gallery", href: "/gallery", Component: null },
   { title: "Contact", href: "/contact", Component: null },
@@ -47,6 +47,30 @@ function Tabs() {
   const [dir, setDir] = useState<"l" | "r" | null>(null);
   const [position, setPosition] = useState({ left: 0, width: 0, opacity: 0 });
   const pathname = usePathname();
+
+  const activeTab = useMemo(() => {
+    return TABS.find((tab) => (tab.href === "/" ? pathname === "/" : pathname.startsWith(tab.href)))?.id || null;
+  }, [pathname]);
+
+  const updatePositionToTab = useCallback((tabId: number) => {
+    const el = document.getElementById(`shift-tab-${tabId}`);
+    if (el) {
+      setPosition({ left: el.offsetLeft, width: el.getBoundingClientRect().width, opacity: 1 });
+    } else {
+      setPosition((prev) => ({ ...prev, opacity: 0 }));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hoveredTab && !selected) {
+      if (activeTab) {
+        // Small delay to ensure DOM is ready
+        setTimeout(() => updatePositionToTab(activeTab), 50);
+      } else {
+        setPosition((prev) => ({ ...prev, opacity: 0 }));
+      }
+    }
+  }, [hoveredTab, selected, activeTab, updatePositionToTab]);
 
   const handleSetSelected = (value: number | null) => {
     if (typeof selected === "number" && typeof value === "number") {
@@ -61,7 +85,7 @@ function Tabs() {
   const handleNavigate = (event: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     const hashIndex = href.indexOf("#");
 
-    if (hashIndex === -1 || pathname !== "/") {
+    if (hashIndex === -1) {
       return;
     }
 
@@ -85,7 +109,6 @@ function Tabs() {
       onMouseLeave={() => {
         handleSetSelected(null);
         setHoveredTab(null);
-        setPosition((current) => ({ ...current, opacity: 0 }));
       }}
       className="relative flex h-fit items-center gap-0.5"
     >
@@ -126,8 +149,13 @@ function Tab({
   tab,
 }: TabProps) {
   const ref = useRef<HTMLAnchorElement>(null);
+  const pathname = usePathname();
   const hasDropdown = tab === 2 || tab === 3 || tab === 4;
-  const isHighlighted = hoveredTab === tab || selected === tab;
+  
+  // Highlight active page or hovered tab
+  const isActivePage = href === "/" ? pathname === "/" : pathname.startsWith(href);
+  const isHoveredOrSelected = hoveredTab === tab || selected === tab;
+  const hasCursor = isHoveredOrSelected || (!hoveredTab && !selected && isActivePage);
 
   return (
     <Link
@@ -147,7 +175,9 @@ function Tab({
         setPosition({ left: ref.current.offsetLeft, width, opacity: 1 });
       }}
       className={`relative z-10 flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-2 lg:px-2 text-[10px] lg:text-[11px] font-bold uppercase tracking-[0.22em] transition-colors duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] xl:px-3 ${
-        isHighlighted ? "text-white" : "text-[#3f3932] hover:text-primary"
+        hasCursor
+          ? "text-white"
+          : "text-[#3f3932] hover:text-white"
       }`}
     >
       <span className="relative z-10">{children}</span>
@@ -333,7 +363,7 @@ function Categories() {
 
       <div className="col-span-2 mt-2 border-t border-black/5 pt-4 text-center">
         <Link
-          href="/#categories-section"
+          href="/categories"
           className="inline-flex items-center justify-center gap-1 text-xs font-bold uppercase tracking-widest text-primary transition-all duration-300 hover:gap-2"
         >
           <span>All Categories</span>
@@ -364,7 +394,7 @@ function BrandsMenu() {
 
       <div className="mt-4 text-center">
         <Link
-          href="/#brands-section"
+          href="/brands"
           className="text-xs font-bold uppercase tracking-widest text-primary hover:underline"
         >
           View All Brands

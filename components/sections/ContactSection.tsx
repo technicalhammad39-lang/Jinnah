@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { 
+import {
   Send, Phone, MessageSquare, Clock, MapPin, CheckCircle2, Loader2, ArrowRight
 } from "lucide-react";
 
@@ -49,21 +49,32 @@ export function ContactSection() {
 
   const contactOptions = [
     {
-      title: "Direct WhatsApp Line",
-      value: "+92 300 0421772",
-      icon: MessageSquare,
-      href: "https://wa.me/923000421772",
-    },
-    {
-      title: "Phone Call Desk",
-      value: "0300-0421772",
-      icon: Phone,
-      href: "tel:03000421772",
-    },
-    {
-      title: "Store Location Desk",
-      value: "Main Hardware Bazaar, Pakistan",
+      title: "Showroom Location",
+      value: "Opposite Gulbarag Town, Bahawalpur Road, Hasilpur",
+      linkText: "Get Directions →",
+      href: "https://maps.google.com/?q=Jinnah+Hardware+Store+Hasilpur",
       icon: MapPin,
+    },
+    {
+      title: "Direct WhatsApp",
+      value: "+92 300 0421772",
+      linkText: "Message Us →",
+      href: "https://wa.me/923000421772",
+      icon: MessageSquare,
+    },
+    {
+      title: "Commercial Inquiries",
+      value: "info@jinnah-hardwarestore.com",
+      linkText: "Send Email →",
+      href: "mailto:info@jinnah-hardwarestore.com",
+      icon: Send,
+    },
+    {
+      title: "Operating Hours",
+      value: "Mon - Sat: 10:00 AM - 8:00 PM\nSunday: Closed",
+      linkText: "",
+      href: "",
+      icon: Clock,
     },
   ];
 
@@ -74,7 +85,7 @@ export function ContactSection() {
 
       <div className="max-w-[1740px] mx-auto px-6 md:px-8 xl:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-stretch">
-          
+
           {/* Left Side: Contact Information & WhatsApp Links */}
           <div className="lg:col-span-5 space-y-8 text-left">
             <div className="space-y-4">
@@ -97,30 +108,31 @@ export function ContactSection() {
                 return (
                   <div
                     key={opt.title}
-                    className="p-5 rounded-2xl bg-white border border-black/5 flex gap-4 hover:border-primary/10 transition-colors"
+                    className="group rounded-[1.5rem] md:rounded-[2rem] border border-white/10 transition-all duration-700 h-auto flex flex-col justify-start relative z-20 pt-12 pb-6 px-6 md:px-8 mt-6 bg-gradient-to-br from-[#202020]/95 via-[#171717]/95 to-[#111111]/95 backdrop-blur-2xl hover:border-[#FF6A2A]/40 hover:shadow-[0_30px_80px_rgba(0,0,0,0.35),inset_0_1px_1px_rgba(255,255,255,0.05)] hover:-translate-y-1 hover:scale-[1.01] shadow-[0_15px_40px_-15px_rgba(0,0,0,0.2),inset_0_1px_1px_rgba(255,255,255,0.02)]"
                   >
-                    <div className="p-3 rounded-xl bg-primary/5 text-primary flex items-center justify-center h-11 w-11 flex-shrink-0">
-                      <OptIcon className="h-5 w-5" />
+                    <div 
+                      className="absolute top-0 left-6 -translate-y-1/2 w-[54px] h-[54px] rounded-[1rem] flex items-center justify-center transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] backdrop-blur-xl bg-gradient-to-br from-[#FF9A55] to-[#FF6A2A] border border-white/20 shadow-[0_8px_20px_-6px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.3)] rotate-6 group-hover:shadow-[0_12px_30px_-8px_rgba(255,106,42,0.6),inset_0_1px_1px_rgba(255,255,255,0.4)] group-hover:rotate-0 group-hover:scale-110"
+                    >
+                      <OptIcon className="h-6 w-6 transition-all duration-700 text-white group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] group-hover:scale-110" />
                     </div>
-                    <div className="space-y-1">
-                      <h4 className="text-xs font-bold text-[#1a1917] uppercase tracking-tight leading-none">
-                        {opt.title}
-                      </h4>
-                      {opt.href ? (
-                        <a
-                          href={opt.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm font-extrabold text-[#1a1917] hover:text-primary transition-colors block pt-1"
-                        >
-                          {opt.value}
-                        </a>
-                      ) : (
-                        <p className="text-sm font-extrabold text-[#1a1917] pt-1">
-                          {opt.value}
-                        </p>
-                      )}
-                    </div>
+                    
+                    <h4 className="font-extrabold text-sm md:text-base uppercase tracking-tight text-white mb-2">
+                      {opt.title}
+                    </h4>
+                    <p className="text-xs md:text-sm leading-relaxed font-medium text-white/70 whitespace-pre-line mb-3">
+                      {opt.value}
+                    </p>
+                    
+                    {opt.href && (
+                      <a
+                        href={opt.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-auto text-xs font-bold text-[#FF6A2A] hover:text-white transition-colors"
+                      >
+                        {opt.linkText}
+                      </a>
+                    )}
                   </div>
                 );
               })}

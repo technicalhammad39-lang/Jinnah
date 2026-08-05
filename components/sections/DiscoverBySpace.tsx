@@ -93,16 +93,6 @@ export function DiscoverBySpace() {
 
           {/* Section Header */}
           <div className="text-center max-w-3xl mx-auto mb-6 md:mb-10 space-y-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/[0.03] px-4 py-1.5 text-xs font-bold text-muted-foreground uppercase tracking-widest"
-            >
-              <span className="w-2 h-2 rounded-full bg-[#FF6A2A] animate-pulse" />
-              <span>Discover By Space</span>
-            </motion.div>
-
             <motion.h2
               id="discover-by-space-heading"
               initial={{ opacity: 0, y: 20 }}

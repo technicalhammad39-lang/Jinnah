@@ -237,7 +237,7 @@ export function CartDrawer() {
                     }}
                     className="col-span-2 flex cursor-pointer items-center justify-center gap-2 rounded-full bg-primary py-3 px-4 text-xs font-bold uppercase tracking-wider text-white shadow-lg transition-all hover:bg-primary/95 hover:shadow-primary/25"
                   >
-                    <span>Proceed to Secure Checkout</span>
+                    <span>Buy Now</span>
                     <ArrowRight className="h-4 w-4" />
                   </button>
                   <button

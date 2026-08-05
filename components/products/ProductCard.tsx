@@ -30,7 +30,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
   const { addToCart } = useCartActions();
   const { wishlist } = useWishlistState();
   const { toggleWishlist } = useWishlistActions();
-  const { setQuickViewProduct } = useOverlayActions();
+  const { setQuickViewProduct, setCartOpen } = useOverlayActions();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(product.sizes[0] || null);
   const [isAdding, setIsAdding] = useState(false);
@@ -258,32 +258,36 @@ function ProductCardComponent({ product }: ProductCardProps) {
           </div>
         </div>
 
-        <button
-          onClick={handleAddToCart}
-          disabled={isAdding || isSuccess}
-          className={`flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
-            isSuccess
-              ? "bg-emerald-600 text-white"
-              : "bg-[#1a1917] text-white hover:bg-primary hover:shadow-lg hover:shadow-primary/20"
-          }`}
-        >
-          {isAdding ? (
-            <>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={(e) => {
+              handleAddToCart(e);
+              setTimeout(() => setCartOpen(true), 100);
+            }}
+            disabled={isAdding || isSuccess}
+            className={`flex-1 flex cursor-pointer items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
+              isSuccess
+                ? "bg-emerald-600 text-white"
+                : "bg-primary text-white hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20"
+            }`}
+          >
+            {isAdding ? (
               <Loader2 className="h-4 w-4 animate-spin" />
-              <span>Configuring...</span>
-            </>
-          ) : isSuccess ? (
-            <>
+            ) : isSuccess ? (
               <Check className="h-4 w-4" />
-              <span>Added to Cart</span>
-            </>
-          ) : (
-            <>
-              <ShoppingCart className="h-4 w-4" />
-              <span>Add to Cart</span>
-            </>
-          )}
-        </button>
+            ) : (
+              <span>Buy Now</span>
+            )}
+          </button>
+          <button
+            onClick={handleAddToCart}
+            disabled={isAdding || isSuccess}
+            className="flex h-[38px] w-[38px] flex-shrink-0 cursor-pointer items-center justify-center rounded-xl bg-[#1a1917] text-white hover:bg-primary transition-all duration-300"
+            title="Add to Cart"
+          >
+            <ShoppingCart className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </div>
   );

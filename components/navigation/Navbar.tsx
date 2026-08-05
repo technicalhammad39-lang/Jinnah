@@ -19,13 +19,13 @@ import { DesktopMenu } from "./DesktopMenu";
 import { scrollToTarget } from "@/lib/smooth-scroll";
 
 const NAV_LINKS = [
-  { name: "Home", href: "/", isSection: false },
-  { name: "Shop All", href: "/shop", isSection: false },
-  { name: "Categories", href: "#categories-section", isSection: true },
-  { name: "Brands", href: "#brands-section", isSection: true },
-  { name: "About", href: "/about", isSection: false },
-  { name: "Gallery", href: "/gallery", isSection: false },
-  { name: "Contact", href: "/contact", isSection: false },
+  { name: "Home", href: "/" },
+  { name: "Shop All", href: "/shop" },
+  { name: "Categories", href: "/categories" },
+  { name: "Brands", href: "/brands" },
+  { name: "About", href: "/about" },
+  { name: "Gallery", href: "/gallery" },
+  { name: "Contact", href: "/contact" },
 ] as const;
 
 export function Navbar() {
@@ -89,30 +89,9 @@ export function Navbar() {
 
   const handleNavClick = useCallback(
     (event: React.MouseEvent, item: (typeof NAV_LINKS)[number]) => {
-      if (item.isSection) {
-        event.preventDefault();
-        setMobileMenuOpen(false);
-
-        if (pathname !== "/") {
-          router.push("/" + item.href);
-          return;
-        }
-
-        const targetId = item.href.substring(1);
-        const targetElement = document.getElementById(targetId);
-
-        if (!targetElement) {
-          return;
-        }
-
-        scrollToTarget(targetElement, { offset: -90 });
-
-        return;
-      }
-
       setMobileMenuOpen(false);
     },
-    [pathname, router]
+    []
   );
 
   return (
@@ -144,7 +123,7 @@ export function Navbar() {
 
           <Link href="/" className="relative z-10 group flex flex-shrink-0 items-center transition-transform duration-300 hover:scale-105">
             <div className="relative h-10 w-[140px] md:w-[160px]">
-              <Image src="/jinnah-logo.svg" alt="Jinnah Hardware Store" fill className="object-contain object-left" priority />
+              <Image src="/jinnah-logo.webp" alt="Jinnah Hardware Store" fill className="object-contain object-left" priority />
             </div>
           </Link>
 
@@ -213,7 +192,7 @@ export function Navbar() {
             <div className="flex items-center justify-between border-b border-black/5 py-4">
               <Link href="/" className="flex items-center transition-transform hover:scale-105" onClick={() => setMobileMenuOpen(false)}>
                 <div className="relative h-9 w-[130px]">
-                  <Image src="/jinnah-logo.svg" alt="Jinnah Hardware Store" fill className="object-contain object-left" priority />
+                  <Image src="/jinnah-logo.webp" alt="Jinnah Hardware Store" fill className="object-contain object-left" priority />
                 </div>
               </Link>
               <button
@@ -225,23 +204,28 @@ export function Navbar() {
             </div>
 
             <div className="my-8 flex flex-grow flex-col justify-center space-y-4 md:space-y-6">
-              {NAV_LINKS.map((link, index) => (
-                <motion.div
-                  key={link.name}
-                  initial={{ x: -20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: index * 0.05, duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  <Link
-                    href={link.href}
-                    onClick={(event) => handleNavClick(event, link)}
-                    className="group flex items-center justify-between text-2xl font-extrabold text-foreground transition-colors duration-300 hover:text-primary md:text-4xl"
+              {NAV_LINKS.map((link, index) => {
+                const isActive = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
+                return (
+                  <motion.div
+                    key={link.name}
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: index * 0.05, duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
                   >
-                    <span>{link.name}</span>
-                    <ArrowRight className="h-6 w-6 -translate-x-4 text-primary opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100" />
-                  </Link>
-                </motion.div>
-              ))}
+                    <Link
+                      href={link.href}
+                      onClick={(event) => handleNavClick(event, link)}
+                      className={`group flex items-center justify-between text-2xl font-extrabold transition-colors duration-300 hover:text-primary md:text-4xl ${
+                        isActive ? "text-primary" : "text-foreground"
+                      }`}
+                    >
+                      <span>{link.name}</span>
+                      <ArrowRight className={`h-6 w-6 -translate-x-4 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 ${isActive ? "text-primary translate-x-0 opacity-100" : "text-primary opacity-0"}`} />
+                    </Link>
+                  </motion.div>
+                );
+              })}
             </div>
 
             <div className="space-y-4 border-t border-black/5 pt-6">

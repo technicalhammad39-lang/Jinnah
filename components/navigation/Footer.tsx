@@ -36,7 +36,7 @@ export function Footer() {
         <div className="space-y-6 lg:col-span-4">
           <Link href="/" className="flex items-center group transition-transform hover:scale-105 w-fit">
             <div className="relative h-12 w-[160px]">
-              <Image src="/jinnah-logo.svg" alt="Jinnah Hardware Store" fill className="object-contain object-left" />
+              <Image src="/jinnah-logo.webp" alt="Jinnah Hardware Store" fill className="object-contain object-left" />
             </div>
           </Link>
           <p className="max-w-sm text-xs leading-relaxed font-medium text-white/50">
@@ -133,7 +133,7 @@ export function Footer() {
                   Address
                 </span>
                 <span className="text-xs font-semibold text-white/70">
-                  Main Hardware Bazaar, Pakistan
+                  Opposite Gulbarag Town, Bahawalpur Road, Hasilpur
                 </span>
               </div>
             </li>

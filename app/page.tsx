@@ -3,7 +3,7 @@ import { Navbar } from "@/components/navigation/Navbar";
 import { AnimatedMarqueeHero } from "@/components/hero/AnimatedMarqueeHero";
 import { CategorySection } from "@/components/sections/CategorySection";
 import { DiscoverBySpace } from "@/components/sections/DiscoverBySpace";
-import { ProductCard } from "@/components/products/ProductCard";
+import { FeaturedProductsCarousel } from "@/components/sections/FeaturedProductsCarousel";
 import { BrandsSection } from "@/components/sections/BrandsSection";
 import { WhyChooseUs } from "@/components/sections/WhyChooseUs";
 import { AboutSection } from "@/components/sections/AboutSection";
@@ -14,6 +14,20 @@ import { AgencyCredit } from "@/components/sections/AgencyCredit";
 import { Footer } from "@/components/navigation/Footer";
 import { ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Jinnah Hardware Store | Pakistan's Premier Architectural Hardware",
+  description: "Pakistan's premier purveyor of luxury architectural hardware, bridging the gap between world-class engineering and exceptional local design.",
+  openGraph: {
+    title: "Jinnah Hardware Store - Premium Architectural Hardware",
+    description: "Pakistan's premier purveyor of luxury architectural hardware.",
+    url: "https://jinnahhardware.com",
+    siteName: "Jinnah Hardware Store",
+    locale: "en_PK",
+    type: "website",
+  },
+};
 
 export default function Home() {
   // Select top 10 products for the Homepage Featured grid so it fills extra space when zoomed out
@@ -57,14 +71,7 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Product Cards Row */}
-          <div className="flex flex-nowrap overflow-hidden gap-6 xl:gap-8 py-2">
-            {featuredProducts.map((product) => (
-              <div key={product.id} className="w-[85vw] sm:w-[340px] lg:w-[380px] shrink-0">
-                <ProductCard product={product} />
-              </div>
-            ))}
-          </div>
+          <FeaturedProductsCarousel products={featuredProducts} />
 
           {/* Bottom Action */}
           <div className="mt-14 flex items-center justify-center gap-6">

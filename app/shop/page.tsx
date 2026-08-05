@@ -139,7 +139,7 @@ function ShopContent() {
   return (
     <div className="min-h-screen flex flex-col justify-between bg-transparent pt-28">
       {/* Search Header Area */}
-      <div className="max-w-7xl mx-auto px-6 w-full text-left py-8">
+      <div className="max-w-[1740px] mx-auto px-6 w-full text-left py-8">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-black/5 pb-8 gap-4">
           <div>
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">
@@ -192,7 +192,7 @@ function ShopContent() {
       </div>
 
       {/* Main Tab Rendering Block */}
-      <div className="max-w-7xl mx-auto px-6 w-full flex-grow pb-24">
+      <div className="max-w-[1740px] mx-auto px-6 md:px-8 xl:px-12 w-full flex-grow pb-24">
         {activeTab === "products" && (
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
             
@@ -284,37 +284,39 @@ function ShopContent() {
                 </div>
               </div>
 
+              {/* Sort By Selector */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <ArrowUpDown className="h-3 w-3 text-primary" />
+                  <span className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Sort By</span>
+                </div>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full px-4.5 py-2.5 rounded-xl border border-black/10 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-xs font-bold bg-white/60 cursor-pointer"
+                >
+                  <option value="featured">Featured Picks</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                  <option value="rating">User Rating</option>
+                </select>
+              </div>
+
+              {/* Found Count */}
+              <div className="pt-4 border-t border-black/5">
+                <div className="text-xs font-semibold text-muted-foreground text-left">
+                  Found <span className="font-extrabold text-foreground">{sortedProducts.length}</span> Premium Products
+                </div>
+              </div>
+
             </div>
 
             {/* Catalog Grid Area (Col 3) */}
             <div className="lg:col-span-3 space-y-6">
               
-              {/* Toolbar */}
-              <div className="flex flex-col gap-3 rounded-2xl border border-black/10 bg-white/80 p-4 shadow-[0_12px_28px_rgba(26,25,23,0.04)] backdrop-blur-md sm:flex-row sm:items-center sm:justify-between">
-                <div className="text-xs font-semibold text-muted-foreground text-left">
-                  Found <span className="font-extrabold text-foreground">{sortedProducts.length}</span> high-end hardware products
-                </div>
-
-                {/* Sorting Select */}
-                <div className="flex items-center gap-2 text-xs ml-auto sm:ml-0">
-                  <ArrowUpDown className="h-4 w-4 text-primary" />
-                  <span className="font-bold text-muted-foreground">Sort:</span>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="rounded-lg border border-black/10 bg-white/90 p-1.5 text-xs font-bold text-[#1a1917] outline-none focus:border-primary"
-                  >
-                    <option value="featured">Featured Picks</option>
-                    <option value="price-asc">Price: Low to High</option>
-                    <option value="price-desc">Price: High to Low</option>
-                    <option value="rating">User Rating</option>
-                  </select>
-                </div>
-              </div>
-
               {/* Staggered dynamic grid */}
               {displayedProducts.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
                   {displayedProducts.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
@@ -360,7 +362,7 @@ function ShopContent() {
         {activeTab === "wishlist" && (
           <div className="space-y-6">
             {wishlistProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
                 {wishlistProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
