@@ -28,14 +28,14 @@ export function AboutSection() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center">
           
           {/* Left: Premium Image Overlap Collage */}
-          <div className="lg:col-span-6 relative h-[360px] md:h-[480px] w-full max-w-[500px] mx-auto lg:mx-0">
+          <div className="lg:col-span-6 relative h-[400px] md:h-[500px] lg:h-[550px] xl:h-[650px] w-full max-w-[500px] sm:max-w-[600px] mx-auto lg:max-w-none lg:mx-0 lg:pr-10 xl:pr-16">
             {/* Base Image */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="absolute left-0 bottom-0 w-[80%] h-[80%] rounded-[32px] overflow-hidden shadow-xl bg-[#efece6] border border-white"
+              className="absolute left-0 bottom-0 w-[80%] h-[80%] rounded-[32px] overflow-hidden shadow-xl bg-[#efece6] border border-white z-0"
             >
               <Image
                 src="https://picsum.photos/seed/about1/800/800"
@@ -69,7 +69,7 @@ export function AboutSection() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.4 }}
-              className="absolute left-0 sm:-left-6 top-1/2 -translate-y-1/2 p-5 rounded-2xl bg-white/95 backdrop-blur-md shadow-[0_15px_40px_rgba(0,0,0,0.12)] border border-black/5 flex items-center gap-4"
+              className="absolute left-0 sm:-left-6 top-1/2 -translate-y-1/2 p-5 rounded-2xl bg-white/95 backdrop-blur-md shadow-[0_15px_40px_rgba(0,0,0,0.12)] border border-black/5 flex items-center gap-4 z-20"
             >
               <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white shadow-inner">
                 <User className="h-6 w-6 fill-white/20" />

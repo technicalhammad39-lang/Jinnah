@@ -6,7 +6,7 @@ import Image from "next/image";
 
 export function AgencyCredit() {
   return (
-    <section className="py-24 bg-[#1a1917] text-white relative overflow-hidden z-10 border-t border-white/10">
+    <section className="py-24 bg-[#1a1917] text-white relative overflow-hidden z-10 border-y border-white/10">
       {/* Heavy orange glow behind content */}
       <div 
         className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[40vw] h-[40vw] rounded-full radial-gradient opacity-[0.15] blur-[100px]"
@@ -42,11 +42,11 @@ export function AgencyCredit() {
               </div>
             </div>
             
-            <div className="space-y-1">
-              <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest">
+            <div className="space-y-2">
+              <p className="text-xs md:text-sm font-extrabold text-[#FF6A2A] uppercase tracking-widest">
                 Website Designed & Developed By
               </p>
-              <h3 className="text-xl md:text-2xl font-black tracking-tight text-white">
+              <h3 className="text-2xl md:text-4xl font-black tracking-tight text-white">
                 Clyro Tech Solutions
               </h3>
             </div>

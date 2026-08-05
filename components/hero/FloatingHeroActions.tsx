@@ -161,7 +161,7 @@ const labelVariants = {
 const iconBgVariants = {
   collapsed: {
     scale: 1,
-    backgroundColor: "rgba(255,255,255,0.7)",
+    backgroundColor: "#ffffff",
     color: "#FF6A2A",
     rotate: 0,
     boxShadow: "inset 0 1px 1px rgba(255,255,255,0.8), 0 2px 8px rgba(0,0,0,0)",
@@ -169,7 +169,7 @@ const iconBgVariants = {
   },
   expanded: {
     scale: 1,
-    backgroundColor: "rgba(255,255,255,0.95)",
+    backgroundColor: "#ffffff",
     color: "#FF6A2A",
     rotate: 0,
     boxShadow: "inset 0 1px 1px rgba(255,255,255,0.8), 0 2px 8px rgba(0,0,0,0)",

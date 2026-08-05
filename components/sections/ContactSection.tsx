@@ -50,21 +50,18 @@ export function ContactSection() {
   const contactOptions = [
     {
       title: "Direct WhatsApp Line",
-      desc: "Instant text coordination, order placement & pictures sharing",
       value: "+92 300 0421772",
       icon: MessageSquare,
       href: "https://wa.me/923000421772",
     },
     {
       title: "Phone Call Desk",
-      desc: "Speak with veteran estimators or tool engineers",
       value: "0300-0421772",
       icon: Phone,
       href: "tel:03000421772",
     },
     {
       title: "Store Location Desk",
-      desc: "Visit the physical showroom bazaar in Pakistan",
       value: "Main Hardware Bazaar, Pakistan",
       icon: MapPin,
     },
@@ -76,7 +73,7 @@ export function ContactSection() {
       <div className="absolute top-[20%] right-[20%] w-[35vw] h-[35vw] rounded-full glow-blob-orange opacity-[0.1]" />
 
       <div className="max-w-[1740px] mx-auto px-6 md:px-8 xl:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-stretch">
           
           {/* Left Side: Contact Information & WhatsApp Links */}
           <div className="lg:col-span-5 space-y-8 text-left">
@@ -109,9 +106,6 @@ export function ContactSection() {
                       <h4 className="text-xs font-bold text-[#1a1917] uppercase tracking-tight leading-none">
                         {opt.title}
                       </h4>
-                      <p className="text-[10px] text-muted-foreground font-medium leading-tight">
-                        {opt.desc}
-                      </p>
                       {opt.href ? (
                         <a
                           href={opt.href}
@@ -134,7 +128,7 @@ export function ContactSection() {
           </div>
 
           {/* Right Side: Inquiry Form with dynamic success states */}
-          <div className="lg:col-span-7 bg-white p-6 md:p-10 rounded-[32px] shadow-xl border border-black/5 text-left relative">
+          <div className="lg:col-span-7 bg-white p-6 md:p-10 rounded-[32px] shadow-xl border border-black/5 text-left relative flex flex-col justify-center h-full">
             <AnimatePresence mode="wait">
               {!isSuccess ? (
                 <motion.form

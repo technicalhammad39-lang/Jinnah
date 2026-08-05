@@ -7,6 +7,7 @@ import {
   Phone,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { ScrollToTopButton } from "./ScrollToTopButton";
 
 const quickLinks = [
@@ -33,17 +34,9 @@ export function Footer() {
 
       <div className="mx-auto grid max-w-[1740px] grid-cols-1 gap-12 border-b border-white/5 px-6 md:px-8 xl:px-12 pb-16 text-left md:grid-cols-2 md:gap-8 lg:grid-cols-12">
         <div className="space-y-6 lg:col-span-4">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-white shadow-md shadow-primary/20">
-              J
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-extrabold leading-tight tracking-tight text-white md:text-base">
-                JINNAH
-              </span>
-              <span className="text-[9px] font-bold leading-none tracking-widest text-primary md:text-[10px]">
-                HARDWARE STORE
-              </span>
+          <Link href="/" className="flex items-center group transition-transform hover:scale-105 w-fit">
+            <div className="relative h-12 w-[160px]">
+              <Image src="/jinnah-logo.svg" alt="Jinnah Hardware Store" fill className="object-contain object-left" />
             </div>
           </Link>
           <p className="max-w-sm text-xs leading-relaxed font-medium text-white/50">

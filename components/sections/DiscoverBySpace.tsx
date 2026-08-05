@@ -74,7 +74,7 @@ export function DiscoverBySpace() {
         ref={sectionRef}
         id="categories-section"
         aria-labelledby="discover-by-space-heading"
-        className="relative pt-16 pb-32 md:pt-24 md:pb-40 overflow-hidden bg-transparent z-10"
+        className="relative pt-16 pb-12 md:pt-24 md:pb-16 overflow-hidden bg-transparent z-10"
       >
         {/* Background */}
         <div className="absolute inset-0 pointer-events-none z-0" aria-hidden="true">
@@ -92,7 +92,7 @@ export function DiscoverBySpace() {
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
           {/* Section Header */}
-          <div className="text-center max-w-3xl mx-auto mb-12 md:mb-20 space-y-4">
+          <div className="text-center max-w-3xl mx-auto mb-6 md:mb-10 space-y-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}

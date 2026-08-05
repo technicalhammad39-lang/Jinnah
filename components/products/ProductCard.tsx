@@ -107,7 +107,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
     <div
       className="group relative flex w-full flex-col overflow-hidden rounded-3xl border border-black/5 bg-[#faf9f6] shadow-sm transition-all duration-500 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 h-full premium-transform"
     >
-      <div className="relative h-[220px] sm:h-[240px] w-full shrink-0 overflow-hidden bg-[#efece6]" data-cursor="view">
+      <div className="relative h-[260px] sm:h-[280px] lg:h-[300px] w-full shrink-0 overflow-hidden bg-[#efece6]" data-cursor="view">
         <Link href={`/shop?product=${product.id}`} className="block h-full w-full">
           <motion.div
             key={product.images[currentImageIndex]}

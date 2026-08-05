@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { DesktopMenu } from "./DesktopMenu";
 import { scrollToTarget } from "@/lib/smooth-scroll";
@@ -141,17 +142,9 @@ export function Navbar() {
             <div className="absolute inset-x-[16%] top-0 h-px rounded-full bg-white/70 blur-[0.5px]" />
           </div>
 
-          <Link href="/" className="relative z-10 group flex flex-shrink-0 items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white shadow-[0_10px_22px_rgba(224,90,43,0.28)] transition-transform duration-300 group-hover:scale-105">
-              J
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-extrabold leading-tight tracking-tight text-[#1a1917] md:text-base">
-                JINNAH
-              </span>
-              <span className="text-[9px] font-bold leading-none tracking-widest text-primary md:text-[10px]">
-                HARDWARE STORE
-              </span>
+          <Link href="/" className="relative z-10 group flex flex-shrink-0 items-center transition-transform duration-300 hover:scale-105">
+            <div className="relative h-10 w-[140px] md:w-[160px]">
+              <Image src="/jinnah-logo.svg" alt="Jinnah Hardware Store" fill className="object-contain object-left" priority />
             </div>
           </Link>
 
@@ -218,17 +211,9 @@ export function Navbar() {
             className="fixed inset-0 z-50 flex flex-col bg-[#faf9f6]/92 p-6 backdrop-blur-2xl lg:hidden"
           >
             <div className="flex items-center justify-between border-b border-black/5 py-4">
-              <Link href="/" className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
-                  J
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-sm font-extrabold leading-tight tracking-tight text-[#1a1917]">
-                    JINNAH
-                  </span>
-                  <span className="text-[9px] font-bold leading-none tracking-widest text-primary">
-                    HARDWARE STORE
-                  </span>
+              <Link href="/" className="flex items-center transition-transform hover:scale-105" onClick={() => setMobileMenuOpen(false)}>
+                <div className="relative h-9 w-[130px]">
+                  <Image src="/jinnah-logo.svg" alt="Jinnah Hardware Store" fill className="object-contain object-left" priority />
                 </div>
               </Link>
               <button

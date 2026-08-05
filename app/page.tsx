@@ -16,8 +16,8 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
-  // Select top 4 products for the Homepage Featured grid
-  const featuredProducts = PRODUCTS.slice(0, 4);
+  // Select top 10 products for the Homepage Featured grid so it fills extra space when zoomed out
+  const featuredProducts = PRODUCTS.slice(0, 10);
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-transparent">
@@ -58,9 +58,11 @@ export default function Home() {
           </div>
 
           {/* Product Cards Row */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="flex flex-nowrap overflow-hidden gap-6 xl:gap-8 py-2">
             {featuredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <div key={product.id} className="w-[85vw] sm:w-[340px] lg:w-[380px] shrink-0">
+                <ProductCard product={product} />
+              </div>
             ))}
           </div>
 
