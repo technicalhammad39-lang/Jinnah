@@ -12,7 +12,7 @@ export function UseCases() {
       icon: Home,
     },
     {
-      title: "Commercial High-Rises",
+      title: "Commercial Rises",
       desc: "Supplying certified Grade-1 structural steel hinges, door closer mechanisms, and heavy mortise hardware.",
       image: "https://picsum.photos/seed/case2/600/450",
       icon: Building2,
@@ -36,7 +36,7 @@ export function UseCases() {
       {/* Background decoration */}
       <div className="absolute top-[40%] right-[10%] w-[35vw] h-[35vw] rounded-full glow-blob-orange opacity-[0.15]" />
 
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-[1740px] mx-auto px-6 md:px-8 xl:px-12">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-16 md:mb-20 space-y-4">
           <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
@@ -84,7 +84,7 @@ export function UseCases() {
                     <p className="text-xs text-white/70 leading-relaxed font-medium mt-2">
                       {item.desc}
                     </p>
-                    
+
                     {/* Tiny visual detail */}
                     <div className="flex items-center gap-1.5 text-primary text-[10px] font-extrabold uppercase tracking-widest mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <span>Inspect Project Specs</span>

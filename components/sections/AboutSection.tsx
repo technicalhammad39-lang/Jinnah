@@ -2,15 +2,14 @@
 
 import Image from "next/image";
 import { motion } from "motion/react";
-import { ArrowRight, Star, History, Users, Award } from "lucide-react";
-import Link from "next/link";
+import { ArrowRight, User, ShieldCheck, Briefcase } from "lucide-react";
 import { scrollToTarget } from "@/lib/smooth-scroll";
 
 export function AboutSection() {
-  const stats = [
-    { value: "35+", label: "Years Experience", icon: History },
-    { value: "12,000+", label: "Builders Served", icon: Users },
-    { value: "50+", label: "Global Brands", icon: Award },
+  const infoCards = [
+    { value: "Ahsan Khalil", label: "Founder & CEO", icon: User },
+    { value: "Hardware Specialist", label: "Experience", icon: Briefcase },
+    { value: "Smart Security", label: "Core Focus", icon: ShieldCheck },
   ];
 
   const handleLearnMoreClick = (e: React.MouseEvent) => {
@@ -25,7 +24,7 @@ export function AboutSection() {
     <section id="about-section" className="py-24 md:py-32 bg-black/[0.01] relative z-10 border-y border-black/5">
       <div className="absolute top-[30%] left-[10%] w-[35vw] h-[35vw] rounded-full glow-blob-orange opacity-[0.15]" />
 
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-[1740px] mx-auto px-6 md:px-8 xl:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center">
           
           {/* Left: Premium Image Overlap Collage */}
@@ -64,31 +63,31 @@ export function AboutSection() {
               />
             </motion.div>
 
-            {/* Floating Trust Card Badge */}
+            {/* Floating Vision Badge */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.4 }}
-              className="absolute left-6 top-1/2 -translate-y-1/2 p-4.5 rounded-2xl bg-white/90 backdrop-blur-md shadow-lg border border-black/5 flex items-center gap-3"
+              className="absolute left-0 sm:-left-6 top-1/2 -translate-y-1/2 p-5 rounded-2xl bg-white/95 backdrop-blur-md shadow-[0_15px_40px_rgba(0,0,0,0.12)] border border-black/5 flex items-center gap-4"
             >
-              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white">
-                <Star className="h-5 w-5 fill-white" />
+              <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white shadow-inner">
+                <User className="h-6 w-6 fill-white/20" />
               </div>
               <div className="text-left">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                  Elite Rating
+                <p className="text-[10px] font-extrabold text-primary uppercase tracking-widest">
+                  Vision Led Since Day One
                 </p>
-                <p className="text-xs font-black text-foreground">
-                  4.9/5 Google Maps (1.2k Reviews)
+                <p className="text-sm font-black text-[#1a1917] mt-0.5">
+                  Ahsan Khalil
                 </p>
               </div>
             </motion.div>
           </div>
 
-          {/* Right: Narrative & Stats */}
-          <div className="lg:col-span-6 space-y-8 text-left">
-            <div className="space-y-4">
+          {/* Right: Narrative & Info Cards */}
+          <div className="lg:col-span-6 space-y-10 text-left">
+            <div className="space-y-6">
               <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                 <span>Our Heritage</span>
               </div>
@@ -96,28 +95,33 @@ export function AboutSection() {
                 Serving Pakistan&apos;s <br />
                 <span className="text-primary font-stylish normal-case text-[1.1em]">Elite Architecture</span>
               </h2>
-              <p className="text-sm md:text-base text-muted-foreground leading-relaxed font-medium">
-                Jinnah Hardware Store has stood as a pioneer of quality fittings and industrial tools since inception. We cater to leading contractors, architectural designers, woodcrafters, and homeowners seeking hardware that operates flawlessly and makes a solid statement of luxury.
-              </p>
-              <p className="text-xs text-muted-foreground leading-relaxed font-medium">
-                Our legacy rests on three uncompromising columns: curated brand selection, unmatched domain knowledge, and transparent contracting relationships.
-              </p>
+              
+              <div className="space-y-4 text-sm md:text-base text-muted-foreground leading-relaxed font-medium">
+                <p>
+                  Jinnah Hardware Store was founded with a singular vision: to bridge the gap between world-class architectural hardware and Pakistan's rapidly evolving premium construction sector. Under the leadership of Ahsan Khalil, we have grown from a specialized local vendor into a trusted partner for the country's most ambitious building projects.
+                </p>
+                <p>
+                  We believe that hardware is the tactile interface of architecture. Every door handle, smart lock, and structural hinge we supply is meticulously evaluated for endurance, aesthetic brilliance, and mechanical precision. Our commitment goes beyond merely supplying products; we provide deep technical consulting and forge long-term, transparent relationships with elite contractors and designers.
+                </p>
+              </div>
             </div>
 
-            {/* Stats Row */}
-            <div className="grid grid-cols-3 gap-4 py-6 border-y border-black/[0.06]">
-              {stats.map((stat) => {
-                const StatIcon = stat.icon;
+            {/* Info Cards Row (Replacing Fake Stats) */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 py-8 border-y border-black/[0.06]">
+              {infoCards.map((card) => {
+                const CardIcon = card.icon;
                 return (
-                  <div key={stat.label} className="space-y-1.5">
-                    <div className="flex items-center gap-1.5 text-primary">
-                      <StatIcon className="h-4 w-4" />
-                      <span className="text-xl md:text-3xl font-black text-[#1a1917]">
-                        {stat.value}
-                      </span>
+                  <div key={card.label} className="space-y-2 group">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                        <CardIcon className="h-4 w-4" />
+                      </div>
+                      <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                        {card.label}
+                      </p>
                     </div>
-                    <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                      {stat.label}
+                    <p className="text-sm md:text-base font-black text-[#1a1917] leading-tight">
+                      {card.value}
                     </p>
                   </div>
                 );
@@ -131,7 +135,7 @@ export function AboutSection() {
                 onClick={handleLearnMoreClick}
                 className="group inline-flex items-center gap-2 px-6.5 py-3.5 rounded-full bg-[#1a1917] hover:bg-primary text-white text-xs font-bold uppercase tracking-widest transition-all duration-300 shadow-md cursor-pointer"
               >
-                <span>Learn More About Us</span>
+                <span>Connect With The Founder</span>
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1.5 transition-transform duration-300" />
               </a>
             </div>

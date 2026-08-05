@@ -36,9 +36,9 @@ const TABS = [
   { title: "Shop All", href: "/shop", Component: ShopAll },
   { title: "Categories", href: "/#categories-section", Component: Categories },
   { title: "Brands", href: "/#brands-section", Component: BrandsMenu },
-  { title: "About", href: "/#about-section", Component: null },
-  { title: "Gallery", href: "/#gallery-section", Component: null },
-  { title: "Contact", href: "/#contact-section", Component: null },
+  { title: "About", href: "/about", Component: null },
+  { title: "Gallery", href: "/gallery", Component: null },
+  { title: "Contact", href: "/contact", Component: null },
 ].map((item, index) => ({ ...item, id: index + 1 }));
 
 function Tabs() {
@@ -169,14 +169,13 @@ function Cursor({
 }) {
   return (
     <motion.div
-      initial={{ x: 0, scaleX: 0, opacity: 0 }}
       animate={{
         x: position.left,
-        scaleX: position.width > 0 ? position.width / 100 : 0,
+        width: position.width,
         opacity: position.opacity,
       }}
       transition={{ type: "spring", stiffness: 330, damping: 30, mass: 0.72 }}
-      className="absolute left-0 z-0 h-[36px] w-[100px] origin-left rounded-full bg-[#1f1b17] shadow-[0_12px_28px_rgba(26,25,23,0.18)] will-change-transform"
+      className="absolute left-0 top-1/2 z-0 h-[34px] -translate-y-1/2 rounded-full bg-[#1f1b17] shadow-[0_12px_28px_rgba(26,25,23,0.18)] will-change-transform"
     />
   );
 }

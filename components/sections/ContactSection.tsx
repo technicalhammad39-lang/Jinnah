@@ -75,7 +75,7 @@ export function ContactSection() {
       {/* Background blobs */}
       <div className="absolute top-[20%] right-[20%] w-[35vw] h-[35vw] rounded-full glow-blob-orange opacity-[0.1]" />
 
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-[1740px] mx-auto px-6 md:px-8 xl:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           
           {/* Left Side: Contact Information & WhatsApp Links */}
@@ -263,6 +263,20 @@ export function ContactSection() {
             </AnimatePresence>
           </div>
 
+        </div>
+
+        {/* Bottom Full-Width Premium Edge-to-Edge Map */}
+        <div className="mt-16 md:mt-24 w-full rounded-[32px] overflow-hidden shadow-2xl border-4 border-white bg-[#efece6] h-[400px] md:h-[500px] relative">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d13601.597793740926!2d74.3259!3d31.5401!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391904c000000000%3A0x0!2sJinnah+Hardware+Store!5e0!3m2!1sen!2s!4v1700000000000!5m2!1sen!2s"
+            width="100%"
+            height="100%"
+            style={{ border: 0 }}
+            allowFullScreen={false}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            className="filter contrast-100 saturate-100"
+          />
         </div>
       </div>
     </section>

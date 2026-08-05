@@ -280,7 +280,7 @@ export function AnimatedMarqueeHero({
           className="relative z-20 mx-auto flex w-full max-w-[1740px] flex-1 flex-col items-center justify-center pb-2 sm:pb-3 lg:pb-4 xl:pb-6"
         >
 
-          <div className="w-full max-w-[92rem] space-y-5 sm:space-y-6 lg:space-y-7">
+          <div className="w-full max-w-[92rem] space-y-5 sm:space-y-6 lg:space-y-7 mt-10 sm:mt-14 md:mt-16">
             <h1 className="mx-auto w-full text-balance text-[3.1rem] font-black leading-[0.95] tracking-[-0.052em] sm:text-[4.25rem] md:text-[5rem] lg:text-[5.35rem] xl:text-[6rem] 2xl:text-[6.85rem]">
               {titleLines.map((line, lineIndex) => {
                 const isFirstLine = lineIndex === 0;

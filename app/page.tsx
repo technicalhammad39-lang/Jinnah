@@ -9,9 +9,8 @@ import { WhyChooseUs } from "@/components/sections/WhyChooseUs";
 import { AboutSection } from "@/components/sections/AboutSection";
 import { UseCases } from "@/components/sections/UseCases";
 import { GallerySection } from "@/components/sections/GallerySection";
-import { MapSection } from "@/components/sections/MapSection";
 import { ContactSection } from "@/components/sections/ContactSection";
-import { NewsletterCTA } from "@/components/sections/NewsletterCTA";
+import { AgencyCredit } from "@/components/sections/AgencyCredit";
 import { Footer } from "@/components/navigation/Footer";
 import { ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
@@ -40,7 +39,7 @@ export default function Home() {
       <section id="featured-products-section" className="relative z-10 bg-transparent pt-8 pb-16 md:pt-12 md:pb-24">
         <div className="absolute top-[30%] left-[5%] h-[35vw] w-[35vw] rounded-full glow-blob-orange opacity-[0.1]" />
 
-        <div className="mx-auto max-w-7xl px-6">
+        <div className="mx-auto max-w-[1740px] px-6 md:px-8 xl:px-12">
           {/* Header */}
           <div className="mb-8 flex flex-col items-start justify-between gap-4 md:mb-12 md:flex-row md:items-end">
             <div className="max-w-2xl space-y-4 text-left">
@@ -66,14 +65,16 @@ export default function Home() {
           </div>
 
           {/* Bottom Action */}
-          <div className="mt-14 text-center">
+          <div className="mt-14 flex items-center justify-center gap-6">
+            <div className="h-[2px] w-16 sm:w-32 md:w-48 bg-gradient-to-l from-primary via-primary/50 to-transparent rounded-full shadow-[0_0_8px_rgba(255,90,31,0.5)] opacity-80" />
             <Link
               href="/shop"
-              className="group inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#1a1917] px-7 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-md transition-all duration-300 hover:bg-primary"
+              className="group inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#1a1917] px-7 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-md transition-all duration-300 hover:bg-primary hover:shadow-[0_0_15px_rgba(255,90,31,0.4)]"
             >
               <span>View All Catalog Innovations</span>
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1.5" />
             </Link>
+            <div className="h-[2px] w-16 sm:w-32 md:w-48 bg-gradient-to-r from-primary via-primary/50 to-transparent rounded-full shadow-[0_0_8px_rgba(255,90,31,0.5)] opacity-80" />
           </div>
         </div>
       </section>
@@ -96,16 +97,13 @@ export default function Home() {
       {/* 10. Custom masonry visual gallery */}
       <GallerySection />
 
-      {/* 11. Location coordination map */}
-      <MapSection />
-
-      {/* 12. Dynamic form contacts desk */}
+      {/* 11. Dynamic form contacts desk */}
       <ContactSection />
 
-      {/* 13. Email subscriptions desk */}
-      <NewsletterCTA />
+      {/* 12. Agency Credit */}
+      <AgencyCredit />
 
-      {/* 14. Premium Brand Footer */}
+      {/* 13. Premium Brand Footer */}
       <Footer />
     </div>
   );

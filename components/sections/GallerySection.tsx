@@ -14,7 +14,7 @@ export function GallerySection() {
     <section id="gallery-section" className="pt-8 pb-24 md:pt-12 md:pb-32 w-full relative z-10 bg-transparent">
       <div className="absolute bottom-[10%] right-[5%] w-[45vw] h-[45vw] rounded-full glow-blob-orange opacity-[0.1]" />
 
-      <div className="max-w-7xl mx-auto px-6 mb-12 md:mb-16">
+      <div className="max-w-[1740px] mx-auto px-6 md:px-8 xl:px-12 mb-12 md:mb-16">
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
           <div className="space-y-4 max-w-2xl text-left">
             <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
@@ -34,13 +34,21 @@ export function GallerySection() {
       {/* Interactive Expandable Panels Gallery (InteractiveSelector Concept) */}
       <div className="w-full px-4 sm:px-6">
         <div className="flex flex-col lg:flex-row h-[700px] lg:h-[600px] w-full max-w-[1400px] mx-auto gap-2 lg:gap-4">
-          {GALLERY_ITEMS.map((item) => {
+          {GALLERY_ITEMS.map((item, index) => {
             const isActive = activeItem === item.id;
             
             return (
               <motion.div
                 data-gallery-panel
                 key={item.id}
+                initial={{ opacity: 0, y: 40, scale: 0.98 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, margin: "-10%" }}
+                transition={{ 
+                  duration: 0.7, 
+                  delay: index * 0.12, 
+                  ease: [0.22, 1, 0.36, 1] 
+                }}
                 className={cn(
                   "relative rounded-[2rem] overflow-hidden cursor-pointer transition-all duration-700 ease-in-out border border-black/5 bg-[#efece6] premium-transform",
                   isActive ? "flex-[4] lg:flex-[5]" : "flex-[1] hover:flex-[1.2]"

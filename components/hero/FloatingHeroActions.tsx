@@ -49,11 +49,11 @@ const ACTIONS: DockAction[] = [
   },
 ];
 
-const DOCK_TRANSITION = {
-  type: "spring" as const,
+const DOCK_SPRING = {
+  type: "spring",
   stiffness: 280,
   damping: 28,
-  mass: 0.78,
+  mass: 0.75,
 };
 
 function LocationIcon({ className }: DockIconProps) {
@@ -88,6 +88,102 @@ function WhatsAppIcon({ className }: DockIconProps) {
     </svg>
   );
 }
+
+const containerVariants = {
+  collapsed: {
+    width: 64,
+    borderRadius: 32,
+    boxShadow: "inset 0 1px 1px rgba(255,255,255,0.7), 0 12px 32px rgba(22,18,14,0.08), 0 0 0 1px rgba(255,255,255,0.2)",
+    backgroundColor: "rgba(255,255,255,0.25)",
+    backdropFilter: "blur(16px) saturate(1.2)",
+    WebkitBackdropFilter: "blur(16px) saturate(1.2)",
+    transition: { ...DOCK_SPRING, delay: 0.15 }
+  },
+  expanded: {
+    width: 196,
+    borderRadius: 32,
+    boxShadow: "inset 0 1px 1px rgba(255,255,255,0.95), 0 24px 64px rgba(255,106,42,0.15), 0 0 0 1px rgba(255,255,255,0.4)",
+    backgroundColor: "rgba(255,255,255,0.5)",
+    backdropFilter: "blur(28px) saturate(1.2)",
+    WebkitBackdropFilter: "blur(28px) saturate(1.2)",
+    transition: { ...DOCK_SPRING }
+  }
+};
+
+const buttonVariants = {
+  collapsed: {
+    width: 48,
+    backgroundColor: "rgba(255,255,255,0.35)",
+    boxShadow: "inset 0 1px 1px rgba(255,255,255,0.5), 0 4px 12px rgba(0,0,0,0.05)",
+    y: 0,
+    transition: { ...DOCK_SPRING, delay: 0.1 }
+  },
+  expanded: {
+    width: 180,
+    backgroundColor: "rgba(255,255,255,0.75)",
+    boxShadow: "inset 0 1px 1px rgba(255,255,255,0.9), 0 8px 24px rgba(0,0,0,0.08)",
+    y: 0,
+    transition: { ...DOCK_SPRING }
+  },
+  hover: {
+    width: 180,
+    backgroundColor: "rgba(255,255,255,0.95)",
+    boxShadow: "inset 0 1px 1px rgba(255,255,255,1), 0 12px 32px rgba(0,0,0,0.12)",
+    y: -2,
+    transition: { ...DOCK_SPRING }
+  }
+};
+
+const labelVariants = {
+  collapsed: {
+    opacity: 0,
+    x: 10,
+    filter: "blur(4px)",
+    WebkitFilter: "blur(4px)",
+    transition: { duration: 0.15, ease: "easeOut", delay: 0 }
+  },
+  expanded: {
+    opacity: 1,
+    x: 0,
+    filter: "blur(0px)",
+    WebkitFilter: "blur(0px)",
+    transition: { duration: 0.3, ease: "easeOut", delay: 0.15 }
+  },
+  hover: {
+    opacity: 1,
+    x: 0,
+    filter: "blur(0px)",
+    WebkitFilter: "blur(0px)",
+    transition: { duration: 0.3, ease: "easeOut" }
+  }
+};
+
+const iconBgVariants = {
+  collapsed: {
+    scale: 1,
+    backgroundColor: "rgba(255,255,255,0.7)",
+    color: "#FF6A2A",
+    rotate: 0,
+    boxShadow: "inset 0 1px 1px rgba(255,255,255,0.8), 0 2px 8px rgba(0,0,0,0)",
+    transition: { ...DOCK_SPRING, delay: 0.05 }
+  },
+  expanded: {
+    scale: 1,
+    backgroundColor: "rgba(255,255,255,0.95)",
+    color: "#FF6A2A",
+    rotate: 0,
+    boxShadow: "inset 0 1px 1px rgba(255,255,255,0.8), 0 2px 8px rgba(0,0,0,0)",
+    transition: { ...DOCK_SPRING }
+  },
+  hover: {
+    scale: 1.08,
+    backgroundColor: "#FF6A2A",
+    color: "#ffffff",
+    rotate: -3,
+    boxShadow: "inset 0 1px 1px rgba(255,255,255,0.3), 0 8px 20px rgba(255,106,42,0.45)",
+    transition: { ...DOCK_SPRING }
+  }
+};
 
 export function FloatingHeroActions() {
   const reduceMotion = useReducedMotion();
@@ -144,7 +240,7 @@ export function FloatingHeroActions() {
     return "none";
   }, [activeAction, canHover, isHovering]);
 
-  const transition = reduceMotion ? { duration: 0 } : DOCK_TRANSITION;
+  const isAnyExpanded = expansionMode !== "none";
 
   const handleActionClick = (
     event: ReactMouseEvent<HTMLAnchorElement>,
@@ -161,21 +257,18 @@ export function FloatingHeroActions() {
 
   return (
     <div className="pointer-events-none fixed right-4 bottom-4 z-[60] sm:right-6 sm:bottom-6 lg:right-8 lg:bottom-8">
-      <div
+      <motion.div
         ref={containerRef}
-        className="pointer-events-auto flex w-[68px] flex-col items-center gap-2 overflow-visible rounded-[1.75rem] border border-white/45 bg-[linear-gradient(180deg,rgba(255,255,255,0.68),rgba(255,255,255,0.34))] p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.52),0_24px_48px_rgba(22,18,14,0.12)] backdrop-blur-xl"
+        initial="collapsed"
+        animate={isAnyExpanded ? "expanded" : "collapsed"}
+        variants={containerVariants}
+        className="pointer-events-auto flex flex-col items-center justify-center gap-2 overflow-visible p-2 will-change-[width,transform,filter]"
         onMouseEnter={canHover ? () => setIsHovering(true) : undefined}
-        onMouseLeave={
-          canHover
-            ? () => {
-                setIsHovering(false);
-              }
-            : undefined
-        }
+        onMouseLeave={canHover ? () => setIsHovering(false) : undefined}
       >
         {ACTIONS.map((action) => {
           const Icon = action.icon;
-          const isExpanded = expansionMode === "all" || expansionMode === action.id;
+          const isItemExpanded = expansionMode === "all" || expansionMode === action.id;
 
           return (
             <motion.a
@@ -185,34 +278,29 @@ export function FloatingHeroActions() {
               rel={action.external ? "noopener noreferrer" : undefined}
               aria-label={action.label}
               onClick={(event) => handleActionClick(event, action)}
-              className="group relative flex h-12 w-[184px] items-center justify-end self-end overflow-visible rounded-full text-[#181613] will-change-transform hover:-translate-y-0.5"
+              initial="collapsed"
+              animate={isItemExpanded ? "expanded" : "collapsed"}
+              whileHover={isItemExpanded ? "hover" : undefined}
+              variants={buttonVariants}
+              className="group relative flex h-12 items-center justify-end rounded-full text-[#181613] will-change-[width,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF6A2A]"
             >
               <motion.span
-                aria-hidden="true"
-                animate={{ scaleX: isExpanded ? 1 : 52 / 184 }}
-                transition={transition}
-                className="absolute inset-0 origin-right rounded-full border border-white/45 bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(255,255,255,0.36))] shadow-[inset_0_1px_0_rgba(255,255,255,0.58),0_10px_24px_rgba(25,22,18,0.1)] backdrop-blur-xl will-change-transform"
-              />
-
-              <span className="absolute right-[6px] top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/68 text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.78)] transition-colors duration-300 group-hover:bg-primary group-hover:text-white">
-                <Icon className={action.iconClassName ?? "h-5 w-5"} />
-              </span>
-
-              <motion.span
-                animate={
-                  isExpanded
-                    ? { opacity: 1, x: 0, scale: 1 }
-                    : { opacity: 0, x: 8, scale: 0.98 }
-                }
-                transition={transition}
-                className="pointer-events-none absolute right-[3.875rem] block w-[110px] origin-right whitespace-nowrap pr-1 text-right text-sm font-bold tracking-[0.01em] will-change-transform"
+                variants={labelVariants}
+                className="pointer-events-none absolute left-4 whitespace-nowrap text-sm font-bold tracking-[0.01em] will-change-[opacity,transform,filter]"
               >
                 {action.label}
+              </motion.span>
+
+              <motion.span
+                variants={iconBgVariants}
+                className="absolute right-[4px] top-1/2 grid h-10 w-10 flex-shrink-0 -translate-y-1/2 place-items-center rounded-full will-change-[transform,background-color]"
+              >
+                <Icon className={action.iconClassName ?? "h-5 w-5"} />
               </motion.span>
             </motion.a>
           );
         })}
-      </div>
+      </motion.div>
     </div>
   );
 }

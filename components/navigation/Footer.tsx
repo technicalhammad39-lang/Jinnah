@@ -9,12 +9,21 @@ import {
 import Link from "next/link";
 import { ScrollToTopButton } from "./ScrollToTopButton";
 
-const footerLinks = [
-  { name: "About Heritage", href: "/#about-section" },
-  { name: "Our Categories", href: "/#categories-section" },
-  { name: "Trusted Brands", href: "/#brands-section" },
-  { name: "Visual Gallery", href: "/#gallery-section" },
-  { name: "Contact Desk", href: "/#contact-section" },
+const quickLinks = [
+  { name: "About Heritage", href: "/about" },
+  { name: "Visual Gallery", href: "/gallery" },
+  { name: "Trusted Brands", href: "/brands" },
+  { name: "Categories", href: "/categories" },
+  { name: "Contact Desk", href: "/contact" },
+];
+
+const policyLinks = [
+  { name: "Privacy Policy", href: "/privacy-policy" },
+  { name: "Terms & Conditions", href: "/terms" },
+  { name: "Shipping Policy", href: "/shipping-policy" },
+  { name: "Return Policy", href: "/return-policy" },
+  { name: "Warranty Info", href: "/warranty" },
+  { name: "FAQ", href: "/faq" },
 ];
 
 export function Footer() {
@@ -22,7 +31,7 @@ export function Footer() {
     <footer className="relative z-10 border-t border-white/5 bg-[#121110] pt-20 pb-10 text-white/90">
       <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-primary to-transparent" />
 
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 border-b border-white/5 px-6 pb-16 text-left md:grid-cols-2 md:gap-8 lg:grid-cols-12">
+      <div className="mx-auto grid max-w-[1740px] grid-cols-1 gap-12 border-b border-white/5 px-6 md:px-8 xl:px-12 pb-16 text-left md:grid-cols-2 md:gap-8 lg:grid-cols-12">
         <div className="space-y-6 lg:col-span-4">
           <Link href="/" className="flex items-center gap-2 group">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-white shadow-md shadow-primary/20">
@@ -77,7 +86,7 @@ export function Footer() {
             Quick Navigation
           </h4>
           <ul className="space-y-3">
-            {footerLinks.map((link) => (
+            {quickLinks.map((link) => (
               <li key={link.name}>
                 <Link
                   href={link.href}
@@ -170,10 +179,21 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-6 pt-10 text-center text-xs font-semibold uppercase tracking-wider text-[#7c7b77] sm:flex-row sm:text-left">
+      <div className="mx-auto flex max-w-[1740px] flex-col items-center justify-between gap-6 px-6 md:px-8 xl:px-12 pt-10 text-center text-xs font-semibold tracking-wider text-[#7c7b77] sm:flex-row sm:text-left">
         <div>
-          <p>&copy; {new Date().getFullYear()} JINNAH HARDWARE STORE. ALL RIGHTS RESERVED.</p>
-          <p className="mt-1 text-[9px] font-medium normal-case tracking-normal text-[#5c5b57]">
+          <p className="uppercase">&copy; {new Date().getFullYear()} JINNAH HARDWARE STORE. ALL RIGHTS RESERVED.</p>
+          <div className="mt-4 flex flex-wrap justify-center sm:justify-start gap-x-4 gap-y-2">
+            {policyLinks.map((link) => (
+              <Link
+                key={link.name}
+                href={link.href}
+                className="hover:text-white transition-colors"
+              >
+                {link.name}
+              </Link>
+            ))}
+          </div>
+          <p className="mt-4 text-[9px] font-medium tracking-normal text-[#5c5b57]">
             Designed as a high-end digital showroom. All specifications, ratings, and
             finishes represent premium grade certifications.
           </p>
