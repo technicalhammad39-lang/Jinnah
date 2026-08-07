@@ -197,7 +197,7 @@ export function CartDrawer() {
                           </button>
                         </div>
                         <span className="text-sm font-bold text-foreground">
-                          ${(item.product.price * item.quantity).toFixed(2)}
+                          Rs. {(item.product.price * item.quantity).toLocaleString()}
                         </span>
                       </div>
                     </div>
@@ -212,7 +212,7 @@ export function CartDrawer() {
                   <div className="flex justify-between text-sm text-muted-foreground">
                     <span>Subtotal</span>
                     <span className="font-semibold text-foreground">
-                      ${cartSubtotal.toFixed(2)}
+                      Rs. {cartSubtotal.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm text-muted-foreground">
@@ -222,18 +222,17 @@ export function CartDrawer() {
                   <div className="my-2 h-[1px] bg-black/5" />
                   <div className="flex justify-between text-base font-bold text-foreground">
                     <span>Estimated Total</span>
-                    <span>${cartSubtotal.toFixed(2)}</span>
+                    <span>Rs. {cartSubtotal.toLocaleString()}</span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 pt-2">
                   <button
                     onClick={() => {
-                      if (confirm("Proceed to checkout? (This is a frontend demo checkout)")) {
-                        clearCart();
-                        setCartOpen(false);
-                        alert("Thank you! Your mock order has been placed successfully.");
-                      }
+                      const text = "Hello Jinnah Hardware, I would like to place an order for:\n\n" + 
+                        cart.map(item => `- ${item.quantity}x ${item.product.name} (Finish: ${item.selectedColor}, Size: ${item.selectedSize}) - Rs. ${(item.product.price * item.quantity).toLocaleString()}`).join("\n") +
+                        `\n\nEstimated Total: Rs. ${cartSubtotal.toLocaleString()}`;
+                      window.open(`https://wa.me/923000421772?text=${encodeURIComponent(text)}`, "_blank");
                     }}
                     className="col-span-2 flex cursor-pointer items-center justify-center gap-2 rounded-full bg-primary py-3 px-4 text-xs font-bold uppercase tracking-wider text-white shadow-lg transition-all hover:bg-primary/95 hover:shadow-primary/25"
                   >

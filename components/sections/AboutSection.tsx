@@ -9,7 +9,7 @@ export function AboutSection() {
   const infoCards = [
     { value: "Ahsan Khalil", label: "Founder & CEO", icon: User },
     { value: "Hardware Specialist", label: "Experience", icon: Briefcase },
-    { value: "Smart Security", label: "Core Focus", icon: ShieldCheck },
+    { value: "Premium Hardware", label: "Core Focus", icon: ShieldCheck },
   ];
 
   const handleLearnMoreClick = (e: React.MouseEvent) => {
@@ -38,7 +38,7 @@ export function AboutSection() {
               className="absolute left-0 bottom-0 w-[80%] h-[80%] rounded-[32px] overflow-hidden shadow-xl bg-[#efece6] border border-white z-0"
             >
               <Image
-                src="https://picsum.photos/seed/about1/800/800"
+                src="/why-back.jpg"
                 alt="Jinnah Hardware Store showroom"
                 fill
                 sizes="(min-width: 1024px) 40vw, 80vw"
@@ -46,43 +46,46 @@ export function AboutSection() {
               />
             </motion.div>
 
-            {/* Overlapping Top-Right Image */}
+            {/* Overlapping Top-Right Image with Badge */}
             <motion.div
               initial={{ opacity: 0, y: 30, scale: 0.95 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="absolute right-0 top-0 w-[60%] h-[60%] rounded-[32px] overflow-hidden shadow-2xl bg-[#efece6] border-4 border-[#faf9f6]"
+              className="absolute right-0 top-0 w-[60%] h-[60%] z-20"
             >
-              <Image
-                src="https://picsum.photos/seed/about2/600/600"
-                alt="Architectural brass handles machined"
-                fill
-                sizes="(min-width: 1024px) 30vw, 60vw"
-                className="h-full w-full object-cover"
-              />
+              <div className="relative w-full h-full rounded-[32px] overflow-hidden shadow-2xl bg-[#efece6] border-4 border-[#faf9f6]">
+                <Image
+                  src="/ahsan.png"
+                  alt="Ahsan Khalil Founder"
+                  fill
+                  className="h-full w-full object-cover object-top"
+                />
+              </div>
+
+              {/* Floating Vision Badge (Anchored to corner) */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="absolute -left-4 sm:-left-12 -bottom-6 sm:-bottom-8 p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-md shadow-[0_15px_40px_rgba(0,0,0,0.12)] border border-black/5 flex items-center gap-3 sm:gap-4 z-30"
+              >
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary flex items-center justify-center text-white shadow-inner shrink-0">
+                  <User className="h-5 w-5 sm:h-6 sm:w-6 fill-white/20" />
+                </div>
+                <div className="text-left">
+                  <p className="text-[9px] sm:text-[10px] font-extrabold text-primary uppercase tracking-widest leading-none">
+                    Vision Led Since Day One
+                  </p>
+                  <p className="text-xs sm:text-sm font-black text-[#1a1917] mt-1 leading-none">
+                    Ahsan Khalil
+                  </p>
+                </div>
+              </motion.div>
             </motion.div>
 
-            {/* Floating Vision Badge */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="absolute left-0 sm:-left-6 top-1/2 -translate-y-1/2 p-5 rounded-2xl bg-white/95 backdrop-blur-md shadow-[0_15px_40px_rgba(0,0,0,0.12)] border border-black/5 flex items-center gap-4 z-20"
-            >
-              <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white shadow-inner">
-                <User className="h-6 w-6 fill-white/20" />
-              </div>
-              <div className="text-left">
-                <p className="text-[10px] font-extrabold text-primary uppercase tracking-widest">
-                  Vision Led Since Day One
-                </p>
-                <p className="text-sm font-black text-[#1a1917] mt-0.5">
-                  Ahsan Khalil
-                </p>
-              </div>
-            </motion.div>
+
           </div>
 
           {/* Right: Narrative & Info Cards */}
@@ -91,9 +94,9 @@ export function AboutSection() {
               <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                 <span>Our Heritage</span>
               </div>
-              <h2 className="text-3xl md:text-5xl font-extrabold tracking-tighter text-[#1a1917] uppercase leading-[0.95]">
-                Serving Pakistan&apos;s <br />
-                <span className="text-primary font-stylish normal-case text-[1.1em]">Elite Architecture</span>
+              <h2 className="text-3xl md:text-5xl font-extrabold tracking-tighter text-[#1a1917] leading-[0.95]">
+                Premium Hardware <br />
+                <span className="text-primary font-stylish text-[1.1em]">Built On Trust</span>
               </h2>
               
               <div className="space-y-4 text-sm md:text-base text-muted-foreground leading-relaxed font-medium">

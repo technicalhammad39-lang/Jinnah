@@ -25,6 +25,7 @@ const NAV_LINKS = [
   { name: "Brands", href: "/brands" },
   { name: "About", href: "/about" },
   { name: "Gallery", href: "/gallery" },
+  { name: "Journal", href: "/blogs" },
   { name: "Contact", href: "/contact" },
 ] as const;
 
@@ -153,13 +154,7 @@ export function Navbar() {
               )}
             </button>
 
-            <Link
-              href="/shop?tab=account"
-              className="hidden rounded-full p-2 text-[#1a1917] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:bg-black/[0.045] hover:text-primary sm:inline-flex"
-              title="Account"
-            >
-              <User className="h-4.5 w-4.5 md:h-5 md:w-5" />
-            </Link>
+
 
             <a
               href="tel:03000421772"

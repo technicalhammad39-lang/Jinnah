@@ -27,6 +27,7 @@ export interface Brand {
   logoText: string;
   description: string;
   categories: string[];
+  image?: string;
 }
 
 export interface GalleryItem {
@@ -87,6 +88,7 @@ export const BRANDS: Brand[] = [
     logoText: "V",
     description: "German-engineered heavy structural fittings and security systems.",
     categories: ["Locks & Security", "Architectural Hardware"],
+    image: "/interior.png",
   },
   {
     id: "aurum",
@@ -94,6 +96,7 @@ export const BRANDS: Brand[] = [
     logoText: "Au",
     description: "Italian-designed solid forged brass fittings for elite architectural works.",
     categories: ["Architectural Hardware", "Cabinet Hardware"],
+    image: "/kitchen.png",
   },
   {
     id: "krypter",
@@ -101,6 +104,7 @@ export const BRANDS: Brand[] = [
     logoText: "K",
     description: "Next-gen smart locks and high-security access control mechanisms.",
     categories: ["Locks & Security"],
+    image: "/office.png",
   },
   {
     id: "apex",
@@ -108,6 +112,7 @@ export const BRANDS: Brand[] = [
     logoText: "A",
     description: "Industrial grade high-torque brushless power systems and laser levels.",
     categories: ["Power Tools"],
+    image: "/tools.png",
   },
   {
     id: "lumos",
@@ -115,6 +120,7 @@ export const BRANDS: Brand[] = [
     logoText: "L",
     description: "Architectural grade electrical interfaces and minimalist flush plates.",
     categories: ["Electrical Accessories"],
+    image: "/bedroom.png",
   },
 ];
 
@@ -125,8 +131,8 @@ export const PRODUCTS: Product[] = [
     brand: "Aurum Brass",
     category: "Architectural Hardware",
     categorySlug: "architectural-hardware",
-    price: 189.00,
-    originalPrice: 245.00,
+    price: 52920,
+    originalPrice: 68600,
     rating: 4.9,
     reviewCount: 78,
     images: [
@@ -162,8 +168,8 @@ export const PRODUCTS: Product[] = [
     brand: "Krypter Biometrics",
     category: "Locks & Security",
     categorySlug: "locks-security",
-    price: 349.00,
-    originalPrice: 349.00,
+    price: 97720,
+    originalPrice: 97720,
     rating: 4.8,
     reviewCount: 56,
     images: [
@@ -196,8 +202,8 @@ export const PRODUCTS: Product[] = [
     brand: "Aurum Brass",
     category: "Cabinet Hardware",
     categorySlug: "cabinet-hardware",
-    price: 14.50,
-    originalPrice: 19.99,
+    price: 4060,
+    originalPrice: 5597.2,
     rating: 4.7,
     reviewCount: 124,
     images: [
@@ -231,8 +237,8 @@ export const PRODUCTS: Product[] = [
     brand: "Apex Brushless",
     category: "Power Tools",
     categorySlug: "power-tools",
-    price: 219.00,
-    originalPrice: 269.00,
+    price: 61320,
+    originalPrice: 75320,
     rating: 4.95,
     reviewCount: 42,
     images: [
@@ -266,8 +272,8 @@ export const PRODUCTS: Product[] = [
     brand: "Lumos Premium",
     category: "Electrical Accessories",
     categorySlug: "electrical-accessories",
-    price: 42.00,
-    originalPrice: 42.00,
+    price: 11760,
+    originalPrice: 11760,
     rating: 4.6,
     reviewCount: 33,
     images: [
@@ -297,8 +303,8 @@ export const PRODUCTS: Product[] = [
     brand: "Veritas Steel",
     category: "Architectural Hardware",
     categorySlug: "architectural-hardware",
-    price: 79.50,
-    originalPrice: 99.00,
+    price: 22260,
+    originalPrice: 27720,
     rating: 4.85,
     reviewCount: 19,
     images: [

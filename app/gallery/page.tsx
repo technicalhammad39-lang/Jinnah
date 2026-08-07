@@ -21,26 +21,29 @@ const GALLERY_CATEGORIES = [
   "Kitchen Accessories",
 ];
 
-const GALLERY_IMAGES = [
-  { id: 1, src: "https://picsum.photos/seed/gal1/600/800", category: "Luxury Homes", alt: "Luxury Home Entrance", height: "h-[400px]" },
-  { id: 2, src: "https://picsum.photos/seed/gal2/800/600", category: "Commercial Projects", alt: "Commercial Building Hardware", height: "h-[300px]" },
-  { id: 3, src: "https://picsum.photos/seed/gal3/600/600", category: "Smart Locks", alt: "Biometric Smart Lock", height: "h-[350px]" },
-  { id: 4, src: "https://picsum.photos/seed/gal4/800/1000", category: "Hotels", alt: "Hotel Corridor Locks", height: "h-[500px]" },
-  { id: 5, src: "https://picsum.photos/seed/gal5/600/400", category: "Brass Hardware", alt: "Knurled Brass Handles", height: "h-[250px]" },
-  { id: 6, src: "https://picsum.photos/seed/gal6/800/800", category: "Architecture", alt: "Architectural Hinge Details", height: "h-[400px]" },
-  { id: 7, src: "https://picsum.photos/seed/gal7/600/900", category: "Wood Finishes", alt: "Wood Finish Door Plate", height: "h-[450px]" },
-  { id: 8, src: "https://picsum.photos/seed/gal8/1000/600", category: "Kitchen Accessories", alt: "Premium Kitchen Pulls", height: "h-[300px]" },
-  { id: 9, src: "https://picsum.photos/seed/gal9/600/700", category: "Offices", alt: "Office Glass Door Fittings", height: "h-[350px]" },
-  { id: 10, src: "https://picsum.photos/seed/gal10/800/800", category: "Luxury Homes", alt: "Villa Main Door Lock", height: "h-[400px]" },
-  { id: 11, src: "https://picsum.photos/seed/gal11/600/500", category: "Smart Locks", alt: "Digital Padlock", height: "h-[280px]" },
-  { id: 12, src: "https://picsum.photos/seed/gal12/900/600", category: "Brass Hardware", alt: "Solid Brass Knobs", height: "h-[320px]" },
-];
+import { useEffect } from "react";
+import { getGallery } from "@/lib/data-fetcher";
 
 export default function GalleryPage() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [galleryImages, setGalleryImages] = useState<any[]>([]);
 
-  const filteredImages = GALLERY_IMAGES.filter(
+  useEffect(() => {
+    getGallery().then(data => {
+      // Add random heights for masonry effect if not provided
+      const processed = data.map((item, i) => {
+        const heights = ["h-[400px]", "h-[300px]", "h-[350px]", "h-[500px]", "h-[250px]"];
+        return {
+          ...item,
+          height: heights[i % heights.length]
+        };
+      });
+      setGalleryImages(processed);
+    });
+  }, []);
+
+  const filteredImages = galleryImages.filter(
     (img) => activeCategory === "All" || img.category === activeCategory
   );
 
@@ -66,11 +69,35 @@ export default function GalleryPage() {
       
       <main className="flex-1 pt-24 pb-24">
         {/* HERO SECTION */}
-        <section className="px-6 py-16 md:py-24 max-w-[1740px] mx-auto text-center space-y-6">
+        <section className="relative px-6 py-12 md:py-16 max-w-[1740px] mx-auto text-center space-y-6 overflow-hidden">
+          {/* Side Glows */}
+          <div className="absolute top-1/2 left-0 md:left-10 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px] pointer-events-none -z-10" />
+          <div className="absolute top-1/2 right-0 md:right-10 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px] pointer-events-none -z-10" />
+
+          {/* Left Shape */}
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, delay: 0.2 }}
+            className="absolute left-0 top-0 bottom-0 w-[150px] md:w-[250px] lg:w-[400px] z-0 pointer-events-none -translate-x-[30%] opacity-60 rotate-12"
+          >
+            <Image src="/hero-shape.svg" alt="Shape Left" fill className="object-contain object-left scale-x-[-1]" priority />
+          </motion.div>
+
+          {/* Right Shape */}
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, delay: 0.3 }}
+            className="absolute right-0 top-0 bottom-0 w-[150px] md:w-[250px] lg:w-[400px] z-0 pointer-events-none translate-x-[30%] opacity-60 -rotate-12"
+          >
+            <Image src="/hero-shape.svg" alt="Shape Right" fill className="object-contain object-right scale-x-[-1]" priority />
+          </motion.div>
+
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-6xl lg:text-7xl font-black uppercase tracking-tighter text-foreground"
+            className="text-5xl md:text-7xl lg:text-[5.5rem] font-black uppercase tracking-tighter text-foreground leading-none"
           >
             Project <span className="text-primary font-stylish normal-case text-[1.1em]">Portfolio</span>
           </motion.h1>
@@ -119,10 +146,10 @@ export default function GalleryPage() {
                   onClick={() => setLightboxIndex(filteredImages.findIndex(i => i.id === img.id))}
                 >
                   <Image
-                    src={img.src}
-                    alt={img.alt}
+                    src={img.url || img.src}
+                    alt={img.alt || img.title || "Gallery image"}
                     fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   />
                   
@@ -196,12 +223,10 @@ export default function GalleryPage() {
               }}
             >
               <Image
-                src={currentImage.src}
-                alt={currentImage.alt}
+                src={currentImage.url || currentImage.src}
+                alt={currentImage.alt || currentImage.title || "Gallery image"}
                 fill
-                className="object-contain pointer-events-none"
-                sizes="100vw"
-                quality={100}
+                className="object-contain"
                 priority
               />
             </motion.div>

@@ -1,6 +1,8 @@
 "use client";
 
-import { BRANDS } from "@/data/products";
+// import { BRANDS } from "@/data/products";
+import { getBrands } from "@/lib/data-fetcher";
+import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import Image from "next/image";
 
@@ -13,10 +15,23 @@ const PLACEHOLDER_IMAGES = [
   "/hero-bottom.png",
 ];
 
-const marqueeItemsRow1 = [...BRANDS, ...BRANDS, ...BRANDS, ...BRANDS];
-const marqueeItemsRow2 = [...marqueeItemsRow1].reverse();
+// We'll generate these dynamically in the component
+// const marqueeItemsRow1 = [...BRANDS, ...BRANDS, ...BRANDS, ...BRANDS];
+// const marqueeItemsRow2 = [...marqueeItemsRow1].reverse();
 
 export function BrandsSection() {
+  const [brands, setBrands] = useState<any[]>([]);
+
+  useEffect(() => {
+    getBrands().then(data => setBrands(data));
+  }, []);
+
+  // If no brands are loaded yet, don't try to render empty marquees
+  if (brands.length === 0) return null;
+
+  const marqueeItemsRow1 = [...brands, ...brands, ...brands, ...brands];
+  const marqueeItemsRow2 = [...marqueeItemsRow1].reverse();
+
   return (
     <section id="brands-section" className="py-16 md:py-24 w-full overflow-hidden relative z-10 bg-[#faf9f6]">
       <div className="absolute bottom-[10%] left-[5%] w-[35vw] h-[35vw] rounded-full glow-blob-orange opacity-[0.1]" />
@@ -26,7 +41,7 @@ export function BrandsSection() {
         <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
           <span>Global Alliances</span>
         </div>
-        <h2 className="text-3xl md:text-5xl font-extrabold tracking-tighter text-[#1a1917] uppercase leading-[0.95]">
+        <h2 className="text-3xl md:text-5xl font-extrabold tracking-tighter text-[#1a1917] leading-[0.95]">
           Trusted <span className="text-primary">Brands We Carry</span>
         </h2>
         <p className="text-sm text-muted-foreground leading-relaxed font-medium">
@@ -46,7 +61,7 @@ export function BrandsSection() {
               >
                 <Image
                   src={PLACEHOLDER_IMAGES[index % PLACEHOLDER_IMAGES.length]}
-                  alt={`${brand.name} logo`}
+                  alt={`${brand.brandName || brand.name} logo`}
                   fill
                   sizes="280px"
                   loading="lazy"
@@ -55,7 +70,7 @@ export function BrandsSection() {
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-3xl font-black text-[#1a1917] opacity-40 group-hover:opacity-100 group-hover:text-primary transition-all uppercase tracking-tighter mix-blend-overlay">
-                    {brand.name}
+                    {brand.brandName || brand.name}
                   </div>
                 </div>
               </div>
@@ -73,7 +88,7 @@ export function BrandsSection() {
               >
                 <Image
                   src={PLACEHOLDER_IMAGES[(index + 3) % PLACEHOLDER_IMAGES.length]}
-                  alt={`${brand.name} logo`}
+                  alt={`${brand.brandName || brand.name} logo`}
                   fill
                   sizes="280px"
                   loading="lazy"
@@ -82,7 +97,7 @@ export function BrandsSection() {
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-3xl font-black text-[#1a1917] opacity-40 group-hover:opacity-100 group-hover:text-primary transition-all uppercase tracking-tighter mix-blend-overlay">
-                    {brand.name}
+                    {brand.brandName || brand.name}
                   </div>
                 </div>
               </div>

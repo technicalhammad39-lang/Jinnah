@@ -3,7 +3,8 @@
 import { Navbar } from "@/components/navigation/Navbar";
 import { Footer } from "@/components/navigation/Footer";
 import Image from "next/image";
-import { motion } from "motion/react";
+import { motion, useScroll, useTransform } from "motion/react";
+import { useRef } from "react";
 import { ArrowRight, Box, Layers, Hammer, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { CATEGORIES } from "@/data/products";
@@ -16,27 +17,42 @@ export default function CategoriesPage() {
     { title: "Industrial", icon: Hammer, desc: "Heavy-duty machinery and power tools for construction. Built for extreme conditions, providing uncompromising reliable performance and safety for large-scale industrial projects." },
   ];
 
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const svgX = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+
   return (
     <div className="relative min-h-screen bg-[#faf9f6] flex flex-col overflow-x-hidden">
       <Navbar />
       
       <main className="flex-1 pt-24 pb-20">
         {/* HERO WITH SVG INTEGRATION */}
-        <section className="relative px-6 py-20 md:py-32 max-w-[1740px] mx-auto overflow-hidden rounded-3xl bg-black/[0.02]">
-          <div className="absolute inset-0 z-0 opacity-20 pointer-events-none mix-blend-multiply flex items-center justify-center translate-x-[20%]">
-            <div className="relative w-[150%] h-[150%] max-w-[1200px] max-h-[1200px]">
-              <Image 
-                src="/catos.svg" 
-                alt="Categories Background" 
-                fill 
-                className="object-contain animate-[spin_120s_linear_infinite]" 
-                priority
-              />
+        <section ref={heroRef} className="relative w-full overflow-hidden px-6 py-12 md:py-16">
+          {/* SVG Graphic on the right */}
+          <div className="absolute inset-0 z-0 pointer-events-none">
+            <div className="max-w-[1740px] mx-auto h-full relative">
+              <div className="absolute inset-y-0 right-0 w-[100%] md:w-[60%] flex items-center justify-end">
+                <motion.div 
+                  style={{ x: svgX }}
+                  className="relative w-full h-full opacity-[0.35] mix-blend-multiply scale-125 md:scale-110 lg:scale-100 origin-right"
+                >
+                  <Image 
+                    src="/catos.svg" 
+                    alt="Categories Background" 
+                    fill 
+                    className="object-contain object-right" 
+                    priority
+                  />
+                </motion.div>
+              </div>
             </div>
           </div>
 
-          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
+          <div className="relative z-10 max-w-[1740px] mx-auto">
+            <div className="w-full lg:w-[45%] space-y-6">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -60,12 +76,16 @@ export default function CategoriesPage() {
         </section>
 
         {/* ALL CATEGORIES GRID */}
-        <section className="py-24 px-6 max-w-[1740px] mx-auto">
-          <div className="mb-16">
-            <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter">Explore Categories</h2>
-          </div>
+        <section className="pt-32 pb-24 bg-white rounded-t-[3rem] md:rounded-t-[4rem] relative overflow-hidden shadow-[0_-20px_60px_rgba(0,0,0,0.03)] mt-8">
+          {/* Top Orange Gradient */}
+          <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-primary/15 to-transparent pointer-events-none" />
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="max-w-[1740px] mx-auto px-6 relative z-10">
+            <div className="relative z-10 mb-16">
+              <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter">Explore Categories</h2>
+            </div>
+          
+          <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {CATEGORIES.map((cat, i) => (
               <motion.div
                 key={cat.id}
@@ -98,6 +118,7 @@ export default function CategoriesPage() {
               </motion.div>
             ))}
           </div>
+          </div>
         </section>
 
         {/* APPLICATIONS SECTION */}
@@ -127,7 +148,7 @@ export default function CategoriesPage() {
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true, margin: "-50px" }}
                       transition={{ duration: 0.6, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-                      className="group rounded-[2rem] border border-white/10 transition-all duration-700 h-auto flex flex-col justify-start relative z-20 pt-14 pb-8 px-8 mt-8 bg-gradient-to-br from-[#202020]/95 via-[#171717]/95 to-[#111111]/95 backdrop-blur-2xl hover:border-[#FF6A2A]/40 hover:shadow-[0_30px_80px_rgba(0,0,0,0.35),inset_0_1px_1px_rgba(255,255,255,0.05)] hover:-translate-y-2 hover:scale-[1.02] shadow-[0_15px_40px_-15px_rgba(0,0,0,0.2),inset_0_1px_1px_rgba(255,255,255,0.02)]"
+                      className="group rounded-[2rem] border border-black/5 transition-all duration-700 h-auto flex flex-col justify-start relative z-20 pt-14 pb-8 px-8 mt-8 bg-gradient-to-br from-white via-white to-orange-50/50 hover:border-[#FF6A2A]/30 hover:shadow-[0_30px_80px_rgba(255,106,42,0.1),inset_0_1px_1px_rgba(255,255,255,1)] hover:-translate-y-2 hover:scale-[1.02] shadow-[0_15px_40px_-15px_rgba(0,0,0,0.05),inset_0_1px_1px_rgba(255,255,255,1)]"
                     >
                       <div 
                         className="absolute top-0 left-8 -translate-y-1/2 w-[64px] h-[64px] rounded-[1.25rem] flex items-center justify-center transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] backdrop-blur-xl bg-gradient-to-br from-[#FF9A55] to-[#FF6A2A] border border-white/20 shadow-[0_8px_20px_-6px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.3)] rotate-6 group-hover:shadow-[0_12px_30px_-8px_rgba(255,106,42,0.6),inset_0_1px_1px_rgba(255,255,255,0.4)] group-hover:rotate-0 group-hover:scale-110"
@@ -135,10 +156,10 @@ export default function CategoriesPage() {
                         <Icon className="h-8 w-8 transition-all duration-700 text-white group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] group-hover:scale-110" />
                       </div>
                       
-                      <h3 className="font-extrabold text-lg uppercase tracking-tight text-white mb-3">
+                      <h3 className="font-extrabold text-lg uppercase tracking-tight text-[#1a1917] mb-3">
                         {app.title}
                       </h3>
-                      <p className="text-sm leading-relaxed font-medium text-white/70">
+                      <p className="text-sm leading-relaxed font-medium text-muted-foreground">
                         {app.desc}
                       </p>
                     </motion.div>
@@ -150,14 +171,36 @@ export default function CategoriesPage() {
         </div>
 
         {/* CTA */}
-        <section className="py-20 px-6 max-w-4xl mx-auto text-center space-y-8">
-          <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-foreground">
-            Not sure where to start?
-          </h2>
-          <Link href="/contact" className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-primary text-white text-xs font-bold uppercase tracking-widest hover:bg-primary/90 transition-all shadow-lg shadow-primary/30">
-            <span>Talk to a Specialist</span>
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+        <section className="relative py-8 px-6 max-w-[1400px] mx-auto flex flex-col md:flex-row items-center justify-between">
+          <div className="text-center md:text-left space-y-8 max-w-xl">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-tight text-foreground leading-[1.1]">
+              Not sure where <br className="hidden lg:block"/> to start?
+            </h2>
+            <p className="text-muted-foreground font-medium text-sm md:text-base mb-2">
+              Our specialists are ready to help you curate the perfect hardware collection for your unique architectural needs.
+            </p>
+            <Link href="/contact" className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-primary text-white text-xs font-bold uppercase tracking-widest hover:bg-primary/90 transition-all shadow-lg shadow-primary/30">
+              <span>Talk to a Specialist</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+          
+          <div className="w-full md:w-auto flex justify-center md:justify-end pr-0 md:pr-12 lg:pr-24 mt-16 md:mt-0">
+            <motion.div
+              initial={{ y: 150, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true, margin: "0px 0px -50px 0px" }}
+              transition={{ duration: 0.8, type: "spring", bounce: 0.4 }}
+              className="relative w-[280px] h-[280px] md:w-[350px] md:h-[350px]"
+            >
+              <Image 
+                src="/cartoon-call.png" 
+                alt="Call Specialist" 
+                fill 
+                className="object-contain object-bottom drop-shadow-2xl" 
+              />
+            </motion.div>
+          </div>
         </section>
 
       </main>

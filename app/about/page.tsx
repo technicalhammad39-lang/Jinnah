@@ -25,25 +25,53 @@ export default function AboutPage() {
   return (
     <div className="relative min-h-screen bg-transparent flex flex-col overflow-x-hidden">
       <Navbar />
-      <main className="flex-1 pt-24 pb-20">
+      <main className="flex-1 pb-20">
         
         {/* HERO SECTION */}
-        <section className="relative px-6 py-20 md:py-32 bg-black/[0.02]">
-          <div className="max-w-4xl mx-auto text-center space-y-6">
+        <section className="relative px-6 pt-32 pb-12 md:pt-48 md:pb-24 bg-transparent overflow-hidden min-h-[70vh] flex flex-col justify-center">
+          {/* Top Orange Dotted Gradient */}
+          <div 
+            className="absolute top-0 left-0 right-0 h-96 pointer-events-none" 
+            style={{
+              backgroundImage: 'radial-gradient(circle at center, #FF6A2A 1.5px, transparent 1.5px)',
+              backgroundSize: '12px 12px',
+              opacity: 0.5,
+              maskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+            }}
+          />
+          
+          {/* Right Image */}
+          <motion.div
+            initial={{ opacity: 0, y: 150 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute right-0 md:right-8 lg:right-16 top-[100px] bottom-12 w-[250px] sm:w-[350px] md:w-[450px] lg:w-[550px] xl:w-[650px] z-0 pointer-events-none"
+          >
+            <Image 
+              src="/about-cartoon1.png" 
+              alt="About Character" 
+              fill
+              className="object-contain object-right" 
+              priority 
+            />
+          </motion.div>
+
+          <div className="relative z-10 max-w-3xl lg:max-w-4xl space-y-8 pl-4 md:pl-12 lg:pl-20 w-full">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              initial={{ opacity: 0, x: -80 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
             >
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-black uppercase tracking-tighter text-foreground leading-[0.9]">
-                Elevating <span className="text-primary font-stylish normal-case text-[1.1em]">Architecture</span>
+              <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-black uppercase tracking-tighter text-foreground leading-[0.9]">
+                Elevating <br className="hidden md:block" /><span className="text-primary font-stylish normal-case text-[1.1em]">Architecture</span>
               </h1>
             </motion.div>
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium"
+              initial={{ opacity: 0, x: -80 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.15, ease: "easeOut" }}
+              className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-xl leading-relaxed font-medium"
             >
               We are Pakistan's premier purveyor of luxury architectural hardware, bridging the gap between world-class engineering and exceptional local design.
             </motion.p>
@@ -51,10 +79,14 @@ export default function AboutPage() {
         </section>
 
         {/* FOUNDER STORY */}
-        <section className="py-20 px-6 max-w-[1740px] mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <section className="pt-32 pb-24 bg-white rounded-t-[3rem] md:rounded-t-[4rem] relative overflow-hidden shadow-[0_-20px_60px_rgba(0,0,0,0.03)] -mt-12">
+          {/* Top Orange Gradient */}
+          <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-primary/15 to-transparent pointer-events-none" />
+          
+          <div className="max-w-[1740px] mx-auto px-6 relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-32">
             <div className="relative h-[500px] rounded-3xl overflow-hidden bg-black/5">
-              <Image src="https://picsum.photos/seed/founder/800/1000" alt="Ahsan Khalil - Founder" fill className="object-cover" />
+              <Image src="/ahsan.png" alt="Ahsan Khalil - Founder" fill className="object-cover object-top" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               <div className="absolute bottom-8 left-8 text-white">
                 <p className="text-[10px] font-extrabold uppercase tracking-widest text-primary mb-1">Founder & CEO</p>
@@ -81,6 +113,40 @@ export default function AboutPage() {
                   <p className="text-xs font-bold uppercase tracking-widest">Consultative Approach</p>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* CHAIRMAN STORY */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div className="space-y-8 order-2 lg:order-1">
+              <div className="space-y-4">
+                <h2 className="text-3xl font-extrabold uppercase tracking-tight">The Foundation of Our Legacy</h2>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  As the Chairman and primary investor, his strategic foresight and foundational support have been the backbone of Jinnah Hardware Store since its inception. His unwavering commitment to excellence and business integrity set the standards that guide our entire operation today.
+                </p>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  "A strong foundation is not just built with capital, but with trust, relentless dedication, and a long-term vision for the future."
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-6 pt-6 border-t border-black/5">
+                <div className="space-y-2">
+                  <ShieldCheck className="h-5 w-5 text-primary" />
+                  <p className="text-xs font-bold uppercase tracking-widest">Strategic Vision</p>
+                </div>
+                <div className="space-y-2">
+                  <Briefcase className="h-5 w-5 text-primary" />
+                  <p className="text-xs font-bold uppercase tracking-widest">Pillar of Trust</p>
+                </div>
+              </div>
+            </div>
+            <div className="relative h-[500px] rounded-3xl overflow-hidden bg-black/5 order-1 lg:order-2">
+              <Image src="https://picsum.photos/seed/chairman/800/1000" alt="Chairman - Founder" fill className="object-cover object-top" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+              <div className="absolute bottom-8 right-8 text-white text-right">
+                <p className="text-[10px] font-extrabold uppercase tracking-widest text-primary mb-1">Chairman & Investor</p>
+                <p className="text-3xl font-black">The Chairman</p>
+              </div>
+            </div>
             </div>
           </div>
         </section>

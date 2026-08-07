@@ -4,12 +4,16 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
 import {
-  Check,
-  Heart,
-  Loader2,
   ShoppingCart,
-  Star,
+  Heart,
   X,
+  Check,
+  Loader2,
+  Plus,
+  Minus,
+  MessageCircle,
+  Zap,
+  Star,
 } from "lucide-react";
 import {
   useCartActions,
@@ -78,6 +82,13 @@ export function QuickViewModal() {
   }, []);
 
   const isWishlisted = quickViewProduct ? wishlist.includes(quickViewProduct.id) : false;
+
+  const handleBuyNow = () => {
+    if (!quickViewProduct) return;
+    const text = `Hi, I want to order this product:\n\n*Product:* ${quickViewProduct.name}\n*Price:* $${quickViewProduct.price.toFixed(2)}\n${selectedColor ? `*Color:* ${selectedColor}\n` : ''}${selectedSize ? `*Size:* ${selectedSize}\n` : ''}\nIs it available?`;
+    const encodedText = encodeURIComponent(text);
+    window.open(`https://wa.me/923000421772?text=${encodedText}`, '_blank');
+  };
 
   const handleAddToCart = () => {
     if (!quickViewProduct || isSuccess) {
@@ -190,11 +201,11 @@ export function QuickViewModal() {
 
                 <div className="flex items-baseline gap-2.5">
                   <span className="text-2xl font-black text-[#1a1917]">
-                    ${quickViewProduct.price.toFixed(2)}
+                    Rs. {quickViewProduct.price.toLocaleString()}
                   </span>
                   {quickViewProduct.originalPrice > quickViewProduct.price && (
                     <span className="text-sm font-semibold text-muted-foreground line-through">
-                      ${quickViewProduct.originalPrice.toFixed(2)}
+                      Rs. {quickViewProduct.originalPrice.toLocaleString()}
                     </span>
                   )}
                 </div>
@@ -301,6 +312,14 @@ export function QuickViewModal() {
                       <span>Add to Cart</span>
                     </>
                   )}
+                </button>
+
+                <button
+                  onClick={handleBuyNow}
+                  className="flex flex-grow cursor-pointer items-center justify-center gap-2 rounded-full bg-[#25D366] py-3.5 px-6 text-xs font-bold uppercase tracking-widest text-white shadow-md transition-all duration-300 hover:bg-[#20b858] hover:shadow-[#25D366]/25"
+                >
+                  <MessageCircle className="h-4.5 w-4.5" />
+                  <span>Buy Now</span>
                 </button>
 
                 <button

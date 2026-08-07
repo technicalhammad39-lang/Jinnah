@@ -5,14 +5,33 @@ import { Navbar } from "@/components/navigation/Navbar";
 import { Footer } from "@/components/navigation/Footer";
 import { motion } from "motion/react";
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle2 } from "lucide-react";
+import Image from "next/image";
+import { addDoc, collection } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 export default function ContactPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({ name: "", email: "", phone: "", message: "" });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitted(true);
-    setTimeout(() => setIsSubmitted(false), 5000);
+    setLoading(true);
+    try {
+      await addDoc(collection(db, "messages"), {
+        ...formData,
+        read: false,
+        createdAt: new Date().toISOString()
+      });
+      setIsSubmitted(true);
+      setFormData({ name: "", email: "", phone: "", message: "" });
+      setTimeout(() => setIsSubmitted(false), 5000);
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const contactInfo = [
@@ -50,11 +69,45 @@ export default function ContactPage() {
     <div className="relative min-h-screen bg-[#faf9f6] flex flex-col overflow-x-hidden">
       <Navbar />
 
-      <main className="flex-1 pt-24 pb-20">
+      <main className="flex-1 pb-20">
 
         {/* HERO SECTION */}
-        <section className="relative px-6 py-20 md:py-32 bg-black/[0.02]">
-          <div className="max-w-4xl mx-auto text-center space-y-6">
+        <section className="relative px-6 pt-32 pb-4 md:pt-48 md:pb-4 bg-transparent overflow-hidden">
+          {/* Top Orange Dotted Gradient */}
+          <div 
+            className="absolute top-0 left-0 right-0 h-96 pointer-events-none z-0" 
+            style={{
+              backgroundImage: 'radial-gradient(circle at center, #FF6A2A 1.5px, transparent 1.5px)',
+              backgroundSize: '12px 12px',
+              opacity: 0.5,
+              maskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+            }}
+          />
+
+          {/* Left Shape */}
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, delay: 0.2 }}
+            className="absolute left-0 top-0 bottom-0 w-[150px] md:w-[250px] lg:w-[400px] z-0 pointer-events-none -translate-x-[30%] opacity-10 -rotate-12"
+          >
+            <Image src="/hero-shape.svg" alt="Shape Left" fill className="object-contain object-left scale-x-[-1]" priority />
+          </motion.div>
+
+          {/* Right Cartoon */}
+          <motion.div
+            initial={{ opacity: 0, x: 80 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1.2, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute right-0 md:right-4 lg:right-8 top-10 bottom-0 w-[200px] md:w-[350px] lg:w-[450px] xl:w-[500px] z-0 pointer-events-none"
+          >
+            <div className="w-full h-full relative">
+              <Image src="/contact-cartoon.png" alt="Contact Cartoon" fill className="object-contain object-right" priority />
+            </div>
+          </motion.div>
+
+          <div className="max-w-4xl mx-auto text-center space-y-6 relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -76,10 +129,16 @@ export default function ContactPage() {
         </section>
 
         {/* CONTACT GRID */}
-        <section className="py-20 px-6 max-w-[1740px] mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
+        <section className="pt-8 pb-20 px-6 max-w-[1740px] mx-auto relative mt-0">
+          {/* Top-down Orange Glow Gradient */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[400px] bg-gradient-to-b from-primary/10 via-primary/5 to-transparent pointer-events-none -z-10 rounded-full blur-3xl opacity-60" />
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20 relative z-10">
             {contactInfo.map((info, i) => {
               const Icon = info.icon;
+              const CardWrapper = info.href ? 'a' : 'div';
+              const wrapperProps = info.href ? { href: info.href, target: "_blank", rel: "noopener noreferrer" } : {};
+              
               return (
                 <motion.div
                   key={i}
@@ -87,19 +146,21 @@ export default function ContactPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="p-8 rounded-3xl bg-white border border-black/5 text-center shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full"
+                  className="h-full pt-10"
                 >
-                  <div className="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-6">
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <h3 className="text-sm font-extrabold uppercase tracking-widest text-[#1a1917] mb-2">{info.title}</h3>
-                  <p className="text-sm text-muted-foreground whitespace-pre-line mb-6 flex-1">{info.desc}</p>
-
-                  {info.action && info.href && (
-                    <a href={info.href} target="_blank" rel="noopener noreferrer" className="text-xs font-bold uppercase tracking-widest text-primary hover:text-[#1a1917] transition-colors mt-auto">
-                      {info.action} &rarr;
-                    </a>
-                  )}
+                  <CardWrapper
+                    {...wrapperProps}
+                    className={`group relative p-8 md:p-10 rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#202020]/95 via-[#171717]/95 to-[#111111]/95 text-center flex flex-col h-full transition-all duration-500 shadow-[0_15px_40px_-15px_rgba(0,0,0,0.2),inset_0_1px_1px_rgba(255,255,255,0.02)] ${info.href ? 'cursor-pointer hover:border-[#FF6A2A]/60 hover:shadow-[0_30px_80px_rgba(255,106,42,0.15),inset_0_1px_1px_rgba(255,255,255,0.05)] hover:-translate-y-2 hover:scale-[1.02]' : ''}`}
+                  >
+                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 rounded-[1.5rem] bg-gradient-to-br from-[#FF9A55] to-[#FF6A2A] shadow-[0_10px_25px_-5px_rgba(255,106,42,0.4)] text-white flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:-translate-y-1">
+                      <Icon className="h-8 w-8 drop-shadow-md" />
+                    </div>
+                    
+                    <div className="mt-6 flex-1 flex flex-col items-center justify-center">
+                      <h3 className="text-sm md:text-base font-extrabold uppercase tracking-widest text-white mb-3">{info.title}</h3>
+                      <p className="text-sm text-white/70 whitespace-pre-line leading-relaxed">{info.desc}</p>
+                    </div>
+                  </CardWrapper>
                 </motion.div>
               );
             })}
@@ -124,27 +185,27 @@ export default function ContactPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground">Full Name</label>
-                    <input required type="text" className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm transition-all bg-black/[0.02]" placeholder="John Doe" />
+                    <input required type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm transition-all bg-black/[0.02]" placeholder="John Doe" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground">Email Address</label>
-                    <input required type="email" className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm transition-all bg-black/[0.02]" placeholder="john@example.com" />
+                    <input required type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm transition-all bg-black/[0.02]" placeholder="john@example.com" />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground">Phone Number</label>
-                  <input type="tel" className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm transition-all bg-black/[0.02]" placeholder="+92 300 0000000" />
+                  <input type="tel" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm transition-all bg-black/[0.02]" placeholder="+92 300 0000000" />
                 </div>
 
                 <div className="space-y-2 flex-1 flex flex-col">
                   <label className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground">Message</label>
-                  <textarea required rows={5} className="w-full flex-1 px-4 py-3 rounded-xl border border-black/10 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm transition-all resize-none bg-black/[0.02]" placeholder="How can we help you?"></textarea>
+                  <textarea required rows={5} value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} className="w-full flex-1 px-4 py-3 rounded-xl border border-black/10 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm transition-all resize-none bg-black/[0.02]" placeholder="How can we help you?"></textarea>
                 </div>
 
                 <button
                   type="submit"
-                  disabled={isSubmitted}
+                  disabled={isSubmitted || loading}
                   className="w-full py-4 rounded-xl bg-[#1a1917] text-white text-xs font-bold uppercase tracking-widest hover:bg-primary transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed mt-auto"
                 >
                   {isSubmitted ? (
@@ -154,8 +215,8 @@ export default function ContactPage() {
                     </>
                   ) : (
                     <>
-                      <span>Send Message</span>
-                      <Send className="h-4 w-4" />
+                      <span>{loading ? "Sending..." : "Send Message"}</span>
+                      {!loading && <Send className="h-4 w-4" />}
                     </>
                   )}
                 </button>
@@ -171,7 +232,7 @@ export default function ContactPage() {
               className="rounded-[32px] overflow-hidden border border-black/5 shadow-xl h-[500px] lg:h-auto min-h-[500px] bg-black/5"
             >
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1m3!1d3403.497576551694!2d74.3312893151515!3d31.45549098139103!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391906a23362a225%3A0xc3435fae1ea78233!2sTownship%20Hardware%20Market!5e0!3m2!1sen!2s!4v1689233054124!5m2!1sen!2s"
+                src="https://maps.google.com/maps?q=Bahawalpur%20Road,%20Hasilpur&t=&z=13&ie=UTF8&iwloc=&output=embed"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}

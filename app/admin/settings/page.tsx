@@ -1,0 +1,203 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { Save, Loader2, Globe, Phone, Mail, MapPin } from "lucide-react";
+import { toast } from "sonner";
+
+export default function AdminSettings() {
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const [settings, setSettings] = useState({
+    siteName: "Jinnah Hardware",
+    seoDescription: "",
+    contactEmail: "info@hammadgfx.online",
+    contactPhone: "+92 307 6924116",
+    contactAddress: "Faisalabad, Pakistan",
+    facebook: "",
+    instagram: "",
+    twitter: "",
+    whatsapp: "+923076924116"
+  });
+
+  const fetchSettings = async () => {
+    try {
+      const docRef = doc(db, "settings", "global");
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setSettings({ ...settings, ...docSnap.data() });
+      }
+    } catch (error) {
+      console.error("Error fetching settings:", error);
+      toast.error("Failed to load settings");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+
+    try {
+      await setDoc(doc(db, "settings", "global"), settings, { merge: true });
+      toast.success("Settings saved successfully");
+    } catch (error) {
+      console.error("Error saving settings:", error);
+      toast.error("Failed to save settings");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-[#FF6A2A]" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-4xl space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div>
+        <h1 className="text-2xl font-bold text-white">Site Settings</h1>
+        <p className="text-white/50 text-sm mt-1">Manage global configuration for your website</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* General Information */}
+        <div className="bg-[#1a1917] border border-white/5 rounded-2xl p-6 shadow-xl space-y-6">
+          <div className="flex items-center gap-2 border-b border-white/5 pb-4 mb-4">
+            <Globe className="w-5 h-5 text-[#FF6A2A]" />
+            <h2 className="text-lg font-bold text-white">General Information</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1">Site Name</label>
+              <input 
+                type="text" 
+                value={settings.siteName}
+                onChange={e => setSettings({...settings, siteName: e.target.value})}
+                className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors"
+              />
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1">Global SEO Description</label>
+            <textarea 
+              value={settings.seoDescription}
+              onChange={e => setSettings({...settings, seoDescription: e.target.value})}
+              className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors h-24 resize-none"
+              placeholder="Meta description for the homepage..."
+            />
+          </div>
+        </div>
+
+        {/* Contact Details */}
+        <div className="bg-[#1a1917] border border-white/5 rounded-2xl p-6 shadow-xl space-y-6">
+          <div className="flex items-center gap-2 border-b border-white/5 pb-4 mb-4">
+            <Phone className="w-5 h-5 text-[#FF6A2A]" />
+            <h2 className="text-lg font-bold text-white">Contact Details</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1 flex items-center gap-2">
+                <Mail className="w-3 h-3" /> Email Address
+              </label>
+              <input 
+                type="email" 
+                value={settings.contactEmail}
+                onChange={e => setSettings({...settings, contactEmail: e.target.value})}
+                className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1 flex items-center gap-2">
+                <Phone className="w-3 h-3" /> Phone Number
+              </label>
+              <input 
+                type="text" 
+                value={settings.contactPhone}
+                onChange={e => setSettings({...settings, contactPhone: e.target.value})}
+                className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1">WhatsApp Number</label>
+              <input 
+                type="text" 
+                value={settings.whatsapp}
+                onChange={e => setSettings({...settings, whatsapp: e.target.value})}
+                className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1 flex items-center gap-2">
+                <MapPin className="w-3 h-3" /> Physical Address
+              </label>
+              <input 
+                type="text" 
+                value={settings.contactAddress}
+                onChange={e => setSettings({...settings, contactAddress: e.target.value})}
+                className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Social Links */}
+        <div className="bg-[#1a1917] border border-white/5 rounded-2xl p-6 shadow-xl space-y-6">
+          <div className="flex items-center gap-2 border-b border-white/5 pb-4 mb-4">
+            <Globe className="w-5 h-5 text-[#FF6A2A]" />
+            <h2 className="text-lg font-bold text-white">Social Media Links</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1">Facebook URL</label>
+              <input 
+                type="url" 
+                value={settings.facebook}
+                onChange={e => setSettings({...settings, facebook: e.target.value})}
+                className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1">Instagram URL</label>
+              <input 
+                type="url" 
+                value={settings.instagram}
+                onChange={e => setSettings({...settings, instagram: e.target.value})}
+                className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end pt-4">
+          <button
+            type="submit"
+            disabled={saving}
+            className="bg-[#FF6A2A] hover:bg-[#e5591c] text-white font-bold py-3 px-8 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50"
+          >
+            {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+            Save Settings
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}

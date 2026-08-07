@@ -70,12 +70,13 @@ export function AnimatedMarqueeHero({
   });
 
   // Scroll Exit Animation (Mapped 0 to 0.8)
-  const contentY = useTransform(scrollYProgress, [0, 0.2, 0.4], [0, -10, -30]);
-  const contentScale = useTransform(scrollYProgress, [0, 0.2, 0.4], [1, 1.02, 1.05]);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.2, 0.4], [1, 0.8, 0]); 
+  const contentY = useTransform(scrollYProgress, [0, 0.3, 0.6], [0, 0, 0]);
+  const contentScale = useTransform(scrollYProgress, [0, 0.3, 0.6], [1, 1.05, 1.15]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.3, 0.6], [1, 0.9, 0]); 
+  const contentBlur = useTransform(scrollYProgress, [0, 0.3, 0.6], ["blur(0px)", "blur(8px)", "blur(16px)"]);
   
-  const showcaseY = useTransform(scrollYProgress, [0.4, 0.8], [0, 200]);
-  const imageScrollOpacity = useTransform(scrollYProgress, [0.4, 0.8], [1, 0]);
+  const showcaseY = useTransform(scrollYProgress, [0, 1], [0, 200]);
+  const imageScrollOpacity = useTransform(scrollYProgress, [0.3, 1], [1, 0]);
   const backgroundY = useTransform(scrollYProgress, [0, 1], [0, -18]);
   
   const imageFloatY = useTransform(smoothTiltX, (value) => value * -0.8);
@@ -196,8 +197,6 @@ export function AnimatedMarqueeHero({
           className="pointer-events-none absolute inset-0"
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.92),rgba(250,247,242,0.96)_34%,rgba(245,240,233,0.98)_72%,rgba(237,231,222,1)_100%)]" />
-          <div className="architectural-grid absolute inset-0 opacity-60 mix-blend-multiply" />
-          <div className="architectural-grid-fine absolute inset-0 opacity-35 mix-blend-multiply" />
           <div className="noise-texture absolute inset-0 opacity-100 mix-blend-overlay" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(224,90,43,0.13),transparent_34%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_24%,rgba(33,32,30,0.07),transparent_30%)]" />
@@ -276,7 +275,7 @@ export function AnimatedMarqueeHero({
         </motion.div>
 
         <motion.div
-          style={{ y: contentY, opacity: contentOpacity, scale: contentScale }}
+          style={{ y: contentY, opacity: contentOpacity, scale: contentScale, filter: contentBlur }}
           className="relative z-20 mx-auto flex w-full max-w-[1740px] flex-1 flex-col items-center justify-center pb-2 sm:pb-3 lg:pb-4 xl:pb-6"
         >
 

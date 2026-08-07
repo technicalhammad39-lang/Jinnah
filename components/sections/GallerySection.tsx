@@ -1,14 +1,26 @@
 "use client";
 
-import { useState } from "react";
-import { GALLERY_ITEMS } from "@/data/products";
+// import { GALLERY_ITEMS } from "@/data/products";
+import { getGallery } from "@/lib/data-fetcher";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function GallerySection() {
-  const [activeItem, setActiveItem] = useState(GALLERY_ITEMS[0].id);
+  const [galleryItems, setGalleryItems] = useState<any[]>([]);
+  const [activeItem, setActiveItem] = useState<string | null>(null);
+
+  useEffect(() => {
+    getGallery().then(data => {
+      const topItems = data.slice(0, 5); // take max 5 for this section
+      setGalleryItems(topItems);
+      if (topItems.length > 0) setActiveItem(topItems[0].id);
+    });
+  }, []);
+
+  if (galleryItems.length === 0) return null;
 
   return (
     <section id="gallery-section" className="pt-8 pb-24 md:pt-12 md:pb-32 w-full relative z-10 bg-transparent">
@@ -20,7 +32,7 @@ export function GallerySection() {
             <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
               <span>Interactive Spaces</span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-extrabold tracking-tighter text-[#1a1917] uppercase leading-[0.95]">
+            <h2 className="text-3xl md:text-5xl font-extrabold tracking-tighter text-[#1a1917] leading-[0.95]">
               The Architectural <br />
               <span className="text-primary">Showroom Gallery</span>
             </h2>
@@ -32,9 +44,9 @@ export function GallerySection() {
       </div>
 
       {/* Interactive Expandable Panels Gallery (InteractiveSelector Concept) */}
-      <div className="w-full px-4 sm:px-6">
-        <div className="flex flex-col lg:flex-row h-[700px] lg:h-[600px] w-full max-w-[1400px] mx-auto gap-2 lg:gap-4">
-          {GALLERY_ITEMS.map((item, index) => {
+      <div className="w-full">
+        <div className="flex flex-col lg:flex-row h-[700px] lg:h-[600px] xl:h-[700px] w-full max-w-[1740px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12 gap-2 lg:gap-4">
+          {galleryItems.map((item, index) => {
             const isActive = activeItem === item.id;
             
             return (
@@ -70,7 +82,7 @@ export function GallerySection() {
                   transition={{ duration: 0.7, ease: [0.32, 0.72, 0, 1] }}
                 >
                   <Image
-                    src={item.image}
+                    src={item.url || item.image}
                     alt={item.title}
                     fill
                     sizes="(min-width: 1024px) 33vw, 100vw"

@@ -1,4 +1,5 @@
-import { PRODUCTS } from "@/data/products";
+// import { PRODUCTS } from "@/data/products";
+import { getFeaturedProducts } from "@/lib/data-fetcher";
 import { Navbar } from "@/components/navigation/Navbar";
 import { AnimatedMarqueeHero } from "@/components/hero/AnimatedMarqueeHero";
 import { CategorySection } from "@/components/sections/CategorySection";
@@ -7,7 +8,6 @@ import { FeaturedProductsCarousel } from "@/components/sections/FeaturedProducts
 import { BrandsSection } from "@/components/sections/BrandsSection";
 import { WhyChooseUs } from "@/components/sections/WhyChooseUs";
 import { AboutSection } from "@/components/sections/AboutSection";
-import { UseCases } from "@/components/sections/UseCases";
 import { GallerySection } from "@/components/sections/GallerySection";
 import { ContactSection } from "@/components/sections/ContactSection";
 import { AgencyCredit } from "@/components/sections/AgencyCredit";
@@ -29,9 +29,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
-  // Select top 10 products for the Homepage Featured grid so it fills extra space when zoomed out
-  const featuredProducts = PRODUCTS.slice(0, 10);
+export default async function Home() {
+  // Fetch from Firebase
+  const featuredProducts = await getFeaturedProducts();
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-transparent">
@@ -61,8 +61,8 @@ export default function Home() {
                 <Sparkles className="h-3.5 w-3.5 text-primary" />
                 <span>Modern Masterpieces</span>
               </div>
-              <h2 className="text-3xl font-extrabold uppercase leading-[0.95] tracking-tighter text-[#1a1917] md:text-5xl">
-                Curated <span className="text-primary">Featured Hardware</span>
+              <h2 className="text-3xl font-extrabold leading-[0.95] tracking-tighter text-[#1a1917] md:text-5xl">
+                Curated Featured <span className="text-primary">Hardware</span>
               </h2>
             </div>
 
@@ -100,10 +100,7 @@ export default function Home() {
       {/* 8. Heritage Story Section */}
       <AboutSection />
 
-      {/* 9. Real-world project deployments */}
-      <UseCases />
-
-      {/* 10. Custom masonry visual gallery */}
+      {/* 9. Custom masonry visual gallery */}
       <GallerySection />
 
       {/* 11. Dynamic form contacts desk */}

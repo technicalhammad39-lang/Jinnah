@@ -6,7 +6,8 @@ import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BRANDS, CATEGORIES } from "@/data/products";
+import { CATEGORIES } from "@/data/products";
+import { getBrands } from "@/lib/data-fetcher";
 import { scrollToTarget } from "@/lib/smooth-scroll";
 
 interface TabProps {
@@ -38,6 +39,7 @@ const TABS = [
   { title: "Brands", href: "/brands", Component: BrandsMenu },
   { title: "About", href: "/about", Component: null },
   { title: "Gallery", href: "/gallery", Component: null },
+  { title: "Journal", href: "/blogs", Component: null },
   { title: "Contact", href: "/contact", Component: null },
 ].map((item, index) => ({ ...item, id: index + 1 }));
 
@@ -375,19 +377,24 @@ function Categories() {
 }
 
 function BrandsMenu() {
+  const [brands, setBrands] = useState<any[]>([]);
+  useEffect(() => {
+    getBrands().then(data => setBrands(data.slice(0, 6))); // Show top 6 brands in menu
+  }, []);
+
   return (
     <div>
       <div className="grid grid-cols-3 gap-3">
-        {BRANDS.map((brand) => (
+        {brands.map((brand) => (
           <Link
             key={brand.id}
             href={`/shop?brand=${brand.id}`}
             className="group flex flex-col items-center justify-center rounded-2xl border border-black/5 p-4 transition-all hover:border-primary/30 hover:bg-primary/5"
           >
             <div className="mb-2 text-3xl font-black text-gray-300 transition-colors group-hover:text-primary">
-              {brand.logoText}
+              {brand.brandName || brand.name}
             </div>
-            <span className="text-xs font-bold">{brand.name}</span>
+            <span className="text-xs font-bold">{brand.brandName || brand.name}</span>
           </Link>
         ))}
       </div>

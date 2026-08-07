@@ -1,3 +1,5 @@
+"use client";
+
 import { CATEGORIES } from "@/data/products";
 import {
   ArrowUpRight,
@@ -8,13 +10,17 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { ScrollToTopButton } from "./ScrollToTopButton";
+import { useEffect, useState } from "react";
+import { getSettings } from "@/lib/data-fetcher";
 
 const quickLinks = [
   { name: "About Heritage", href: "/about" },
   { name: "Visual Gallery", href: "/gallery" },
   { name: "Trusted Brands", href: "/brands" },
   { name: "Categories", href: "/categories" },
+  { name: "Journal", href: "/blogs" },
   { name: "Contact Desk", href: "/contact" },
 ];
 
@@ -28,15 +34,39 @@ const policyLinks = [
 ];
 
 export function Footer() {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+  
+  const [settings, setSettings] = useState({
+    contactEmail: "info@hammadgfx.online",
+    contactPhone: "0300-0421772",
+    contactAddress: "Opposite Gulbarag Town, Bahawalpur Road, Hasilpur",
+    whatsapp: "+923000421772"
+  });
+
+  useEffect(() => {
+    getSettings().then(data => {
+      if (data) {
+        setSettings(prev => ({ ...prev, ...data }));
+      }
+    });
+  }, []);
+
+  // Format WhatsApp number for URL (remove non-digits, add + prefix if missing)
+  const waNumberRaw = settings.whatsapp.replace(/[^\d+]/g, '');
+  const waUrl = waNumberRaw.startsWith('+') ? waNumberRaw.substring(1) : waNumberRaw;
+
   return (
-    <footer className="relative z-10 border-t border-white/5 bg-[#121110] pt-20 pb-10 text-white/90">
+    <footer className={`relative z-10 border-t border-white/5 bg-[#121110] pt-20 pb-10 text-white/90 ${isHome ? "" : "rounded-t-[32px] md:rounded-t-[40px]"}`}>
       <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-primary to-transparent" />
 
       <div className="mx-auto grid max-w-[1740px] grid-cols-1 gap-12 border-b border-white/5 px-6 md:px-8 xl:px-12 pb-16 text-left md:grid-cols-2 md:gap-8 lg:grid-cols-12">
         <div className="space-y-6 lg:col-span-4">
           <Link href="/" className="flex items-center group transition-transform hover:scale-105 w-fit">
-            <div className="relative h-12 w-[160px]">
-              <Image src="/jinnah-logo.webp" alt="Jinnah Hardware Store" fill className="object-contain object-left" />
+            <div className="relative h-16 w-[220px] md:h-20 md:w-[260px] bg-white rounded-full flex items-center justify-center p-4 shadow-lg">
+              <div className="relative w-full h-full">
+                <Image src="/jinnah-logo.webp" alt="Jinnah Hardware Store" fill className="object-contain object-center" />
+              </div>
             </div>
           </Link>
           <p className="max-w-sm text-xs leading-relaxed font-medium text-white/50">
@@ -47,7 +77,7 @@ export function Footer() {
 
           <div className="flex items-center gap-3 pt-2">
             <a
-              href="https://wa.me/923000421772"
+              href={`https://wa.me/${waUrl}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center rounded-full bg-white/5 p-2.5 text-emerald-400 transition-all hover:bg-emerald-500 hover:text-white"
@@ -56,14 +86,14 @@ export function Footer() {
               <MessageSquare className="h-4 w-4" />
             </a>
             <a
-              href="tel:03000421772"
+              href={`tel:${settings.contactPhone.replace(/[^\d+]/g, '')}`}
               className="flex items-center justify-center rounded-full bg-white/5 p-2.5 text-primary transition-all hover:bg-primary hover:text-white"
               title="Store Support Phone"
             >
               <Phone className="h-4 w-4" />
             </a>
             <a
-              href="https://maps.google.com/?q=Jinnah+Hardware+Store"
+              href={`https://maps.google.com/?q=${encodeURIComponent(settings.contactAddress)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center rounded-full bg-white/5 p-2.5 text-white/70 transition-all hover:bg-primary hover:text-white"
@@ -133,7 +163,7 @@ export function Footer() {
                   Address
                 </span>
                 <span className="text-xs font-semibold text-white/70">
-                  Opposite Gulbarag Town, Bahawalpur Road, Hasilpur
+                  {settings.contactAddress}
                 </span>
               </div>
             </li>
@@ -144,10 +174,10 @@ export function Footer() {
                   Direct Phone
                 </span>
                 <a
-                  href="tel:03000421772"
+                  href={`tel:${settings.contactPhone.replace(/[^\d+]/g, '')}`}
                   className="text-xs font-semibold text-white/80 transition-colors hover:text-primary"
                 >
-                  0300-0421772
+                  {settings.contactPhone}
                 </a>
               </div>
             </li>
@@ -158,12 +188,12 @@ export function Footer() {
                   WhatsApp Order Desk
                 </span>
                 <a
-                  href="https://wa.me/923000421772"
+                  href={`https://wa.me/${waUrl}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1 text-xs font-semibold text-emerald-400 hover:underline"
                 >
-                  <span>Chat +92 300 0421772</span>
+                  <span>Chat {settings.whatsapp}</span>
                   <ArrowUpRight className="h-3 w-3" />
                 </a>
               </div>
@@ -189,6 +219,9 @@ export function Footer() {
           <p className="mt-4 text-[9px] font-medium tracking-normal text-[#5c5b57]">
             Designed as a high-end digital showroom. All specifications, ratings, and
             finishes represent premium grade certifications.
+          </p>
+          <p className="mt-2 text-[10px] font-bold text-[#5c5b57] uppercase tracking-wider flex items-center justify-center sm:justify-start gap-1">
+            Website Designed & Developed By <a href="https://clyro.com" target="_blank" rel="noopener noreferrer" className="text-[#FF6A2A] hover:text-[#FF6A2A]/80 transition-colors">Clyro Tech Solutions</a>
           </p>
         </div>
 

@@ -5,6 +5,7 @@ import { AppProvider } from "@/context/AppContext";
 import { AppChrome } from "@/components/providers/AppChrome";
 
 import { JsonLd } from "@/components/seo/JsonLd";
+import { AuthProvider } from "@/lib/auth-context";
 
 const sansFont = Poppins({
   subsets: ["latin"],
@@ -33,6 +34,14 @@ export const metadata: Metadata = {
     locale: "en_PK",
     type: "website",
   },
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' }
+    ],
+    apple: [
+      { url: '/favicon.svg', type: 'image/svg+xml' }
+    ]
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -42,10 +51,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <JsonLd />
       </head>
       <body suppressHydrationWarning className="bg-[#faf9f6] text-[#1a1917] antialiased selection:bg-primary/20 selection:text-primary">
-        <AppProvider>
-          {children}
-          <AppChrome />
-        </AppProvider>
+        <AuthProvider>
+          <AppProvider>
+            {children}
+            <AppChrome />
+          </AppProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -17,9 +17,9 @@ export function CategorySection() {
           <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
             <span>Browse Collections</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tighter uppercase text-[#1a1917] max-w-2xl leading-[0.95]">
-            Everything for Your <br />
-            <span className="text-primary font-stylish normal-case text-[1.1em]">Next Big Project</span>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-[#1a1917] max-w-2xl leading-[0.95]">
+            Everything For Your <br />
+            <span className="text-primary font-stylish text-[1.1em]">Next Big Project</span>
           </h2>
         </div>
         <p className="text-sm text-muted-foreground max-w-sm text-left leading-relaxed font-medium">
@@ -55,22 +55,22 @@ export function CategorySection() {
                 />
 
                 {/* Content */}
-                <div className="absolute inset-0 z-20 p-6 md:p-8 flex flex-col justify-end text-left">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-[10px] font-extrabold text-primary tracking-widest uppercase">
+                <div className="absolute inset-0 z-20 p-6 md:p-8 flex flex-col justify-end text-left overflow-hidden">
+                  <div className="flex items-end justify-between w-full relative z-30">
+                    <div className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-20 lg:group-hover:-translate-y-[6.5rem] max-w-[80%]">
+                      <span className="text-[10px] font-extrabold text-primary tracking-widest uppercase block mb-1">
                         {category.count} Products
                       </span>
-                      <h3 className="text-xl md:text-2xl font-extrabold text-white uppercase tracking-tight mt-1 leading-tight transition-transform duration-500 group-hover:-translate-y-1">
+                      <h3 className="text-xl md:text-2xl font-extrabold text-white uppercase tracking-tight leading-tight">
                         {category.name}
                       </h3>
                     </div>
-                    <div className="p-3 rounded-full bg-white/10 group-hover:bg-primary group-hover:text-white text-white backdrop-blur-md transition-all duration-300">
-                      <ArrowUpRight className="h-5 w-5 group-hover:rotate-45 transition-transform duration-300" />
+                    <div className="p-3 rounded-full bg-white/10 group-hover:bg-primary group-hover:text-white text-white backdrop-blur-md transition-all duration-500 shrink-0 relative z-30">
+                      <ArrowUpRight className="h-5 w-5 group-hover:rotate-45 transition-transform duration-500" />
                     </div>
                   </div>
 
-                  <p className="text-xs text-white/70 font-medium leading-relaxed mt-3 max-w-sm line-clamp-2 md:opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                  <p className="absolute bottom-6 md:bottom-8 left-6 md:left-8 pr-16 text-xs md:text-sm text-white/80 font-medium leading-relaxed max-w-sm opacity-0 group-hover:opacity-100 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] transform translate-y-6 group-hover:translate-y-0 pointer-events-none line-clamp-3">
                     {category.description}
                   </p>
                 </div>

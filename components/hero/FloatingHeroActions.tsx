@@ -8,8 +8,9 @@ import {
   useRef,
   useState,
 } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion, useReducedMotion, AnimatePresence } from "motion/react";
 import { PhoneCall } from "lucide-react";
+import { useOverlayState } from "@/context/AppContext";
 
 type ActionId = "call" | "directions" | "whatsapp";
 type DockIconProps = { className?: string };
@@ -186,6 +187,7 @@ const iconBgVariants = {
 };
 
 export function FloatingHeroActions() {
+  const { cartOpen } = useOverlayState();
   const reduceMotion = useReducedMotion();
   const containerRef = useRef<HTMLDivElement>(null);
   const [canHover, setCanHover] = useState(false);
@@ -256,7 +258,7 @@ export function FloatingHeroActions() {
   };
 
   return (
-    <div className="pointer-events-none fixed right-4 bottom-4 z-[60] sm:right-6 sm:bottom-6 lg:right-8 lg:bottom-8">
+    <div className={`pointer-events-none fixed right-4 bottom-4 z-[60] sm:right-6 sm:bottom-6 lg:right-8 lg:bottom-8 transition-all duration-500 ${cartOpen ? "opacity-0 translate-y-12" : "opacity-100 translate-y-0"}`}>
       <motion.div
         ref={containerRef}
         initial="collapsed"

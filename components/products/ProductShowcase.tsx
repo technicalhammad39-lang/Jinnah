@@ -253,9 +253,9 @@ export function ProductShowcase() {
                 <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                   Direct Store Price
                 </span>
-                <span className="text-3xl font-black text-foreground">
-                  ${activeProduct.price.toFixed(2)}
-                </span>
+                <p className="text-3xl font-black text-foreground">
+                  Rs. {activeProduct.price.toLocaleString()}
+                </p>
               </div>
 
               <button

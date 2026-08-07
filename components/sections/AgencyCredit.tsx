@@ -1,12 +1,22 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Globe, MessageCircle, Mail } from "lucide-react";
+import { Globe, MessageCircle, Mail, Search } from "lucide-react";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 export function AgencyCredit() {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+
   return (
-    <section className="py-24 bg-[#1a1917] text-white relative overflow-hidden z-10 border-y border-white/10">
+    <section 
+      className={`bg-[#1a1917] text-white relative overflow-hidden z-10 ${
+        isHome 
+          ? "pt-24 pb-12 rounded-t-[40px] md:rounded-t-[80px]" 
+          : "py-12 border-y border-white/10 rounded-t-[32px] md:rounded-t-[40px]"
+      }`}
+    >
       {/* Heavy orange glow behind content */}
       <div 
         className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[40vw] h-[40vw] rounded-full radial-gradient opacity-[0.15] blur-[100px]"
@@ -46,7 +56,7 @@ export function AgencyCredit() {
               <p className="text-xs md:text-sm font-extrabold text-[#FF6A2A] uppercase tracking-widest">
                 Website Designed & Developed By
               </p>
-              <h3 className="text-2xl md:text-4xl font-black tracking-tight text-white">
+              <h3 className={`${isHome ? "text-2xl md:text-4xl" : "text-xl md:text-2xl"} font-black tracking-tight text-white`}>
                 Clyro Tech Solutions
               </h3>
             </div>
@@ -55,7 +65,7 @@ export function AgencyCredit() {
           {/* Right: Elegant Anchor Links */}
           <div className="flex items-center gap-6 sm:gap-8 flex-wrap justify-center">
             <a 
-              href="https://clyro.com" 
+              href="https://hammadgfx.online" 
               target="_blank" 
               rel="noopener noreferrer"
               className="group flex items-center gap-2 text-sm font-bold text-white/70 hover:text-white transition-colors"
@@ -64,7 +74,7 @@ export function AgencyCredit() {
               <span>Website</span>
             </a>
             <a 
-              href="https://wa.me/923000000000" 
+              href="https://wa.me/923076924116" 
               target="_blank" 
               rel="noopener noreferrer"
               className="group flex items-center gap-2 text-sm font-bold text-white/70 hover:text-[#25D366] transition-colors"
@@ -73,11 +83,20 @@ export function AgencyCredit() {
               <span>WhatsApp</span>
             </a>
             <a 
-              href="mailto:contact@clyro.com" 
+              href="mailto:info@hammadgfx.online" 
               className="group flex items-center gap-2 text-sm font-bold text-white/70 hover:text-primary transition-colors"
             >
               <Mail className="h-4 w-4 group-hover:text-primary" />
               <span>Email</span>
+            </a>
+            <a 
+              href="https://www.google.com/search?q=Clyro+Tech+Solutions" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="group flex items-center gap-2 text-sm font-bold text-white/70 hover:text-[#4285F4] transition-colors"
+            >
+              <Search className="h-4 w-4 group-hover:text-[#4285F4]" />
+              <span>Google Search</span>
             </a>
           </div>
         </motion.div>

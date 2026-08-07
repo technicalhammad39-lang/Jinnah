@@ -201,7 +201,7 @@ export function SearchOverlay() {
                         </Link>
                         <div className="mt-1.5 flex items-center gap-3">
                           <span className="text-xs font-bold text-[#1a1917]">
-                            ${product.price.toFixed(2)}
+                            Rs. {product.price.toLocaleString()}
                           </span>
                           <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600">
                             {product.availability}

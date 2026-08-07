@@ -3,6 +3,7 @@
 import { memo, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import {
   Check,
@@ -31,6 +32,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
   const { wishlist } = useWishlistState();
   const { toggleWishlist } = useWishlistActions();
   const { setQuickViewProduct, setCartOpen } = useOverlayActions();
+  const router = useRouter();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(product.sizes[0] || null);
   const [isAdding, setIsAdding] = useState(false);
@@ -103,9 +105,14 @@ function ProductCardComponent({ product }: ProductCardProps) {
     setQuickViewProduct(product);
   };
 
+  const handleCardClick = () => {
+    router.push(`/shop?product=${product.id}`);
+  };
+
   return (
     <div
-      className="group relative flex w-full flex-col overflow-hidden rounded-3xl border border-black/5 bg-[#faf9f6] shadow-sm transition-all duration-500 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 h-full premium-transform"
+      onClick={handleCardClick}
+      className="group relative flex w-full flex-col overflow-hidden rounded-3xl border border-black/5 bg-[#faf9f6] shadow-sm transition-all duration-500 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 h-full premium-transform cursor-pointer"
     >
       <div className="relative h-[260px] sm:h-[280px] lg:h-[300px] w-full shrink-0 overflow-hidden bg-[#efece6]" data-cursor="view">
         <Link href={`/shop?product=${product.id}`} className="block h-full w-full">
@@ -224,11 +231,11 @@ function ProductCardComponent({ product }: ProductCardProps) {
 
           <div className="mb-4 flex items-baseline gap-2">
             <span className="text-base font-black text-foreground md:text-lg">
-              ${product.price.toFixed(2)}
+              Rs. {product.price.toLocaleString()}
             </span>
             {product.originalPrice > product.price && (
               <span className="text-xs font-semibold text-muted-foreground line-through">
-                ${product.originalPrice.toFixed(2)}
+                Rs. {product.originalPrice.toLocaleString()}
               </span>
             )}
           </div>
@@ -242,7 +249,11 @@ function ProductCardComponent({ product }: ProductCardProps) {
                   {product.sizes.map((size) => (
                     <button
                       key={size}
-                      onClick={() => setSelectedSize(size)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setSelectedSize(size);
+                      }}
                       className={`cursor-pointer rounded-md px-2 py-0.5 text-[9px] font-bold transition-all ${
                         selectedSize === size
                           ? "bg-primary text-white"
@@ -261,6 +272,8 @@ function ProductCardComponent({ product }: ProductCardProps) {
         <div className="flex items-center gap-2">
           <button
             onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
               handleAddToCart(e);
               setTimeout(() => setCartOpen(true), 100);
             }}
@@ -268,7 +281,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
             className={`flex-1 flex cursor-pointer items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
               isSuccess
                 ? "bg-emerald-600 text-white"
-                : "bg-primary text-white hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20"
+                : "bg-gradient-to-r from-[#1a1917] to-zinc-700 text-white hover:from-black hover:to-zinc-800 hover:shadow-lg hover:shadow-black/20"
             }`}
           >
             {isAdding ? (
@@ -280,9 +293,13 @@ function ProductCardComponent({ product }: ProductCardProps) {
             )}
           </button>
           <button
-            onClick={handleAddToCart}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              handleAddToCart(e);
+            }}
             disabled={isAdding || isSuccess}
-            className="flex h-[38px] w-[38px] flex-shrink-0 cursor-pointer items-center justify-center rounded-xl bg-[#1a1917] text-white hover:bg-primary transition-all duration-300"
+            className="flex h-[38px] w-[38px] flex-shrink-0 cursor-pointer items-center justify-center rounded-xl bg-[#1a1917] text-white hover:bg-black/80 hover:shadow-md transition-all duration-300"
             title="Add to Cart"
           >
             <ShoppingCart className="h-4 w-4" />
