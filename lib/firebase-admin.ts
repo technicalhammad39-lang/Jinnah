@@ -17,6 +17,6 @@ if (!admin.apps.length) {
 }
 
 export const adminApp = admin.apps.length > 0 ? admin.app() : undefined;
-export const adminDb = admin.firestore();
-export const adminAuth = admin.auth();
-export const adminStorage = admin.storage();
+export const adminDb = adminApp ? admin.firestore(adminApp) : undefined;
+export const adminAuth = adminApp ? admin.auth(adminApp) : undefined;
+export const adminStorage = adminApp ? admin.storage(adminApp) : undefined;

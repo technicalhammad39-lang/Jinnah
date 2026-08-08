@@ -16,7 +16,7 @@ export default function BlogsPage() {
   useEffect(() => {
     getBlogs().then(data => {
       // Only show published blogs on the frontend
-      setBlogs(data.filter(b => b.published !== false));
+      setBlogs(data.filter((b: any) => b.published !== false));
       setLoading(false);
     });
   }, []);

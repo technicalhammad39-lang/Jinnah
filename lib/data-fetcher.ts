@@ -5,7 +5,7 @@ export async function getProducts() {
   try {
     const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as any[];
   } catch (error) {
     console.error("Error fetching products:", error);
     return [];
@@ -21,12 +21,12 @@ export async function getFeaturedProducts() {
       limit(10)
     );
     const snapshot = await getDocs(q);
-    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as any[];
     // Fallback to latest products if no featured products
     if (data.length === 0) {
       const q2 = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(10));
       const snap2 = await getDocs(q2);
-      return snap2.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      return snap2.docs.map(doc => ({ id: doc.id, ...doc.data() })) as any[];
     }
     return data;
   } catch (error) {
@@ -39,7 +39,7 @@ export async function getBrands() {
   try {
     const q = query(collection(db, "brands"), orderBy("createdAt", "desc"));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as any[];
   } catch (error) {
     console.error("Error fetching brands:", error);
     return [];
@@ -63,7 +63,7 @@ export async function getBlogs() {
   try {
     const q = query(collection(db, "blogs"), orderBy("createdAt", "desc"));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as any[];
   } catch (error) {
     console.error("Error fetching blogs:", error);
     return [];
@@ -89,7 +89,7 @@ export async function getGallery() {
   try {
     const q = query(collection(db, "gallery"), orderBy("createdAt", "desc"));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as any[];
   } catch (error) {
     console.error("Error fetching gallery:", error);
     return [];
