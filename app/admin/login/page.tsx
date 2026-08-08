@@ -30,8 +30,8 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-[#121110] flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-[#1a1917] rounded-3xl p-8 border border-white/5 shadow-2xl">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-[#1a1917]/5 shadow-2xl">
         <div className="flex flex-col items-center mb-8">
           <div className="relative h-16 w-48 mb-6">
             <Image 
@@ -41,8 +41,8 @@ export default function AdminLogin() {
               className="object-contain"
             />
           </div>
-          <h1 className="text-2xl font-black text-white">Admin Portal</h1>
-          <p className="text-white/50 text-sm mt-2">Sign in to manage your CMS</p>
+          <h1 className="text-2xl font-black text-[#1a1917]">Admin Portal</h1>
+          <p className="text-[#1a1917]/50 text-sm mt-2">Sign in to manage your CMS</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
@@ -53,30 +53,30 @@ export default function AdminLogin() {
           )}
 
           <div className="space-y-1">
-            <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1">Email Address</label>
+            <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Email Address</label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/30" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#1a1917]/30" />
               <input 
                 type="email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 pl-10 pr-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
                 placeholder="admin@jinnahhardware.com"
               />
             </div>
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1">Password</label>
+            <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Password</label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/30" />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#1a1917]/30" />
               <input 
                 type="password" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 pl-10 pr-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
                 placeholder="••••••••"
               />
             </div>

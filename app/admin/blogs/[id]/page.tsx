@@ -115,13 +115,13 @@ export default function BlogEditor() {
       <div className="flex items-center gap-4">
         <Link 
           href="/admin/blogs"
-          className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+          className="p-2 bg-[#1a1917]/5 hover:bg-[#1a1917]/10 rounded-full transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-white">{isNew ? "Write Blog Post" : "Edit Blog Post"}</h1>
-          <p className="text-white/50 text-sm mt-1">{isNew ? "Publish a new article to your blog" : "Update existing article details"}</p>
+          <h1 className="text-2xl font-bold text-[#1a1917]">{isNew ? "Write Blog Post" : "Edit Blog Post"}</h1>
+          <p className="text-[#1a1917]/50 text-sm mt-1">{isNew ? "Publish a new article to your blog" : "Update existing article details"}</p>
         </div>
       </div>
 
@@ -129,37 +129,37 @@ export default function BlogEditor() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content Area */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-[#1a1917] border border-white/5 rounded-2xl p-6 shadow-xl space-y-6">
+            <div className="bg-white border border-[#1a1917]/5 rounded-2xl p-6 shadow-xl space-y-6">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1">Article Title</label>
+                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Article Title</label>
                 <input 
                   type="text" 
                   required
                   value={formData.title}
                   onChange={e => setFormData({...formData, title: e.target.value})}
-                  className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors font-bold text-lg"
+                  className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors font-bold text-lg"
                   placeholder="Enter a compelling title..."
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1">Article Content (Markdown / HTML)</label>
+                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Article Content (Markdown / HTML)</label>
                 <textarea 
                   required
                   value={formData.content}
                   onChange={e => setFormData({...formData, content: e.target.value})}
-                  className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors min-h-[400px] font-mono text-sm"
+                  className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors min-h-[400px] font-mono text-sm"
                   placeholder="Write your article content here..."
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1">Excerpt (Short Summary)</label>
+                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Excerpt (Short Summary)</label>
                 <textarea 
                   required
                   value={formData.excerpt}
                   onChange={e => setFormData({...formData, excerpt: e.target.value})}
-                  className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors h-24 resize-none"
+                  className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors h-24 resize-none"
                   placeholder="A brief summary for the blog listing page..."
                 />
               </div>
@@ -168,8 +168,8 @@ export default function BlogEditor() {
 
           {/* Sidebar Area */}
           <div className="space-y-6">
-            <div className="bg-[#1a1917] border border-white/5 rounded-2xl p-6 shadow-xl space-y-6">
-              <h3 className="font-bold text-white border-b border-white/5 pb-2">Publish Settings</h3>
+            <div className="bg-white border border-[#1a1917]/5 rounded-2xl p-6 shadow-xl space-y-6">
+              <h3 className="font-bold text-[#1a1917] border-b border-[#1a1917]/5 pb-2">Publish Settings</h3>
               
               <div className="flex items-center gap-3">
                 <label className="relative inline-flex items-center cursor-pointer">
@@ -179,8 +179,8 @@ export default function BlogEditor() {
                     checked={formData.published}
                     onChange={e => setFormData({...formData, published: e.target.checked})}
                   />
-                  <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#FF6A2A]"></div>
-                  <span className="ml-3 text-sm font-medium text-white">Publish Article</span>
+                  <div className="w-11 h-6 bg-[#1a1917]/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#FF6A2A]"></div>
+                  <span className="ml-3 text-sm font-medium text-[#1a1917]">Publish Article</span>
                 </label>
               </div>
 
@@ -194,47 +194,47 @@ export default function BlogEditor() {
               </button>
             </div>
 
-            <div className="bg-[#1a1917] border border-white/5 rounded-2xl p-6 shadow-xl space-y-6">
-              <h3 className="font-bold text-white border-b border-white/5 pb-2">Meta Details</h3>
+            <div className="bg-white border border-[#1a1917]/5 rounded-2xl p-6 shadow-xl space-y-6">
+              <h3 className="font-bold text-[#1a1917] border-b border-[#1a1917]/5 pb-2">Meta Details</h3>
               
               <div className="space-y-2">
-                <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1">URL Slug</label>
+                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">URL Slug</label>
                 <input 
                   type="text" 
                   required
                   value={formData.slug}
                   onChange={e => setFormData({...formData, slug: e.target.value})}
-                  className="w-full bg-[#121110] border border-white/10 rounded-xl py-2 px-3 text-white text-sm focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                  className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-2 px-3 text-[#1a1917] text-sm focus:outline-none focus:border-[#FF6A2A] transition-colors"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1">Category</label>
+                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Category</label>
                 <input 
                   type="text" 
                   required
                   value={formData.category}
                   onChange={e => setFormData({...formData, category: e.target.value})}
-                  className="w-full bg-[#121110] border border-white/10 rounded-xl py-2 px-3 text-white text-sm focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                  className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-2 px-3 text-[#1a1917] text-sm focus:outline-none focus:border-[#FF6A2A] transition-colors"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1">SEO Description</label>
+                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">SEO Description</label>
                 <textarea 
                   value={formData.seoDescription}
                   onChange={e => setFormData({...formData, seoDescription: e.target.value})}
-                  className="w-full bg-[#121110] border border-white/10 rounded-xl py-2 px-3 text-white text-sm focus:outline-none focus:border-[#FF6A2A] transition-colors h-20 resize-none"
+                  className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-2 px-3 text-[#1a1917] text-sm focus:outline-none focus:border-[#FF6A2A] transition-colors h-20 resize-none"
                 />
               </div>
             </div>
 
-            <div className="bg-[#1a1917] border border-white/5 rounded-2xl p-6 shadow-xl space-y-6">
-              <h3 className="font-bold text-white border-b border-white/5 pb-2">Cover Image</h3>
+            <div className="bg-white border border-[#1a1917]/5 rounded-2xl p-6 shadow-xl space-y-6">
+              <h3 className="font-bold text-[#1a1917] border-b border-[#1a1917]/5 pb-2">Cover Image</h3>
               
               <div className="space-y-4">
                 {formData.coverImage ? (
-                  <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-white/10 group">
+                  <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-[#1a1917]/10 group">
                     <Image src={formData.coverImage} alt="Cover" fill className="object-cover" />
                     <button 
                       type="button"
@@ -245,9 +245,9 @@ export default function BlogEditor() {
                     </button>
                   </div>
                 ) : (
-                  <label className="w-full aspect-video rounded-xl border-2 border-dashed border-white/20 flex flex-col items-center justify-center cursor-pointer hover:border-[#FF6A2A] hover:bg-[#FF6A2A]/5 transition-colors">
-                    {uploading ? <Loader2 className="w-8 h-8 animate-spin text-[#FF6A2A]" /> : <UploadCloud className="w-8 h-8 text-white/50" />}
-                    <span className="text-xs text-white/50 mt-2 uppercase font-bold">Upload Cover</span>
+                  <label className="w-full aspect-video rounded-xl border-2 border-dashed border-[#1a1917]/20 flex flex-col items-center justify-center cursor-pointer hover:border-[#FF6A2A] hover:bg-[#FF6A2A]/5 transition-colors">
+                    {uploading ? <Loader2 className="w-8 h-8 animate-spin text-[#FF6A2A]" /> : <UploadCloud className="w-8 h-8 text-[#1a1917]/50" />}
+                    <span className="text-xs text-[#1a1917]/50 mt-2 uppercase font-bold">Upload Cover</span>
                     <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
                   </label>
                 )}

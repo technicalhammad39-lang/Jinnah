@@ -44,62 +44,62 @@ export default function AdminNotifications() {
   return (
     <div className="max-w-3xl space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div>
-        <h1 className="text-2xl font-bold text-white">Push Notifications</h1>
-        <p className="text-white/50 text-sm mt-1">Send marketing alerts and updates to subscribed users</p>
+        <h1 className="text-2xl font-bold text-[#1a1917]">Push Notifications</h1>
+        <p className="text-[#1a1917]/50 text-sm mt-1">Send marketing alerts and updates to subscribed users</p>
       </div>
 
-      <div className="bg-[#1a1917] border border-white/5 rounded-2xl p-6 shadow-xl">
-        <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/5">
+      <div className="bg-white border border-[#1a1917]/5 rounded-2xl p-6 shadow-xl">
+        <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[#1a1917]/5">
           <div className="p-3 bg-[#FF6A2A]/10 rounded-xl">
             <Bell className="w-5 h-5 text-[#FF6A2A]" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-white">Compose Message</h2>
-            <p className="text-sm text-white/50">This will be broadcasted to all active devices</p>
+            <h2 className="text-lg font-bold text-[#1a1917]">Compose Message</h2>
+            <p className="text-sm text-[#1a1917]/50">This will be broadcasted to all active devices</p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1">Notification Title</label>
+            <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Notification Title</label>
             <input 
               type="text" 
               required
               maxLength={60}
               value={formData.title}
               onChange={e => setFormData({...formData, title: e.target.value})}
-              className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors"
+              className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
               placeholder="e.g. Flash Sale: 50% Off Door Handles!"
             />
-            <div className="text-right text-xs text-white/30">{formData.title.length}/60</div>
+            <div className="text-right text-xs text-[#1a1917]/30">{formData.title.length}/60</div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1">Message Body</label>
+            <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Message Body</label>
             <textarea 
               required
               maxLength={150}
               value={formData.body}
               onChange={e => setFormData({...formData, body: e.target.value})}
-              className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors h-24 resize-none"
+              className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors h-24 resize-none"
               placeholder="A brief compelling description of the offer or update..."
             />
-            <div className="text-right text-xs text-white/30">{formData.body.length}/150</div>
+            <div className="text-right text-xs text-[#1a1917]/30">{formData.body.length}/150</div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1">Target Link (Path)</label>
+            <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Target Link (Path)</label>
             <input 
               type="text" 
               value={formData.link}
               onChange={e => setFormData({...formData, link: e.target.value})}
-              className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors font-mono text-sm text-blue-400"
+              className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors font-mono text-sm text-blue-400"
               placeholder="/products/category-slug"
             />
-            <p className="text-xs text-white/30 pl-1">Where users will be directed when they tap the notification.</p>
+            <p className="text-xs text-[#1a1917]/30 pl-1">Where users will be directed when they tap the notification.</p>
           </div>
 
-          <div className="pt-4 border-t border-white/5">
+          <div className="pt-4 border-t border-[#1a1917]/5">
             <button
               type="submit"
               disabled={loading}

@@ -67,121 +67,121 @@ export default function AdminSettings() {
   return (
     <div className="max-w-4xl space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div>
-        <h1 className="text-2xl font-bold text-white">Site Settings</h1>
-        <p className="text-white/50 text-sm mt-1">Manage global configuration for your website</p>
+        <h1 className="text-2xl font-bold text-[#1a1917]">Site Settings</h1>
+        <p className="text-[#1a1917]/50 text-sm mt-1">Manage global configuration for your website</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* General Information */}
-        <div className="bg-[#1a1917] border border-white/5 rounded-2xl p-6 shadow-xl space-y-6">
-          <div className="flex items-center gap-2 border-b border-white/5 pb-4 mb-4">
+        <div className="bg-white border border-[#1a1917]/5 rounded-2xl p-6 shadow-xl space-y-6">
+          <div className="flex items-center gap-2 border-b border-[#1a1917]/5 pb-4 mb-4">
             <Globe className="w-5 h-5 text-[#FF6A2A]" />
-            <h2 className="text-lg font-bold text-white">General Information</h2>
+            <h2 className="text-lg font-bold text-[#1a1917]">General Information</h2>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1">Site Name</label>
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Site Name</label>
               <input 
                 type="text" 
                 value={settings.siteName}
                 onChange={e => setSettings({...settings, siteName: e.target.value})}
-                className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
               />
             </div>
           </div>
           
           <div className="space-y-2">
-            <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1">Global SEO Description</label>
+            <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Global SEO Description</label>
             <textarea 
               value={settings.seoDescription}
               onChange={e => setSettings({...settings, seoDescription: e.target.value})}
-              className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors h-24 resize-none"
+              className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors h-24 resize-none"
               placeholder="Meta description for the homepage..."
             />
           </div>
         </div>
 
         {/* Contact Details */}
-        <div className="bg-[#1a1917] border border-white/5 rounded-2xl p-6 shadow-xl space-y-6">
-          <div className="flex items-center gap-2 border-b border-white/5 pb-4 mb-4">
+        <div className="bg-white border border-[#1a1917]/5 rounded-2xl p-6 shadow-xl space-y-6">
+          <div className="flex items-center gap-2 border-b border-[#1a1917]/5 pb-4 mb-4">
             <Phone className="w-5 h-5 text-[#FF6A2A]" />
-            <h2 className="text-lg font-bold text-white">Contact Details</h2>
+            <h2 className="text-lg font-bold text-[#1a1917]">Contact Details</h2>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1 flex items-center gap-2">
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1 flex items-center gap-2">
                 <Mail className="w-3 h-3" /> Email Address
               </label>
               <input 
                 type="email" 
                 value={settings.contactEmail}
                 onChange={e => setSettings({...settings, contactEmail: e.target.value})}
-                className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
               />
             </div>
             
             <div className="space-y-2">
-              <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1 flex items-center gap-2">
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1 flex items-center gap-2">
                 <Phone className="w-3 h-3" /> Phone Number
               </label>
               <input 
                 type="text" 
                 value={settings.contactPhone}
                 onChange={e => setSettings({...settings, contactPhone: e.target.value})}
-                className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
               />
             </div>
             
             <div className="space-y-2">
-              <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1">WhatsApp Number</label>
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">WhatsApp Number</label>
               <input 
                 type="text" 
                 value={settings.whatsapp}
                 onChange={e => setSettings({...settings, whatsapp: e.target.value})}
-                className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
               />
             </div>
             
             <div className="space-y-2">
-              <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1 flex items-center gap-2">
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1 flex items-center gap-2">
                 <MapPin className="w-3 h-3" /> Physical Address
               </label>
               <input 
                 type="text" 
                 value={settings.contactAddress}
                 onChange={e => setSettings({...settings, contactAddress: e.target.value})}
-                className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
               />
             </div>
           </div>
         </div>
 
         {/* Social Links */}
-        <div className="bg-[#1a1917] border border-white/5 rounded-2xl p-6 shadow-xl space-y-6">
-          <div className="flex items-center gap-2 border-b border-white/5 pb-4 mb-4">
+        <div className="bg-white border border-[#1a1917]/5 rounded-2xl p-6 shadow-xl space-y-6">
+          <div className="flex items-center gap-2 border-b border-[#1a1917]/5 pb-4 mb-4">
             <Globe className="w-5 h-5 text-[#FF6A2A]" />
-            <h2 className="text-lg font-bold text-white">Social Media Links</h2>
+            <h2 className="text-lg font-bold text-[#1a1917]">Social Media Links</h2>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1">Facebook URL</label>
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Facebook URL</label>
               <input 
                 type="url" 
                 value={settings.facebook}
                 onChange={e => setSettings({...settings, facebook: e.target.value})}
-                className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-bold text-white/50 uppercase tracking-wider pl-1">Instagram URL</label>
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Instagram URL</label>
               <input 
                 type="url" 
                 value={settings.instagram}
                 onChange={e => setSettings({...settings, instagram: e.target.value})}
-                className="w-full bg-[#121110] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
               />
             </div>
           </div>

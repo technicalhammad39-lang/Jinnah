@@ -57,8 +57,8 @@ export default function AdminProducts() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Products</h1>
-          <p className="text-white/50 text-sm mt-1">Manage your store's inventory</p>
+          <h1 className="text-2xl font-bold text-[#1a1917]">Products</h1>
+          <p className="text-[#1a1917]/50 text-sm mt-1">Manage your store's inventory</p>
         </div>
         <Link 
           href="/admin/products/new"
@@ -69,23 +69,23 @@ export default function AdminProducts() {
         </Link>
       </div>
 
-      <div className="bg-[#1a1917] border border-white/5 rounded-2xl overflow-hidden shadow-xl">
-        <div className="p-4 border-b border-white/5 bg-[#121110]">
+      <div className="bg-white border border-[#1a1917]/5 rounded-2xl overflow-hidden shadow-xl">
+        <div className="p-4 border-b border-[#1a1917]/5 bg-white">
           <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#1a1917]/30" />
             <input 
               type="text"
               placeholder="Search products..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-[#1a1917] border border-white/10 rounded-lg py-2 pl-9 pr-4 text-white text-sm focus:outline-none focus:border-[#FF6A2A] transition-colors"
+              className="w-full bg-white border border-[#1a1917]/10 rounded-lg py-2 pl-9 pr-4 text-[#1a1917] text-sm focus:outline-none focus:border-[#FF6A2A] transition-colors"
             />
           </div>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-white/70">
-            <thead className="text-xs uppercase bg-[#121110] text-white/40 border-b border-white/5">
+          <table className="w-full text-left text-sm text-[#1a1917]/70">
+            <thead className="text-xs uppercase bg-white text-[#1a1917]/40 border-b border-[#1a1917]/5">
               <tr>
                 <th className="px-6 py-4 font-semibold">Product</th>
                 <th className="px-6 py-4 font-semibold">Category</th>
@@ -95,7 +95,7 @@ export default function AdminProducts() {
                 <th className="px-6 py-4 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-[#1a1917]/5">
               {loading ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center">
@@ -104,7 +104,7 @@ export default function AdminProducts() {
                 </tr>
               ) : filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-white/40">
+                  <td colSpan={6} className="px-6 py-12 text-center text-[#1a1917]/40">
                     No products found.
                   </td>
                 </tr>
@@ -113,16 +113,16 @@ export default function AdminProducts() {
                   <tr key={product.id} className="hover:bg-white/[0.02] transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
-                        <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                        <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-[#1a1917]/5 border border-[#1a1917]/10 flex items-center justify-center shrink-0">
                           {product.images?.[0] ? (
                             <Image src={product.images[0]} alt={product.name} fill className="object-cover" />
                           ) : (
-                            <ImageIcon className="w-5 h-5 text-white/20" />
+                            <ImageIcon className="w-5 h-5 text-[#1a1917]/20" />
                           )}
                         </div>
                         <div>
-                          <div className="font-bold text-white">{product.name}</div>
-                          <div className="text-xs text-white/40 truncate w-48">{product.slug}</div>
+                          <div className="font-bold text-[#1a1917]">{product.name}</div>
+                          <div className="text-xs text-[#1a1917]/40 truncate w-48">{product.slug}</div>
                         </div>
                       </div>
                     </td>
@@ -142,13 +142,13 @@ export default function AdminProducts() {
                       <div className="flex items-center justify-end gap-2">
                         <Link 
                           href={`/admin/products/${product.id}`}
-                          className="p-2 text-white/40 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                          className="p-2 text-[#1a1917]/40 hover:text-[#1a1917] hover:bg-[#1a1917]/5 rounded-lg transition-colors"
                         >
                           <Edit2 className="w-4 h-4" />
                         </Link>
                         <button 
                           onClick={() => handleDelete(product.id, product.name)}
-                          className="p-2 text-white/40 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                          className="p-2 text-[#1a1917]/40 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

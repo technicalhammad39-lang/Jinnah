@@ -88,8 +88,8 @@ export default function AdminGallery() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Gallery</h1>
-          <p className="text-white/50 text-sm mt-1">Manage images shown in your site's portfolio</p>
+          <h1 className="text-2xl font-bold text-[#1a1917]">Gallery</h1>
+          <p className="text-[#1a1917]/50 text-sm mt-1">Manage images shown in your site's portfolio</p>
         </div>
         <div>
           <input 
@@ -111,18 +111,18 @@ export default function AdminGallery() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center items-center h-64 bg-[#1a1917] rounded-2xl border border-white/5">
+        <div className="flex justify-center items-center h-64 bg-white rounded-2xl border border-[#1a1917]/5">
           <Loader2 className="w-8 h-8 animate-spin text-[#FF6A2A]" />
         </div>
       ) : images.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-64 bg-[#1a1917] rounded-2xl border border-white/5 text-white/40">
+        <div className="flex flex-col items-center justify-center h-64 bg-white rounded-2xl border border-[#1a1917]/5 text-[#1a1917]/40">
           <UploadCloud className="w-12 h-12 mb-4 opacity-50" />
           <p>No images in gallery yet.</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {images.map((image) => (
-            <div key={image.id} className="relative aspect-square rounded-2xl overflow-hidden bg-[#1a1917] border border-white/5 group shadow-xl">
+            <div key={image.id} className="relative aspect-square rounded-2xl overflow-hidden bg-white border border-[#1a1917]/5 group shadow-xl">
               <Image 
                 src={image.url} 
                 alt="Gallery Item" 
@@ -132,7 +132,7 @@ export default function AdminGallery() {
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <button 
                   onClick={() => handleDelete(image.id, image.path)}
-                  className="bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-white p-3 rounded-full transition-colors backdrop-blur-sm"
+                  className="bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-[#1a1917] p-3 rounded-full transition-colors backdrop-blur-sm"
                   title="Delete Image"
                 >
                   <Trash2 className="w-5 h-5" />

@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // If loading and trying to access an admin route, show loader
   if (loading && pathname.startsWith("/admin")) {
     return (
-      <div className="min-h-screen bg-[#121110] flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <Loader2 className="w-10 h-10 text-[#FF6A2A] animate-spin" />
       </div>
     );

@@ -40,12 +40,17 @@ export function PremiumScrollAnimations() {
 
     if (shouldReduceMotion) {
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-      gsap.set(SECTION_SELECTOR, { clearProps: "all" });
+      const elements = document.querySelectorAll(SECTION_SELECTOR);
+      if (elements.length > 0) {
+        gsap.set(elements, { clearProps: "all" });
+      }
       return undefined;
     }
 
     const context = gsap.context(() => {
-      const sections = gsap.utils.toArray<HTMLElement>(SECTION_SELECTOR);
+      const elements = document.querySelectorAll<HTMLElement>(SECTION_SELECTOR);
+      if (elements.length === 0) return;
+      const sections = gsap.utils.toArray<HTMLElement>(elements);
 
       sections.forEach((section) => {
         const badge = section.querySelector<HTMLElement>(

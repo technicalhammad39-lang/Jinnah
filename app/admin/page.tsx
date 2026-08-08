@@ -98,12 +98,12 @@ export default function AdminDashboard() {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-white">Overview</h1>
-          <p className="text-white/50 text-sm mt-1">Welcome to your Jinnah Hardware CMS.</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-[#1a1917]">Overview</h1>
+          <p className="text-[#1a1917]/50 text-sm mt-1">Welcome to your Jinnah Hardware CMS.</p>
         </div>
-        <div className="flex items-center gap-2 bg-[#121110] border border-white/5 px-4 py-2 rounded-xl">
+        <div className="flex items-center gap-2 bg-white border border-[#1a1917]/5 px-4 py-2 rounded-xl">
           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-sm font-medium text-white/70">System Online</span>
+          <span className="text-sm font-medium text-[#1a1917]/70">System Online</span>
         </div>
       </div>
 
@@ -114,7 +114,7 @@ export default function AdminDashboard() {
           return (
             <div 
               key={index} 
-              className="bg-[#121110] border border-white/5 p-6 rounded-2xl flex flex-col justify-between hover:border-white/10 transition-colors group"
+              className="bg-white border border-[#1a1917]/5 p-6 rounded-2xl flex flex-col justify-between hover:border-[#1a1917]/10 transition-colors group"
             >
               <div className="flex justify-between items-start mb-4">
                 <div className={`p-3 rounded-xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform`}>
@@ -122,8 +122,8 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <div>
-                <p className="text-white/50 text-sm font-medium">{stat.title}</p>
-                <h3 className="text-3xl font-black text-white mt-1">
+                <p className="text-[#1a1917]/50 text-sm font-medium">{stat.title}</p>
+                <h3 className="text-3xl font-black text-[#1a1917] mt-1">
                   {loading ? "..." : stat.value}
                 </h3>
               </div>
@@ -135,14 +135,14 @@ export default function AdminDashboard() {
       {/* Charts Area */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Chart */}
-        <div className="bg-[#121110] border border-white/5 p-6 rounded-2xl lg:col-span-2">
+        <div className="bg-white border border-[#1a1917]/5 p-6 rounded-2xl lg:col-span-2">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+              <h3 className="text-lg font-bold text-[#1a1917] flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-[#FF6A2A]" />
                 Content Growth
               </h3>
-              <p className="text-sm text-white/50">Weekly engagement metrics</p>
+              <p className="text-sm text-[#1a1917]/50">Weekly engagement metrics</p>
             </div>
           </div>
           <div className="h-[300px] w-full">
@@ -168,13 +168,13 @@ export default function AdminDashboard() {
         </div>
 
         {/* Secondary Chart */}
-        <div className="bg-[#121110] border border-white/5 p-6 rounded-2xl">
+        <div className="bg-white border border-[#1a1917]/5 p-6 rounded-2xl">
           <div className="mb-6">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+            <h3 className="text-lg font-bold text-[#1a1917] flex items-center gap-2">
               <Package className="w-5 h-5 text-blue-400" />
               Category Spread
             </h3>
-            <p className="text-sm text-white/50">Products per category</p>
+            <p className="text-sm text-[#1a1917]/50">Products per category</p>
           </div>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
