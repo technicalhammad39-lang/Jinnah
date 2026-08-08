@@ -154,12 +154,12 @@ export default function AdminDashboard() {
                     <stop offset="95%" stopColor="#FF6A2A" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                <XAxis dataKey="name" stroke="rgba(255,255,255,0.3)" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="rgba(255,255,255,0.3)" fontSize={12} tickLine={false} axisLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(26,25,23,0.05)" vertical={false} />
+                <XAxis dataKey="name" stroke="rgba(26,25,23,0.3)" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="rgba(26,25,23,0.3)" fontSize={12} tickLine={false} axisLine={false} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#1a1917', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                  itemStyle={{ color: '#fff' }}
+                  contentStyle={{ backgroundColor: '#ffffff', border: '1px solid rgba(26,25,23,0.1)', borderRadius: '12px' }}
+                  itemStyle={{ color: '#1a1917' }}
                 />
                 <Area type="monotone" dataKey="visitors" stroke="#FF6A2A" strokeWidth={3} fillOpacity={1} fill="url(#colorVisitors)" />
               </AreaChart>
@@ -179,12 +179,12 @@ export default function AdminDashboard() {
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={productData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                <XAxis dataKey="name" stroke="rgba(255,255,255,0.3)" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="rgba(255,255,255,0.3)" fontSize={12} tickLine={false} axisLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(26,25,23,0.05)" vertical={false} />
+                <XAxis dataKey="name" stroke="rgba(26,25,23,0.3)" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="rgba(26,25,23,0.3)" fontSize={12} tickLine={false} axisLine={false} />
                 <Tooltip 
-                  cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                  contentStyle={{ backgroundColor: '#1a1917', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                  cursor={{ fill: 'rgba(26,25,23,0.05)' }}
+                  contentStyle={{ backgroundColor: '#ffffff', border: '1px solid rgba(26,25,23,0.1)', borderRadius: '12px' }}
                 />
                 <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
               </BarChart>

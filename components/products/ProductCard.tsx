@@ -34,7 +34,16 @@ function ProductCardComponent({ product }: ProductCardProps) {
   const { setQuickViewProduct, setCartOpen } = useOverlayActions();
   const router = useRouter();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [selectedSize, setSelectedSize] = useState<string | null>(product.sizes[0] || null);
+  const [selectedSize, setSelectedSize] = useState<string | null>((product.sizes && product.sizes.length > 0) ? product.sizes[0] : null);
+
+  // Update selected size when product changes (for quick view)
+  useEffect(() => {
+    if (product.sizes && product.sizes.length > 0) {
+      setSelectedSize(product.sizes[0]);
+    } else {
+      setSelectedSize(null);
+    }
+  }, [product]);
   const [isAdding, setIsAdding] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const addTimerRef = useRef<number | null>(null);
@@ -240,12 +249,12 @@ function ProductCardComponent({ product }: ProductCardProps) {
             )}
           </div>
 
-          <div className="space-y-2.5 border-t border-black/[0.04] pt-3 pb-4 text-left">            {product.sizes.length > 0 && (
-              <div className="flex items-center gap-2">
-                <span className="min-w-[32px] text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-                  Spec:
+          <div className="space-y-2.5 border-t border-black/[0.04] pt-3 pb-4 text-left">            {product.sizes && product.sizes.length > 0 && (
+              <div className="flex flex-col gap-2">
+                <span className="text-xs font-bold text-black/50 uppercase tracking-wider">
+                  Available Sizes
                 </span>
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-2">
                   {product.sizes.map((size) => (
                     <button
                       key={size}
@@ -254,10 +263,10 @@ function ProductCardComponent({ product }: ProductCardProps) {
                         e.preventDefault();
                         setSelectedSize(size);
                       }}
-                      className={`cursor-pointer rounded-md px-2 py-0.5 text-[9px] font-bold transition-all ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
                         selectedSize === size
-                          ? "bg-primary text-white"
-                          : "bg-black/5 text-black/70 hover:bg-black/10"
+                          ? "bg-black text-white border-black"
+                          : "bg-white text-black/70 border-black/10 hover:border-black/30"
                       }`}
                     >
                       {size}

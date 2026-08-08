@@ -6,6 +6,7 @@ import { AppChrome } from "@/components/providers/AppChrome";
 
 import { JsonLd } from "@/components/seo/JsonLd";
 import { AuthProvider } from "@/lib/auth-context";
+import PushNotificationManager from "@/components/notifications/PushNotificationManager";
 
 const sansFont = Poppins({
   subsets: ["latin"],
@@ -53,6 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body suppressHydrationWarning className="bg-[#faf9f6] text-[#1a1917] antialiased selection:bg-primary/20 selection:text-primary">
         <AuthProvider>
           <AppProvider>
+            <PushNotificationManager />
             {children}
             <AppChrome />
           </AppProvider>

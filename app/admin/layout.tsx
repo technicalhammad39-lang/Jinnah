@@ -79,7 +79,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all ${
                   isActive 
                     ? "bg-[#FF6A2A]/10 text-[#FF6A2A] font-semibold" 
-                    : "text-white/60 hover:bg-[#1a1917]/5 hover:text-[#1a1917]"
+                    : "text-[#1a1917]/60 hover:bg-[#1a1917]/5 hover:text-[#1a1917]"
                 }`}
               >
                 <Icon className={`h-5 w-5 ${isActive ? "text-[#FF6A2A]" : "text-[#1a1917]/40"}`} />

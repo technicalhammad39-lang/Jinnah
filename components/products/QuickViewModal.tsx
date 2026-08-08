@@ -261,12 +261,12 @@ export function QuickViewModal() {
                     </div>
                   )}
 
-                  {quickViewProduct.sizes.length > 0 && (
-                    <div className="flex-grow space-y-1.5 text-left">
-                      <span className="block text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground">
-                        Select Size/Backset
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
+                  {quickViewProduct.sizes && quickViewProduct.sizes.length > 0 && (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold text-[#1a1917]">Size / Spec</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
                         {quickViewProduct.sizes.map((size) => (
                           <button
                             key={size}
