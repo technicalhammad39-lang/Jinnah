@@ -1,4 +1,4 @@
-import { NextResponse } from "next/navigation";
+import { NextResponse } from "next/server";
 import { getMessaging } from "firebase-admin/messaging";
 import { adminApp } from "@/lib/firebase-admin";
 

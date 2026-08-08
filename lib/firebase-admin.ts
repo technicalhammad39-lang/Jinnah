@@ -16,6 +16,7 @@ if (!admin.apps.length) {
   }
 }
 
+export const adminApp = admin.apps.length > 0 ? admin.app() : undefined;
 export const adminDb = admin.firestore();
 export const adminAuth = admin.auth();
 export const adminStorage = admin.storage();
