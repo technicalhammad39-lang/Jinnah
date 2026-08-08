@@ -5,7 +5,7 @@ import { doc, getDoc, setDoc, addDoc, collection, serverTimestamp } from "fireba
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, Save, Loader2, UploadCloud, X } from "lucide-react";
+import { ArrowLeft, Save, Loader2, UploadCloud, X, Trash2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
