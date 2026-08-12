@@ -11,6 +11,7 @@ export function AgencyCredit() {
 
   return (
     <section 
+      data-no-premium-reveal
       className={`bg-[#1a1917] text-white relative overflow-hidden z-10 ${
         isHome 
           ? "pt-24 pb-12 rounded-t-[40px] md:rounded-t-[80px]" 

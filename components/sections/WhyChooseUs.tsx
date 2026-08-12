@@ -103,7 +103,7 @@ export function WhyChooseUs() {
   ];
 
   return (
-    <section className="pt-12 pb-24 md:pt-20 md:pb-32 bg-[#faf9f6] relative z-10 overflow-hidden">
+    <section data-no-premium-reveal className="pt-12 pb-24 md:pt-20 md:pb-32 bg-[#faf9f6] relative z-10 overflow-hidden">
       <div className="w-full max-w-[1740px] mx-auto px-6 lg:px-12 relative z-10">
         <div className="flex flex-col items-center justify-center text-center mb-16 md:mb-24 gap-6">
           <div className="space-y-4 w-full max-w-[90vw] md:max-w-5xl mx-auto flex flex-col items-center">

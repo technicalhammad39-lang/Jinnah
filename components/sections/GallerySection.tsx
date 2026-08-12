@@ -23,7 +23,7 @@ export function GallerySection() {
   if (galleryItems.length === 0) return null;
 
   return (
-    <section id="gallery-section" className="pt-8 pb-24 md:pt-12 md:pb-32 w-full relative z-10 bg-transparent">
+    <section id="gallery-section" data-no-premium-reveal className="pt-8 pb-24 md:pt-12 md:pb-32 w-full relative z-10 bg-transparent">
       <div className="absolute bottom-[10%] right-[5%] w-[45vw] h-[45vw] rounded-full glow-blob-orange opacity-[0.1]" />
 
       <div className="max-w-[1740px] mx-auto px-6 md:px-8 xl:px-12 mb-12 md:mb-16">

@@ -121,7 +121,7 @@ export function CartDrawer() {
                   >
                     <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl bg-[#efece6]">
                       <Image
-                        src={item.product.images[0]}
+                        src={item.product.images?.[0] || "/placeholder.jpg"}
                         alt={item.product.name}
                         fill
                         sizes="80px"

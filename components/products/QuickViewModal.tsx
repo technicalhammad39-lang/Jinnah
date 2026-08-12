@@ -47,9 +47,9 @@ export function QuickViewModal() {
       return;
     }
 
-    setActiveImage(quickViewProduct.images[0] || "");
-    setSelectedColor(quickViewProduct.colors[0] || "");
-    setSelectedSize(quickViewProduct.sizes[0] || "");
+    setActiveImage(quickViewProduct.images?.[0] || "");
+    setSelectedColor(quickViewProduct.colors?.[0] || "");
+    setSelectedSize(quickViewProduct.sizes?.[0] || "");
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     window.__lenis?.stop?.();

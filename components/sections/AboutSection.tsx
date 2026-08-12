@@ -21,7 +21,7 @@ export function AboutSection() {
   };
 
   return (
-    <section id="about-section" className="py-24 md:py-32 bg-black/[0.01] relative z-10 border-y border-black/5">
+    <section id="about-section" data-no-premium-reveal className="py-24 md:py-32 bg-black/[0.01] relative z-10 border-y border-black/5">
       <div className="absolute top-[30%] left-[10%] w-[35vw] h-[35vw] rounded-full glow-blob-orange opacity-[0.15]" />
 
       <div className="max-w-[1740px] mx-auto px-6 md:px-8 xl:px-12">

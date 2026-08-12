@@ -130,7 +130,7 @@ export function ProductShowcase() {
             >
               <div className="relative h-full w-full overflow-hidden rounded-2xl">
                 <Image
-                  src={activeProduct.images[0]}
+                  src={activeProduct.images?.[0] || "/placeholder.jpg"}
                   alt={activeProduct.name}
                   fill
                   sizes="(min-width: 1024px) 440px, 90vw"

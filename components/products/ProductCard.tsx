@@ -51,7 +51,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
 
   useEffect(() => {
     setCurrentImageIndex(0);
-    setSelectedSize(product.sizes[0] || null);
+    setSelectedSize((product.sizes && product.sizes.length > 0) ? product.sizes[0] : null);
   }, [product]);
 
   useEffect(() => {
@@ -100,7 +100,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
     addTimerRef.current = window.setTimeout(() => {
       setIsAdding(false);
       setIsSuccess(true);
-      addToCart(product, 1, product.colors[0] || "", selectedSize || undefined);
+      addToCart(product, 1, product.colors?.[0] || "", selectedSize || undefined);
 
       successTimerRef.current = window.setTimeout(() => {
         setIsSuccess(false);
@@ -120,20 +120,21 @@ function ProductCardComponent({ product }: ProductCardProps) {
 
   return (
     <div
+      data-no-premium-reveal
       onClick={handleCardClick}
       className="group relative flex w-full flex-col overflow-hidden rounded-3xl border border-black/5 bg-[#faf9f6] shadow-sm transition-all duration-500 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 h-full premium-transform cursor-pointer"
     >
       <div className="relative h-[260px] sm:h-[280px] lg:h-[300px] w-full shrink-0 overflow-hidden bg-[#efece6]" data-cursor="view">
         <Link href={`/shop?product=${product.id}`} className="block h-full w-full">
           <motion.div
-            key={product.images[currentImageIndex]}
+            key={product.images?.[currentImageIndex] || "fallback"}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
             className="relative h-full w-full"
           >
             <Image
-              src={product.images[currentImageIndex]}
+              src={product.images?.[currentImageIndex] || "/placeholder.jpg"}
               alt={`${product.name} - View ${currentImageIndex + 1}`}
               fill
               sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"

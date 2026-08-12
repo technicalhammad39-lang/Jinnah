@@ -181,7 +181,7 @@ export function SearchOverlay() {
                     >
                       <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl bg-[#efece6] md:h-20 md:w-20">
                         <Image
-                          src={product.images[0]}
+                          src={product.images?.[0] || "/placeholder.jpg"}
                           alt={product.name}
                           fill
                           sizes="(min-width: 768px) 80px, 64px"
