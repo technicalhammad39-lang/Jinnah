@@ -22,6 +22,7 @@ import {
   useWishlistState,
 } from "@/context/AppContext";
 import { Product } from "@/data/products";
+import { getPublicUploadUrl } from "@/lib/utils";
 
 interface ProductCardProps {
   product: Product;
@@ -134,7 +135,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
             className="relative h-full w-full"
           >
             <Image
-              src={product.images?.[currentImageIndex] || "/placeholder.jpg"}
+              src={getPublicUploadUrl(product.images?.[currentImageIndex] || "/placeholder.jpg")}
               alt={`${product.name} - View ${currentImageIndex + 1}`}
               fill
               sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"

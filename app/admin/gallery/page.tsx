@@ -6,6 +6,7 @@ import { db } from "@/lib/firebase";
 import { Plus, Trash2, Loader2, UploadCloud } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
+import { getPublicUploadUrl } from "@/lib/utils";
 
 export default function AdminGallery() {
   const [images, setImages] = useState<any[]>([]);
@@ -137,7 +138,7 @@ export default function AdminGallery() {
           {images.map((image) => (
             <div key={image.id} className="relative aspect-square rounded-2xl overflow-hidden bg-white border border-[#1a1917]/5 group shadow-xl">
               <Image 
-                src={image.url} 
+                src={getPublicUploadUrl(image.url)} 
                 alt="Gallery Item" 
                 fill 
                 className="object-cover group-hover:scale-110 transition-transform duration-500" 

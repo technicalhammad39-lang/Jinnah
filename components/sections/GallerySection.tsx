@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getPublicUploadUrl } from "@/lib/utils";
 
 export function GallerySection() {
   const [galleryItems, setGalleryItems] = useState<any[]>([]);
@@ -82,7 +82,7 @@ export function GallerySection() {
                   transition={{ duration: 0.7, ease: [0.32, 0.72, 0, 1] }}
                 >
                   <Image
-                    src={item.url || item.image}
+                    src={getPublicUploadUrl(item.url || item.image)}
                     alt={item.title}
                     fill
                     sizes="(min-width: 1024px) 33vw, 100vw"

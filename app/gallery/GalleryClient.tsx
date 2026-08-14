@@ -6,6 +6,7 @@ import { Footer } from "@/components/navigation/Footer";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import { X, ZoomIn, ChevronLeft, ChevronRight } from "lucide-react";
+import { getPublicUploadUrl } from "@/lib/utils";
 
 // Mock Gallery Data
 const GALLERY_CATEGORIES = [
@@ -141,7 +142,7 @@ export default function GalleryClient({ initialGallery = [] }: { initialGallery:
                   onClick={() => setLightboxIndex(filteredImages.findIndex(i => i.id === img.id))}
                 >
                   <Image
-                    src={img.url || img.src}
+                    src={getPublicUploadUrl(img.url || img.src)}
                     alt={img.alt || img.title || "Gallery image"}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -218,7 +219,7 @@ export default function GalleryClient({ initialGallery = [] }: { initialGallery:
               }}
             >
               <Image
-                src={currentImage.url || currentImage.src}
+                src={getPublicUploadUrl(currentImage.url || currentImage.src)}
                 alt={currentImage.alt || currentImage.title || "Gallery image"}
                 fill
                 className="object-contain"

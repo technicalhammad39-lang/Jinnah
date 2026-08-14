@@ -7,6 +7,8 @@ import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Calendar, Tag, ChevronRight } from "lucide-react";
+import { getPublicUploadUrl } from "@/lib/utils";
+
 export default function BlogsClient({ initialBlogs = [] }: { initialBlogs: any[] }) {
   const [blogs, setBlogs] = useState<any[]>(initialBlogs);
   const [loading, setLoading] = useState(false);
@@ -71,7 +73,7 @@ export default function BlogsClient({ initialBlogs = [] }: { initialBlogs: any[]
                   <Link href={`/blogs/${blog.slug || blog.id}`} className="block relative h-64 overflow-hidden bg-black/5">
                     {blog.coverImage ? (
                       <Image 
-                        src={blog.coverImage} 
+                        src={getPublicUploadUrl(blog.coverImage)} 
                         alt={blog.title} 
                         fill 
                         className="object-cover transition-transform duration-700 group-hover:scale-105" 

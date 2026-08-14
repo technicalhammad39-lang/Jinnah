@@ -22,6 +22,7 @@ import {
   useWishlistActions,
   useWishlistState,
 } from "@/context/AppContext";
+import { getPublicUploadUrl } from "@/lib/utils";
 
 export function QuickViewModal() {
   const { quickViewProduct } = useOverlayState();
@@ -146,7 +147,7 @@ export function QuickViewModal() {
               <div className="relative aspect-square overflow-hidden rounded-2xl bg-white/40 shadow-sm">
                 {activeImage ? (
                   <Image
-                    src={activeImage}
+                    src={getPublicUploadUrl(activeImage)}
                     alt={quickViewProduct.name}
                     fill
                     sizes="(min-width: 768px) 50vw, 100vw"
@@ -165,7 +166,7 @@ export function QuickViewModal() {
                     }`}
                   >
                     <Image
-                      src={image}
+                      src={getPublicUploadUrl(image)}
                       alt="Thumbnail"
                       fill
                       sizes="56px"

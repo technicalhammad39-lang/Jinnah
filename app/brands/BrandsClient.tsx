@@ -7,6 +7,7 @@ import { ArrowRight, Box, Layers, Hammer, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { getPublicUploadUrl } from "@/lib/utils";
 
 export default function BrandsClient({ initialBrands = [] }: { initialBrands: any[] }) {
   const [brands, setBrands] = useState<any[]>(initialBrands);
@@ -92,7 +93,7 @@ export default function BrandsClient({ initialBrands = [] }: { initialBrands: an
               >
                 <div className="w-full h-28 sm:h-32 relative bg-black/5 flex items-center justify-center shrink-0">
                   {brand.image ? (
-                    <Image src={brand.image} alt={brand.brandName || brand.name} fill className="object-contain p-4 transition-transform duration-700 group-hover:scale-110" />
+                    <Image src={getPublicUploadUrl(brand.image)} alt={brand.brandName || brand.name} fill className="object-contain p-4 transition-transform duration-700 group-hover:scale-110" />
                   ) : (
                     <span className="text-3xl font-black text-black/10 uppercase tracking-widest">{brand.brandName || brand.name}</span>
                   )}

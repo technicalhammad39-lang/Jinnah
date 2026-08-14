@@ -24,7 +24,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "jinnahhardware.com",
+        hostname: "jinnah-hardwarestore.com",
         port: "",
         pathname: "/**",
       },

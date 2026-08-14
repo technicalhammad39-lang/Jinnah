@@ -8,6 +8,7 @@ import { useRef } from "react";
 import { ArrowRight, Box, Layers, Hammer, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { CATEGORIES } from "@/data/products";
+import { getPublicUploadUrl } from "@/lib/utils";
 
 export default function CategoriesPage() {
   const applications = [
@@ -97,7 +98,7 @@ export default function CategoriesPage() {
                 <Link href={`/shop?category=${cat.slug}`} className="group block relative rounded-[32px] bg-white border border-black/5 p-6 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2">
                   <div className="relative h-48 w-full rounded-2xl overflow-hidden mb-6 bg-black/5">
                     <Image
-                      src={cat.image}
+                      src={getPublicUploadUrl(cat.image)}
                       alt={cat.name}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-110"

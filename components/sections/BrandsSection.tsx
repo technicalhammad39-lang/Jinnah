@@ -5,6 +5,7 @@ import { getBrands } from "@/lib/data-fetcher";
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import Image from "next/image";
+import { getPublicUploadUrl } from "@/lib/utils";
 
 const PLACEHOLDER_IMAGES = [
   "/1-hardware.jpg",
@@ -60,7 +61,7 @@ export function BrandsSection() {
                 className="brand-marquee-card w-[280px] h-[120px] rounded-2xl bg-white border border-black/5 flex items-center justify-center p-6 shadow-sm hover:border-primary/20 hover:shadow-md transition-all group relative overflow-hidden premium-transform"
               >
                 <Image
-                  src={PLACEHOLDER_IMAGES[index % PLACEHOLDER_IMAGES.length]}
+                  src={brand.logo ? getPublicUploadUrl(brand.logo) : PLACEHOLDER_IMAGES[index % PLACEHOLDER_IMAGES.length]}
                   alt={`${brand.brandName || brand.name} logo`}
                   fill
                   sizes="280px"
@@ -87,7 +88,7 @@ export function BrandsSection() {
                 className="brand-marquee-card w-[280px] h-[120px] rounded-2xl bg-white border border-black/5 flex items-center justify-center p-6 shadow-sm hover:border-primary/20 hover:shadow-md transition-all group relative overflow-hidden premium-transform"
               >
                 <Image
-                  src={PLACEHOLDER_IMAGES[(index + 3) % PLACEHOLDER_IMAGES.length]}
+                  src={brand.logo ? getPublicUploadUrl(brand.logo) : PLACEHOLDER_IMAGES[(index + 3) % PLACEHOLDER_IMAGES.length]}
                   alt={`${brand.brandName || brand.name} logo`}
                   fill
                   sizes="280px"

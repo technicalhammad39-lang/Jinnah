@@ -8,6 +8,7 @@ import { ArrowLeft, Save, Loader2, UploadCloud, X, Trash2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
+import { getPublicUploadUrl } from "@/lib/utils";
 
 export default function BlogEditor() {
   const params = useParams();
@@ -246,7 +247,7 @@ export default function BlogEditor() {
               <div className="space-y-4">
                 {formData.coverImage ? (
                   <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-[#1a1917]/10 group">
-                    <Image src={formData.coverImage} alt="Cover" fill className="object-cover" />
+                    <Image src={getPublicUploadUrl(formData.coverImage)} alt="Cover" fill className="object-cover" />
                     <button 
                       type="button"
                       onClick={() => setFormData({...formData, coverImage: ""})}

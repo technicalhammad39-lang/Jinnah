@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Plus, Search, Edit2, Trash2, Loader2, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
+import { getPublicUploadUrl } from "@/lib/utils";
 
 export default function AdminBlogs() {
   const [blogs, setBlogs] = useState<any[]>([]);
@@ -113,7 +114,7 @@ export default function AdminBlogs() {
                       <div className="flex items-center gap-4">
                         <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-[#1a1917]/5 border border-[#1a1917]/10 flex items-center justify-center shrink-0">
                           {blog.coverImage ? (
-                            <Image src={blog.coverImage} alt={blog.title} fill className="object-cover" />
+                            <Image src={getPublicUploadUrl(blog.coverImage)} alt={blog.title} fill className="object-cover" />
                           ) : (
                             <ImageIcon className="w-5 h-5 text-[#1a1917]/20" />
                           )}

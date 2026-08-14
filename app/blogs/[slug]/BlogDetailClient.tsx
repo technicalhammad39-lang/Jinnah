@@ -8,6 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Calendar, Tag, Share2 } from "lucide-react";
+import { getPublicUploadUrl } from "@/lib/utils";
 
 export default function BlogDetailClient({ initialBlog }: { initialBlog: any }) {
   const router = useRouter();
@@ -91,7 +92,7 @@ export default function BlogDetailClient({ initialBlog }: { initialBlog: any }) 
           >
             <div className="relative w-full aspect-[21/9] md:aspect-[2.5/1] rounded-[2rem] overflow-hidden shadow-2xl border border-black/5 bg-black/5">
               <Image 
-                src={blog.coverImage} 
+                src={getPublicUploadUrl(blog.coverImage)} 
                 alt={blog.title} 
                 fill 
                 className="object-cover" 
@@ -108,7 +109,7 @@ export default function BlogDetailClient({ initialBlog }: { initialBlog: any }) 
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
             className="prose prose-lg prose-slate max-w-none prose-headings:font-black prose-headings:tracking-tight prose-headings:text-[#1a1917] prose-a:text-primary hover:prose-a:text-primary/80 prose-img:rounded-2xl prose-img:shadow-lg prose-p:text-muted-foreground prose-p:leading-relaxed prose-strong:text-[#1a1917]"
-            dangerouslySetInnerHTML={{ __html: blog.content }}
+            dangerouslySetInnerHTML={{ __html: (blog.content || "").replace(/src="([^"]+)"/g, (match: string, p1: string) => `src="${getPublicUploadUrl(p1)}"`) }}
           />
 
           {/* SHARE FOOTER */}

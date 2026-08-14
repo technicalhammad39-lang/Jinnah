@@ -8,6 +8,7 @@ import { ArrowLeft, Save, Loader2, UploadCloud, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
+import { getPublicUploadUrl } from "@/lib/utils";
 
 export default function ProductEditor() {
   const params = useParams();
@@ -235,7 +236,7 @@ export default function ProductEditor() {
             <div className="flex gap-4 flex-wrap">
               {formData.images.map((img, i) => (
                 <div key={i} className="relative w-24 h-24 rounded-xl overflow-hidden border border-[#1a1917]/10 group">
-                  <Image src={img} alt={`Image ${i}`} fill className="object-cover" />
+                  <Image src={getPublicUploadUrl(img)} alt={`Image ${i}`} fill className="object-cover" />
                   <button 
                     type="button"
                     onClick={() => removeImage(i)}

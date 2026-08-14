@@ -6,6 +6,7 @@ import { db } from "@/lib/firebase";
 import { Plus, Search, Edit2, Trash2, Loader2, Image as ImageIcon, X, UploadCloud } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
+import { getPublicUploadUrl } from "@/lib/utils";
 
 export default function AdminBrands() {
   const [brands, setBrands] = useState<any[]>([]);
@@ -207,7 +208,7 @@ export default function AdminBrands() {
                       <div className="flex items-center gap-4">
                         <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-[#1a1917]/5 border border-[#1a1917]/10 flex items-center justify-center shrink-0 p-2">
                           {brand.logo ? (
-                            <Image src={brand.logo} alt={brand.brandName} fill className="object-contain p-2" />
+                            <Image src={getPublicUploadUrl(brand.logo)} alt={brand.brandName} fill className="object-contain p-2" />
                           ) : (
                             <ImageIcon className="w-5 h-5 text-[#1a1917]/20" />
                           )}
@@ -282,7 +283,7 @@ export default function AdminBrands() {
                 <div className="flex gap-4 items-center">
                   {formData.logo ? (
                     <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-[#1a1917]/10 bg-white group">
-                      <Image src={formData.logo} alt="Logo" fill className="object-contain p-2" />
+                      <Image src={getPublicUploadUrl(formData.logo)} alt="Logo" fill className="object-contain p-2" />
                       <button 
                         type="button"
                         onClick={() => setFormData({...formData, logo: ""})}
