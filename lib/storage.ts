@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import crypto from "crypto";
-import sharp from "sharp";
+import sharp, { Metadata } from "sharp";
 
 export interface UploadResult {
   url: string;
@@ -44,7 +44,7 @@ export async function uploadFile(
   const buffer = Buffer.from(await file.arrayBuffer());
 
   let finalBuffer = buffer;
-  let metadata: sharp.Metadata | null = null;
+  let metadata: Metadata | null = null;
 
   if (!isSvg) {
     const image = sharp(buffer);

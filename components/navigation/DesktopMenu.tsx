@@ -8,6 +8,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CATEGORIES } from "@/data/products";
 import { scrollToTarget } from "@/lib/smooth-scroll";
+import { getBrands } from "@/lib/data-fetcher";
 
 interface TabProps {
   children: React.ReactNode;
