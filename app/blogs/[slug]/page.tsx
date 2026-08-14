@@ -2,8 +2,9 @@ import { getBlogBySlug } from "@/lib/data-fetcher";
 import BlogDetailClient from "./BlogDetailClient";
 import { Metadata } from "next";
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const blog = await getBlogBySlug(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const blog = await getBlogBySlug(slug);
   if (!blog) return { title: "Blog Not Found" };
 
   return {
@@ -12,8 +13,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function BlogDetailServerPage({ params }: { params: { slug: string } }) {
-  const blog = await getBlogBySlug(params.slug);
+export default async function BlogDetailServerPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const blog = await getBlogBySlug(slug);
 
   return <BlogDetailClient initialBlog={blog} />;
 }
