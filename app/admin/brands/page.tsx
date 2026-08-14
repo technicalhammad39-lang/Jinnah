@@ -98,7 +98,10 @@ export default function AdminBrands() {
         body: formData,
       });
 
-      if (!res.ok) throw new Error("Upload failed");
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Upload failed");
+      }
       const data = await res.json();
       
       setFormData(prev => ({ ...prev, logo: data.url }));

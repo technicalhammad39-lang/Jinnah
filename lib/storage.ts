@@ -15,13 +15,13 @@ export async function uploadFile(
   folder: string = "general"
 ): Promise<UploadResult> {
   const uploadRoot =
-    process.env.HOSTINGER_UPLOAD_ROOT || path.join(process.cwd(), "public/uploads");
+    process.env.HOSTINGER_UPLOAD_ROOT || path.join(process.cwd(), ".storage/uploads");
   const baseUrl = process.env.NEXT_PUBLIC_UPLOAD_BASE_URL || "/uploads";
 
   // Validate MIME type
   const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp", "image/avif", "image/svg+xml"];
   if (!allowedMimeTypes.includes(file.type)) {
-    throw new Error("Invalid file type. Only images are allowed.");
+    throw new Error("Invalid file type. Only standard web images are allowed.");
   }
 
   // Generate unique filename
@@ -38,7 +38,12 @@ export async function uploadFile(
   const filename = `${sanitizedName}-${uniqueId}.${finalExt}`;
   
   const targetDir = path.join(uploadRoot, folder);
-  await fs.mkdir(targetDir, { recursive: true });
+  try {
+    await fs.mkdir(targetDir, { recursive: true });
+  } catch (error: any) {
+    console.error(`Failed to create directory at ${targetDir}:`, error);
+    throw new Error(`Failed to initialize storage directory: ${error.message}`);
+  }
 
   const targetPath = path.join(targetDir, filename);
   const buffer = Buffer.from(await file.arrayBuffer());
@@ -63,7 +68,12 @@ export async function uploadFile(
     metadata = await sharp(finalBuffer).metadata();
   }
 
-  await fs.writeFile(targetPath, finalBuffer);
+  try {
+    await fs.writeFile(targetPath, finalBuffer);
+  } catch (error: any) {
+    console.error(`Failed to write file to ${targetPath}:`, error);
+    throw new Error(`Server failed to write file: ${error.message}`);
+  }
 
   const url = `${baseUrl}/${folder}/${filename}`;
 
@@ -78,7 +88,7 @@ export async function uploadFile(
 export async function deleteFile(url: string): Promise<boolean> {
   try {
     const uploadRoot =
-      process.env.HOSTINGER_UPLOAD_ROOT || path.join(process.cwd(), "public/uploads");
+      process.env.HOSTINGER_UPLOAD_ROOT || path.join(process.cwd(), ".storage/uploads");
     const baseUrl = process.env.NEXT_PUBLIC_UPLOAD_BASE_URL || "/uploads";
 
     if (!url.startsWith(baseUrl)) {

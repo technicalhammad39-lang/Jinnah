@@ -72,7 +72,10 @@ export default function ProductEditor() {
         body: formData,
       });
 
-      if (!res.ok) throw new Error("Upload failed");
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Upload failed");
+      }
       const data = await res.json();
       
       setFormData(prev => ({ ...prev, images: [...prev.images, data.url] }));
