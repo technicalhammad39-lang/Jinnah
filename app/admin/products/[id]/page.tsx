@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { doc, getDoc, setDoc, addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Save, Loader2, UploadCloud, X } from "lucide-react";
 import Link from "next/link";
@@ -64,10 +63,19 @@ export default function ProductEditor() {
     
     try {
       const file = e.target.files[0];
-      const storageRef = ref(storage, `products/${Date.now()}_${file.name}`);
-      await uploadBytes(storageRef, file);
-      const url = await getDownloadURL(storageRef);
-      setFormData(prev => ({ ...prev, images: [...prev.images, url] }));
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "products");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      
+      setFormData(prev => ({ ...prev, images: [...prev.images, data.url] }));
       toast.success("Image uploaded");
     } catch (error) {
       console.error("Error uploading image:", error);

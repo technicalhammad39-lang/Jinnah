@@ -257,7 +257,7 @@ export function ContactSection() {
         {/* Bottom Full-Width Premium Edge-to-Edge Map */}
         <div className="mt-16 md:mt-24 w-full rounded-[32px] overflow-hidden shadow-2xl border-4 border-white bg-[#efece6] h-[400px] md:h-[500px] relative">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d13601.597793740926!2d74.3259!3d31.5401!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391904c000000000%3A0x0!2sJinnah+Hardware+Store!5e0!3m2!1sen!2s!4v1700000000000!5m2!1sen!2s"
+            src="https://maps.google.com/maps?q=Jinnah%20Hardware%20Store,%20Bahawalpur%20Road,%20Hasilpur&t=&z=16&ie=UTF8&iwloc=&output=embed"
             width="100%"
             height="100%"
             style={{ border: 0 }}

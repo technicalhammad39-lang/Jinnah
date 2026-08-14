@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // import { PRODUCTS } from "@/data/products";
 import { getFeaturedProducts } from "@/lib/data-fetcher";
 import { Navbar } from "@/components/navigation/Navbar";
@@ -20,9 +21,9 @@ export const metadata: Metadata = {
   title: "Jinnah Hardware Store | Pakistan's Premier Architectural Hardware",
   description: "Pakistan's premier purveyor of luxury architectural hardware, bridging the gap between world-class engineering and exceptional local design.",
   openGraph: {
-    title: "Jinnah Hardware Store - Premium Architectural Hardware",
+    title: "Jinnah Hardware Store - Modern Architectural Hardware",
     description: "Pakistan's premier purveyor of luxury architectural hardware.",
-    url: "https://jinnahhardware.com",
+    url: "https://jinnah-hardwarestore.com/",
     siteName: "Jinnah Hardware Store",
     locale: "en_PK",
     type: "website",
@@ -114,3 +115,4 @@ export default async function Home() {
     </div>
   );
 }
+

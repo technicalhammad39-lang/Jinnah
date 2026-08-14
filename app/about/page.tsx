@@ -41,40 +41,44 @@ export default function AboutPage() {
             }}
           />
           
-          {/* Right Image */}
-          <motion.div
-            initial={{ opacity: 0, y: 150 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute right-0 md:right-8 lg:right-16 top-[100px] bottom-12 w-[250px] sm:w-[350px] md:w-[450px] lg:w-[550px] xl:w-[650px] z-0 pointer-events-none"
-          >
-            <Image 
-              src="/about-cartoon1.png" 
-              alt="About Character" 
-              fill
-              className="object-contain object-right" 
-              priority 
-            />
-          </motion.div>
-
-          <div className="relative z-10 max-w-3xl lg:max-w-4xl space-y-8 pl-4 md:pl-12 lg:pl-20 w-full">
-            <motion.div
-              initial={{ opacity: 0, x: -80 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-            >
-              <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-black uppercase tracking-tighter text-foreground leading-[0.9]">
-                Elevating <br className="hidden md:block" /><span className="text-primary font-stylish normal-case text-[1.1em]">Architecture</span>
-              </h1>
-            </motion.div>
-            <motion.p
-              initial={{ opacity: 0, x: -80 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.15, ease: "easeOut" }}
-              className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-xl leading-relaxed font-medium"
-            >
-              We are Pakistan's premier purveyor of luxury architectural hardware, bridging the gap between world-class engineering and exceptional local design.
-            </motion.p>
+          <div className="relative z-10 max-w-[1740px] mx-auto w-full px-6 flex flex-col md:flex-row items-center justify-between gap-12">
+            <div className="w-full md:w-1/2 space-y-8 pl-0 lg:pl-12">
+              <motion.div
+                initial={{ opacity: 0, x: -80 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+              >
+                <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-black uppercase tracking-tighter text-foreground leading-[0.9]">
+                  Elevating <br className="hidden md:block" /><span className="text-primary font-stylish normal-case text-[1.1em]">Architecture</span>
+                </h1>
+              </motion.div>
+              <motion.p
+                initial={{ opacity: 0, x: -80 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.15, ease: "easeOut" }}
+                className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-xl leading-relaxed font-medium"
+              >
+                We are Pakistan's premier purveyor of luxury architectural hardware, bridging the gap between world-class engineering and exceptional local design.
+              </motion.p>
+            </div>
+            
+            {/* Right Image */}
+            <div className="w-full md:w-1/2 flex items-center justify-center md:justify-end">
+              <motion.div
+                initial={{ opacity: 0, y: 150 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1.2, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="relative w-full max-w-[650px] h-[350px] md:h-[500px] lg:h-[650px]"
+              >
+                <Image 
+                  src="/about-cartoon1.png" 
+                  alt="About Character" 
+                  fill
+                  className="object-contain object-right" 
+                  priority 
+                />
+              </motion.div>
+            </div>
           </div>
         </section>
 

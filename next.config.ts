@@ -16,6 +16,18 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "firebasestorage.googleapis.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "jinnahhardware.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
   ...(process.platform === "win32" ? {} : { output: "standalone" as const }),

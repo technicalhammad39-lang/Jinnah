@@ -5,7 +5,6 @@ import { AppProvider } from "@/context/AppContext";
 import { AppChrome } from "@/components/providers/AppChrome";
 
 import { JsonLd } from "@/components/seo/JsonLd";
-import { AuthProvider } from "@/lib/auth-context";
 import PushNotificationManager from "@/components/notifications/PushNotificationManager";
 
 const sansFont = Poppins({
@@ -30,7 +29,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Jinnah Hardware Store",
     description: "Premium Modern Hardware & Architectural Fittings.",
-    url: "https://jinnahhardware.com",
+    url: "https://jinnah-hardwarestore.com/",
     siteName: "Jinnah Hardware Store",
     locale: "en_PK",
     type: "website",
@@ -52,13 +51,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <JsonLd />
       </head>
       <body suppressHydrationWarning className="bg-[#faf9f6] text-[#1a1917] antialiased selection:bg-primary/20 selection:text-primary">
-        <AuthProvider>
-          <AppProvider>
-            <PushNotificationManager />
-            {children}
-            <AppChrome />
-          </AppProvider>
-        </AuthProvider>
+        <AppProvider>
+          <PushNotificationManager />
+          {children}
+          <AppChrome />
+        </AppProvider>
       </body>
     </html>
   );

@@ -72,7 +72,7 @@ export default function ContactPage() {
       <main className="flex-1 pb-20">
 
         {/* HERO SECTION */}
-        <section className="relative px-6 pt-32 pb-4 md:pt-48 md:pb-4 bg-transparent overflow-hidden">
+        <section className="relative px-6 pt-32 pb-4 md:pt-48 md:pb-12 bg-transparent overflow-hidden">
           {/* Top Orange Dotted Gradient */}
           <div 
             className="absolute top-0 left-0 right-0 h-96 pointer-events-none z-0" 
@@ -85,46 +85,44 @@ export default function ContactPage() {
             }}
           />
 
-          {/* Left Shape */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1, delay: 0.2 }}
-            className="absolute left-0 top-0 bottom-0 w-[150px] md:w-[250px] lg:w-[400px] z-0 pointer-events-none -translate-x-[30%] opacity-10 -rotate-12"
-          >
-            <Image src="/hero-shape.svg" alt="Shape Left" fill className="object-contain object-left scale-x-[-1]" priority />
-          </motion.div>
-
-          {/* Right Cartoon */}
-          <motion.div
-            initial={{ opacity: 0, x: 80 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1.2, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute right-0 md:right-4 lg:right-8 top-10 bottom-0 w-[200px] md:w-[350px] lg:w-[450px] xl:w-[500px] z-0 pointer-events-none"
-          >
-            <div className="w-full h-full relative">
-              <Image src="/contact-cartoon.png" alt="Contact Cartoon" fill className="object-contain object-right" priority />
+          <div className="relative z-10 max-w-[1740px] mx-auto w-full px-0 md:px-6 flex flex-col md:flex-row items-center justify-between gap-12">
+            <div className="w-full md:w-1/2 space-y-6 text-center md:text-left pl-0 lg:pl-12">
+              <motion.div
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <h1 className="text-5xl md:text-6xl lg:text-[5.5rem] font-black uppercase tracking-tighter text-foreground leading-[0.9]">
+                  Get In <span className="text-primary font-stylish normal-case text-[1.1em]">Touch</span>
+                </h1>
+              </motion.div>
+              <motion.p
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-xl mx-auto md:mx-0 leading-relaxed font-medium"
+              >
+                Whether you are an architect sourcing for a mega-project, or a homeowner looking for the perfect handle, our specialists are ready to assist.
+              </motion.p>
             </div>
-          </motion.div>
 
-          <div className="max-w-4xl mx-auto text-center space-y-6 relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-black uppercase tracking-tighter text-foreground leading-[0.9]">
-                Get In <span className="text-primary font-stylish normal-case text-[1.1em]">Touch</span>
-              </h1>
-            </motion.div>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium"
-            >
-              Whether you are an architect sourcing for a mega-project, or a homeowner looking for the perfect handle, our specialists are ready to assist.
-            </motion.p>
+            {/* Right Cartoon */}
+            <div className="w-full md:w-1/2 flex items-center justify-center md:justify-end">
+              <motion.div
+                initial={{ opacity: 0, x: 80 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 1.2, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="relative w-full max-w-[500px] h-[300px] md:h-[450px]"
+              >
+                <Image 
+                  src="/contact-cartoon.png" 
+                  alt="Contact Cartoon" 
+                  fill 
+                  className="object-contain object-center md:object-right" 
+                  priority 
+                />
+              </motion.div>
+            </div>
           </div>
         </section>
 
@@ -144,7 +142,7 @@ export default function ContactPage() {
                   key={i}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
+                  viewport={{ once: true, margin: "-50px" }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
                   className="h-full pt-10"
                 >
@@ -156,9 +154,9 @@ export default function ContactPage() {
                       <Icon className="h-8 w-8 drop-shadow-md" />
                     </div>
                     
-                    <div className="mt-6 flex-1 flex flex-col items-center justify-center">
-                      <h3 className="text-sm md:text-base font-extrabold uppercase tracking-widest text-white mb-3">{info.title}</h3>
-                      <p className="text-sm text-white/70 whitespace-pre-line leading-relaxed">{info.desc}</p>
+                    <div className="mt-6 flex-1 flex flex-col items-center justify-center space-y-2">
+                      <h3 className="text-xs font-bold uppercase tracking-widest text-white/50">{info.title}</h3>
+                      <p className="text-lg md:text-xl font-bold text-white whitespace-pre-line leading-snug">{info.desc}</p>
                     </div>
                   </CardWrapper>
                 </motion.div>
@@ -172,7 +170,7 @@ export default function ContactPage() {
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.6 }}
               className="bg-white p-8 md:p-12 rounded-[32px] border border-black/5 shadow-xl h-full flex flex-col"
             >
@@ -232,7 +230,7 @@ export default function ContactPage() {
               className="rounded-[32px] overflow-hidden border border-black/5 shadow-xl h-[500px] lg:h-auto min-h-[500px] bg-black/5"
             >
               <iframe
-                src="https://maps.google.com/maps?q=Bahawalpur%20Road,%20Hasilpur&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                src="https://maps.google.com/maps?q=Jinnah%20Hardware%20Store,%20Bahawalpur%20Road,%20Hasilpur&t=&z=16&ie=UTF8&iwloc=&output=embed"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}

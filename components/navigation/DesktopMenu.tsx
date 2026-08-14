@@ -7,7 +7,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CATEGORIES } from "@/data/products";
-import { getBrands } from "@/lib/data-fetcher";
 import { scrollToTarget } from "@/lib/smooth-scroll";
 
 interface TabProps {

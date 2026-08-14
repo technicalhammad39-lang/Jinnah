@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { collection, getDocs, doc, deleteDoc, orderBy, query, addDoc, serverTimestamp } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
-import { db, storage } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { Plus, Trash2, Loader2, UploadCloud } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -40,20 +39,28 @@ export default function AdminGallery() {
     
     try {
       const file = e.target.files[0];
-      const storageRef = ref(storage, `gallery/${Date.now()}_${file.name}`);
-      await uploadBytes(storageRef, file);
-      const url = await getDownloadURL(storageRef);
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "gallery");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
       
       const docRef = await addDoc(collection(db, "gallery"), {
-        url,
-        path: storageRef.fullPath,
+        url: data.url,
+        path: data.url, // Path not needed for local storage directly, but keep for compatibility
         createdAt: serverTimestamp()
       });
 
       toast.success("Image uploaded to gallery");
       
       // Optimistic update
-      setImages([{ id: docRef.id, url, path: storageRef.fullPath, createdAt: new Date() }, ...images]);
+      setImages([{ id: docRef.id, url: data.url, path: data.url, createdAt: new Date() }, ...images]);
     } catch (error) {
       console.error("Error uploading image:", error);
       toast.error("Failed to upload image");
@@ -66,10 +73,13 @@ export default function AdminGallery() {
   const handleDelete = async (id: string, path: string) => {
     if (confirm("Are you sure you want to delete this image?")) {
       try {
-        // Delete from Storage first if path exists
-        if (path) {
-          const imageRef = ref(storage, path);
-          await deleteObject(imageRef).catch(console.error); // Ignore if already deleted from storage
+        // Delete from local storage API
+        if (path && path.startsWith("/")) {
+          await fetch("/api/upload", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url: path })
+          }).catch(console.error); // Ignore if failed
         }
         
         // Delete from Firestore

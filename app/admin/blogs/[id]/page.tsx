@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { doc, getDoc, setDoc, addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Save, Loader2, UploadCloud, X, Trash2 } from "lucide-react";
 import Link from "next/link";
@@ -60,10 +59,19 @@ export default function BlogEditor() {
     
     try {
       const file = e.target.files[0];
-      const storageRef = ref(storage, `blogs/${Date.now()}_${file.name}`);
-      await uploadBytes(storageRef, file);
-      const url = await getDownloadURL(storageRef);
-      setFormData(prev => ({ ...prev, coverImage: url }));
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "blogs");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      
+      setFormData(prev => ({ ...prev, coverImage: data.url }));
       toast.success("Cover image uploaded");
     } catch (error) {
       console.error("Error uploading image:", error);

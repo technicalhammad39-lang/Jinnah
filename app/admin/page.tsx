@@ -135,7 +135,7 @@ export default function AdminDashboard() {
       {/* Charts Area */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Chart */}
-        <div className="bg-white border border-[#1a1917]/5 p-6 rounded-2xl lg:col-span-2">
+        <div className="bg-white border border-[#1a1917]/5 p-6 rounded-2xl lg:col-span-2 min-w-0">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-lg font-bold text-[#1a1917] flex items-center gap-2">
@@ -168,7 +168,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Secondary Chart */}
-        <div className="bg-white border border-[#1a1917]/5 p-6 rounded-2xl">
+        <div className="bg-white border border-[#1a1917]/5 p-6 rounded-2xl min-w-0">
           <div className="mb-6">
             <h3 className="text-lg font-bold text-[#1a1917] flex items-center gap-2">
               <Package className="w-5 h-5 text-blue-400" />

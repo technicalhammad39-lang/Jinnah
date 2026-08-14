@@ -12,6 +12,11 @@ if (!admin.apps.length) {
         }),
         storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
       });
+    } else {
+      console.warn("Firebase Admin missing credentials, initializing with mock.");
+      admin.initializeApp({
+        projectId: 'jinnah-hardware-store'
+      });
     }
   } catch (error) {
     console.error('Firebase admin initialization error', error);

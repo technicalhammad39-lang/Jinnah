@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { collection, getDocs, doc, deleteDoc, orderBy, query, serverTimestamp, addDoc, setDoc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { Plus, Search, Edit2, Trash2, Loader2, Image as ImageIcon, X, UploadCloud } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -90,10 +89,19 @@ export default function AdminBrands() {
     
     try {
       const file = e.target.files[0];
-      const storageRef = ref(storage, `brands/${Date.now()}_${file.name}`);
-      await uploadBytes(storageRef, file);
-      const url = await getDownloadURL(storageRef);
-      setFormData(prev => ({ ...prev, logo: url }));
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "brands");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      
+      setFormData(prev => ({ ...prev, logo: data.url }));
       toast.success("Logo uploaded");
     } catch (error) {
       console.error("Error uploading logo:", error);

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@/lib/auth-context";
+import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { 
   LayoutDashboard, 
   Package, 
@@ -31,7 +31,7 @@ const sidebarLinks = [
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
   const { logout, user } = useAuth();
@@ -42,7 +42,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="min-h-screen bg-[#faf9f6] text-[#1a1917] font-sans flex">
+    <div className="h-screen bg-[#faf9f6] text-[#1a1917] font-sans flex overflow-hidden">
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div 
@@ -53,8 +53,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Sidebar */}
       <aside 
-        className={`fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-[#1a1917]/5 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:shrink-0 flex flex-col ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        className={`absolute inset-y-0 left-0 z-50 w-72 bg-white border-r border-[#1a1917]/5 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 flex flex-col shrink-0 ${
+          sidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
         }`}
       >
         <div className="h-20 flex items-center justify-between px-6 border-b border-[#1a1917]/5 shrink-0">
@@ -135,12 +135,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-6 md:p-8 overflow-y-auto">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto custom-scrollbar">
+          <div className="max-w-7xl mx-auto w-full">
             {children}
           </div>
         </main>
       </div>
     </div>
+  );
+}
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <AuthProvider>
+      <AdminLayoutContent>{children}</AdminLayoutContent>
+    </AuthProvider>
   );
 }
