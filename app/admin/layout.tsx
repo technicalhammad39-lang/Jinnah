@@ -16,12 +16,14 @@ import {
   LogOut,
   Menu,
   X,
-  Store
+  Store,
+  ShoppingCart
 } from "lucide-react";
 import Image from "next/image";
 
 const sidebarLinks = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
   { name: "Products", href: "/admin/products", icon: Package },
   { name: "Brands", href: "/admin/brands", icon: Tags },
   { name: "Blogs", href: "/admin/blogs", icon: FileText },

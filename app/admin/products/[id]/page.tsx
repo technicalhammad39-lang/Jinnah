@@ -32,7 +32,10 @@ export default function ProductEditor() {
     images: [] as string[],
     featured: false,
     bestSeller: false,
-    availability: "in-stock"
+    availability: "in-stock",
+    dimensions: "",
+    weight: "",
+    shippingClass: ""
   });
 
   useEffect(() => {
@@ -208,6 +211,33 @@ export default function ProductEditor() {
                 type="number" 
                 value={formData.discountPrice}
                 onChange={e => setFormData({...formData, discountPrice: Number(e.target.value)})}
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Dimensions</label>
+              <input 
+                type="text" 
+                value={formData.dimensions}
+                onChange={e => setFormData({...formData, dimensions: e.target.value})}
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Weight</label>
+              <input 
+                type="text" 
+                value={formData.weight}
+                onChange={e => setFormData({...formData, weight: e.target.value})}
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Shipping Class</label>
+              <input 
+                type="text" 
+                value={formData.shippingClass}
+                onChange={e => setFormData({...formData, shippingClass: e.target.value})}
                 className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
               />
             </div>

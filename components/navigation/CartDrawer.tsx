@@ -227,18 +227,14 @@ export function CartDrawer() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 pt-2">
-                  <button
-                    onClick={() => {
-                      const text = "Hello Jinnah Hardware, I would like to place an order for:\n\n" + 
-                        cart.map(item => `- ${item.quantity}x ${item.product.name} (Finish: ${item.selectedColor}, Size: ${item.selectedSize}) - Rs. ${(item.product.price * item.quantity).toLocaleString()}`).join("\n") +
-                        `\n\nEstimated Total: Rs. ${cartSubtotal.toLocaleString()}`;
-                      window.open(`https://wa.me/923000421772?text=${encodeURIComponent(text)}`, "_blank");
-                    }}
+                  <Link
+                    href="/checkout"
+                    onClick={() => setCartOpen(false)}
                     className="col-span-2 flex cursor-pointer items-center justify-center gap-2 rounded-full bg-primary py-3 px-4 text-xs font-bold uppercase tracking-wider text-white shadow-lg transition-all hover:bg-primary/95 hover:shadow-primary/25"
                   >
-                    <span>Buy Now</span>
+                    <span>Proceed to Checkout</span>
                     <ArrowRight className="h-4 w-4" />
-                  </button>
+                  </Link>
                   <button
                     onClick={() => clearCart()}
                     className="cursor-pointer rounded-full border border-black/10 py-2.5 px-4 text-xs font-semibold uppercase tracking-wider text-[#1a1917] transition-all hover:border-black/25 hover:bg-black/5"

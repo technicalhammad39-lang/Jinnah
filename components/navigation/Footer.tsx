@@ -20,7 +20,7 @@ const quickLinks = [
   { name: "Visual Gallery", href: "/gallery" },
   { name: "Trusted Brands", href: "/brands" },
   { name: "Categories", href: "/categories" },
-  { name: "Journal", href: "/blogs" },
+  { name: "Blogs", href: "/blogs" },
   { name: "Contact Desk", href: "/contact" },
 ];
 
@@ -63,9 +63,9 @@ export function Footer() {
       <div className="mx-auto grid max-w-[1740px] grid-cols-1 gap-12 border-b border-white/5 px-6 md:px-8 xl:px-12 pb-16 text-left md:grid-cols-2 md:gap-8 lg:grid-cols-12">
         <div className="space-y-6 lg:col-span-4">
           <Link href="/" className="flex items-center group transition-transform hover:scale-105 w-fit">
-            <div className="relative h-16 w-[220px] md:h-20 md:w-[260px] bg-white rounded-full flex items-center justify-center p-4 shadow-lg">
+            <div className="relative h-16 w-[220px] md:h-20 md:w-[260px] flex items-center justify-start">
               <div className="relative w-full h-full">
-                <Image src="/jinnah-logo.webp" alt="Jinnah Hardware Store" fill className="object-contain object-center" />
+                <Image src="/jinnah-bottom.png" alt="Jinnah Hardware Store" fill className="object-contain object-left" />
               </div>
             </div>
           </Link>

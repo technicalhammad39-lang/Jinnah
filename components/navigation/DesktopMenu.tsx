@@ -39,7 +39,7 @@ const TABS = [
   { title: "Brands", href: "/brands", Component: BrandsMenu },
   { title: "About", href: "/about", Component: null },
   { title: "Gallery", href: "/gallery", Component: null },
-  { title: "Journal", href: "/blogs", Component: null },
+  { title: "Blogs", href: "/blogs", Component: null },
   { title: "Contact", href: "/contact", Component: null },
 ].map((item, index) => ({ ...item, id: index + 1 }));
 

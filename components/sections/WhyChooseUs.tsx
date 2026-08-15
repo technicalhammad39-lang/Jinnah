@@ -148,31 +148,29 @@ export function WhyChooseUs() {
                   )}
                 >
                   <motion.div
-                    initial={{ opacity: 0, y: 40 }}
+                    initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
                     className={cn(
-                      "group rounded-[2rem] border transition-all duration-700 h-full min-h-[240px] flex flex-col justify-start relative z-20 pt-14 pb-8 px-8",
+                      "group rounded-[2rem] border transition-all duration-500 h-full min-h-[240px] flex flex-col justify-start relative z-20 pt-14 pb-8 px-8",
                       "bg-gradient-to-br from-[#202020]/95 via-[#171717]/95 to-[#111111]/95 backdrop-blur-2xl text-left",
-                      isHovered 
-                        ? "border-[#FF6A2A]/40 shadow-[0_30px_80px_rgba(0,0,0,0.35),inset_0_1px_1px_rgba(255,255,255,0.05)] md:-translate-y-3 scale-[1.02]" 
-                        : "border-white/10 shadow-[0_15px_40px_-15px_rgba(0,0,0,0.2),inset_0_1px_1px_rgba(255,255,255,0.02)] translate-y-0 scale-100"
+                      "border-white/10 shadow-[0_15px_40px_-15px_rgba(0,0,0,0.2),inset_0_1px_1px_rgba(255,255,255,0.02)]"
                     )}
                   >
                     {/* Floating Luxury Icon Container (Orange/White) */}
                     <div 
                       className={cn(
-                        "absolute top-0 left-8 -translate-y-1/2 w-[72px] h-[72px] rounded-[1.25rem] flex items-center justify-center transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                        "absolute top-0 left-8 -translate-y-1/2 w-[72px] h-[72px] rounded-[1.25rem] flex items-center justify-center transition-all duration-500",
                         "backdrop-blur-xl bg-gradient-to-br from-[#FF9A55] to-[#FF6A2A] border border-white/20",
                         isHovered 
-                          ? "shadow-[0_12px_30px_-8px_rgba(255,106,42,0.6),inset_0_1px_1px_rgba(255,255,255,0.4)] rotate-0 -translate-y-[6px]" 
-                          : "shadow-[0_8px_20px_-6px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.3)] rotate-6"
+                          ? "shadow-[0_12px_30px_-8px_rgba(255,106,42,0.6),inset_0_1px_1px_rgba(255,255,255,0.4)]" 
+                          : "shadow-[0_8px_20px_-6px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.3)]"
                       )}
                     >
                       <feature.icon className={cn(
-                        "h-9 w-9 transition-all duration-700 text-white",
-                        isHovered ? "drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] scale-110" : "scale-100"
+                        "h-9 w-9 transition-all duration-500 text-white",
+                        isHovered ? "drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" : ""
                       )} />
                     </div>
                     

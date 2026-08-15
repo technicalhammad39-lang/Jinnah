@@ -1,6 +1,7 @@
 export interface Product {
   id: string;
   name: string;
+  slug?: string;
   brand: string;
   category: string;
   categorySlug: string;
@@ -16,6 +17,7 @@ export interface Product {
   discount?: number;
   freeShipping?: boolean;
   description: string;
+  longDescription?: string;
   specifications: Record<string, string>;
   features: string[];
   availability: "In Stock" | "Low Stock" | "Out of Stock";

@@ -12,6 +12,7 @@ const sansFont = Poppins({
   weight: ["400", "500", "600", "700", "800", "900"],
   variable: "--font-sans",
   display: "swap",
+  preload: false,
 });
 
 const serifFont = Cormorant_Garamond({
@@ -20,6 +21,7 @@ const serifFont = Cormorant_Garamond({
   style: ["italic"],
   variable: "--font-serif",
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {

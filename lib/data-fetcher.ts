@@ -107,6 +107,29 @@ export async function getBlogBySlug(slug: string) {
   }
 }
 
+export async function getProductBySlug(slug: string) {
+  try {
+    const q = query(collection(db, "products"), where("slug", "==", slug), limit(1));
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      const docSnap = snapshot.docs[0];
+      return { id: docSnap.id, ...serializeData(docSnap.data()) };
+    }
+    
+    // Fallback to fetch by ID
+    const docRef = doc(db, "products", slug);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...serializeData(docSnap.data()) };
+    }
+    
+    return null;
+  } catch (error) {
+    console.error("Error fetching product by slug:", error);
+    return null;
+  }
+}
+
 export async function getGallery() {
   try {
     const q = query(collection(db, "gallery"), orderBy("createdAt", "desc"));

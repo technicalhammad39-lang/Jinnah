@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/navigation/Navbar";
 import { Footer } from "@/components/navigation/Footer";
 import Image from "next/image";
@@ -58,6 +58,17 @@ export default function GalleryClient({ initialGallery = [] }: { initialGallery:
   };
 
   const currentImage = lightboxIndex !== null ? filteredImages[lightboxIndex] : null;
+
+  useEffect(() => {
+    if (lightboxIndex !== null) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [lightboxIndex]);
 
   return (
     <div className="relative min-h-screen bg-[#faf9f6] flex flex-col">

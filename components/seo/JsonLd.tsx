@@ -4,7 +4,7 @@ export function JsonLd() {
     "@type": "HardwareStore",
     "name": "Jinnah Hardware Store",
     "description": "Premium architectural and industrial hardware experience. Elite door hardware, security, smart locks, cabinet fittings, and professional power tools.",
-    "url": "https://jinnahhardware.com",
+    "url": "https://jinnah-hardwarestore.com/",
     "telephone": "+923000421772",
     "address": {
       "@type": "PostalAddress",

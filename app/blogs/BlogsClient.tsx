@@ -41,7 +41,7 @@ export default function BlogsClient({ initialBlogs = [] }: { initialBlogs: any[]
             animate={{ opacity: 1, y: 0 }}
             className="text-5xl md:text-7xl lg:text-[5.5rem] font-black uppercase tracking-tighter text-foreground leading-none"
           >
-            Our <span className="text-primary font-stylish normal-case text-[1.1em]">Journal</span>
+            Our <span className="text-primary font-stylish normal-case text-[1.1em]">Blogs</span>
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
@@ -128,7 +128,7 @@ export default function BlogsClient({ initialBlogs = [] }: { initialBlogs: any[]
             </div>
           ) : (
             <div className="text-center py-20 text-muted-foreground">
-              <p>No journal articles found at this time.</p>
+              <p>No blogs found at this time.</p>
             </div>
           )}
         </section>

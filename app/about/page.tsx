@@ -4,10 +4,31 @@ import { Navbar } from "@/components/navigation/Navbar";
 import { Footer } from "@/components/navigation/Footer";
 import Image from "next/image";
 import { motion } from "motion/react";
-import { User, ShieldCheck, Briefcase, Target, Trophy, Clock, ArrowRight } from "lucide-react";
+import { User, ShieldCheck, Briefcase, Target, Trophy, Clock, ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useState, useEffect } from "react";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { getPublicUploadUrl } from "@/lib/utils";
 
 export default function AboutPage() {
+  const [leadership, setLeadership] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchLeadership() {
+      try {
+        const q = query(collection(db, "leadership"), orderBy("order", "asc"));
+        const snapshot = await getDocs(q);
+        setLeadership(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      } catch (error) {
+        console.error("Error fetching leadership:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchLeadership();
+  }, []);
   const stats = [
     { label: "Years of Trust", value: "15+" },
     { label: "Premium Brands", value: "24" },
@@ -88,70 +109,62 @@ export default function AboutPage() {
           <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-primary/15 to-transparent pointer-events-none" />
           
           <div className="max-w-[1740px] mx-auto px-6 relative z-10">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-32">
-            <div className="relative h-[500px] rounded-3xl overflow-hidden bg-black/5">
-              <Image src="/ahsan.png" alt="Ahsan Khalil - Founder" fill className="object-cover object-top" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <div className="absolute bottom-8 left-8 text-white">
-                <p className="text-[10px] font-extrabold uppercase tracking-widest text-primary mb-1">Founder & CEO</p>
-                <p className="text-3xl font-black">Ahsan Khalil</p>
+            {loading ? (
+              <div className="flex justify-center items-center py-32">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
               </div>
-            </div>
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <h2 className="text-3xl font-extrabold uppercase tracking-tight">Vision Led Since Day One</h2>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Under the leadership of Ahsan Khalil, Jinnah Hardware has transformed from a traditional vendor into a consultative partner for elite contractors and designers. His relentless pursuit of quality means that every handle, lock, and hinge in our showroom has been personally evaluated for mechanical precision and aesthetic brilliance.
-                </p>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  "Hardware is the tactile interface of architecture. It's the first thing you touch when entering a room. It must feel perfect."
-                </p>
+            ) : leadership.length > 0 ? (
+              leadership.map((member, index) => {
+                const isEven = index % 2 === 0;
+                return (
+                  <div key={member.id} className={`grid grid-cols-1 lg:grid-cols-2 gap-16 items-center ${index !== leadership.length - 1 ? 'mb-32' : ''}`}>
+                    <div className={`relative h-[500px] rounded-3xl overflow-hidden bg-black/5 ${isEven ? '' : 'order-1 lg:order-2'}`}>
+                      {member.image ? (
+                        <Image src={getPublicUploadUrl(member.image)} alt={member.name} fill className="object-cover object-top" />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200" />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      <div className={`absolute bottom-8 text-white ${isEven ? 'left-8' : 'right-8 text-right'}`}>
+                        <p className="text-[10px] font-extrabold uppercase tracking-widest text-primary mb-1">{member.role}</p>
+                        <p className="text-3xl font-black">{member.name}</p>
+                      </div>
+                    </div>
+                    <div className={`space-y-8 ${isEven ? '' : 'order-2 lg:order-1'}`}>
+                      <div className="space-y-4">
+                        <h2 className="text-3xl font-extrabold uppercase tracking-tight">{member.name}</h2>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {member.description1}
+                        </p>
+                        {member.description2 && (
+                          <p className="text-sm text-muted-foreground leading-relaxed">
+                            {member.description2}
+                          </p>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-2 gap-6 pt-6 border-t border-black/5">
+                        {member.feature1Title && (
+                          <div className="space-y-2">
+                            <ShieldCheck className="h-5 w-5 text-primary" />
+                            <p className="text-xs font-bold uppercase tracking-widest">{member.feature1Title}</p>
+                          </div>
+                        )}
+                        {member.feature2Title && (
+                          <div className="space-y-2">
+                            <Briefcase className="h-5 w-5 text-primary" />
+                            <p className="text-xs font-bold uppercase tracking-widest">{member.feature2Title}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="text-center py-20 text-muted-foreground">
+                <p>Leadership profiles will appear here.</p>
               </div>
-              <div className="grid grid-cols-2 gap-6 pt-6 border-t border-black/5">
-                <div className="space-y-2">
-                  <ShieldCheck className="h-5 w-5 text-primary" />
-                  <p className="text-xs font-bold uppercase tracking-widest">Uncompromising Quality</p>
-                </div>
-                <div className="space-y-2">
-                  <Briefcase className="h-5 w-5 text-primary" />
-                  <p className="text-xs font-bold uppercase tracking-widest">Consultative Approach</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* CHAIRMAN STORY */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8 order-2 lg:order-1">
-              <div className="space-y-4">
-                <h2 className="text-3xl font-extrabold uppercase tracking-tight">The Foundation of Our Legacy</h2>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  As the Chairman and primary investor, his strategic foresight and foundational support have been the backbone of Jinnah Hardware Store since its inception. His unwavering commitment to excellence and business integrity set the standards that guide our entire operation today.
-                </p>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  "A strong foundation is not just built with capital, but with trust, relentless dedication, and a long-term vision for the future."
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-6 pt-6 border-t border-black/5">
-                <div className="space-y-2">
-                  <ShieldCheck className="h-5 w-5 text-primary" />
-                  <p className="text-xs font-bold uppercase tracking-widest">Strategic Vision</p>
-                </div>
-                <div className="space-y-2">
-                  <Briefcase className="h-5 w-5 text-primary" />
-                  <p className="text-xs font-bold uppercase tracking-widest">Pillar of Trust</p>
-                </div>
-              </div>
-            </div>
-            <div className="relative h-[500px] rounded-3xl overflow-hidden bg-black/5 order-1 lg:order-2">
-              <Image src="https://picsum.photos/seed/chairman/800/1000" alt="Chairman - Founder" fill className="object-cover object-top" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <div className="absolute bottom-8 right-8 text-white text-right">
-                <p className="text-[10px] font-extrabold uppercase tracking-widest text-primary mb-1">Chairman & Investor</p>
-                <p className="text-3xl font-black">The Chairman</p>
-              </div>
-            </div>
-            </div>
+            )}
           </div>
         </section>
 

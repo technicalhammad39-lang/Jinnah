@@ -67,13 +67,8 @@ export function BrandsSection() {
                   sizes="280px"
                   loading="lazy"
                   decoding="async"
-                  className="object-cover opacity-20 group-hover:opacity-40 transition-opacity duration-300"
+                  className="object-contain p-6 group-hover:scale-105 transition-transform duration-300"
                 />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-3xl font-black text-[#1a1917] opacity-40 group-hover:opacity-100 group-hover:text-primary transition-all uppercase tracking-tighter mix-blend-overlay">
-                    {brand.brandName || brand.name}
-                  </div>
-                </div>
               </div>
             ))}
           </div>
@@ -94,13 +89,8 @@ export function BrandsSection() {
                   sizes="280px"
                   loading="lazy"
                   decoding="async"
-                  className="object-cover opacity-20 group-hover:opacity-40 transition-opacity duration-300"
+                  className="object-contain p-6 group-hover:scale-105 transition-transform duration-300"
                 />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-3xl font-black text-[#1a1917] opacity-40 group-hover:opacity-100 group-hover:text-primary transition-all uppercase tracking-tighter mix-blend-overlay">
-                    {brand.brandName || brand.name}
-                  </div>
-                </div>
               </div>
             ))}
           </div>

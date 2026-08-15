@@ -47,7 +47,7 @@ export default function BlogDetailClient({ initialBlog }: { initialBlog: any }) 
               className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors mb-8"
             >
               <ArrowLeft className="h-4 w-4" />
-              <span>Back to Journal</span>
+              <span>Back to Blogs</span>
             </Link>
 
             <div className="flex items-center justify-center gap-4 text-[10px] font-extrabold uppercase tracking-widest text-primary mb-6">

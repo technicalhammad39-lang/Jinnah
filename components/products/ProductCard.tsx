@@ -116,7 +116,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
   };
 
   const handleCardClick = () => {
-    router.push(`/shop?product=${product.id}`);
+    router.push(`/shop/${product.slug || product.id}`);
   };
 
   return (
@@ -126,7 +126,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
       className="group relative flex w-full flex-col overflow-hidden rounded-3xl border border-black/5 bg-[#faf9f6] shadow-sm transition-all duration-500 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 h-full premium-transform cursor-pointer"
     >
       <div className="relative h-[260px] sm:h-[280px] lg:h-[300px] w-full shrink-0 overflow-hidden bg-[#efece6]" data-cursor="view">
-        <Link href={`/shop?product=${product.id}`} className="block h-full w-full">
+        <Link href={`/shop/${product.slug || product.id}`} className="block h-full w-full">
           <motion.div
             key={product.images?.[currentImageIndex] || "fallback"}
             initial={{ opacity: 0 }}
@@ -234,7 +234,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
             </div>
           </div>
 
-          <Link href={`/shop?product=${product.id}`}>
+          <Link href={`/shop/${product.slug || product.id}`}>
             <h3 className="mb-2 line-clamp-1 text-left text-sm font-bold text-foreground transition-colors hover:text-primary md:text-base">
               {product.name}
             </h3>

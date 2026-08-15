@@ -4,7 +4,7 @@ import BlogsClient from "./BlogsClient";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Journal & News | Jinnah Hardware Store",
+  title: "Blogs & News | Jinnah Hardware Store",
   description: "Read our latest articles, guides, and news about hardware and architecture.",
 };
 

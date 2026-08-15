@@ -4,9 +4,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowRight, CornerDownLeft, Search, X } from "lucide-react";
+import { ArrowRight, CornerDownLeft, Search, X, Loader2 } from "lucide-react";
 import { useOverlayActions, useOverlayState } from "@/context/AppContext";
-import { PRODUCTS } from "@/data/products";
+import { getPublicUploadUrl } from "@/lib/utils";
 
 const POPULAR_SEARCHES = ["Smart Lock", "Brass Lever", "T-Bar Pull", "Brushless", "Glass Switch"];
 const QUICK_CATEGORIES = [
@@ -21,6 +21,28 @@ export function SearchOverlay() {
   const { setSearchOpen } = useOverlayActions();
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  
+  const [products, setProducts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    async function loadProducts() {
+      setIsLoading(true);
+      try {
+        const { getProducts } = await import("@/lib/data-fetcher");
+        const data = await getProducts();
+        setProducts(data);
+      } catch (error) {
+        console.error("Failed to load products for search", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    if (searchOpen && products.length === 0) {
+      loadProducts();
+    }
+  }, [searchOpen, products.length]);
 
   useEffect(() => {
     if (!searchOpen) {
@@ -56,17 +78,17 @@ export function SearchOverlay() {
   const results = useMemo(
     () =>
       normalizedQuery
-        ? PRODUCTS.filter(
+        ? products.filter(
             (product) =>
-              product.name.toLowerCase().includes(normalizedQuery) ||
-              product.brand.toLowerCase().includes(normalizedQuery) ||
-              product.category.toLowerCase().includes(normalizedQuery)
+              (product.name && product.name.toLowerCase().includes(normalizedQuery)) ||
+              (product.brand && product.brand.toLowerCase().includes(normalizedQuery)) ||
+              (product.category && product.category.toLowerCase().includes(normalizedQuery))
           )
         : [],
-    [normalizedQuery]
+    [normalizedQuery, products]
   );
 
-  const featuredProducts = useMemo(() => PRODUCTS.slice(0, 3), []);
+  const featuredProducts = useMemo(() => products.slice(0, 3), [products]);
 
   const handlePopularClick = (term: string) => {
     setQuery(term);
@@ -165,10 +187,14 @@ export function SearchOverlay() {
               </div>
 
               <div className="md:col-span-2">
-                <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                  {normalizedQuery
-                    ? `Search Results (${results.length})`
-                    : "Featured Hardware Innovations"}
+                <h4 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                  {isLoading ? (
+                    <><Loader2 className="h-3 w-3 animate-spin" /> Loading Products...</>
+                  ) : normalizedQuery ? (
+                    `Search Results (${results.length})`
+                  ) : (
+                    "Featured Hardware Innovations"
+                  )}
                 </h4>
 
                 <div className="space-y-4">
@@ -181,7 +207,7 @@ export function SearchOverlay() {
                     >
                       <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl bg-[#efece6] md:h-20 md:w-20">
                         <Image
-                          src={product.images?.[0] || "/placeholder.jpg"}
+                          src={product.images && product.images.length > 0 ? getPublicUploadUrl(product.images[0]) : "/placeholder.jpg"}
                           alt={product.name}
                           fill
                           sizes="(min-width: 768px) 80px, 64px"
@@ -193,7 +219,7 @@ export function SearchOverlay() {
                           {product.brand}
                         </span>
                         <Link
-                          href={`/shop?product=${product.id}`}
+                          href={`/shop/${product.slug || product.id}`}
                           onClick={() => setSearchOpen(false)}
                           className="line-clamp-1 text-sm font-semibold text-foreground transition-colors hover:text-primary md:text-base"
                         >
@@ -210,7 +236,7 @@ export function SearchOverlay() {
                       </div>
                       <div className="flex items-center pr-2">
                         <Link
-                          href={`/shop?product=${product.id}`}
+                          href={`/shop/${product.slug || product.id}`}
                           onClick={() => setSearchOpen(false)}
                           className="rounded-full bg-white p-2 shadow-sm transition-all group-hover:bg-primary group-hover:text-white"
                         >
