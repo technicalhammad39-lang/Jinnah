@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Truck,
   RotateCcw,
+  Zap,
 } from "lucide-react";
 import {
   useCartActions,
@@ -89,9 +90,8 @@ export default function ProductDetailClient({
     .slice(0, 4);
 
   const handleBuyNow = () => {
-    const text = `Hi, I want to order this product:\n\n*Product:* ${initialProduct.name}\n*Price:* Rs. ${initialProduct.price.toLocaleString()}\n${selectedColor ? `*Color:* ${selectedColor}\n` : ''}${selectedSize ? `*Size:* ${selectedSize}\n` : ''}\nIs it available?`;
-    const encodedText = encodeURIComponent(text);
-    window.open(`https://wa.me/923000421772?text=${encodedText}`, '_blank');
+    addToCart(initialProduct, 1, selectedColor, selectedSize);
+    router.push('/checkout');
   };
 
   const handleAddToCart = () => {
@@ -284,9 +284,9 @@ export default function ProductDetailClient({
 
               <button
                 onClick={handleBuyNow}
-                className="flex-1 flex items-center justify-center gap-2 rounded-full py-4 bg-[#25D366] text-white text-xs font-bold uppercase tracking-widest shadow-md hover:bg-[#20b858] hover:shadow-[#25D366]/20 transition-all duration-300"
+                className="flex-1 flex items-center justify-center gap-2 rounded-full py-4 bg-primary text-white text-xs font-bold uppercase tracking-widest shadow-md hover:bg-primary/90 hover:shadow-primary/20 transition-all duration-300"
               >
-                <MessageCircle className="h-4 w-4" /> Buy via WhatsApp
+                <Zap className="h-4 w-4" /> Buy Now
               </button>
 
               <button

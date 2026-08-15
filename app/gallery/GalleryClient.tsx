@@ -209,34 +209,25 @@ export default function GalleryClient({ initialGallery = [] }: { initialGallery:
               <ChevronRight className="h-6 w-6 md:h-8 md:w-8" />
             </button>
 
-            <motion.div
-              key={currentImage.id}
-              initial={{ scale: 0.95, opacity: 0, x: 20 }}
-              animate={{ scale: 1, opacity: 1, x: 0 }}
-              exit={{ scale: 0.95, opacity: 0, x: -20 }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="relative w-full h-full max-w-6xl max-h-[85vh] rounded-3xl overflow-hidden cursor-grab active:cursor-grabbing"
-              onClick={(e) => e.stopPropagation()}
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.7}
-              onDragEnd={(e, { offset, velocity }) => {
-                const swipe = offset.x;
-                if (swipe < -50 || velocity.x < -500) {
-                  handleNext();
-                } else if (swipe > 50 || velocity.x > 500) {
-                  handlePrev();
-                }
-              }}
-            >
-              <Image
-                src={getPublicUploadUrl(currentImage.url || currentImage.src)}
-                alt={currentImage.alt || currentImage.title || "Gallery image"}
-                fill
-                className="object-contain"
-                priority
-              />
-            </motion.div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentImage.id}
+                initial={{ scale: 0.95, opacity: 0, x: 20 }}
+                animate={{ scale: 1, opacity: 1, x: 0 }}
+                exit={{ scale: 0.95, opacity: 0, x: -20 }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                className="relative w-full h-full max-w-6xl max-h-[85vh] rounded-3xl overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Image
+                  src={getPublicUploadUrl(currentImage.url || currentImage.src)}
+                  alt={currentImage.alt || currentImage.title || "Gallery image"}
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </motion.div>
+            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>

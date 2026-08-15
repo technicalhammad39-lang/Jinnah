@@ -177,8 +177,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const addToCart = useCallback(
     (product: Product, quantity = 1, color?: string, size?: string) => {
-      const finalColor = color || product.colors[0] || "Default";
-      const finalSize = size || product.sizes[0] || "Standard";
+      const finalColor = color || (product.colors && product.colors.length > 0 ? product.colors[0] : "Default");
+      const finalSize = size || (product.sizes && product.sizes.length > 0 ? product.sizes[0] : "Standard");
 
       setCart((prev) => {
         const existingIndex = prev.findIndex(

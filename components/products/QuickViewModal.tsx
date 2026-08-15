@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import {
   ShoppingCart,
@@ -25,6 +26,7 @@ import {
 import { getPublicUploadUrl } from "@/lib/utils";
 
 export function QuickViewModal() {
+  const router = useRouter();
   const { quickViewProduct } = useOverlayState();
   const { setQuickViewProduct } = useOverlayActions();
   const { addToCart } = useCartActions();
@@ -86,9 +88,9 @@ export function QuickViewModal() {
 
   const handleBuyNow = () => {
     if (!quickViewProduct) return;
-    const text = `Hi, I want to order this product:\n\n*Product:* ${quickViewProduct.name}\n*Price:* $${quickViewProduct.price.toFixed(2)}\n${selectedColor ? `*Color:* ${selectedColor}\n` : ''}${selectedSize ? `*Size:* ${selectedSize}\n` : ''}\nIs it available?`;
-    const encodedText = encodeURIComponent(text);
-    window.open(`https://wa.me/923000421772?text=${encodedText}`, '_blank');
+    addToCart(quickViewProduct, 1, selectedColor, selectedSize);
+    setQuickViewProduct(null);
+    router.push('/checkout');
   };
 
   const handleAddToCart = () => {
@@ -317,9 +319,9 @@ export function QuickViewModal() {
 
                 <button
                   onClick={handleBuyNow}
-                  className="flex flex-grow cursor-pointer items-center justify-center gap-2 rounded-full bg-[#25D366] py-3.5 px-6 text-xs font-bold uppercase tracking-widest text-white shadow-md transition-all duration-300 hover:bg-[#20b858] hover:shadow-[#25D366]/25"
+                  className="flex flex-grow cursor-pointer items-center justify-center gap-2 rounded-full bg-primary py-3.5 px-6 text-xs font-bold uppercase tracking-widest text-white shadow-md transition-all duration-300 hover:bg-primary/90 hover:shadow-primary/25"
                 >
-                  <MessageCircle className="h-4.5 w-4.5" />
+                  <Zap className="h-4.5 w-4.5" />
                   <span>Buy Now</span>
                 </button>
 
