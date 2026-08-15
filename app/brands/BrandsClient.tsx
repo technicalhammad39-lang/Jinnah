@@ -60,19 +60,14 @@ export default function BrandsClient({ initialBrands = [] }: { initialBrands: an
           </div>
         </section>
 
-        <section className="pt-24 pb-24 px-6 bg-white rounded-t-[3rem] md:rounded-t-[4rem] relative overflow-hidden shadow-[0_-20px_60px_rgba(0,0,0,0.03)] -mt-12">
-          {/* Top Orange Gradient */}
-          <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-[#FF6A2A]/20 via-[#FF6A2A]/5 to-transparent pointer-events-none z-0" />
-          
-          {/* Top Orange Dotted Gradient */}
+        <section className="pt-24 pb-24 px-6 bg-white rounded-t-[3rem] md:rounded-t-[4rem] relative overflow-hidden shadow-[0_-20px_40px_rgba(0,0,0,0.1)] -mt-12">
+          {/* Light Grey Dotted Pattern */}
           <div 
-            className="absolute top-0 left-0 right-0 h-96 pointer-events-none z-0" 
+            className="absolute inset-0 pointer-events-none z-0" 
             style={{
-              backgroundImage: 'radial-gradient(circle at center, #FF6A2A 1.5px, transparent 1.5px)',
+              backgroundImage: 'radial-gradient(circle at center, #e5e7eb 1.5px, transparent 1.5px)',
               backgroundSize: '12px 12px',
-              opacity: 0.5,
-              maskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
-              WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+              opacity: 0.7,
             }}
           />
           

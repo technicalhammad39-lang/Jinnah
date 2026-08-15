@@ -17,7 +17,8 @@ import {
   Menu,
   X,
   Store,
-  ShoppingCart
+  ShoppingCart,
+  CreditCard
 } from "lucide-react";
 import Image from "next/image";
 
@@ -30,6 +31,7 @@ const sidebarLinks = [
   { name: "Gallery", href: "/admin/gallery", icon: ImageIcon },
   { name: "Messages", href: "/admin/messages", icon: MessageSquare },
   { name: "Notifications", href: "/admin/notifications", icon: Bell },
+  { name: "Payments", href: "/admin/payment-methods", icon: CreditCard },
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 

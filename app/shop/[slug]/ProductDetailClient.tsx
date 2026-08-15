@@ -114,7 +114,8 @@ export default function ProductDetailClient({
     }, 600);
   };
 
-  const specifications = initialProduct.specifications || {};
+  const rawSpecs = initialProduct.specifications;
+  const specifications = (rawSpecs && typeof rawSpecs === 'object' && !Array.isArray(rawSpecs)) ? rawSpecs : {};
   const hasSpecs = Object.keys(specifications).length > 0;
 
   return (

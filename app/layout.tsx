@@ -6,13 +6,13 @@ import { AppChrome } from "@/components/providers/AppChrome";
 
 import { JsonLd } from "@/components/seo/JsonLd";
 import PushNotificationManager from "@/components/notifications/PushNotificationManager";
+import { Toaster } from "sonner";
 
 const sansFont = Poppins({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800", "900"],
   variable: "--font-sans",
   display: "swap",
-  preload: false,
 });
 
 const serifFont = Cormorant_Garamond({
@@ -21,7 +21,6 @@ const serifFont = Cormorant_Garamond({
   style: ["italic"],
   variable: "--font-serif",
   display: "swap",
-  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -36,6 +35,15 @@ export const metadata: Metadata = {
     locale: "en_PK",
     type: "website",
   },
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/favicon.svg', type: 'image/svg+xml' }
+    ],
+    apple: [
+      { url: '/favicon.ico' }
+    ]
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -47,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body suppressHydrationWarning className="bg-[#faf9f6] text-[#1a1917] antialiased selection:bg-primary/20 selection:text-primary">
         <AppProvider>
           <PushNotificationManager />
+          <Toaster position="top-center" richColors theme="light" />
           {children}
           <AppChrome />
         </AppProvider>

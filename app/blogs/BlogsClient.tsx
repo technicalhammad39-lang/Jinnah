@@ -8,6 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Calendar, Tag, ChevronRight } from "lucide-react";
 import { getPublicUploadUrl } from "@/lib/utils";
+import { DustParticles } from "@/components/hero/DustParticles";
 
 export default function BlogsClient({ initialBlogs = [] }: { initialBlogs: any[] }) {
   const [blogs, setBlogs] = useState<any[]>(initialBlogs);
@@ -21,10 +22,26 @@ export default function BlogsClient({ initialBlogs = [] }: { initialBlogs: any[]
 
       <main className="flex-1 pt-24 pb-24">
         {/* HERO SECTION */}
-        <section className="relative px-6 py-12 md:py-16 max-w-[1740px] mx-auto text-center space-y-6 overflow-hidden">
-          {/* Side Glows */}
-          <div className="absolute top-1/2 left-0 md:left-10 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px] pointer-events-none -z-10" />
-          <div className="absolute top-1/2 right-0 md:right-10 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px] pointer-events-none -z-10" />
+        <section className="relative px-6 py-12 md:py-16 text-center overflow-hidden">
+          {/* Top Orange Dotted Gradient */}
+          <div 
+            className="absolute top-0 left-0 right-0 h-full pointer-events-none -z-10" 
+            style={{
+              backgroundImage: 'radial-gradient(circle at center, #FF6A2A 1.5px, transparent 1.5px)',
+              backgroundSize: '12px 12px',
+              opacity: 0.3,
+              maskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+            }}
+          />
+          <div className="noise-texture absolute inset-0 opacity-100 mix-blend-overlay pointer-events-none -z-10" />
+          <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
+            <DustParticles />
+          </div>
+          <div className="max-w-[1740px] mx-auto space-y-6 relative z-10">
+            {/* Side Glows */}
+            <div className="absolute top-1/2 left-0 md:left-10 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px] pointer-events-none -z-10" />
+            <div className="absolute top-1/2 right-0 md:right-10 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px] pointer-events-none -z-10" />
 
           {/* Left Shape */}
           <motion.div
@@ -51,6 +68,7 @@ export default function BlogsClient({ initialBlogs = [] }: { initialBlogs: any[]
           >
             Insights, architecture trends, and updates from the world of premium hardware.
           </motion.p>
+          </div>
         </section>
 
         {/* BLOGS GRID */}

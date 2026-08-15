@@ -140,3 +140,14 @@ export async function getGallery() {
     return [];
   }
 }
+
+export async function getPaymentMethods() {
+  try {
+    const q = query(collection(db, "payment-methods"), where("active", "==", true), orderBy("order", "asc"));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...serializeData(doc.data()) })) as any[];
+  } catch (error) {
+    console.error("Error fetching payment methods:", error);
+    return [];
+  }
+}

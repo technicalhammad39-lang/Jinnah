@@ -61,12 +61,19 @@ export default function GalleryClient({ initialGallery = [] }: { initialGallery:
 
   useEffect(() => {
     if (lightboxIndex !== null) {
+      const previousOverflow = document.body.style.overflow;
       document.body.style.overflow = "hidden";
+      // @ts-ignore
+      window.__lenis?.stop?.();
     } else {
       document.body.style.overflow = "auto";
+      // @ts-ignore
+      window.__lenis?.start?.();
     }
     return () => {
       document.body.style.overflow = "auto";
+      // @ts-ignore
+      window.__lenis?.start?.();
     };
   }, [lightboxIndex]);
 
@@ -76,10 +83,24 @@ export default function GalleryClient({ initialGallery = [] }: { initialGallery:
       
       <main className="flex-1 pt-24 pb-24">
         {/* HERO SECTION */}
-        <section className="relative px-6 py-12 md:py-16 max-w-[1740px] mx-auto text-center space-y-6 overflow-hidden">
-          {/* Side Glows */}
-          <div className="absolute top-1/2 left-0 md:left-10 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px] pointer-events-none -z-10" />
-          <div className="absolute top-1/2 right-0 md:right-10 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px] pointer-events-none -z-10" />
+        <section className="relative px-6 py-12 md:py-16 text-center overflow-hidden shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]">
+          {/* Grey Dotted Background */}
+          <div 
+            className="absolute inset-0 pointer-events-none -z-10" 
+            style={{
+              backgroundImage: 'radial-gradient(circle at center, #cbd5e1 1.5px, transparent 1.5px)',
+              backgroundSize: '12px 12px',
+              opacity: 0.5,
+            }}
+          />
+          <div className="noise-texture absolute inset-0 opacity-100 mix-blend-overlay pointer-events-none -z-10" />
+          <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
+            <DustParticles />
+          </div>
+          <div className="max-w-[1740px] mx-auto space-y-6 relative z-10">
+            {/* Side Glows */}
+            <div className="absolute top-1/2 left-0 md:left-10 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px] pointer-events-none -z-10" />
+            <div className="absolute top-1/2 right-0 md:right-10 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px] pointer-events-none -z-10" />
 
           {/* Left Shape */}
           <motion.div
@@ -116,6 +137,7 @@ export default function GalleryClient({ initialGallery = [] }: { initialGallery:
           >
             Explore our curated gallery of luxury installations, showcasing the seamless integration of our premium hardware in elite architectural spaces.
           </motion.p>
+          </div>
         </section>
 
         {/* CATEGORY FILTERS */}

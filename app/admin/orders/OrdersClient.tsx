@@ -39,6 +39,7 @@ type Order = {
     postalCode: string;
     notes: string;
   };
+  customerType?: string;
   paymentMethod: string;
   items: OrderItem[];
   subtotal: number;
@@ -271,6 +272,9 @@ export default function OrdersClient() {
                   <p className="font-semibold">{selectedOrder.customerInfo.firstName} {selectedOrder.customerInfo.lastName}</p>
                   <p className="text-sm">{selectedOrder.customerInfo.email}</p>
                   <p className="text-sm font-mono">{selectedOrder.customerInfo.phone}</p>
+                  <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-black/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-black/70">
+                    {selectedOrder.customerType === "account" ? "Account User" : "Guest Checkout"}
+                  </div>
                 </div>
                 <div>
                   <p className="text-sm">{selectedOrder.customerInfo.address}</p>

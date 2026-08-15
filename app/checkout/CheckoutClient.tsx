@@ -7,10 +7,14 @@ import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { ArrowLeft, ArrowRight, CheckCircle2, ChevronRight, Loader2, ShieldCheck, ShoppingBag } from "lucide-react";
 import { useCartState, useCartActions } from "@/context/AppContext";
+import { useAuth } from "@/lib/auth-context";
 import { getPublicUploadUrl } from "@/lib/utils";
+import { getPaymentMethods } from "@/lib/data-fetcher";
+import { toast } from "sonner";
 
 export default function CheckoutClient() {
   const router = useRouter();
+  const { user } = useAuth();
   const { cart, cartSubtotal } = useCartState();
   const { clearCart } = useCartActions();
 
@@ -30,6 +34,22 @@ export default function CheckoutClient() {
   });
 
   const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [availablePaymentMethods, setAvailablePaymentMethods] = useState<any[]>([]);
+
+  useEffect(() => {
+    getPaymentMethods().then((methods) => {
+      if (methods.length > 0) {
+        setAvailablePaymentMethods(methods);
+        setPaymentMethod(methods[0].id); // default to first active method
+      } else {
+        // Fallback defaults
+        setAvailablePaymentMethods([
+          { id: "cod", title: "Cash on Delivery", description: "Pay when you receive" },
+          { id: "bank", title: "Bank Transfer", description: "Direct to our account" },
+        ]);
+      }
+    });
+  }, []);
 
   if (orderSuccess) {
     return (
@@ -97,11 +117,21 @@ export default function CheckoutClient() {
       const { collection, addDoc, serverTimestamp } = await import("firebase/firestore");
       const { db } = await import("@/lib/firebase");
 
-      const newOrderId = Date.now().toString(36).toUpperCase();
+      const generateOrderId = () => {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let result = 'JH-';
+        for (let i = 0; i < 4; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+        result += '-';
+        for (let i = 0; i < 4; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+        return result;
+      };
+      
+      const newOrderId = generateOrderId();
       
       const orderData = {
         id: newOrderId,
         customerInfo: formData,
+        customerType: user ? "account" : "guest",
         paymentMethod,
         items: cart,
         subtotal: cartSubtotal,
@@ -126,9 +156,10 @@ Total: Rs. ${cartSubtotal.toLocaleString()}
 Status: Pending`;
       // We could use fetch to send an SMS or just let the DB handle it for now.
       
+      toast.success("Order placed successfully.");
     } catch (error) {
       console.error("Checkout error:", error);
-      alert("Something went wrong. Please try again.");
+      toast.error("Unable to place order. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -274,43 +305,27 @@ Status: Pending`;
               <section>
                 <h2 className="mb-5 text-xl font-bold text-foreground">Payment Method</h2>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <label
-                    className={`flex cursor-pointer items-center gap-4 rounded-xl border-2 p-4 transition-all ${
-                      paymentMethod === "cod" ? "border-primary bg-primary/5" : "border-black/5 bg-white hover:border-black/15"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="cod"
-                      checked={paymentMethod === "cod"}
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                      className="h-5 w-5 cursor-pointer accent-primary"
-                    />
-                    <div>
-                      <h4 className="text-sm font-bold">Cash on Delivery</h4>
-                      <p className="text-xs text-muted-foreground">Pay when you receive</p>
-                    </div>
-                  </label>
-                  
-                  <label
-                    className={`flex cursor-pointer items-center gap-4 rounded-xl border-2 p-4 transition-all ${
-                      paymentMethod === "bank" ? "border-primary bg-primary/5" : "border-black/5 bg-white hover:border-black/15"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="bank"
-                      checked={paymentMethod === "bank"}
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                      className="h-5 w-5 cursor-pointer accent-primary"
-                    />
-                    <div>
-                      <h4 className="text-sm font-bold">Bank Transfer</h4>
-                      <p className="text-xs text-muted-foreground">Direct to our account</p>
-                    </div>
-                  </label>
+                  {availablePaymentMethods.map((method) => (
+                    <label
+                      key={method.id}
+                      className={`flex cursor-pointer items-center gap-4 rounded-xl border-2 p-4 transition-all ${
+                        paymentMethod === method.id ? "border-primary bg-primary/5" : "border-black/5 bg-white hover:border-black/15"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value={method.id}
+                        checked={paymentMethod === method.id}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                        className="h-5 w-5 cursor-pointer accent-primary"
+                      />
+                      <div>
+                        <h4 className="text-sm font-bold">{method.title}</h4>
+                        <p className="text-xs text-muted-foreground">{method.description}</p>
+                      </div>
+                    </label>
+                  ))}
                 </div>
               </section>
             </form>

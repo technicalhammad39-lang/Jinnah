@@ -70,12 +70,12 @@ export function AnimatedMarqueeHero({
   });
 
   // Scroll Exit Animation (Mapped 0 to 0.8)
-  const contentY = useTransform(scrollYProgress, [0, 0.3, 0.6], [0, 0, 0]);
+  const contentY = useTransform(scrollYProgress, [0, 0.3, 0.6], [0, -50, -100]);
   const contentScale = useTransform(scrollYProgress, [0, 0.3, 0.6], [1, 1.05, 1.15]);
   const contentOpacity = useTransform(scrollYProgress, [0, 0.3, 0.6], [1, 0.9, 0]); 
   const contentBlur = useTransform(scrollYProgress, [0, 0.3, 0.6], ["blur(0px)", "blur(8px)", "blur(16px)"]);
   
-  const showcaseY = useTransform(scrollYProgress, [0, 1], [0, 200]);
+  const showcaseY = useTransform(scrollYProgress, [0, 1], [0, -150]);
   const imageScrollOpacity = useTransform(scrollYProgress, [0.3, 1], [1, 0]);
   const backgroundY = useTransform(scrollYProgress, [0, 1], [0, -18]);
   

@@ -102,6 +102,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
       setIsAdding(false);
       setIsSuccess(true);
       addToCart(product, 1, product.colors?.[0] || "", selectedSize || undefined);
+      setCartOpen(true);
 
       successTimerRef.current = window.setTimeout(() => {
         setIsSuccess(false);
@@ -113,6 +114,13 @@ function ProductCardComponent({ product }: ProductCardProps) {
     event.stopPropagation();
     event.preventDefault();
     setQuickViewProduct(product);
+  };
+
+  const handleBuyNow = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    event.preventDefault();
+    addToCart(product, 1, product.colors?.[0] || "", selectedSize || undefined);
+    router.push('/checkout');
   };
 
   const handleCardClick = () => {
@@ -282,12 +290,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
 
         <div className="flex items-center gap-2">
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              handleAddToCart(e);
-              setTimeout(() => setCartOpen(true), 100);
-            }}
+            onClick={handleBuyNow}
             disabled={isAdding || isSuccess}
             className={`flex-1 flex cursor-pointer items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
               isSuccess
