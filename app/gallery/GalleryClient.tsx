@@ -7,6 +7,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import { X, ZoomIn, ChevronLeft, ChevronRight } from "lucide-react";
 import { getPublicUploadUrl } from "@/lib/utils";
+import { DustParticles } from "@/components/hero/DustParticles";
 
 // Mock Gallery Data
 const GALLERY_CATEGORIES = [
