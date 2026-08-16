@@ -34,14 +34,14 @@ export default function CategoriesPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              className="space-y-6 max-w-3xl mx-auto mb-8 md:mb-12"
+              className="space-y-6 w-full max-w-5xl mx-auto mb-4 md:mb-6"
             >
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter text-[#1a1917] leading-[0.95]">
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter text-[#1a1917] leading-[0.95] md:whitespace-nowrap">
                 Precision{" "}
                 <span className="text-primary font-stylish normal-case text-[1.1em]">Collections</span>
               </h1>
               
-              <p className="text-base md:text-lg text-muted-foreground font-medium leading-relaxed max-w-xl mx-auto">
+              <p className="text-base md:text-lg text-muted-foreground font-medium leading-relaxed max-w-xl mx-auto whitespace-normal">
                 Discover our meticulously organized catalog of architectural hardware. From mechanical masterpieces to smart security solutions, find exactly what your project demands.
               </p>
             </motion.div>
@@ -52,7 +52,7 @@ export default function CategoriesPage() {
             initial={{ opacity: 0, scale: 0.95, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="relative w-full h-[400px] sm:h-[500px] md:h-[600px] lg:h-[800px] z-10"
+            className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] z-10 mt-0"
           >
             <Image 
               src="/catos.svg" 
