@@ -151,3 +151,14 @@ export async function getPaymentMethods() {
     return [];
   }
 }
+
+export async function getReviews() {
+  try {
+    const q = query(collection(db, "reviews"), where("active", "==", true), orderBy("order", "asc"));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...serializeData(doc.data()) })) as any[];
+  } catch (error) {
+    console.error("Error fetching reviews:", error);
+    return [];
+  }
+}

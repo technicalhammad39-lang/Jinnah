@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { getPublicUploadUrl } from "@/lib/utils";
 import Image from "next/image";
+import { toast } from "sonner";
 
 type OrderItem = {
   product: any;
@@ -112,9 +113,10 @@ export default function OrdersClient() {
       if (selectedOrder?.dbKey === dbKey) {
         setSelectedOrder({ ...selectedOrder, status: newStatus as any });
       }
+      toast.success("Order status updated successfully.");
     } catch (error) {
       console.error("Error updating status:", error);
-      alert("Failed to update order status.");
+      toast.error("Failed to update order status.");
     }
   };
 
@@ -126,9 +128,10 @@ export default function OrdersClient() {
       if (selectedOrder?.dbKey === dbKey) {
         setSelectedOrder(null);
       }
+      toast.success("Order deleted successfully.");
     } catch (error) {
       console.error("Error deleting order:", error);
-      alert("Failed to delete order.");
+      toast.error("Failed to delete order.");
     }
   };
 

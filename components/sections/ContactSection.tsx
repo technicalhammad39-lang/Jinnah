@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import {
   Send, Phone, MessageSquare, Clock, MapPin, CheckCircle2, Loader2, ArrowRight
 } from "lucide-react";
+import { toast } from "sonner";
 
 export function ContactSection() {
   const [formData, setFormData] = useState({
@@ -34,7 +35,7 @@ export function ContactSection() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) {
-      alert("Please fill in all required fields (Name, Email, Message).");
+      toast.error("Please fill in all required fields (Name, Email, Message).");
       return;
     }
 

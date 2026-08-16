@@ -10,6 +10,7 @@ import { BrandsSection } from "@/components/sections/BrandsSection";
 import { WhyChooseUs } from "@/components/sections/WhyChooseUs";
 import { AboutSection } from "@/components/sections/AboutSection";
 import { GallerySection } from "@/components/sections/GallerySection";
+import { ReviewsCarousel } from "@/components/sections/ReviewsCarousel";
 import { ContactSection } from "@/components/sections/ContactSection";
 import { AgencyCredit } from "@/components/sections/AgencyCredit";
 import { Footer } from "@/components/navigation/Footer";
@@ -103,6 +104,9 @@ export default async function Home() {
 
       {/* 9. Custom masonry visual gallery */}
       <GallerySection />
+
+      {/* 10. Reviews Carousel */}
+      <ReviewsCarousel />
 
       {/* 11. Dynamic form contacts desk */}
       <ContactSection />

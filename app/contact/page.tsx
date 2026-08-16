@@ -8,6 +8,7 @@ import { MapPin, Phone, Mail, Clock, Send, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
 import { addDoc, collection } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { toast } from "sonner";
 
 export default function ContactPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -28,7 +29,7 @@ export default function ContactPage() {
       setTimeout(() => setIsSubmitted(false), 5000);
     } catch (err) {
       console.error(err);
-      alert("Something went wrong. Please try again.");
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

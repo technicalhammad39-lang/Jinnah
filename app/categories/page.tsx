@@ -3,7 +3,7 @@
 import { Navbar } from "@/components/navigation/Navbar";
 import { Footer } from "@/components/navigation/Footer";
 import Image from "next/image";
-import { motion, useScroll, useTransform } from "motion/react";
+import { motion } from "motion/react";
 import { useRef } from "react";
 import { ArrowRight, Box, Layers, Hammer, ShieldCheck } from "lucide-react";
 import Link from "next/link";
@@ -18,61 +18,50 @@ export default function CategoriesPage() {
     { title: "Industrial", icon: Hammer, desc: "Heavy-duty machinery and power tools for construction. Built for extreme conditions, providing uncompromising reliable performance and safety for large-scale industrial projects." },
   ];
 
-  const heroRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const svgX = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-
   return (
     <div className="relative min-h-screen bg-[#faf9f6] flex flex-col overflow-x-hidden">
       <Navbar />
       
       <main className="flex-1 pt-24 pb-20">
         {/* HERO WITH SVG INTEGRATION */}
-        <section ref={heroRef} className="relative w-full overflow-hidden px-6 py-12 md:py-16">
-          {/* SVG Graphic on the right */}
-          <div className="absolute inset-0 z-0 pointer-events-none">
-            <div className="max-w-[1740px] mx-auto h-full relative">
-              <div className="absolute inset-y-0 right-0 w-full md:w-[50%] flex items-center justify-end">
-                <motion.div 
-                  style={{ x: svgX }}
-                  className="relative w-full h-[80%] md:h-full opacity-100 scale-100 md:scale-90 origin-right lg:mr-12"
-                >
-                  <Image 
-                    src="/catos.svg" 
-                    alt="Categories Background" 
-                    fill 
-                    className="object-contain object-right" 
-                    priority
-                  />
-                </motion.div>
-              </div>
-            </div>
-          </div>
-
-          <div className="relative z-10 max-w-[1740px] mx-auto">
-            <div className="w-full lg:w-[45%] space-y-6">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6 }}
-              >
-                <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-foreground leading-[0.95]">
-                  Precision <br />
-                  <span className="text-primary font-stylish normal-case text-[1.1em]">Collections</span>
-                </h1>
-              </motion.div>
-              <motion.p
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                className="text-sm md:text-base text-muted-foreground max-w-md font-medium"
-              >
+        <section className="relative w-full overflow-hidden px-6 py-16 md:py-24">
+          {/* Decorative Glows */}
+          <div className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(255,106,42,0.08)_0%,transparent_70%)] pointer-events-none rounded-full blur-3xl" />
+          <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(0,0,0,0.05)_0%,transparent_70%)] pointer-events-none rounded-full blur-3xl" />
+          
+          <div className="relative z-10 max-w-[1400px] mx-auto text-center flex flex-col items-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              className="space-y-6 max-w-3xl mx-auto mb-16"
+            >
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter text-[#1a1917] leading-[0.95]">
+                Precision <br className="hidden md:block" />
+                <span className="text-primary font-stylish normal-case text-[1.1em]">Collections</span>
+              </h1>
+              
+              <p className="text-base md:text-lg text-muted-foreground font-medium leading-relaxed max-w-xl mx-auto">
                 Discover our meticulously organized catalog of architectural hardware. From mechanical masterpieces to smart security solutions, find exactly what your project demands.
-              </motion.p>
-            </div>
+              </p>
+            </motion.div>
+
+            {/* Central SVG Graphic */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              className="relative w-full max-w-[900px] mx-auto h-[400px] md:h-[500px] lg:h-[600px]"
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#faf9f6] z-10 pointer-events-none" />
+              <Image 
+                src="/catos.svg" 
+                alt="Categories Hero Architecture" 
+                fill 
+                className="object-contain object-bottom drop-shadow-2xl" 
+                priority
+              />
+            </motion.div>
           </div>
         </section>
 
