@@ -381,8 +381,14 @@ export default function CheckoutClient() {
                             value={method.id}
                             checked={paymentMethod === method.id}
                             onChange={(e) => setPaymentMethod(e.target.value)}
-                            className="h-5 w-5 cursor-pointer accent-primary"
+                            className="h-5 w-5 cursor-pointer accent-primary shrink-0"
                           />
+                          {method.logo && (
+                            <div className="h-10 w-12 flex-shrink-0 bg-white rounded border border-black/10 overflow-hidden flex items-center justify-center p-1">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={method.logo.startsWith('http') ? method.logo : `/uploads/${method.logo}`} alt={method.title} className="w-full h-full object-contain" />
+                            </div>
+                          )}
                           <div>
                             <h4 className="text-sm font-bold">{method.title}</h4>
                             <p className="text-xs text-muted-foreground">{method.description}</p>

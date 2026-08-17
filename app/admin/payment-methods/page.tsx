@@ -16,7 +16,8 @@ export default function PaymentMethodsAdmin() {
   const [loading, setLoading] = useState(true);
   
   const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({ id: "", title: "", description: "", active: true, order: 0 });
+  const [editForm, setEditForm] = useState({ id: "", title: "", description: "", logo: "", active: true, order: 0 });
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) router.push("/admin/login");
@@ -45,6 +46,7 @@ export default function PaymentMethodsAdmin() {
         await updateDoc(doc(db, "payment-methods", editForm.id), {
           title: editForm.title,
           description: editForm.description,
+          logo: editForm.logo || "",
           active: editForm.active,
           order: Number(editForm.order)
         });
@@ -53,6 +55,7 @@ export default function PaymentMethodsAdmin() {
         await addDoc(collection(db, "payment-methods"), {
           title: editForm.title,
           description: editForm.description,
+          logo: editForm.logo || "",
           active: editForm.active,
           order: Number(editForm.order)
         });
@@ -86,6 +89,37 @@ export default function PaymentMethodsAdmin() {
     }
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    setUploading(true);
+    
+    try {
+      const file = e.target.files[0];
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "payments");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Upload failed");
+      }
+      const data = await res.json();
+      
+      setEditForm(prev => ({ ...prev, logo: data.url }));
+      toast.success("Logo uploaded");
+    } catch (error) {
+      console.error("Error uploading logo:", error);
+      toast.error("Failed to upload logo");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   if (authLoading || loading) return <div className="p-10 flex justify-center"><Loader2 className="animate-spin w-8 h-8 text-[#FF6A2A]" /></div>;
 
   return (
@@ -96,7 +130,7 @@ export default function PaymentMethodsAdmin() {
           <p className="text-sm text-muted-foreground">Manage checkout payment options</p>
         </div>
         <button 
-          onClick={() => { setEditForm({ id: "", title: "", description: "", active: true, order: methods.length }); setIsEditing(true); }}
+          onClick={() => { setEditForm({ id: "", title: "", description: "", logo: "", active: true, order: methods.length }); setIsEditing(true); }}
           className="bg-[#FF6A2A] hover:bg-[#e5591c] text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 text-sm"
         >
           <Plus className="w-4 h-4" /> Add Method
@@ -109,6 +143,30 @@ export default function PaymentMethodsAdmin() {
           <div>
             <label className="text-xs font-bold text-muted-foreground uppercase">Title (e.g. Cash on Delivery)</label>
             <input required type="text" value={editForm.title} onChange={e => setEditForm({...editForm, title: e.target.value})} className="w-full mt-1 border rounded-lg p-2" />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-muted-foreground uppercase">Logo URL / Image</label>
+            <div className="flex gap-4 items-center mt-1">
+              {editForm.logo ? (
+                <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-black/10 bg-white group flex-shrink-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={editForm.logo.startsWith('http') ? editForm.logo : `/uploads/${editForm.logo}`} alt="Logo" className="w-full h-full object-contain p-1" />
+                  <button 
+                    type="button"
+                    onClick={() => setEditForm({...editForm, logo: ""})}
+                    className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Trash2 className="w-5 h-5 text-red-400" />
+                  </button>
+                </div>
+              ) : (
+                <label className="w-16 h-16 rounded-xl border-2 border-dashed border-black/20 flex flex-col items-center justify-center cursor-pointer hover:border-[#FF6A2A] transition-colors flex-shrink-0">
+                  {uploading ? <Loader2 className="w-5 h-5 animate-spin text-[#FF6A2A]" /> : <div className="text-[10px] text-muted-foreground font-bold uppercase text-center leading-tight">Upload<br/>Logo</div>}
+                  <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
+                </label>
+              )}
+              <input type="text" value={editForm.logo} onChange={e => setEditForm({...editForm, logo: e.target.value})} className="w-full border rounded-lg p-2 text-sm" placeholder="Or paste image URL" />
+            </div>
           </div>
           <div>
             <label className="text-xs font-bold text-muted-foreground uppercase">Description</label>
@@ -144,7 +202,15 @@ export default function PaymentMethodsAdmin() {
             <tbody>
               {methods.map(method => (
                 <tr key={method.id} className="border-b border-black/5 last:border-0 hover:bg-black/[0.02]">
-                  <td className="p-4 font-bold">{method.title}</td>
+                  <td className="p-4 font-bold flex items-center gap-3">
+                    {method.logo && (
+                      <div className="w-10 h-10 bg-white border rounded-lg flex items-center justify-center p-1 overflow-hidden shrink-0">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={method.logo.startsWith('http') ? method.logo : `/uploads/${method.logo}`} alt="" className="w-full h-full object-contain" />
+                      </div>
+                    )}
+                    {method.title}
+                  </td>
                   <td className="p-4 text-sm text-muted-foreground">{method.description}</td>
                   <td className="p-4 text-sm font-mono">{method.order}</td>
                   <td className="p-4">
