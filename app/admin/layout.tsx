@@ -18,7 +18,10 @@ import {
   X,
   Store,
   ShoppingCart,
-  CreditCard
+  CreditCard,
+  Users,
+  Star,
+  FolderTree
 } from "lucide-react";
 import Image from "next/image";
 
@@ -27,8 +30,11 @@ const sidebarLinks = [
   { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
   { name: "Products", href: "/admin/products", icon: Package },
   { name: "Brands", href: "/admin/brands", icon: Tags },
+  { name: "Categories", href: "/admin/categories", icon: FolderTree },
   { name: "Blogs", href: "/admin/blogs", icon: FileText },
   { name: "Gallery", href: "/admin/gallery", icon: ImageIcon },
+  { name: "About Profiles", href: "/admin/leadership", icon: Users },
+  { name: "Reviews", href: "/admin/reviews", icon: Star },
   { name: "Messages", href: "/admin/messages", icon: MessageSquare },
   { name: "Notifications", href: "/admin/notifications", icon: Bell },
   { name: "Payments", href: "/admin/payment-methods", icon: CreditCard },
