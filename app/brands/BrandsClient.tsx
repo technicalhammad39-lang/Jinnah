@@ -27,8 +27,8 @@ export default function BrandsClient({ initialBrands = [] }: { initialBrands: an
         {/* HERO SECTION */}
         <section className="relative px-6 py-24 md:py-36 overflow-hidden flex items-center justify-center min-h-[50vh] bg-white">
           {/* Globe Background */}
-          <div className="absolute inset-0 z-0 pointer-events-none opacity-50 flex items-center justify-center">
-            <div className="relative w-full max-w-6xl h-[150%] md:h-[120%]">
+          <div className="absolute inset-0 z-0 pointer-events-none opacity-30 md:opacity-50 flex items-center justify-center">
+            <div className="relative w-[150%] sm:w-full max-w-6xl h-[100%] md:h-[120%]">
               <Image 
                 src="/glob.png" 
                 alt="Global Brands Background" 

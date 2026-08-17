@@ -173,7 +173,7 @@ export default function ContactPage() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.6 }}
-              className="bg-white p-8 md:p-12 rounded-[32px] border border-black/5 shadow-xl h-full flex flex-col"
+              className="bg-white p-6 md:p-12 rounded-[32px] border border-black/5 shadow-xl h-full flex flex-col"
             >
               <div className="mb-8">
                 <h2 className="text-3xl font-black uppercase tracking-tight text-[#1a1917] mb-2">Send a Message</h2>

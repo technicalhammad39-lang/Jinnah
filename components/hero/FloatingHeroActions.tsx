@@ -231,30 +231,26 @@ export function FloatingHeroActions() {
   }, []);
 
   const expansionMode = useMemo<"none" | "all" | ActionId>(() => {
-    if (activeAction) {
-      return activeAction;
-    }
-
     if (canHover && isHovering) {
       return "all";
     }
-
+    if (activeAction) {
+      return activeAction;
+    }
     return "none";
-  }, [activeAction, canHover, isHovering]);
+  }, [canHover, isHovering, activeAction]);
 
   const isAnyExpanded = expansionMode !== "none";
 
-  const handleActionClick = (
-    event: ReactMouseEvent<HTMLAnchorElement>,
-    action: DockAction
-  ) => {
-    if (activeAction !== action.id) {
-      event.preventDefault();
-      setActiveAction(action.id);
-      return;
+  const handleActionClick = (event: ReactMouseEvent, action: DockAction) => {
+    if (!canHover) {
+      if (activeAction !== action.id) {
+        event.preventDefault();
+        setActiveAction(action.id);
+      } else {
+        setActiveAction(null);
+      }
     }
-
-    setActiveAction(null);
   };
 
   return (

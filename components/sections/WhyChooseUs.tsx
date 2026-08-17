@@ -158,19 +158,18 @@ export function WhyChooseUs() {
                       "border-white/10 shadow-[0_15px_40px_-15px_rgba(0,0,0,0.2),inset_0_1px_1px_rgba(255,255,255,0.02)]"
                     )}
                   >
-                    {/* Floating Luxury Icon Container (Orange/White) */}
                     <div 
                       className={cn(
                         "absolute top-0 left-8 -translate-y-1/2 w-[72px] h-[72px] rounded-[1.25rem] flex items-center justify-center transition-all duration-500",
                         "backdrop-blur-xl bg-gradient-to-br from-[#FF9A55] to-[#FF6A2A] border border-white/20",
                         isHovered 
-                          ? "shadow-[0_12px_30px_-8px_rgba(255,106,42,0.6),inset_0_1px_1px_rgba(255,255,255,0.4)]" 
+                          ? "shadow-[0_12px_30px_-8px_rgba(255,106,42,0.6),inset_0_1px_1px_rgba(255,255,255,0.4)] rotate-6 scale-110" 
                           : "shadow-[0_8px_20px_-6px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.3)]"
                       )}
                     >
                       <feature.icon className={cn(
                         "h-9 w-9 transition-all duration-500 text-white",
-                        isHovered ? "drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" : ""
+                        isHovered ? "drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] -rotate-12" : ""
                       )} />
                     </div>
                     

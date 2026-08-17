@@ -82,7 +82,7 @@ export default async function Home() {
               href="/shop"
               className="group inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#1a1917] px-7 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-md transition-all duration-300 hover:bg-primary hover:shadow-[0_0_15px_rgba(255,90,31,0.4)]"
             >
-              <span>View All Catalog Innovations</span>
+              <span>View Products</span>
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1.5" />
             </Link>
             <div className="h-[2px] w-16 sm:w-32 md:w-48 bg-gradient-to-r from-primary via-primary/50 to-transparent rounded-full shadow-[0_0_8px_rgba(255,90,31,0.5)] opacity-80" />

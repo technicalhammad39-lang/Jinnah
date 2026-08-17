@@ -102,7 +102,7 @@ export function Navbar() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform ${
-          isElevated ? "py-3 px-3 sm:px-4 md:px-6" : "py-5 px-3 sm:px-4 md:px-6"
+          isElevated ? "pt-2 pb-2 px-3 sm:px-4 md:px-6 md:pt-3 md:pb-3" : "pt-3 pb-3 px-3 sm:px-4 md:px-6 md:pt-5 md:pb-5"
         }`}
       >
         <div

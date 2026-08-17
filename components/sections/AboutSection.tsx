@@ -91,9 +91,6 @@ export function AboutSection() {
           {/* Right: Narrative & Info Cards */}
           <div className="lg:col-span-6 space-y-10 text-left">
             <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                <span>Our Heritage</span>
-              </div>
               <h2 className="text-3xl md:text-5xl font-extrabold tracking-tighter text-[#1a1917] leading-[0.95]">
                 Premium Hardware <br />
                 <span className="text-primary font-stylish text-[1.1em]">Built On Trust</span>
@@ -110,7 +107,7 @@ export function AboutSection() {
             </div>
 
             {/* Info Cards Row (Replacing Fake Stats) */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 py-8 border-y border-black/[0.06]">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 py-8 border-y border-black/[0.06]">
               {infoCards.map((card) => {
                 const CardIcon = card.icon;
                 return (

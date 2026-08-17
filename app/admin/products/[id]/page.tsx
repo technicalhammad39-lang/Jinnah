@@ -1,23 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { doc, getDoc, setDoc, addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { useState, useEffect, use } from "react";
+import { doc, getDoc, setDoc, addDoc, collection, serverTimestamp, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, Save, Loader2, UploadCloud, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
 import { getPublicUploadUrl } from "@/lib/utils";
 
-export default function ProductEditor() {
-  const params = useParams();
+export default function ProductEditor({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  const isNew = params.id === "new";
+  const { id } = use(params);
+  const isNew = id === "new";
 
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -27,26 +28,51 @@ export default function ProductEditor() {
     description: "",
     shortDescription: "",
     price: 0,
-    discountPrice: 0,
+    originalPrice: 0,
     currency: "PKR",
     images: [] as string[],
     featured: false,
     bestSeller: false,
-    availability: "in-stock",
+    stockQuantity: 10,
     dimensions: "",
     weight: "",
-    shippingClass: ""
+    shippingClass: "",
+    features: "",
+    allowedPaymentMethods: ["ALL"]
   });
+
+  useEffect(() => {
+    // Fetch payment methods for the checkboxes
+    async function fetchPaymentMethods() {
+      try {
+        const q = query(collection(db, "payment-methods"), orderBy("order", "asc"));
+        const snap = await getDocs(q);
+        setPaymentMethods(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      } catch (err) {
+        console.error("Error fetching payment methods", err);
+      }
+    }
+    fetchPaymentMethods();
+  }, []);
 
   useEffect(() => {
     if (isNew) return;
     
     async function fetchProduct() {
       try {
-        const docRef = doc(db, "products", params.id as string);
+        const docRef = doc(db, "products", id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setFormData({ ...formData, ...docSnap.data() } as any);
+          const data = docSnap.data();
+          setFormData({
+            ...formData,
+            ...data,
+            price: data.price || 0,
+            originalPrice: data.originalPrice || 0,
+            stockQuantity: data.stockQuantity !== undefined ? data.stockQuantity : (data.availability === "in-stock" ? 50 : 0),
+            features: Array.isArray(data.features) ? data.features.join("\n") : (data.features || ""),
+            allowedPaymentMethods: data.allowedPaymentMethods || ["ALL"]
+          } as any);
         } else {
           toast.error("Product not found");
           router.push("/admin/products");
@@ -59,7 +85,7 @@ export default function ProductEditor() {
       }
     }
     fetchProduct();
-  }, [params.id, isNew, router]);
+  }, [id, isNew, router]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -67,13 +93,13 @@ export default function ProductEditor() {
     
     try {
       const file = e.target.files[0];
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("folder", "products");
+      const formDataUpload = new FormData();
+      formDataUpload.append("file", file);
+      formDataUpload.append("folder", "products");
 
       const res = await fetch("/api/upload", {
         method: "POST",
-        body: formData,
+        body: formDataUpload,
       });
 
       if (!res.ok) {
@@ -99,15 +125,51 @@ export default function ProductEditor() {
     }));
   };
 
+  const handlePaymentMethodToggle = (methodId: string) => {
+    setFormData(prev => {
+      let current = [...prev.allowedPaymentMethods];
+      
+      if (methodId === "ALL") {
+        if (!current.includes("ALL")) return { ...prev, allowedPaymentMethods: ["ALL"] };
+        return prev;
+      }
+      
+      // If ALL was selected, clear it and select this one
+      if (current.includes("ALL")) {
+        return { ...prev, allowedPaymentMethods: [methodId] };
+      }
+      
+      if (current.includes(methodId)) {
+        current = current.filter(id => id !== methodId);
+        // If empty, revert to ALL
+        if (current.length === 0) current = ["ALL"];
+      } else {
+        current.push(methodId);
+      }
+      
+      return { ...prev, allowedPaymentMethods: current };
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
 
     try {
+      const featuresArray = formData.features.split("\n").filter(f => f.trim() !== "");
+      
+      let discount = 0;
+      if (formData.originalPrice > formData.price && formData.price > 0) {
+        discount = Math.round(((formData.originalPrice - formData.price) / formData.originalPrice) * 100);
+      }
+
       const dataToSave = {
         ...formData,
         price: Number(formData.price),
-        discountPrice: Number(formData.discountPrice),
+        originalPrice: Number(formData.originalPrice),
+        stockQuantity: Number(formData.stockQuantity),
+        discount, // Auto-calculated percentage
+        features: featuresArray,
         updatedAt: serverTimestamp()
       };
 
@@ -118,7 +180,7 @@ export default function ProductEditor() {
         });
         toast.success("Product created successfully");
       } else {
-        await setDoc(doc(db, "products", params.id as string), dataToSave, { merge: true });
+        await setDoc(doc(db, "products", id), dataToSave, { merge: true });
         toast.success("Product updated successfully");
       }
       router.push("/admin/products");
@@ -139,7 +201,7 @@ export default function ProductEditor() {
   }
 
   return (
-    <div className="max-w-4xl space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="max-w-4xl space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
       <div className="flex items-center gap-4">
         <Link 
           href="/admin/products"
@@ -154,115 +216,184 @@ export default function ProductEditor() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-white border border-[#1a1917]/5 rounded-2xl p-6 shadow-xl space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Product Name</label>
-              <input 
-                type="text" 
-                required
-                value={formData.name}
-                onChange={e => setFormData({...formData, name: e.target.value})}
-                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+        <div className="bg-white border border-[#1a1917]/5 rounded-2xl p-6 shadow-xl space-y-8">
+          
+          {/* BASIC INFO */}
+          <div>
+            <h2 className="text-lg font-bold mb-4 border-b pb-2">Basic Info</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Product Name</label>
+                <input 
+                  type="text" 
+                  required
+                  value={formData.name}
+                  onChange={e => setFormData({...formData, name: e.target.value})}
+                  className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Slug (URL-friendly)</label>
+                <input 
+                  type="text" 
+                  required
+                  value={formData.slug}
+                  onChange={e => setFormData({...formData, slug: e.target.value})}
+                  className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Category</label>
+                <input 
+                  type="text" 
+                  required
+                  value={formData.category}
+                  onChange={e => setFormData({...formData, category: e.target.value})}
+                  className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Brand</label>
+                <input 
+                  type="text" 
+                  value={formData.brand}
+                  onChange={e => setFormData({...formData, brand: e.target.value})}
+                  className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* PRICING & INVENTORY */}
+          <div>
+            <h2 className="text-lg font-bold mb-4 border-b pb-2">Pricing & Inventory</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Selling Price (Rs.)</label>
+                <input 
+                  type="number" 
+                  required
+                  value={formData.price}
+                  onChange={e => setFormData({...formData, price: Number(e.target.value)})}
+                  className="w-full bg-white border border-emerald-200 focus:border-emerald-500 ring-1 ring-emerald-100 rounded-xl py-3 px-4 text-emerald-800 font-bold focus:outline-none transition-colors"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Original Price (Rs.)</label>
+                <input 
+                  type="number" 
+                  value={formData.originalPrice}
+                  onChange={e => setFormData({...formData, originalPrice: Number(e.target.value)})}
+                  className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-muted-foreground focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                  placeholder="Leave 0 if no discount"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Stock Quantity</label>
+                <input 
+                  type="number" 
+                  required
+                  value={formData.stockQuantity}
+                  onChange={e => setFormData({...formData, stockQuantity: Number(e.target.value)})}
+                  className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* PAYMENT METHODS */}
+          <div>
+            <h2 className="text-lg font-bold mb-4 border-b pb-2">Allowed Payment Methods</h2>
+            <div className="flex flex-wrap gap-4">
+              <label className={`cursor-pointer px-4 py-2 rounded-xl border ${formData.allowedPaymentMethods.includes("ALL") ? 'border-primary bg-primary/10 text-primary font-bold' : 'border-black/10'}`}>
+                <input 
+                  type="checkbox" 
+                  className="hidden" 
+                  checked={formData.allowedPaymentMethods.includes("ALL")}
+                  onChange={() => handlePaymentMethodToggle("ALL")}
+                />
+                All Methods
+              </label>
+              {paymentMethods.map(method => (
+                <label key={method.id} className={`cursor-pointer px-4 py-2 rounded-xl border ${!formData.allowedPaymentMethods.includes("ALL") && formData.allowedPaymentMethods.includes(method.id) ? 'border-primary bg-primary/10 text-primary font-bold' : 'border-black/10'}`}>
+                  <input 
+                    type="checkbox" 
+                    className="hidden" 
+                    checked={!formData.allowedPaymentMethods.includes("ALL") && formData.allowedPaymentMethods.includes(method.id)}
+                    onChange={() => handlePaymentMethodToggle(method.id)}
+                  />
+                  {method.title}
+                </label>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">Restrict which payment methods are available during checkout for this specific product (e.g. Bank Transfer only for expensive items).</p>
+          </div>
+
+          {/* SPECIFICATIONS & FEATURES */}
+          <div>
+            <h2 className="text-lg font-bold mb-4 border-b pb-2">Details</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Dimensions</label>
+                <input 
+                  type="text" 
+                  value={formData.dimensions}
+                  onChange={e => setFormData({...formData, dimensions: e.target.value})}
+                  className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Weight</label>
+                <input 
+                  type="text" 
+                  value={formData.weight}
+                  onChange={e => setFormData({...formData, weight: e.target.value})}
+                  className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Shipping Class</label>
+                <input 
+                  type="text" 
+                  value={formData.shippingClass}
+                  onChange={e => setFormData({...formData, shippingClass: e.target.value})}
+                  className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2 mb-6">
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Features (One per line)</label>
+              <textarea 
+                value={formData.features}
+                onChange={e => setFormData({...formData, features: e.target.value})}
+                placeholder="- High strength steel&#10;- Anti-corrosion coating"
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors h-24"
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Slug (URL-friendly)</label>
-              <input 
-                type="text" 
-                required
-                value={formData.slug}
-                onChange={e => setFormData({...formData, slug: e.target.value})}
-                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+
+            <div className="space-y-2 mb-6">
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Short Description</label>
+              <textarea 
+                value={formData.shortDescription}
+                onChange={e => setFormData({...formData, shortDescription: e.target.value})}
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors h-24 resize-none"
               />
             </div>
+
             <div className="space-y-2">
-              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Category</label>
-              <input 
-                type="text" 
-                required
-                value={formData.category}
-                onChange={e => setFormData({...formData, category: e.target.value})}
-                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Brand</label>
-              <input 
-                type="text" 
-                value={formData.brand}
-                onChange={e => setFormData({...formData, brand: e.target.value})}
-                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Price</label>
-              <input 
-                type="number" 
-                required
-                value={formData.price}
-                onChange={e => setFormData({...formData, price: Number(e.target.value)})}
-                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Discount Price (0 for none)</label>
-              <input 
-                type="number" 
-                value={formData.discountPrice}
-                onChange={e => setFormData({...formData, discountPrice: Number(e.target.value)})}
-                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Dimensions</label>
-              <input 
-                type="text" 
-                value={formData.dimensions}
-                onChange={e => setFormData({...formData, dimensions: e.target.value})}
-                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Weight</label>
-              <input 
-                type="text" 
-                value={formData.weight}
-                onChange={e => setFormData({...formData, weight: e.target.value})}
-                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Shipping Class</label>
-              <input 
-                type="text" 
-                value={formData.shippingClass}
-                onChange={e => setFormData({...formData, shippingClass: e.target.value})}
-                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Detailed Description</label>
+              <textarea 
+                value={formData.description}
+                onChange={e => setFormData({...formData, description: e.target.value})}
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors h-48"
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Short Description</label>
-            <textarea 
-              value={formData.shortDescription}
-              onChange={e => setFormData({...formData, shortDescription: e.target.value})}
-              className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors h-24 resize-none"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Detailed Description</label>
-            <textarea 
-              value={formData.description}
-              onChange={e => setFormData({...formData, description: e.target.value})}
-              className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors h-48"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Product Images</label>
+          {/* IMAGES */}
+          <div>
+            <h2 className="text-lg font-bold mb-4 border-b pb-2">Images</h2>
             <div className="flex gap-4 flex-wrap">
               {formData.images.map((img, i) => (
                 <div key={i} className="relative w-24 h-24 rounded-xl overflow-hidden border border-[#1a1917]/10 group">
@@ -303,21 +434,10 @@ export default function ProductEditor() {
               />
               <span className="text-sm font-medium text-[#1a1917]/80">Best Seller</span>
             </label>
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-[#1a1917]/80">Availability:</span>
-              <select 
-                value={formData.availability}
-                onChange={e => setFormData({...formData, availability: e.target.value})}
-                className="bg-white border border-[#1a1917]/10 rounded-lg py-1.5 px-3 text-[#1a1917] text-sm focus:outline-none focus:border-[#FF6A2A]"
-              >
-                <option value="in-stock">In Stock</option>
-                <option value="out-of-stock">Out of Stock</option>
-              </select>
-            </div>
           </div>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end pb-8">
           <button
             type="submit"
             disabled={saving || uploading}

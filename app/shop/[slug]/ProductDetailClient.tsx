@@ -122,7 +122,7 @@ export default function ProductDetailClient({
     <div className="min-h-screen flex flex-col bg-[#faf9f6] pt-28">
       <Navbar />
       
-      <main className="flex-grow max-w-[1440px] mx-auto w-full px-6 py-8">
+      <main className="flex-grow max-w-[1440px] mx-auto w-full px-6 py-8 pb-24 sm:pb-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground mb-8">
           <Link href="/" className="hover:text-primary">Home</Link>
@@ -194,9 +194,15 @@ export default function ProductDetailClient({
               <span className="text-sm font-semibold text-muted-foreground">
                 ({initialProduct.reviewCount} customer reviews)
               </span>
-              <span className="text-sm font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
-                In Stock
-              </span>
+              {initialProduct.stockQuantity > 0 ? (
+                <span className="text-sm font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
+                  In Stock
+                </span>
+              ) : (
+                <span className="text-sm font-semibold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full">
+                  Out of Stock
+                </span>
+              )}
             </div>
 
             <div className="flex items-baseline gap-3 mb-6">
@@ -263,18 +269,38 @@ export default function ProductDetailClient({
               )}
             </div>
 
+            {initialProduct.features && initialProduct.features.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-xs font-extrabold uppercase tracking-widest text-[#1a1917] mb-4">
+                  Key Features
+                </h3>
+                <ul className="space-y-2">
+                  {initialProduct.features.map((feature: string, idx: number) => (
+                    <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground font-medium">
+                      <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
               <button
                 onClick={handleAddToCart}
-                disabled={isAdding || isSuccess}
+                disabled={isAdding || isSuccess || initialProduct.stockQuantity <= 0}
                 className={`flex-1 flex items-center justify-center gap-2 rounded-full py-4 text-xs font-bold uppercase tracking-widest shadow-md transition-all duration-300 ${
-                  isSuccess
+                  initialProduct.stockQuantity <= 0
+                    ? "bg-black/5 text-muted-foreground cursor-not-allowed"
+                    : isSuccess
                     ? "bg-emerald-600 text-white shadow-emerald-600/20"
                     : "bg-[#1a1917] text-white hover:bg-black hover:shadow-black/20"
                 }`}
               >
-                {isAdding ? (
+                {initialProduct.stockQuantity <= 0 ? (
+                  "Out of Stock"
+                ) : isAdding ? (
                   <><Loader2 className="h-4 w-4 animate-spin" /> Adding...</>
                 ) : isSuccess ? (
                   <><Check className="h-4 w-4" /> Added to Cart</>
@@ -285,7 +311,12 @@ export default function ProductDetailClient({
 
               <button
                 onClick={handleBuyNow}
-                className="flex-1 flex items-center justify-center gap-2 rounded-full py-4 bg-primary text-white text-xs font-bold uppercase tracking-widest shadow-md hover:bg-primary/90 hover:shadow-primary/20 transition-all duration-300"
+                disabled={initialProduct.stockQuantity <= 0}
+                className={`flex-1 flex items-center justify-center gap-2 rounded-full py-4 text-xs font-bold uppercase tracking-widest shadow-md transition-all duration-300 ${
+                  initialProduct.stockQuantity <= 0
+                    ? "bg-black/5 text-muted-foreground cursor-not-allowed hidden sm:flex"
+                    : "bg-primary text-white hover:bg-primary/90 hover:shadow-primary/20"
+                }`}
               >
                 <Zap className="h-4 w-4" /> Buy Now
               </button>
@@ -303,21 +334,21 @@ export default function ProductDetailClient({
             </div>
 
             {/* Guarantees */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-black/5 pt-6">
-              <div className="flex flex-col items-center justify-center p-4 bg-white rounded-2xl border border-black/5 text-center">
-                <ShieldCheck className="h-6 w-6 text-primary mb-2" />
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#1a1917]">Secure</span>
-                <span className="text-xs text-muted-foreground mt-0.5">Checkout</span>
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 border-t border-black/5 pt-6">
+              <div className="flex flex-col items-center justify-center p-2 sm:p-4 bg-white rounded-xl sm:rounded-2xl border border-black/5 text-center">
+                <ShieldCheck className="h-5 w-5 sm:h-6 sm:w-6 text-primary mb-1.5 sm:mb-2" />
+                <span className="text-[8px] sm:text-[10px] font-extrabold uppercase tracking-widest text-[#1a1917]">Secure</span>
+                <span className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">Checkout</span>
               </div>
-              <div className="flex flex-col items-center justify-center p-4 bg-white rounded-2xl border border-black/5 text-center">
-                <Truck className="h-6 w-6 text-primary mb-2" />
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#1a1917]">Fast</span>
-                <span className="text-xs text-muted-foreground mt-0.5">Delivery</span>
+              <div className="flex flex-col items-center justify-center p-2 sm:p-4 bg-white rounded-xl sm:rounded-2xl border border-black/5 text-center">
+                <Truck className="h-5 w-5 sm:h-6 sm:w-6 text-primary mb-1.5 sm:mb-2" />
+                <span className="text-[8px] sm:text-[10px] font-extrabold uppercase tracking-widest text-[#1a1917]">Fast</span>
+                <span className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">Delivery</span>
               </div>
-              <div className="flex flex-col items-center justify-center p-4 bg-white rounded-2xl border border-black/5 text-center">
-                <RotateCcw className="h-6 w-6 text-primary mb-2" />
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#1a1917]">7 Days</span>
-                <span className="text-xs text-muted-foreground mt-0.5">Returns</span>
+              <div className="flex flex-col items-center justify-center p-2 sm:p-4 bg-white rounded-xl sm:rounded-2xl border border-black/5 text-center">
+                <RotateCcw className="h-5 w-5 sm:h-6 sm:w-6 text-primary mb-1.5 sm:mb-2" />
+                <span className="text-[8px] sm:text-[10px] font-extrabold uppercase tracking-widest text-[#1a1917]">7 Days</span>
+                <span className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">Returns</span>
               </div>
             </div>
           </div>
@@ -376,6 +407,32 @@ export default function ProductDetailClient({
           </div>
         )}
       </main>
+
+      {/* Mobile Sticky Add to Cart */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur-md border-t border-black/10 z-50 flex gap-3 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] pb-[max(1rem,env(safe-area-inset-bottom))]">
+        <button
+          onClick={handleBuyNow}
+          disabled={initialProduct.stockQuantity <= 0}
+          className={`flex-1 flex items-center justify-center gap-2 rounded-full py-3.5 text-xs font-bold uppercase tracking-widest shadow-md transition-all ${
+            initialProduct.stockQuantity <= 0
+              ? "bg-black/5 text-muted-foreground cursor-not-allowed"
+              : "bg-primary text-white"
+          }`}
+        >
+          <Zap className="h-4 w-4" /> Buy Now
+        </button>
+        <button
+          onClick={handleAddToCart}
+          disabled={isAdding || isSuccess || initialProduct.stockQuantity <= 0}
+          className={`flex h-[44px] w-[44px] flex-shrink-0 items-center justify-center rounded-full text-white shadow-md transition-all ${
+            initialProduct.stockQuantity <= 0
+              ? "bg-black/20 cursor-not-allowed"
+              : "bg-[#1a1917]"
+          }`}
+        >
+          {isAdding ? <Loader2 className="h-4 w-4 animate-spin" /> : isSuccess ? <Check className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
+        </button>
+      </div>
 
       <Footer />
     </div>

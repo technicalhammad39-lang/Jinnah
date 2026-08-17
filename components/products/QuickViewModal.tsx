@@ -190,6 +190,23 @@ export function QuickViewModal() {
                   </h3>
 
                   <div className="mt-2 flex items-center gap-1.5">
+                    {quickViewProduct.features && Object.keys(quickViewProduct.features).length > 0 && (
+                      <div className="flex flex-col gap-2">
+                        <span className="text-xs font-bold text-black/50 uppercase tracking-wider">
+                          Key Features
+                        </span>
+                        <div className="grid grid-cols-2 gap-y-2 gap-x-4">
+                          {Object.entries(quickViewProduct.features).map(([key, value]) => (
+                            <div key={key} className="flex items-center gap-1.5">
+                              <div className="h-1 w-1 rounded-full bg-primary" />
+                              <span className="text-sm text-foreground/80">
+                                <span className="font-semibold text-foreground">{key}:</span> {value as string}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     <div className="flex items-center">
                       <Star className="h-3.5 w-3.5 fill-primary text-primary" />
                       <span className="ml-1 text-xs font-extrabold text-[#1a1917]">
@@ -203,10 +220,10 @@ export function QuickViewModal() {
                 </div>
 
                 <div className="flex items-baseline gap-2.5">
-                  <span className="text-2xl font-black text-[#1a1917]">
+                  <span className="text-xl font-black text-foreground md:text-2xl">
                     Rs. {quickViewProduct.price.toLocaleString()}
                   </span>
-                  {quickViewProduct.originalPrice > quickViewProduct.price && (
+                  {quickViewProduct.originalPrice !== undefined && quickViewProduct.originalPrice > quickViewProduct.price && (
                     <span className="text-sm font-semibold text-muted-foreground line-through">
                       Rs. {quickViewProduct.originalPrice.toLocaleString()}
                     </span>
@@ -217,45 +234,21 @@ export function QuickViewModal() {
                   {quickViewProduct.description}
                 </p>
 
-                <div className="space-y-2 rounded-2xl border border-black/5 bg-black/[0.02] p-4">
-                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                    Key Specifications
-                  </h4>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                    {Object.entries(quickViewProduct.specifications)
-                      .slice(0, 4)
-                      .map(([key, value]) => (
-                        <div
-                          key={key}
-                          className="flex justify-between border-b border-black/[0.03] py-1"
-                        >
-                          <span className="font-semibold text-muted-foreground">{key}:</span>
-                          <span
-                            className="max-w-[120px] truncate font-extrabold text-foreground"
-                            title={value}
-                          >
-                            {value}
-                          </span>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-
                 <div className="flex flex-col gap-4 pt-2 sm:flex-row">
-                  {quickViewProduct.colors.length > 0 && (
-                    <div className="space-y-1.5 text-left">
-                      <span className="block text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground">
-                        Select Finish
+                  {quickViewProduct.colors && quickViewProduct.colors.length > 0 && (
+                    <div className="flex flex-col gap-2">
+                      <span className="text-xs font-bold text-black/50 uppercase tracking-wider">
+                        Available Colors
                       </span>
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2">
                         {quickViewProduct.colors.map((color) => (
                           <button
                             key={color}
                             onClick={() => setSelectedColor(color)}
-                            className={`h-6 w-6 cursor-pointer rounded-full border transition-all ${
+                            className={`group relative h-8 w-8 rounded-full border-2 transition-all ${
                               selectedColor === color
-                                ? "scale-110 border-primary/20 ring-2 ring-primary ring-offset-2"
-                                : "border-black/10 hover:scale-105"
+                                ? "border-black scale-110 shadow-md"
+                                : "border-transparent hover:scale-105"
                             }`}
                             style={{ backgroundColor: color }}
                           />

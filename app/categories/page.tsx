@@ -24,7 +24,7 @@ export default function CategoriesPage() {
       
       <main className="flex-1 pt-24 pb-20">
         {/* HERO WITH SVG INTEGRATION */}
-        <section className="relative w-full overflow-hidden px-6 py-16 md:py-24">
+        <section className="relative w-full overflow-hidden px-6 pt-4 pb-12 md:pt-8 md:pb-16">
           {/* Decorative Glows */}
           <div className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(255,106,42,0.08)_0%,transparent_70%)] pointer-events-none rounded-full blur-3xl" />
           <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(0,0,0,0.05)_0%,transparent_70%)] pointer-events-none rounded-full blur-3xl" />
@@ -58,7 +58,7 @@ export default function CategoriesPage() {
               src="/catos.svg" 
               alt="Categories Hero Architecture" 
               fill 
-              className="object-contain object-bottom" 
+              className="object-cover object-bottom" 
               priority
             />
           </motion.div>

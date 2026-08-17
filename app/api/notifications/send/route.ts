@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getMessaging } from "firebase-admin/messaging";
-import { adminApp, isMockAdmin } from "@/lib/firebase-admin";
+import { adminApp } from "@/lib/firebase-admin";
 
 export async function POST(req: Request) {
   try {
@@ -13,8 +13,8 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!adminApp || isMockAdmin) {
-      console.error("Firebase Admin is missing credentials.");
+    if (!adminApp) {
+      console.error("Firebase Admin is missing.");
       return NextResponse.json(
         { error: "Firebase Admin is not configured. Missing Service Account Key." },
         { status: 500 }

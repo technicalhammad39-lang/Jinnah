@@ -42,8 +42,10 @@ type Order = {
   };
   customerType?: string;
   paymentMethod: string;
-  items: OrderItem[];
+  items: any[];
   subtotal: number;
+  discount?: number;
+  appliedCoupon?: string | null;
   total: number;
   status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
   createdAt: string;
@@ -297,27 +299,34 @@ export default function OrdersClient() {
               <div>
                 <h3 className="mb-4 font-bold text-sm uppercase tracking-wider text-muted-foreground">Order Items</h3>
                 <div className="max-h-[300px] space-y-4 overflow-y-auto pr-2">
-                  {selectedOrder.items?.map((item, idx) => (
-                    <div key={idx} className="flex gap-3">
-                      <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded bg-[#efece6]">
-                        <Image
-                          src={item.product.images?.[0] ? getPublicUploadUrl(item.product.images[0]) : "/placeholder.jpg"}
-                          alt={item.product.name}
-                          fill
-                          className="object-cover"
-                        />
+                  {selectedOrder.items?.map((item: any, idx: number) => {
+                    const itemName = item.product?.name || item.name;
+                    const itemImage = item.product?.images?.[0] || item.image;
+                    const itemPrice = item.product?.price || item.price;
+                    
+                    return (
+                      <div key={idx} className="flex gap-3">
+                        <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded bg-[#efece6]">
+                          <Image
+                            src={itemImage ? getPublicUploadUrl(itemImage) : "/placeholder.jpg"}
+                            alt={itemName || "Product"}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="line-clamp-1 text-sm font-semibold">{itemName}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {item.quantity}x | {item.selectedSize} 
+                            {item.selectedColor && <span style={{ backgroundColor: item.selectedColor }} className="inline-block h-2 w-2 rounded-full border border-black/20 ml-1" />}
+                          </p>
+                        </div>
+                        <div className="text-sm font-bold">
+                          Rs. {(itemPrice * item.quantity).toLocaleString()}
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="line-clamp-1 text-sm font-semibold">{item.product.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {item.quantity}x | {item.selectedSize} | <span style={{ backgroundColor: item.selectedColor }} className="inline-block h-2 w-2 rounded-full border border-black/20" />
-                        </p>
-                      </div>
-                      <div className="text-sm font-bold">
-                        Rs. {(item.product.price * item.quantity).toLocaleString()}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
                 
                 <div className="mt-6 space-y-2 border-t border-black/10 pt-4">
@@ -325,6 +334,12 @@ export default function OrdersClient() {
                     <span>Subtotal</span>
                     <span>Rs. {selectedOrder.subtotal?.toLocaleString()}</span>
                   </div>
+                  {selectedOrder.discount && selectedOrder.discount > 0 && (
+                    <div className="flex justify-between text-sm text-emerald-600 font-medium">
+                      <span>Discount {selectedOrder.appliedCoupon ? `(${selectedOrder.appliedCoupon})` : ''}</span>
+                      <span>- Rs. {selectedOrder.discount.toLocaleString()}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-sm">
                     <span>Shipping</span>
                     <span>Free</span>

@@ -75,8 +75,9 @@ export function AnimatedMarqueeHero({
   const contentOpacity = useTransform(scrollYProgress, [0, 0.3, 0.6], [1, 0.9, 0]); 
   const contentBlur = useTransform(scrollYProgress, [0, 0.3, 0.6], ["blur(0px)", "blur(8px)", "blur(16px)"]);
   
-  const showcaseY = useTransform(scrollYProgress, [0, 1], [0, -150]);
-  const imageScrollOpacity = useTransform(scrollYProgress, [0.3, 1], [1, 0]);
+  const showcaseY = useTransform(scrollYProgress, [0, 1], [0, -30]);
+  const showcaseScale = useTransform(scrollYProgress, [0, 0.8], [1, 0.92]);
+  const imageScrollOpacity = useTransform(scrollYProgress, [0.1, 0.7], [1, 0]);
   const backgroundY = useTransform(scrollYProgress, [0, 1], [0, -18]);
   
   const imageFloatY = useTransform(smoothTiltX, (value) => value * -0.8);
@@ -279,24 +280,30 @@ export function AnimatedMarqueeHero({
           className="relative z-20 mx-auto flex w-full max-w-[1740px] flex-1 flex-col items-center justify-center pb-2 sm:pb-3 lg:pb-4 xl:pb-6"
         >
 
-          <div className="w-full max-w-[92rem] space-y-5 sm:space-y-6 lg:space-y-7 mt-10 sm:mt-14 md:mt-16">
+          <div className="w-full max-w-[92rem] space-y-4 sm:space-y-5 lg:space-y-7 mt-10 sm:mt-14 md:mt-16">
             <h1 className="mx-auto w-full text-balance text-[3.1rem] font-black leading-[0.95] tracking-[-0.052em] sm:text-[4.25rem] md:text-[5rem] lg:text-[5.35rem] xl:text-[6rem] 2xl:text-[6.85rem]">
               {titleLines.map((line, lineIndex) => {
-                const isFirstLine = lineIndex === 0;
+                const parts = line.split(/(HARDWARE)/);
                 return (
                   <motion.span
                     key={lineIndex}
                     initial={{ opacity: 0, y: -30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={getEntranceTransition(entranceDelay + lineIndex * entranceStagger)}
-                    className={cn(
-                      "block will-change-[transform,opacity]",
-                      isFirstLine 
-                        ? "font-stylish text-primary text-[1.25em] font-medium leading-[0.75] mb-0 sm:mb-1" 
-                        : "font-bold tracking-tight opacity-95 text-[0.85em] text-[#1a1815]"
-                    )}
+                    className="block will-change-[transform,opacity] font-bold tracking-tight opacity-95 text-[#1a1815]"
                   >
-                    {line}
+                    {parts.map((part, i) => (
+                      <span
+                        key={i}
+                        className={
+                          part === "HARDWARE"
+                            ? "font-stylish text-primary italic font-medium"
+                            : ""
+                        }
+                      >
+                        {part}
+                      </span>
+                    ))}
                   </motion.span>
                 );
               })}
@@ -306,7 +313,7 @@ export function AnimatedMarqueeHero({
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={getEntranceTransition(descriptionDelay, 0.92)}
-              className="mx-auto max-w-[58rem] px-2 text-sm font-medium leading-7 text-muted-foreground sm:text-base sm:leading-8 md:text-[1.08rem] lg:text-[1.16rem] will-change-[transform,opacity]"
+              className="mx-auto max-w-[58rem] px-2 text-[13px] font-medium leading-[1.65] tracking-wide text-muted-foreground sm:text-base sm:leading-8 md:text-[1.08rem] lg:text-[1.16rem] will-change-[transform,opacity]"
             >
               {description}
             </motion.p>
@@ -347,7 +354,7 @@ export function AnimatedMarqueeHero({
               }}
               className="relative left-1/2 w-[104vw] max-w-none -translate-x-1/2 will-change-transform"
             >
-              <motion.div style={{ y: showcaseY }} className="relative will-change-transform">
+              <motion.div style={{ y: showcaseY, scale: showcaseScale }} className="relative will-change-transform">
                 <Image
                   src="/hero-bottom.png"
                   alt="Premium hardware showcase featuring a smart lock, precision hinge, professional drill, brass lever, and finish samples."

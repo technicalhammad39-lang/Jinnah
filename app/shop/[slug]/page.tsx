@@ -34,7 +34,7 @@ export default async function ProductDetailServerPage({ params }: { params: Prom
       "url": `https://jinnah-hardwarestore.com/shop/${slug}`,
       "priceCurrency": product.currency || "PKR",
       "price": product.price,
-      "availability": product.availability === "in-stock" ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+      "availability": product.stockQuantity > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
     }
   } : null;
 

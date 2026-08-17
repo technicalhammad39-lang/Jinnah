@@ -23,6 +23,7 @@ export function ShopClient({ initialProducts = [], initialBrands = [] }: { initi
   const [products, setProducts] = useState<any[]>(initialProducts);
   const [brands, setBrands] = useState<any[]>(initialBrands);
   const [loadingData, setLoadingData] = useState(false);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   // Filter States
   const [searchQuery, setSearchQuery] = useState("");
@@ -155,10 +156,10 @@ export function ShopClient({ initialProducts = [], initialBrands = [] }: { initi
           </div>
 
           {/* Sub-tabs switches */}
-          <div className="flex rounded-full border border-black/10 bg-[#f1ece4]/90 p-1 shadow-[0_8px_20px_rgba(26,25,23,0.05)] backdrop-blur-sm">
+          <div className="flex w-full md:w-auto rounded-full border border-black/10 bg-[#f1ece4]/90 p-1 shadow-[0_8px_20px_rgba(26,25,23,0.05)] backdrop-blur-sm">
             <button
               onClick={() => setActiveTab("products")}
-              className={`px-4.5 py-2 rounded-full text-[11px] font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`flex-1 md:flex-none px-3 md:px-4.5 py-2 rounded-full text-[10px] md:text-[11px] font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                 activeTab === "products"
                   ? "border border-black/5 bg-white text-[#1a1917] shadow-sm"
                   : "text-[#655d54] hover:bg-white/70 hover:text-[#1a1917]"
@@ -169,7 +170,7 @@ export function ShopClient({ initialProducts = [], initialBrands = [] }: { initi
             </button>
             <button
               onClick={() => setActiveTab("wishlist")}
-              className={`px-4.5 py-2 rounded-full text-[11px] font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`flex-1 md:flex-none px-3 md:px-4.5 py-2 rounded-full text-[10px] md:text-[11px] font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                 activeTab === "wishlist"
                   ? "border border-black/5 bg-white text-[#1a1917] shadow-sm"
                   : "text-[#655d54] hover:bg-white/70 hover:text-[#1a1917]"
@@ -187,8 +188,19 @@ export function ShopClient({ initialProducts = [], initialBrands = [] }: { initi
         {activeTab === "products" && (
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
             
-            {/* Desktop Filters Sidebar (Col 1) */}
-            <div className="lg:col-span-1 sticky top-28 space-y-7 rounded-3xl border border-black/10 bg-white/85 p-6 text-left shadow-[0_16px_32px_rgba(26,25,23,0.05)] backdrop-blur-md">
+            {/* Mobile Filter Toggle Button */}
+            <div className="lg:hidden mb-4">
+              <button
+                onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-white border border-black/10 text-xs font-bold uppercase tracking-widest shadow-sm hover:border-primary/50 transition-colors"
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                <span>{isMobileFilterOpen ? "Hide Filters" : "Show Filters"}</span>
+              </button>
+            </div>
+
+            {/* Filters Sidebar (Col 1) */}
+            <div className={`lg:col-span-1 sticky top-28 space-y-7 rounded-3xl border border-black/10 bg-white/85 p-6 text-left shadow-[0_16px_32px_rgba(26,25,23,0.05)] backdrop-blur-md ${isMobileFilterOpen ? "block" : "hidden lg:block"}`}>
               <div className="flex items-center justify-between pb-4 border-b border-black/5">
                 <div className="flex items-center gap-2">
                   <SlidersHorizontal className="h-4 w-4 text-primary" />
@@ -294,10 +306,15 @@ export function ShopClient({ initialProducts = [], initialBrands = [] }: { initi
               </div>
 
               {/* Found Count */}
-              <div className="pt-4 border-t border-black/5">
+              <div className="pt-4 border-t border-black/5 flex justify-between items-center">
                 <div className="text-xs font-semibold text-muted-foreground text-left">
                   Found <span className="font-extrabold text-foreground">{sortedProducts.length}</span> Premium Products
                 </div>
+                {isMobileFilterOpen && (
+                  <button onClick={() => setIsMobileFilterOpen(false)} className="lg:hidden text-[10px] font-extrabold uppercase bg-primary text-white px-3 py-1.5 rounded-full cursor-pointer">
+                    Apply
+                  </button>
+                )}
               </div>
 
             </div>

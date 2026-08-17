@@ -5,22 +5,75 @@ export interface Product {
   brand: string;
   category: string;
   categorySlug: string;
-  price: number;
-  originalPrice: number;
+  price: number; // The actual selling price
+  originalPrice?: number; // The price before discount (optional)
   rating: number;
   reviewCount: number;
   images: string[];
-  colors: string[];
-  sizes: string[];
+  colors?: string[]; // Optional if variants are skipped
+  sizes?: string[]; // Optional if variants are skipped
   isNew?: boolean;
   isBestSeller?: boolean;
-  discount?: number;
+  featured?: boolean;
+  discount?: number; // Calculated discount percentage
   freeShipping?: boolean;
   description: string;
   longDescription?: string;
-  specifications: Record<string, string>;
-  features: string[];
-  availability: "In Stock" | "Low Stock" | "Out of Stock";
+  specifications?: Record<string, string>;
+  features?: string[];
+  stockQuantity: number; // Replaces availability string
+  allowedPaymentMethods?: string[]; // ['ALL'] or ['bank', 'cod']
+}
+
+export interface Coupon {
+  id: string;
+  code: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  minOrderAmount?: number;
+  usageLimit?: number;
+  usedCount: number;
+  expiryDate?: string;
+  active: boolean;
+}
+
+export interface PaymentMethod {
+  id: string;
+  name: string;
+  type: string; // 'cod', 'bank', etc.
+  description: string;
+  logo?: string;
+  instructions?: string;
+  active: boolean;
+  sortOrder: number;
+}
+
+export interface Review {
+  id: string;
+  productId: string;
+  userId: string;
+  userName: string;
+  rating: number;
+  reviewText: string;
+  verifiedPurchase: boolean;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: string;
+}
+
+export interface Order {
+  id: string;
+  customerInfo: any;
+  customerType: string;
+  paymentMethod: string;
+  items: any[];
+  subtotal: number;
+  discountAmount?: number;
+  couponCode?: string;
+  shipping: number;
+  total: number;
+  status: string; // 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+  paymentStatus: string; // 'pending' | 'paid' | 'failed' | 'refunded'
+  createdAt: any;
 }
 
 export interface Brand {
@@ -162,7 +215,7 @@ export const PRODUCTS: Product[] = [
       "Patented low-friction spring-cassette prevents handle-droop",
       "Suitable for doors with thicknesses between 35mm and 55mm",
     ],
-    availability: "In Stock",
+    stockQuantity: 50, allowedPaymentMethods: ["ALL"],
   },
   {
     id: "prod-2",
@@ -196,7 +249,7 @@ export const PRODUCTS: Product[] = [
       "Automated auto-lock upon closing door",
       "Activity feed and temporary digital keys via secure mobile app",
     ],
-    availability: "In Stock",
+    stockQuantity: 50, allowedPaymentMethods: ["ALL"],
   },
   {
     id: "prod-3",
@@ -231,7 +284,7 @@ export const PRODUCTS: Product[] = [
       "Rustproof and wear-resistant polymer topcoat",
       "Individually wrapped to prevent shipping scratches",
     ],
-    availability: "In Stock",
+    stockQuantity: 50, allowedPaymentMethods: ["ALL"],
   },
   {
     id: "prod-4",
@@ -266,7 +319,7 @@ export const PRODUCTS: Product[] = [
       "All-metal gear transmission housing for maximum durability",
       "Ultra-compact footprint at just 114mm front-to-back length",
     ],
-    availability: "Low Stock",
+    stockQuantity: 50, allowedPaymentMethods: ["ALL"],
   },
   {
     id: "prod-5",
@@ -297,7 +350,7 @@ export const PRODUCTS: Product[] = [
       "Completely flush mechanical toggle design",
       "Includes premium matching mounting screws and steel subframe",
     ],
-    availability: "In Stock",
+    stockQuantity: 50, allowedPaymentMethods: ["ALL"],
   },
   {
     id: "prod-6",
@@ -328,7 +381,7 @@ export const PRODUCTS: Product[] = [
       "Extremely smooth swing motion (fluid dynamic tests to 500k cycles)",
       "Supplied with heavy stainless steel wood screws and concrete masonry anchors",
     ],
-    availability: "In Stock",
+    stockQuantity: 50, allowedPaymentMethods: ["ALL"],
   }
 ];
 

@@ -27,57 +27,59 @@ export function CategorySection() {
         </p>
       </div>
 
-      {/* Bento Grid layout */}
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
-        {CATEGORIES.map((category, index) => {
-          // Asymmetric column widths
-          // index 0: wide (3 cols), index 1: narrow (3 cols)
-          // index 2: small (2 cols), index 3: small (2 cols), index 4: small (2 cols)
-          let gridSpanClass = "md:col-span-2";
-          if (index === 0) gridSpanClass = "md:col-span-3";
-          if (index === 1) gridSpanClass = "md:col-span-3";
+      {/* Bento Grid layout with orange decorative shapes */}
+      <div className="relative">
+        <div className="absolute top-[20%] left-[-5%] w-[40vw] h-[40vw] rounded-full glow-blob-orange opacity-[0.15] pointer-events-none" />
+        <div className="absolute bottom-[-10%] right-[10%] w-[30vw] h-[30vw] rounded-full glow-blob-orange opacity-[0.2] pointer-events-none" />
+        
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-6 relative z-10">
+          {CATEGORIES.map((category, index) => {
+            let gridSpanClass = "md:col-span-2";
+            if (index === 0) gridSpanClass = "md:col-span-3";
+            if (index === 1) gridSpanClass = "md:col-span-3";
 
-          return (
-            <div
-              key={category.id}
-              className={`${gridSpanClass} h-[280px] md:h-[380px] rounded-3xl overflow-hidden relative group border border-black/5 bg-white shadow-sm hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/50 transition-all duration-500 premium-transform`}
-              data-cursor="view"
-            >
-              <Link href={`/shop?category=${category.slug}`} className="block w-full h-full relative">
-                {/* Image overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-10" />
-                <Image
-                  src={category.image}
-                  alt={category.name}
-                  fill
-                  sizes="(min-width: 768px) 50vw, 100vw"
-                  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                />
+            return (
+              <div
+                key={category.id}
+                className={`${gridSpanClass} h-[280px] md:h-[380px] rounded-3xl overflow-hidden relative group border border-black/5 bg-white shadow-sm hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/50 transition-all duration-500 premium-transform`}
+                data-cursor="view"
+              >
+                <Link href={`/shop?category=${category.slug}`} className="block w-full h-full relative">
+                  {/* Image overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-10" />
+                  <Image
+                    src={category.image}
+                    alt={category.name}
+                    fill
+                    sizes="(min-width: 768px) 50vw, 100vw"
+                    className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
 
-                {/* Content */}
-                <div className="absolute inset-0 z-20 p-6 md:p-8 flex flex-col justify-end text-left overflow-hidden">
-                  <div className="flex items-end justify-between w-full relative z-30">
-                    <div className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-20 lg:group-hover:-translate-y-[6.5rem] max-w-[80%]">
-                      <span className="text-[10px] font-extrabold text-primary tracking-widest uppercase block mb-1">
-                        {category.count} Products
-                      </span>
-                      <h3 className="text-xl md:text-2xl font-extrabold text-white uppercase tracking-tight leading-tight">
-                        {category.name}
-                      </h3>
+                  {/* Content */}
+                  <div className="absolute inset-0 z-20 p-6 md:p-8 flex flex-col justify-end text-left overflow-hidden">
+                    <div className="flex items-end justify-between w-full relative z-30">
+                      <div className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-16 lg:group-hover:-translate-y-24 max-w-[80%]">
+                        <span className="text-[10px] font-extrabold text-primary tracking-widest uppercase block mb-1">
+                          {category.count} Products
+                        </span>
+                        <h3 className="text-xl md:text-2xl font-extrabold text-white uppercase tracking-tight leading-tight">
+                          {category.name}
+                        </h3>
+                      </div>
+                      <div className="p-3 rounded-full bg-white/10 group-hover:bg-primary group-hover:text-white text-white backdrop-blur-md transition-all duration-500 shrink-0 relative z-30">
+                        <ArrowUpRight className="h-5 w-5 group-hover:rotate-45 transition-transform duration-500" />
+                      </div>
                     </div>
-                    <div className="p-3 rounded-full bg-white/10 group-hover:bg-primary group-hover:text-white text-white backdrop-blur-md transition-all duration-500 shrink-0 relative z-30">
-                      <ArrowUpRight className="h-5 w-5 group-hover:rotate-45 transition-transform duration-500" />
-                    </div>
+
+                    <p className="absolute bottom-6 md:bottom-8 left-6 md:left-8 pr-16 text-xs md:text-sm text-white/90 font-medium leading-[1.6] max-w-[90%] md:max-w-sm opacity-0 group-hover:opacity-100 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] transform translate-y-4 group-hover:translate-y-0 pointer-events-none line-clamp-3">
+                      {category.description}
+                    </p>
                   </div>
-
-                  <p className="absolute bottom-6 md:bottom-8 left-6 md:left-8 pr-16 text-xs md:text-sm text-white/80 font-medium leading-relaxed max-w-sm opacity-0 group-hover:opacity-100 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] transform translate-y-6 group-hover:translate-y-0 pointer-events-none line-clamp-3">
-                    {category.description}
-                  </p>
-                </div>
-              </Link>
-            </div>
-          );
-        })}
+                </Link>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

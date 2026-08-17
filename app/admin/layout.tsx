@@ -21,7 +21,8 @@ import {
   CreditCard,
   Users,
   Star,
-  FolderTree
+  FolderTree,
+  Ticket
 } from "lucide-react";
 import Image from "next/image";
 
@@ -35,6 +36,7 @@ const sidebarLinks = [
   { name: "Gallery", href: "/admin/gallery", icon: ImageIcon },
   { name: "About Profiles", href: "/admin/leadership", icon: Users },
   { name: "Reviews", href: "/admin/reviews", icon: Star },
+  { name: "Coupons", href: "/admin/coupons", icon: Ticket },
   { name: "Messages", href: "/admin/messages", icon: MessageSquare },
   { name: "Notifications", href: "/admin/notifications", icon: Bell },
   { name: "Payments", href: "/admin/payment-methods", icon: CreditCard },

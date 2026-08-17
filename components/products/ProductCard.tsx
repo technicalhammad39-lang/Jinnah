@@ -97,6 +97,10 @@ function ProductCardComponent({ product }: ProductCardProps) {
       window.clearTimeout(successTimerRef.current);
     }
 
+    if (product.stockQuantity !== undefined && product.stockQuantity <= 0) {
+      return;
+    }
+
     setIsAdding(true);
     addTimerRef.current = window.setTimeout(() => {
       setIsAdding(false);
@@ -119,6 +123,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
   const handleBuyNow = (event: React.MouseEvent) => {
     event.stopPropagation();
     event.preventDefault();
+    if (product.stockQuantity !== undefined && product.stockQuantity <= 0) return;
     addToCart(product, 1, product.colors?.[0] || "", selectedSize || undefined);
     router.push('/checkout');
   };
@@ -194,9 +199,14 @@ function ProductCardComponent({ product }: ProductCardProps) {
               BEST SELLER
             </span>
           )}
-          {product.discount && product.discount > 0 && (
+          {product.discount && product.discount > 0 ? (
             <span className="rounded-full bg-rose-500 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-widest text-white shadow-md">
               -{product.discount}%
+            </span>
+          ) : null}
+          {product.stockQuantity !== undefined && product.stockQuantity <= 0 && (
+            <span className="rounded-full bg-black px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-widest text-white shadow-md">
+              OUT OF STOCK
             </span>
           )}
         </div>
@@ -252,7 +262,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
             <span className="text-base font-black text-foreground md:text-lg">
               Rs. {product.price.toLocaleString()}
             </span>
-            {product.originalPrice > product.price && (
+            {product.originalPrice !== undefined && product.originalPrice > product.price && (
               <span className="text-xs font-semibold text-muted-foreground line-through">
                 Rs. {product.originalPrice.toLocaleString()}
               </span>
@@ -291,14 +301,18 @@ function ProductCardComponent({ product }: ProductCardProps) {
         <div className="flex items-center gap-2">
           <button
             onClick={handleBuyNow}
-            disabled={isAdding || isSuccess}
+            disabled={isAdding || isSuccess || (product.stockQuantity !== undefined && product.stockQuantity <= 0)}
             className={`flex-1 flex cursor-pointer items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
-              isSuccess
+              product.stockQuantity !== undefined && product.stockQuantity <= 0
+                ? "bg-black/10 text-muted-foreground cursor-not-allowed"
+                : isSuccess
                 ? "bg-emerald-600 text-white"
                 : "bg-gradient-to-r from-[#1a1917] to-zinc-700 text-white hover:from-black hover:to-zinc-800 hover:shadow-lg hover:shadow-black/20"
             }`}
           >
-            {isAdding ? (
+            {product.stockQuantity !== undefined && product.stockQuantity <= 0 ? (
+              <span>Out of Stock</span>
+            ) : isAdding ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : isSuccess ? (
               <Check className="h-4 w-4" />
@@ -312,8 +326,12 @@ function ProductCardComponent({ product }: ProductCardProps) {
               e.preventDefault();
               handleAddToCart(e);
             }}
-            disabled={isAdding || isSuccess}
-            className="flex h-[38px] w-[38px] flex-shrink-0 cursor-pointer items-center justify-center rounded-xl bg-[#1a1917] text-white hover:bg-black/80 hover:shadow-md transition-all duration-300"
+            disabled={isAdding || isSuccess || (product.stockQuantity !== undefined && product.stockQuantity <= 0)}
+            className={`flex h-[38px] w-[38px] flex-shrink-0 cursor-pointer items-center justify-center rounded-xl text-white transition-all duration-300 ${
+              product.stockQuantity !== undefined && product.stockQuantity <= 0
+                ? "bg-black/20 cursor-not-allowed"
+                : "bg-[#1a1917] hover:bg-black/80 hover:shadow-md"
+            }`}
             title="Add to Cart"
           >
             <ShoppingCart className="h-4 w-4" />

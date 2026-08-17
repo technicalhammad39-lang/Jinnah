@@ -57,13 +57,13 @@ export function Footer() {
   const waUrl = waNumberRaw.startsWith('+') ? waNumberRaw.substring(1) : waNumberRaw;
 
   return (
-    <footer className={`relative z-10 border-t border-white/5 bg-[#121110] pt-20 pb-10 text-white/90 ${isHome ? "" : "rounded-t-[32px] md:rounded-t-[40px]"}`}>
+    <footer className={`relative z-10 border-t border-white/5 bg-[#121110] pt-12 md:pt-20 pb-8 md:pb-10 text-white/90 ${isHome ? "" : "rounded-t-[32px] md:rounded-t-[40px]"}`}>
       <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-primary to-transparent" />
 
-      <div className="mx-auto grid max-w-[1740px] grid-cols-1 gap-12 border-b border-white/5 px-6 md:px-8 xl:px-12 pb-16 text-left md:grid-cols-2 md:gap-8 lg:grid-cols-12">
+      <div className="mx-auto grid max-w-[1740px] grid-cols-1 gap-10 md:gap-12 border-b border-white/5 px-6 md:px-8 xl:px-12 pb-10 md:pb-16 text-left md:grid-cols-2 lg:grid-cols-12">
         <div className="space-y-6 lg:col-span-4">
-          <Link href="/" className="flex items-center group transition-transform hover:scale-105 w-fit">
-            <div className="relative h-16 w-[220px] md:h-20 md:w-[260px] flex items-center justify-start">
+          <Link href="/" className="flex items-center group transition-transform hover:scale-105 w-fit max-w-full">
+            <div className="relative h-16 w-[260px] max-w-full md:h-20 flex items-center justify-start">
               <div className="relative w-full h-full">
                 <Image src="/jinnah-bottom.png" alt="Jinnah Hardware Store" fill className="object-contain object-left" />
               </div>

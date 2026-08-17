@@ -11,6 +11,8 @@ import { useAuth } from "@/lib/auth-context";
 import { getPublicUploadUrl } from "@/lib/utils";
 import { getPaymentMethods } from "@/lib/data-fetcher";
 import { toast } from "sonner";
+import { db } from "@/lib/firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 export default function CheckoutClient() {
   const router = useRouter();
@@ -37,6 +39,11 @@ export default function CheckoutClient() {
   const [availablePaymentMethods, setAvailablePaymentMethods] = useState<any[]>([]);
 
   const [checkoutStep, setCheckoutStep] = useState<1 | 2 | 3>(1);
+
+  // Coupon state
+  const [couponCodeInput, setCouponCodeInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string, discountAmount: number } | null>(null);
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
 
   useEffect(() => {
     getPaymentMethods().then((methods) => {
@@ -137,6 +144,62 @@ export default function CheckoutClient() {
     }
   };
 
+  const applyCoupon = async () => {
+    if (!couponCodeInput) return;
+    setIsApplyingCoupon(true);
+    
+    try {
+      const q = query(collection(db, "coupons"), where("code", "==", couponCodeInput.toUpperCase()));
+      const snap = await getDocs(q);
+      
+      if (snap.empty) {
+        toast.error("Invalid coupon code.");
+        setAppliedCoupon(null);
+        return;
+      }
+      
+      const c = snap.docs[0].data();
+      
+      const now = new Date();
+      const isExpired = c.expiryDate && new Date(c.expiryDate) < now;
+      const isLimitReached = c.usageLimit > 0 && c.usedCount >= c.usageLimit;
+      
+      if (!c.active || isExpired || isLimitReached) {
+        toast.error("This coupon is expired or no longer valid.");
+        setAppliedCoupon(null);
+        return;
+      }
+      
+      if (c.minOrderAmount && cartSubtotal < c.minOrderAmount) {
+        toast.error(`Minimum order amount of Rs. ${c.minOrderAmount} required.`);
+        setAppliedCoupon(null);
+        return;
+      }
+      
+      let discountAmount = 0;
+      if (c.discountType === 'percentage') {
+        discountAmount = (cartSubtotal * c.discountValue) / 100;
+      } else {
+        discountAmount = c.discountValue;
+      }
+      
+      if (discountAmount > cartSubtotal) discountAmount = cartSubtotal;
+      
+      setAppliedCoupon({ code: c.code, discountAmount });
+      toast.success("Coupon applied successfully!");
+    } catch (error) {
+      console.error("Error applying coupon:", error);
+      toast.error("Failed to verify coupon.");
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCodeInput("");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateStep1() || !validateStep2()) return;
@@ -144,44 +207,35 @@ export default function CheckoutClient() {
     setIsSubmitting(true);
 
     try {
-      const { collection, addDoc, serverTimestamp } = await import("firebase/firestore");
-      const { db } = await import("@/lib/firebase");
-
-      const generateOrderId = () => {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let result = 'JH-';
-        for (let i = 0; i < 4; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
-        result += '-';
-        for (let i = 0; i < 4; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
-        return result;
-      };
-      
-      const newOrderId = generateOrderId();
-      
-      const orderData = {
-        id: newOrderId,
+      const orderPayload = {
         customerInfo: formData,
         customerType: user ? "account" : "guest",
         paymentMethod,
         items: cart,
-        subtotal: cartSubtotal,
-        total: cartSubtotal,
-        status: "pending",
-        createdAt: serverTimestamp(),
+        couponCode: appliedCoupon?.code || null,
       };
 
-      const ordersRef = collection(db, "orders");
-      await addDoc(ordersRef, orderData);
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderPayload),
+      });
 
-      setOrderId(newOrderId);
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to process checkout");
+      }
+
+      setOrderId(data.orderId);
       setOrderSuccess(true);
       clearCart();
       window.scrollTo(0, 0);
       
       toast.success("Order placed successfully.");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Checkout error:", error);
-      toast.error("Unable to place order. Please try again.");
+      toast.error(error.message || "Unable to place order. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -383,11 +437,39 @@ export default function CheckoutClient() {
                 ))}
               </div>
 
+              <div className="border-t border-black/5 pt-6 pb-6">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={couponCodeInput}
+                    onChange={(e) => setCouponCodeInput(e.target.value)}
+                    placeholder="Discount code"
+                    disabled={!!appliedCoupon}
+                    className="flex-grow rounded-xl border border-black/10 bg-white px-4 py-2 text-sm outline-none focus:border-primary disabled:opacity-60 uppercase"
+                  />
+                  {appliedCoupon ? (
+                    <button onClick={removeCoupon} type="button" className="rounded-xl bg-red-100 text-red-600 px-4 py-2 text-sm font-bold hover:bg-red-200 transition-colors">
+                      Remove
+                    </button>
+                  ) : (
+                    <button onClick={applyCoupon} type="button" disabled={isApplyingCoupon || !couponCodeInput} className="rounded-xl bg-[#1a1917] text-white px-4 py-2 text-sm font-bold disabled:opacity-50 transition-colors">
+                      Apply
+                    </button>
+                  )}
+                </div>
+              </div>
+
               <div className="space-y-3 border-t border-black/5 pt-6">
                 <div className="flex justify-between text-sm text-muted-foreground">
                   <span>Subtotal</span>
                   <span className="font-semibold text-foreground">Rs. {cartSubtotal.toLocaleString()}</span>
                 </div>
+                {appliedCoupon && (
+                  <div className="flex justify-between text-sm font-semibold text-emerald-600">
+                    <span>Discount ({appliedCoupon.code})</span>
+                    <span>- Rs. {appliedCoupon.discountAmount.toLocaleString()}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm text-muted-foreground">
                   <span>Shipping</span>
                   <span className="font-semibold text-emerald-600">Free Delivery</span>
@@ -395,7 +477,7 @@ export default function CheckoutClient() {
                 <div className="my-2 h-[1px] bg-black/5" />
                 <div className="flex justify-between text-lg font-extrabold text-foreground">
                   <span>Total</span>
-                  <span>Rs. {cartSubtotal.toLocaleString()}</span>
+                  <span>Rs. {(cartSubtotal - (appliedCoupon?.discountAmount || 0)).toLocaleString()}</span>
                 </div>
               </div>
 

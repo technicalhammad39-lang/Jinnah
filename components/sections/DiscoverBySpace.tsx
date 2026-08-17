@@ -100,9 +100,9 @@ export function DiscoverBySpace() {
               transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
               className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tighter text-[#1a1917] leading-[1.05]"
             >
-              Find Products For{" "}
+              Everything For{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6A2A] to-[#FF9A55] font-stylish normal-case text-[1.1em]">
-                Every Space
+                Your Project
               </span>
             </motion.h2>
 

@@ -1,39 +1,59 @@
 import * as admin from 'firebase-admin';
 
-if (!admin.apps.length) {
-  try {
-    let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+// Use a global variable to preserve the singleton across HMR in Next.js development
+const globalForFirebaseAdmin = global as unknown as {
+  firebaseAdminApp: admin.app.App | undefined;
+};
+
+let adminApp: admin.app.App;
+
+if (globalForFirebaseAdmin.firebaseAdminApp) {
+  adminApp = globalForFirebaseAdmin.firebaseAdminApp;
+} else {
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+  if (!projectId || !clientEmail || !privateKey) {
+    console.error("Firebase Admin initialization failed. Missing required environment variables:");
+    console.error(`- FIREBASE_PROJECT_ID: ${!!projectId}`);
+    console.error(`- FIREBASE_CLIENT_EMAIL: ${!!clientEmail}`);
+    console.error(`- FIREBASE_PRIVATE_KEY: ${!!privateKey}`);
     
-    if (process.env.FIREBASE_PROJECT_ID && privateKey && process.env.FIREBASE_CLIENT_EMAIL) {
-      // Robustly handle private key formatting (escaped newlines, accidental quotes)
+    // Initialize without credentials so the app doesn't crash on build/import, 
+    // but operations requiring credentials will fail explicitly where they are used.
+    adminApp = admin.initializeApp({
+      projectId: projectId || 'jinnah-hardware-store',
+    });
+  } else {
+    try {
+      // Parse private key correctly whether it contains literal \n characters or actual newlines
       privateKey = privateKey.replace(/^"|"$/g, '').replace(/\\n/g, '\n');
-      
-      admin.initializeApp({
+
+      adminApp = admin.initializeApp({
         credential: admin.credential.cert({
-          projectId: process.env.FIREBASE_PROJECT_ID,
-          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-          privateKey: privateKey,
+          projectId,
+          clientEmail,
+          privateKey,
         }),
         storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
       });
       console.log("Firebase Admin initialized successfully with credentials.");
-    } else {
-      console.warn("Firebase Admin missing credentials, initializing with mock.");
-      console.warn(`Missing: PROJECT_ID=${!!process.env.FIREBASE_PROJECT_ID}, EMAIL=${!!process.env.FIREBASE_CLIENT_EMAIL}, KEY=${!!privateKey}`);
-      
-      admin.initializeApp({
-        projectId: process.env.FIREBASE_PROJECT_ID || 'jinnah-hardware-store'
+    } catch (error) {
+      console.error('Firebase Admin initialization error:', error);
+      // Fallback initialization
+      adminApp = admin.initializeApp({
+        projectId: projectId || 'jinnah-hardware-store',
       });
     }
-  } catch (error) {
-    console.error('Firebase admin initialization error:', error);
+  }
+
+  if (process.env.NODE_ENV !== 'production') {
+    globalForFirebaseAdmin.firebaseAdminApp = adminApp;
   }
 }
 
-export const adminApp = admin.apps.length > 0 ? admin.app() : undefined;
-export const adminDb = adminApp ? admin.firestore(adminApp) : undefined;
-export const adminAuth = adminApp ? admin.auth(adminApp) : undefined;
-export const adminStorage = adminApp ? admin.storage(adminApp) : undefined;
-
-// Export a flag to let API routes know if this is a mock initialization
-export const isMockAdmin = !process.env.FIREBASE_PROJECT_ID || !process.env.FIREBASE_PRIVATE_KEY || !process.env.FIREBASE_CLIENT_EMAIL;
+export { adminApp };
+export const adminDb = admin.firestore(adminApp);
+export const adminAuth = admin.auth(adminApp);
+export const adminStorage = admin.storage(adminApp);

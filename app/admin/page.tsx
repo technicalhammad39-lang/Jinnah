@@ -42,7 +42,8 @@ export default function AdminDashboard() {
     blogs: 0,
     messages: 0,
     gallery: 0,
-    orders: 0
+    orders: 0,
+    leadership: 0
   });
   const [productData, setProductData] = useState<{name: string, count: number}[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,14 +58,16 @@ export default function AdminDashboard() {
           blogsSnap,
           messagesSnap,
           gallerySnap,
-          ordersSnap
+          ordersSnap,
+          leadershipSnap
         ] = await Promise.all([
           getDocs(collection(db, "products")),
           getCountFromServer(collection(db, "brands")),
           getCountFromServer(collection(db, "blogs")),
           getCountFromServer(collection(db, "messages")),
           getCountFromServer(collection(db, "gallery")),
-          getCountFromServer(collection(db, "orders"))
+          getCountFromServer(collection(db, "orders")),
+          getCountFromServer(collection(db, "leadership"))
         ]);
 
         const categoryCount: Record<string, number> = {};
@@ -85,7 +88,8 @@ export default function AdminDashboard() {
           blogs: blogsSnap.data().count,
           messages: messagesSnap.data().count,
           gallery: gallerySnap.data().count,
-          orders: ordersSnap.data().count
+          orders: ordersSnap.data().count,
+          leadership: leadershipSnap.data().count
         });
       } catch (error) {
         console.error("Error fetching stats:", error);
@@ -102,6 +106,7 @@ export default function AdminDashboard() {
     { title: "Total Orders", value: stats.orders, icon: Package, color: "text-orange-400", bg: "bg-orange-400/10" },
     { title: "Total Brands", value: stats.brands, icon: Tags, color: "text-purple-400", bg: "bg-purple-400/10" },
     { title: "Blog Posts", value: stats.blogs, icon: FileText, color: "text-green-400", bg: "bg-green-400/10" },
+    { title: "About Profiles", value: stats.leadership, icon: Users, color: "text-rose-400", bg: "bg-rose-400/10" },
     { title: "New Messages", value: stats.messages, icon: MessageSquare, color: "text-yellow-400", bg: "bg-yellow-400/10" },
   ];
 
