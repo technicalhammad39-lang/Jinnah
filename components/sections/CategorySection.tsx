@@ -19,7 +19,7 @@ export function CategorySection() {
           </div>
           <h2 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-[#1a1917] max-w-2xl leading-[0.95]">
             Everything For Your <br />
-            <span className="text-primary font-stylish text-[1.1em]">Next Big Project</span>
+            <span className="text-primary font-stylish text-[1.1em]">Project</span>
           </h2>
         </div>
         <p className="text-sm text-muted-foreground max-w-sm text-left leading-relaxed font-medium">
