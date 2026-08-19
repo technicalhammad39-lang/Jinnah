@@ -3,14 +3,26 @@ import webpush from "web-push";
 import { getFirestore } from "firebase-admin/firestore";
 import { adminApp } from "@/lib/firebase-admin";
 
-webpush.setVapidDetails(
-  "mailto:contact@jinnahhardware.com", // Replace with an actual email
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY as string,
-  process.env.VAPID_PRIVATE_KEY as string
-);
+let isWebPushConfigured = false;
 
 export async function POST(req: Request) {
   try {
+    if (!isWebPushConfigured) {
+      const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+      const privateKey = process.env.VAPID_PRIVATE_KEY;
+      
+      if (publicKey && privateKey) {
+        webpush.setVapidDetails(
+          "mailto:contact@jinnahhardware.com",
+          publicKey,
+          privateKey
+        );
+        isWebPushConfigured = true;
+      } else {
+        console.warn("VAPID keys not configured, push notifications won't work");
+      }
+    }
+    
     let data;
     try {
       data = await req.json();
