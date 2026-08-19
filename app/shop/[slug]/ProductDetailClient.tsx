@@ -46,6 +46,7 @@ export default function ProductDetailClient({
   const [selectedSize, setSelectedSize] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [activeTab, setActiveTab] = useState('description');
   const addTimerRef = useRef<number | null>(null);
   const successTimerRef = useRef<number | null>(null);
 
@@ -354,42 +355,77 @@ export default function ProductDetailClient({
           </div>
         </div>
 
-        {/* Technical Specs & Full Description */}
+        {/* Tabs Section (Description, Features, Specifications) */}
         <div className="border-t border-black/5 pt-16 mb-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div>
-              <h2 className="text-2xl font-black uppercase tracking-tight text-[#1a1917] mb-6">Product Details</h2>
-              <div className="prose prose-sm max-w-none text-muted-foreground">
+          <div className="flex gap-8 border-b border-black/5 mb-8 overflow-x-auto pb-2 scrollbar-hide">
+            {['description', 'features', 'specifications'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`pb-4 text-sm font-black uppercase tracking-widest whitespace-nowrap transition-all border-b-2 ${
+                  activeTab === tab
+                    ? 'border-primary text-[#1a1917]'
+                    : 'border-transparent text-muted-foreground hover:text-[#1a1917]'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          <div className="min-h-[200px]">
+            {activeTab === 'description' && (
+              <div className="prose prose-sm max-w-none text-muted-foreground animate-in fade-in slide-in-from-bottom-2 duration-500">
                 {initialProduct.longDescription ? (
-                  <p className="whitespace-pre-wrap">{initialProduct.longDescription}</p>
+                  <p className="whitespace-pre-wrap leading-relaxed">{initialProduct.longDescription}</p>
                 ) : (
-                  <p className="whitespace-pre-wrap">{initialProduct.description}</p>
+                  <p className="whitespace-pre-wrap leading-relaxed">{initialProduct.description}</p>
                 )}
               </div>
-            </div>
-            
-            <div>
-              <h2 className="text-2xl font-black uppercase tracking-tight text-[#1a1917] mb-6">Specifications</h2>
-              {hasSpecs ? (
-                <div className="bg-white rounded-[24px] border border-black/5 overflow-hidden">
-                  {Object.entries(specifications).map(([key, value], index) => (
-                    <div 
-                      key={key} 
-                      className={`flex justify-between px-6 py-4 text-sm ${
-                        index !== Object.entries(specifications).length - 1 ? 'border-b border-black/5' : ''
-                      }`}
-                    >
-                      <span className="font-semibold text-muted-foreground">{key}</span>
-                      <span className="font-bold text-[#1a1917] text-right ml-4">{String(value)}</span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="bg-black/5 rounded-[24px] p-8 text-center text-sm font-medium text-muted-foreground">
-                  No technical specifications provided for this product.
-                </div>
-              )}
-            </div>
+            )}
+
+            {activeTab === 'features' && (
+              <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+                {initialProduct.features && initialProduct.features.length > 0 ? (
+                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {initialProduct.features.map((feature: string, idx: number) => (
+                      <li key={idx} className="flex items-start gap-3 text-sm text-muted-foreground font-medium p-4 bg-white rounded-2xl border border-black/5 shadow-sm">
+                        <Check className="h-5 w-5 text-primary shrink-0" />
+                        <span className="leading-relaxed">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="bg-black/5 rounded-[24px] p-8 text-center text-sm font-medium text-muted-foreground">
+                    No key features listed for this product.
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'specifications' && (
+              <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+                {hasSpecs ? (
+                  <div className="bg-white rounded-[24px] border border-black/5 overflow-hidden shadow-sm">
+                    {Object.entries(specifications).map(([key, value], index) => (
+                      <div 
+                        key={key} 
+                        className={`flex flex-col sm:flex-row sm:justify-between px-6 py-4 text-sm ${
+                          index !== Object.entries(specifications).length - 1 ? 'border-b border-black/5' : ''
+                        }`}
+                      >
+                        <span className="font-semibold text-muted-foreground mb-1 sm:mb-0">{key}</span>
+                        <span className="font-bold text-[#1a1917] sm:text-right">{String(value)}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-black/5 rounded-[24px] p-8 text-center text-sm font-medium text-muted-foreground">
+                    No technical specifications provided for this product.
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

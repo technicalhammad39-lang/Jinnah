@@ -1,10 +1,17 @@
 import { NextResponse } from "next/server";
-import { getMessaging } from "firebase-admin/messaging";
+import webpush from "web-push";
+import { getFirestore } from "firebase-admin/firestore";
 import { adminApp } from "@/lib/firebase-admin";
+
+webpush.setVapidDetails(
+  "mailto:contact@jinnahhardware.com", // Replace with an actual email
+  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY as string,
+  process.env.VAPID_PRIVATE_KEY as string
+);
 
 export async function POST(req: Request) {
   try {
-    const { title, body, link } = await req.json();
+    const { title, body, link, icon } = await req.json();
 
     if (!title || !body) {
       return NextResponse.json(
@@ -16,27 +23,42 @@ export async function POST(req: Request) {
     if (!adminApp) {
       console.error("Firebase Admin is missing.");
       return NextResponse.json(
-        { error: "Firebase Admin is not configured. Missing Service Account Key." },
+        { error: "Firebase Admin is not configured." },
         { status: 500 }
       );
     }
 
-    const message = {
-      notification: {
-        title,
-        body,
-      },
-      webpush: {
-        fcmOptions: {
-          link: link || "/",
-        },
-      },
-      topic: "all", // Sending to everyone subscribed to "all" topic
-    };
-
-    const response = await getMessaging(adminApp).send(message);
+    const db = getFirestore(adminApp);
+    const subscriptionsSnapshot = await db.collection("subscriptions").get();
     
-    return NextResponse.json({ success: true, messageId: response });
+    if (subscriptionsSnapshot.empty) {
+      return NextResponse.json({ success: true, message: "No subscribers found." });
+    }
+
+    const payload = JSON.stringify({
+      title,
+      body,
+      url: link || "/",
+      icon: icon || "/icon.png"
+    });
+
+    const sendPromises = subscriptionsSnapshot.docs.map(async (doc) => {
+      const subscription = doc.data();
+      try {
+        await webpush.sendNotification(subscription as any, payload);
+      } catch (err: any) {
+        if (err.statusCode === 404 || err.statusCode === 410) {
+          // Subscription has expired or is no longer valid, delete it
+          await doc.ref.delete();
+        } else {
+          console.error("Error sending notification to subscriber:", err);
+        }
+      }
+    });
+
+    await Promise.all(sendPromises);
+    
+    return NextResponse.json({ success: true, sent: subscriptionsSnapshot.size });
   } catch (error: any) {
     console.error("Error sending notification:", error);
     return NextResponse.json(

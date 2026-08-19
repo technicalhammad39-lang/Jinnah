@@ -1,8 +1,21 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { getMessaging, getToken, isSupported } from "firebase/messaging";
-import { app } from "@/lib/firebase";
+
+function urlBase64ToUint8Array(base64String: string) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding)
+    .replace(/\-/g, '+')
+    .replace(/_/g, '/');
+
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
 
 export default function PushNotificationManager() {
   const initialized = useRef(false);
@@ -12,14 +25,10 @@ export default function PushNotificationManager() {
       if (initialized.current) return;
       
       try {
-        if (typeof window !== "undefined" && "Notification" in window) {
-          const supported = await isSupported();
-          if (!supported) return;
-
-          // Check if already granted, otherwise we must wait for user gesture
+        if (typeof window !== "undefined" && "serviceWorker" in navigator && "PushManager" in window) {
           if (Notification.permission === "granted") {
             initialized.current = true;
-            await registerToken();
+            await registerSubscription();
           }
         }
       } catch (error) {
@@ -27,37 +36,47 @@ export default function PushNotificationManager() {
       }
     };
 
-    const registerToken = async () => {
+    const registerSubscription = async () => {
       try {
-        const messaging = getMessaging(app);
-        const currentToken = await getToken(messaging, {
-          vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
-        });
+        const registration = await navigator.serviceWorker.register("/sw.js");
+        
+        let subscription = await registration.pushManager.getSubscription();
+        
+        if (!subscription) {
+          const publicVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+          if (!publicVapidKey) {
+            console.error("VAPID public key not found");
+            return;
+          }
+          
+          subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+          });
+        }
 
-        if (currentToken) {
-          // Send token to our server to subscribe to the "all" topic
+        if (subscription) {
           await fetch("/api/notifications/subscribe", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token: currentToken }),
+            body: JSON.stringify({ subscription }),
           }).catch(console.error);
         }
       } catch (e) {
-        console.error("Failed to register token", e);
+        console.error("Failed to register push subscription", e);
       }
     };
 
     const handleUserInteraction = async () => {
       if (initialized.current) return;
       
-      if (typeof window !== "undefined" && "Notification" in window) {
-        const supported = await isSupported();
-        if (supported && Notification.permission !== "denied" && Notification.permission !== "granted") {
+      if (typeof window !== "undefined" && "serviceWorker" in navigator && "PushManager" in window) {
+        if (Notification.permission !== "denied" && Notification.permission !== "granted") {
           try {
             const permission = await Notification.requestPermission();
             if (permission === "granted") {
               initialized.current = true;
-              await registerToken();
+              await registerSubscription();
             }
           } catch (e) {
             console.error("Permission request failed", e);
@@ -65,14 +84,12 @@ export default function PushNotificationManager() {
         }
       }
       
-      // Remove listeners after first interaction
       document.removeEventListener("click", handleUserInteraction);
       document.removeEventListener("scroll", handleUserInteraction);
     };
 
     setupNotifications();
 
-    // Attach to user interactions to trigger permission request
     document.addEventListener("click", handleUserInteraction, { once: true });
     document.addEventListener("scroll", handleUserInteraction, { once: true });
 

@@ -283,7 +283,7 @@ export function AnimatedMarqueeHero({
           <div className="w-full max-w-[92rem] space-y-4 sm:space-y-5 lg:space-y-7 mt-10 sm:mt-14 md:mt-16">
             <h1 className="mx-auto w-full text-balance text-[3.1rem] font-black leading-[0.95] tracking-[-0.052em] sm:text-[4.25rem] md:text-[5rem] lg:text-[5.35rem] xl:text-[6rem] 2xl:text-[6.85rem]">
               {titleLines.map((line, lineIndex) => {
-                const parts = line.split(/(HARDWARE)/);
+                const parts = line.split(/(Premium|Hardware)/);
                 return (
                   <motion.span
                     key={lineIndex}
@@ -292,18 +292,20 @@ export function AnimatedMarqueeHero({
                     transition={getEntranceTransition(entranceDelay + lineIndex * entranceStagger)}
                     className="block will-change-[transform,opacity] font-bold tracking-tight opacity-95 text-[#1a1815]"
                   >
-                    {parts.map((part, i) => (
-                      <span
-                        key={i}
-                        className={
-                          part === "HARDWARE"
-                            ? "font-stylish text-primary italic font-medium"
-                            : ""
-                        }
-                      >
-                        {part}
-                      </span>
-                    ))}
+                    {parts.map((part, i) => {
+                      let spanClass = "";
+                      if (part === "Premium") {
+                        spanClass = "font-stylish text-primary italic font-medium text-[1.1em]";
+                      } else if (part === "Hardware") {
+                        spanClass = "md:font-stylish md:text-primary md:italic md:font-medium md:text-[1.1em]";
+                      }
+                      
+                      return (
+                        <span key={i} className={spanClass}>
+                          {part}
+                        </span>
+                      );
+                    })}
                   </motion.span>
                 );
               })}

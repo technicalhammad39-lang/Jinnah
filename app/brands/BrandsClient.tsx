@@ -60,21 +60,21 @@ export default function BrandsClient({ initialBrands = [] }: { initialBrands: an
           </div>
         </section>
 
-        <section className="pt-24 pb-24 px-6 bg-white rounded-t-[3rem] md:rounded-t-[4rem] relative overflow-hidden shadow-[0_-20px_40px_rgba(0,0,0,0.1)] -mt-12">
-          {/* Light Grey Dotted Pattern */}
-          <div 
-            className="absolute inset-0 pointer-events-none z-0" 
-            style={{
-              backgroundImage: 'radial-gradient(circle at center, #e5e7eb 1.5px, transparent 1.5px)',
-              backgroundSize: '12px 12px',
-              opacity: 0.7,
-            }}
-          />
-          
-          <div className="max-w-[1740px] mx-auto relative z-10">
-            <div className="mb-10 text-center">
-              <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-[#FF6A2A]">Our Portfolio</h2>
-            </div>
+        <div className="px-6 md:px-8 xl:px-12 max-w-[1740px] mx-auto my-12 md:my-24 relative z-10">
+          <section className="pt-24 pb-24 px-6 bg-gradient-to-br from-[#ff9a55] via-[#ff7c3a] to-[#FF6A2A] rounded-[2.5rem] md:rounded-[3rem] relative overflow-hidden shadow-2xl shadow-orange-500/20">
+            {/* White Dotted Pattern for contrast against orange */}
+            <div 
+              className="absolute inset-0 pointer-events-none z-0 mix-blend-overlay" 
+              style={{
+                backgroundImage: 'radial-gradient(circle at center, rgba(255,255,255,0.4) 1.5px, transparent 1.5px)',
+                backgroundSize: '12px 12px',
+              }}
+            />
+            
+            <div className="max-w-[1740px] mx-auto relative z-10">
+              <div className="mb-10 text-center">
+                <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-white drop-shadow-sm">Our Portfolio</h2>
+              </div>
             
             <div className="flex flex-wrap justify-center gap-8">
             {brands.map((brand, i) => (
@@ -119,8 +119,9 @@ export default function BrandsClient({ initialBrands = [] }: { initialBrands: an
               </motion.div>
             ))}
           </div>
-          </div>
-        </section>
+            </div>
+          </section>
+        </div>
 
         {/* BRAND VALUES */}
         <div className="px-6 md:px-8 xl:px-12 max-w-[1740px] mx-auto my-24 relative z-10">

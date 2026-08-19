@@ -1,33 +1,50 @@
 import { NextResponse } from "next/server";
-import { getMessaging } from "firebase-admin/messaging";
+import { getFirestore } from "firebase-admin/firestore";
 import { adminApp } from "@/lib/firebase-admin";
 
 export async function POST(req: Request) {
   try {
-    const { token } = await req.json();
+    const { subscription } = await req.json();
 
-    if (!token) {
+    if (!subscription || !subscription.endpoint) {
       return NextResponse.json(
-        { error: "Token is required." },
+        { error: "Valid subscription object is required." },
         { status: 400 }
       );
     }
 
     if (!adminApp) {
       return NextResponse.json(
-        { error: "Firebase Admin is not configured. Missing Service Account Key." },
+        { error: "Firebase Admin is not configured." },
         { status: 500 }
       );
     }
 
-    // Subscribe the device token to the "all" topic
-    const response = await getMessaging(adminApp).subscribeToTopic([token], "all");
+    const db = getFirestore(adminApp);
     
-    return NextResponse.json({ success: true, response });
+    // We use the endpoint as a unique identifier to prevent duplicates
+    // since endpoints are unique per device/browser.
+    // However, endpoints can be URLs, so we'll hash it or just use it to query.
+    // Let's just create a unique document.
+    
+    const subsRef = db.collection("subscriptions");
+    const existing = await subsRef.where("endpoint", "==", subscription.endpoint).get();
+    
+    if (!existing.empty) {
+      // Already subscribed
+      return NextResponse.json({ success: true, message: "Already subscribed" });
+    }
+
+    await subsRef.add({
+      ...subscription,
+      createdAt: new Date().toISOString()
+    });
+    
+    return NextResponse.json({ success: true, message: "Subscribed successfully" });
   } catch (error: any) {
-    console.error("Error subscribing to topic:", error);
+    console.error("Error saving subscription:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to subscribe to topic." },
+      { error: error.message || "Failed to save subscription." },
       { status: 500 }
     );
   }

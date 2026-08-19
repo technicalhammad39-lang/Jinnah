@@ -50,7 +50,7 @@ export function ContactSection() {
 
   const contactOptions = [
     {
-      title: "Showroom Location",
+      title: "Shop Location",
       value: "Opposite Gulbarag Town, Bahawalpur Road, Hasilpur",
       icon: MapPin,
     },
@@ -66,7 +66,7 @@ export function ContactSection() {
     },
     {
       title: "Operating Hours",
-      value: "Mon - Sat: 10:00 AM - 8:00 PM\nSunday: Closed",
+      value: "Mon - Mon: 8:00 AM - 8:00 PM",
       icon: Clock,
     },
   ];
@@ -103,12 +103,12 @@ export function ContactSection() {
                     key={opt.title}
                     className="group flex items-start gap-5 transition-all duration-500"
                   >
-                    <div 
+                    <div
                       className="flex-shrink-0 w-12 h-12 rounded-[14px] flex items-center justify-center transition-all duration-500 bg-black/5 text-[#1a1917] group-hover:bg-primary group-hover:text-white group-hover:-translate-y-1 shadow-sm"
                     >
                       <OptIcon className="h-5 w-5 transition-colors" />
                     </div>
-                    
+
                     <div className="pt-0.5">
                       <h4 className="font-extrabold text-sm md:text-[15px] uppercase tracking-tight text-[#1a1917] mb-1">
                         {opt.title}

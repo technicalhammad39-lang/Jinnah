@@ -38,20 +38,30 @@ export default function BlogsClient({ initialBlogs = [] }: { initialBlogs: any[]
           <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
             <DustParticles />
           </div>
-          <div className="max-w-[1740px] mx-auto space-y-6 relative z-10">
-            {/* Side Glows */}
-            <div className="absolute top-1/2 left-0 md:left-10 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px] pointer-events-none -z-10" />
-            <div className="absolute top-1/2 right-0 md:right-10 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px] pointer-events-none -z-10" />
-
           {/* Left Shape */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1, delay: 0.2 }}
-            className="absolute left-0 top-0 bottom-0 w-[150px] md:w-[250px] lg:w-[400px] z-0 pointer-events-none -translate-x-[30%] opacity-60 rotate-12"
+            className="absolute left-0 top-0 bottom-0 w-[200px] md:w-[350px] lg:w-[500px] xl:w-[600px] z-0 pointer-events-none -translate-x-[40%] opacity-60 rotate-12"
           >
             <Image src="/hero-shape.svg" alt="Shape Left" fill className="object-contain object-left scale-x-[-1]" priority />
           </motion.div>
+
+          {/* Right Shape */}
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, delay: 0.3 }}
+            className="absolute right-0 top-0 bottom-0 w-[200px] md:w-[350px] lg:w-[500px] xl:w-[600px] z-0 pointer-events-none translate-x-[40%] opacity-60 -rotate-12"
+          >
+            <Image src="/hero-shape.svg" alt="Shape Right" fill className="object-contain object-right scale-x-[-1]" priority />
+          </motion.div>
+
+          <div className="max-w-[1740px] mx-auto space-y-6 relative z-10">
+            {/* Side Glows */}
+            <div className="absolute top-1/2 left-0 md:left-10 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px] pointer-events-none -z-10" />
+            <div className="absolute top-1/2 right-0 md:right-10 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px] pointer-events-none -z-10" />
 
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
