@@ -21,12 +21,12 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
 
   useEffect(() => {
     // If we didn't get initial reviews, fetch them
-    if (initialReviews.length === 0) {
+    if (!initialReviews || initialReviews.length === 0) {
       import("@/lib/data-fetcher").then((mod) => {
         mod.getReviews().then((data) => setReviews(data));
       });
     }
-  }, [initialReviews]);
+  }, []);
 
   if (reviews.length === 0) return null;
 

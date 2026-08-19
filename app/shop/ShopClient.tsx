@@ -140,10 +140,10 @@ export function ShopClient({ initialProducts = [], initialBrands = [] }: { initi
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-transparent pt-28">
+    <div className="min-h-screen flex flex-col justify-between bg-transparent pt-24 md:pt-28">
       {/* Search Header Area */}
-      <div className="max-w-[1740px] mx-auto px-6 w-full text-left py-8">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-black/5 pb-8 gap-4">
+      <div className="max-w-[1740px] mx-auto px-6 w-full text-left py-4 md:py-8">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-black/5 pb-6 md:pb-8 gap-4">
           <div>
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">
               <Link href="/" className="hover:text-primary">Home</Link>
@@ -155,30 +155,43 @@ export function ShopClient({ initialProducts = [], initialBrands = [] }: { initi
             </h1>
           </div>
 
-          {/* Sub-tabs switches */}
-          <div className="flex w-full md:w-auto rounded-full border border-black/10 bg-[#f1ece4]/90 p-1 shadow-[0_8px_20px_rgba(26,25,23,0.05)] backdrop-blur-sm">
-            <button
-              onClick={() => setActiveTab("products")}
-              className={`flex-1 md:flex-none px-3 md:px-4.5 py-2 rounded-full text-[10px] md:text-[11px] font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                activeTab === "products"
-                  ? "border border-black/5 bg-white text-[#1a1917] shadow-sm"
-                  : "text-[#655d54] hover:bg-white/70 hover:text-[#1a1917]"
-              }`}
-            >
-              <ShoppingBag className="h-3.5 w-3.5" />
-              <span>Catalog</span>
-            </button>
-            <button
-              onClick={() => setActiveTab("wishlist")}
-              className={`flex-1 md:flex-none px-3 md:px-4.5 py-2 rounded-full text-[10px] md:text-[11px] font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                activeTab === "wishlist"
-                  ? "border border-black/5 bg-white text-[#1a1917] shadow-sm"
-                  : "text-[#655d54] hover:bg-white/70 hover:text-[#1a1917]"
-              }`}
-            >
-              <Heart className="h-3.5 w-3.5" />
-              <span>Wishlist ({wishlist.length})</span>
-            </button>
+          <div className="flex w-full md:w-auto items-center gap-2">
+            {/* Sub-tabs switches */}
+            <div className="flex flex-1 md:flex-none rounded-full border border-black/10 bg-[#f1ece4]/90 p-1 shadow-[0_8px_20px_rgba(26,25,23,0.05)] backdrop-blur-sm">
+              <button
+                onClick={() => setActiveTab("products")}
+                className={`flex-1 md:flex-none px-3 md:px-4.5 py-2 rounded-full text-[10px] md:text-[11px] font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                  activeTab === "products"
+                    ? "border border-black/5 bg-white text-[#1a1917] shadow-sm"
+                    : "text-[#655d54] hover:bg-white/70 hover:text-[#1a1917]"
+                }`}
+              >
+                <ShoppingBag className="h-3.5 w-3.5" />
+                <span>Catalog</span>
+              </button>
+              <button
+                onClick={() => setActiveTab("wishlist")}
+                className={`flex-1 md:flex-none px-3 md:px-4.5 py-2 rounded-full text-[10px] md:text-[11px] font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                  activeTab === "wishlist"
+                    ? "border border-black/5 bg-white text-[#1a1917] shadow-sm"
+                    : "text-[#655d54] hover:bg-white/70 hover:text-[#1a1917]"
+                }`}
+              >
+                <Heart className="h-3.5 w-3.5" />
+                <span>Wishlist ({wishlist.length})</span>
+              </button>
+            </div>
+
+            {/* Mobile Filter Toggle Button (Icon only) */}
+            {activeTab === "products" && (
+              <button
+                onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
+                className="lg:hidden shrink-0 flex items-center justify-center w-[44px] h-[44px] rounded-full border border-black/10 bg-[#f1ece4]/90 shadow-sm hover:border-primary/50 text-[#1a1917] transition-all cursor-pointer"
+                aria-label="Toggle Filters"
+              >
+                <SlidersHorizontal className="h-4.5 w-4.5" />
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -186,18 +199,7 @@ export function ShopClient({ initialProducts = [], initialBrands = [] }: { initi
       {/* Main Tab Rendering Block */}
       <div className="max-w-[1740px] mx-auto px-6 md:px-8 xl:px-12 w-full flex-grow pb-24">
         {activeTab === "products" && (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
-            
-            {/* Mobile Filter Toggle Button */}
-            <div className="lg:hidden mb-4">
-              <button
-                onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
-                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-white border border-black/10 text-xs font-bold uppercase tracking-widest shadow-sm hover:border-primary/50 transition-colors"
-              >
-                <SlidersHorizontal className="h-4 w-4" />
-                <span>{isMobileFilterOpen ? "Hide Filters" : "Show Filters"}</span>
-              </button>
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 items-start">
 
             {/* Filters Sidebar (Col 1) */}
             <div className={`lg:col-span-1 sticky top-28 space-y-7 rounded-3xl border border-black/10 bg-white/85 p-6 text-left shadow-[0_16px_32px_rgba(26,25,23,0.05)] backdrop-blur-md ${isMobileFilterOpen ? "block" : "hidden lg:block"}`}>

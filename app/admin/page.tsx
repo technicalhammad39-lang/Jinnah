@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, getCountFromServer } from "firebase/firestore";
+import { collection, getCountFromServer, onSnapshot, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { 
   Package, 
@@ -10,7 +10,9 @@ import {
   MessageSquare, 
   ImageIcon,
   TrendingUp,
-  Users
+  Users,
+  ShoppingCart,
+  Star
 } from "lucide-react";
 import { 
   AreaChart, 
@@ -24,90 +26,107 @@ import {
   Bar
 } from "recharts";
 
-// Mock data for charts until we build full analytics
-const visitorData = [
-  { name: 'Mon', visitors: 400 },
-  { name: 'Tue', visitors: 300 },
-  { name: 'Wed', visitors: 550 },
-  { name: 'Thu', visitors: 450 },
-  { name: 'Fri', visitors: 700 },
-  { name: 'Sat', visitors: 650 },
-  { name: 'Sun', visitors: 800 },
-];
-
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
     products: 0,
-    brands: 0,
+    orders: 0,
+    reviews: 0,
     blogs: 0,
     messages: 0,
-    gallery: 0,
-    orders: 0,
-    leadership: 0
   });
   const [productData, setProductData] = useState<{name: string, count: number}[]>([]);
+  const [chartData, setChartData] = useState<{name: string, visitors: number}[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchStats() {
+    // 1. Fetch static counts for stats that don't need full document sync
+    async function fetchCounts() {
       try {
-        const { getDocs } = await import("firebase/firestore");
         const [
-          productsSnap,
-          brandsSnap,
           blogsSnap,
           messagesSnap,
-          gallerySnap,
-          ordersSnap,
-          leadershipSnap
+          reviewsSnap,
         ] = await Promise.all([
-          getDocs(collection(db, "products")),
-          getCountFromServer(collection(db, "brands")),
           getCountFromServer(collection(db, "blogs")),
           getCountFromServer(collection(db, "messages")),
-          getCountFromServer(collection(db, "gallery")),
-          getCountFromServer(collection(db, "orders")),
-          getCountFromServer(collection(db, "leadership"))
+          getCountFromServer(collection(db, "reviews")),
         ]);
 
-        const categoryCount: Record<string, number> = {};
-        productsSnap.docs.forEach((doc) => {
-          const cat = doc.data().category || "Uncategorized";
-          categoryCount[cat] = (categoryCount[cat] || 0) + 1;
-        });
-
-        const chartData = Object.entries(categoryCount).map(([name, count]) => ({
-          name, count
-        })).sort((a, b) => b.count - a.count).slice(0, 5); // top 5 categories
-
-        setProductData(chartData);
-
-        setStats({
-          products: productsSnap.size,
-          brands: brandsSnap.data().count,
+        setStats(prev => ({
+          ...prev,
           blogs: blogsSnap.data().count,
           messages: messagesSnap.data().count,
-          gallery: gallerySnap.data().count,
-          orders: ordersSnap.data().count,
-          leadership: leadershipSnap.data().count
-        });
+          reviews: reviewsSnap.data().count,
+        }));
       } catch (error) {
-        console.error("Error fetching stats:", error);
-      } finally {
-        setLoading(false);
+        console.error("Error fetching counts:", error);
       }
     }
+    fetchCounts();
 
-    fetchStats();
+    // 2. Real-time sync for Products (Category Spread) & Total Products count
+    const unsubscribeProducts = onSnapshot(collection(db, "products"), (snapshot) => {
+      const categoryCount: Record<string, number> = {};
+      snapshot.docs.forEach((doc) => {
+        const cat = doc.data().category || "Uncategorized";
+        categoryCount[cat] = (categoryCount[cat] || 0) + 1;
+      });
+
+      const catData = Object.entries(categoryCount)
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
+
+      setProductData(catData);
+      setStats(prev => ({ ...prev, products: snapshot.size }));
+    });
+
+    // 3. Real-time sync for Orders (Content Growth) & Total Orders count
+    // Generate last 7 days names
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const today = new Date();
+    const last7Days = Array.from({length: 7}).map((_, i) => {
+      const d = new Date();
+      d.setDate(today.getDate() - (6 - i));
+      return { name: days[d.getDay()], date: d, visitors: 0 }; // visitors = orders
+    });
+
+    const unsubscribeOrders = onSnapshot(collection(db, "orders"), (snapshot) => {
+      // Reset counts
+      const updated7Days = last7Days.map(d => ({ ...d, visitors: 0 }));
+
+      snapshot.docs.forEach(doc => {
+        const data = doc.data();
+        if (data.createdAt) {
+          const orderDate = data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt);
+          // Find if order is in last 7 days
+          const dayMatch = updated7Days.find(d => 
+            d.date.getDate() === orderDate.getDate() && 
+            d.date.getMonth() === orderDate.getMonth()
+          );
+          if (dayMatch) {
+            dayMatch.visitors += 1;
+          }
+        }
+      });
+
+      setChartData(updated7Days);
+      setStats(prev => ({ ...prev, orders: snapshot.size }));
+      setLoading(false);
+    });
+
+    return () => {
+      unsubscribeProducts();
+      unsubscribeOrders();
+    };
   }, []);
 
   const statCards = [
-    { title: "Total Products", value: stats.products, icon: Package, color: "text-blue-400", bg: "bg-blue-400/10" },
-    { title: "Total Orders", value: stats.orders, icon: Package, color: "text-orange-400", bg: "bg-orange-400/10" },
-    { title: "Total Brands", value: stats.brands, icon: Tags, color: "text-purple-400", bg: "bg-purple-400/10" },
-    { title: "Blog Posts", value: stats.blogs, icon: FileText, color: "text-green-400", bg: "bg-green-400/10" },
-    { title: "About Profiles", value: stats.leadership, icon: Users, color: "text-rose-400", bg: "bg-rose-400/10" },
-    { title: "New Messages", value: stats.messages, icon: MessageSquare, color: "text-yellow-400", bg: "bg-yellow-400/10" },
+    { title: "Total Products", value: stats.products, icon: Package },
+    { title: "Total Orders", value: stats.orders, icon: ShoppingCart },
+    { title: "Reviews", value: stats.reviews, icon: Star },
+    { title: "Blog Posts", value: stats.blogs, icon: FileText },
+    { title: "New Messages", value: stats.messages, icon: MessageSquare },
   ];
 
   return (
@@ -123,23 +142,27 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Stats Grid */}
+      {/* Premium Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {statCards.map((stat, index) => {
           const Icon = stat.icon;
           return (
             <div 
               key={index} 
-              className="bg-white border border-[#1a1917]/5 p-6 rounded-2xl flex flex-col justify-between hover:border-[#1a1917]/10 transition-colors group"
+              className="relative overflow-hidden bg-gradient-to-br from-[#FF6A2A] to-[#FF8A50] p-6 rounded-3xl flex flex-col justify-between shadow-lg shadow-orange-500/20 group hover:-translate-y-1 transition-all duration-300"
             >
-              <div className="flex justify-between items-start mb-4">
-                <div className={`p-3 rounded-xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform`}>
-                  <Icon className="w-5 h-5" />
+              {/* Decorative shapes */}
+              <div className="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 rounded-full bg-white/10 blur-2xl group-hover:bg-white/20 transition-colors" />
+              <div className="absolute bottom-0 left-0 -ml-4 -mb-4 w-16 h-16 rounded-full bg-white/10 blur-xl group-hover:bg-white/20 transition-colors" />
+              
+              <div className="flex justify-between items-start mb-4 relative z-10">
+                <div className="p-3 rounded-2xl bg-white/20 text-white backdrop-blur-sm group-hover:scale-110 transition-transform shadow-inner border border-white/20">
+                  <Icon className="w-6 h-6" />
                 </div>
               </div>
-              <div>
-                <p className="text-[#1a1917]/50 text-sm font-medium">{stat.title}</p>
-                <h3 className="text-3xl font-black text-[#1a1917] mt-1">
+              <div className="relative z-10">
+                <p className="text-orange-50 text-sm font-medium tracking-wide">{stat.title}</p>
+                <h3 className="text-3xl font-black text-white mt-1 drop-shadow-md">
                   {loading ? "..." : stat.value}
                 </h3>
               </div>
@@ -163,7 +186,7 @@ export default function AdminDashboard() {
           </div>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={visitorData}>
+              <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="colorVisitors" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#FF6A2A" stopOpacity={0.3}/>

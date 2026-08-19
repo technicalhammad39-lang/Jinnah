@@ -11,7 +11,13 @@ webpush.setVapidDetails(
 
 export async function POST(req: Request) {
   try {
-    const { title, body, link, icon } = await req.json();
+    let data;
+    try {
+      data = await req.json();
+    } catch (e) {
+      return NextResponse.json({ error: "Invalid JSON body provided. Please make sure you are sending a valid payload." }, { status: 400 });
+    }
+    const { title, body, link, icon } = data;
 
     if (!title || !body) {
       return NextResponse.json(
@@ -39,7 +45,7 @@ export async function POST(req: Request) {
       title,
       body,
       url: link || "/",
-      icon: icon || "/icon.png"
+      icon: icon || "/jinnah-logo.webp"
     });
 
     const sendPromises = subscriptionsSnapshot.docs.map(async (doc) => {

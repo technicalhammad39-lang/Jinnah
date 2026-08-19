@@ -143,9 +143,10 @@ export async function getGallery() {
 
 export async function getPaymentMethods() {
   try {
-    const q = query(collection(db, "payment-methods"), where("active", "==", true), orderBy("order", "asc"));
+    const q = query(collection(db, "payment-methods"), where("active", "==", true));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...serializeData(doc.data()) })) as any[];
+    const data = snapshot.docs.map(doc => ({ id: doc.id, ...serializeData(doc.data()) })) as any[];
+    return data.sort((a, b) => (a.order || 0) - (b.order || 0));
   } catch (error) {
     console.error("Error fetching payment methods:", error);
     return [];
@@ -154,9 +155,10 @@ export async function getPaymentMethods() {
 
 export async function getReviews() {
   try {
-    const q = query(collection(db, "reviews"), where("active", "==", true), orderBy("order", "asc"));
+    const q = query(collection(db, "reviews"), where("active", "==", true));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...serializeData(doc.data()) })) as any[];
+    const data = snapshot.docs.map(doc => ({ id: doc.id, ...serializeData(doc.data()) })) as any[];
+    return data.sort((a, b) => (a.order || 0) - (b.order || 0));
   } catch (error) {
     console.error("Error fetching reviews:", error);
     return [];

@@ -22,7 +22,9 @@ import {
   Users,
   Star,
   FolderTree,
-  Ticket
+  Ticket,
+  ChevronsLeft,
+  ChevronsRight
 } from "lucide-react";
 import Image from "next/image";
 
@@ -45,6 +47,7 @@ const sidebarLinks = [
 
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
   const { logout, user } = useAuth();
 
@@ -65,21 +68,33 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
       {/* Sidebar */}
       <aside 
-        className={`absolute inset-y-0 left-0 z-50 w-72 bg-white border-r border-[#1a1917]/5 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 flex flex-col shrink-0 ${
-          sidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
-        }`}
+        className={`absolute inset-y-4 left-4 z-50 lg:static lg:my-4 lg:ml-4 lg:h-[calc(100vh-2rem)] bg-gradient-to-b from-[#E04A1A] to-[#C8300A] text-white rounded-3xl shadow-2xl transform transition-all duration-300 ease-in-out lg:translate-x-0 flex flex-col shrink-0 overflow-hidden ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-[120%]"
+        } ${isCollapsed ? "w-20" : "w-72"}`}
       >
-        <div className="h-20 flex items-center justify-between px-6 border-b border-[#1a1917]/5 shrink-0">
-          <Link href="/admin" className="relative h-10 w-32">
-            <Image src="/jinnah-logo.webp" alt="Jinnah Hardware" fill className="object-contain object-left" />
+        <div className="h-20 flex items-center justify-between px-4 border-b border-white/10 shrink-0 bg-white/5">
+          <Link href="/admin" className={`relative transition-all duration-300 ${isCollapsed ? "h-10 w-10 overflow-hidden" : "h-16 w-52"} flex items-center justify-start`}>
+            {isCollapsed ? (
+              <Image src="/favicon.svg" alt="Jinnah" fill className="object-contain" />
+            ) : (
+              <Image src="/jinnah-bottom.png" alt="Jinnah Hardware" fill className="object-contain object-left" />
+            )}
           </Link>
-          <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-[#1a1917]/50 hover:text-[#1a1917]">
-            <X className="h-6 w-6" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setIsCollapsed(!isCollapsed)} 
+              className="hidden lg:flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 p-2 rounded-xl transition-colors"
+            >
+              {isCollapsed ? <ChevronsRight className="w-5 h-5" /> : <ChevronsLeft className="w-5 h-5" />}
+            </button>
+            <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-white/70 hover:text-white">
+              <X className="h-6 w-6" />
+            </button>
+          </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto py-6 px-4 space-y-1 custom-scrollbar">
-          <div className="text-xs font-bold text-[#1a1917]/30 uppercase tracking-wider mb-4 px-3">Main Menu</div>
+        <div className={`flex-1 py-6 px-3 space-y-1 custom-scrollbar ${isCollapsed ? "overflow-y-hidden hover:overflow-y-auto" : "overflow-y-auto"}`}>
+          {!isCollapsed && <div className="text-xs font-bold text-white/50 uppercase tracking-wider mb-4 px-3">Main Menu</div>}
           {sidebarLinks.map((link) => {
             const isActive = pathname === link.href;
             const Icon = link.icon;
@@ -88,35 +103,39 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
                 key={link.name}
                 href={link.href}
                 onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all ${
+                title={link.name}
+                className={`flex items-center gap-3 py-3 rounded-xl transition-all ${isCollapsed ? "px-3 justify-center" : "px-4"} ${
                   isActive 
-                    ? "bg-[#FF6A2A]/10 text-[#FF6A2A] font-semibold" 
-                    : "text-[#1a1917]/60 hover:bg-[#1a1917]/5 hover:text-[#1a1917]"
+                    ? "bg-white text-[#FF6A2A] font-bold shadow-md" 
+                    : "text-white/80 hover:bg-white/10 hover:text-white font-medium"
                 }`}
               >
-                <Icon className={`h-5 w-5 ${isActive ? "text-[#FF6A2A]" : "text-[#1a1917]/40"}`} />
-                {link.name}
+                <Icon className={`h-5 w-5 shrink-0 ${isActive ? "text-[#FF6A2A]" : "text-white/70"}`} />
+                {!isCollapsed && <span className="truncate">{link.name}</span>}
               </Link>
             );
           })}
         </div>
 
-        <div className="p-4 border-t border-[#1a1917]/5 shrink-0">
-          <div className="flex items-center gap-3 px-3 py-3 mb-2 rounded-xl bg-[#1a1917]/5">
-            <div className="w-8 h-8 rounded-full bg-[#FF6A2A]/20 flex items-center justify-center text-[#FF6A2A] font-bold">
+        <div className={`p-4 border-t border-white/10 shrink-0 bg-white/5 ${isCollapsed ? "flex flex-col gap-2 items-center" : ""}`}>
+          <div className={`flex items-center gap-3 mb-2 rounded-xl bg-white/10 ${isCollapsed ? "p-2 justify-center" : "px-3 py-3"}`}>
+            <div className="w-8 h-8 shrink-0 rounded-full bg-white flex items-center justify-center text-[#FF6A2A] font-bold shadow-inner">
               {user?.email?.[0].toUpperCase() || "A"}
             </div>
-            <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-medium truncate">{user?.email}</p>
-              <p className="text-xs text-[#1a1917]/40">Super Admin</p>
-            </div>
+            {!isCollapsed && (
+              <div className="flex-1 overflow-hidden text-white">
+                <p className="text-sm font-semibold truncate">{user?.email}</p>
+                <p className="text-xs text-white/70">Super Admin</p>
+              </div>
+            )}
           </div>
           <button 
             onClick={logout}
-            className="flex items-center gap-3 px-3 py-3 w-full rounded-xl text-red-400 hover:bg-red-500/10 transition-colors"
+            title="Logout"
+            className={`flex items-center gap-3 py-3 rounded-xl text-white hover:bg-white/10 transition-colors font-medium ${isCollapsed ? "px-3 justify-center" : "px-4 w-full"}`}
           >
-            <LogOut className="h-5 w-5" />
-            Logout
+            <LogOut className="h-5 w-5 shrink-0 opacity-80" />
+            {!isCollapsed && <span>Logout</span>}
           </button>
         </div>
       </aside>
