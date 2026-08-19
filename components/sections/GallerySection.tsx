@@ -82,7 +82,7 @@ export function GallerySection() {
                 >
                   <Image
                     src={getPublicUploadUrl(item.url || item.image)}
-                    alt={item.title}
+                    alt={item.title || "Gallery Image"}
                     fill
                     sizes="(min-width: 1024px) 33vw, 100vw"
                     className="h-full w-full object-cover"
