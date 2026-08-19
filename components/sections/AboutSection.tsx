@@ -107,7 +107,7 @@ export function AboutSection() {
             </div>
 
             {/* Info Cards Row (Replacing Fake Stats) */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 py-8 border-y border-black/[0.06]">
+            <div className="hidden sm:grid grid-cols-2 sm:grid-cols-3 gap-6 py-8 border-y border-black/[0.06]">
               {infoCards.map((card) => {
                 const CardIcon = card.icon;
                 return (

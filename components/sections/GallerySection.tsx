@@ -58,7 +58,6 @@ export function GallerySection() {
                 viewport={{ once: true, margin: "-10%" }}
                 transition={{ 
                   duration: 0.7, 
-                  delay: index * 0.12, 
                   ease: [0.22, 1, 0.36, 1] 
                 }}
                 className={cn(
