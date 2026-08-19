@@ -283,7 +283,7 @@ export function AnimatedMarqueeHero({
           <div className="w-full max-w-[92rem] space-y-4 sm:space-y-5 lg:space-y-7 mt-10 sm:mt-14 md:mt-16">
             <h1 className="mx-auto w-full text-balance text-[3.1rem] font-black leading-[0.95] tracking-[-0.052em] sm:text-[4.25rem] md:text-[5rem] lg:text-[5.35rem] xl:text-[6rem] 2xl:text-[6.85rem]">
               {titleLines.map((line, lineIndex) => {
-                const parts = line.split(/(Premium|Hardware)/);
+                const parts = line.split(/(premium|hardware)/i);
                 return (
                   <motion.span
                     key={lineIndex}
@@ -294,10 +294,11 @@ export function AnimatedMarqueeHero({
                   >
                     {parts.map((part, i) => {
                       let spanClass = "";
-                      if (part === "Premium") {
-                        spanClass = "font-stylish text-primary italic font-medium text-[1.1em]";
-                      } else if (part === "Hardware") {
-                        spanClass = "md:font-stylish md:text-primary md:italic md:font-medium md:text-[1.1em]";
+                      const lowerPart = part.toLowerCase();
+                      if (lowerPart === "premium") {
+                        spanClass = "font-stylish text-primary text-[#e05a2b] italic font-medium text-[1.1em]";
+                      } else if (lowerPart === "hardware") {
+                        spanClass = "md:font-stylish md:text-primary md:text-[#e05a2b] md:italic md:font-medium md:text-[1.1em]";
                       }
                       
                       return (
