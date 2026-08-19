@@ -17,8 +17,8 @@ export function CategorySection() {
           <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
             <span>Browse Collections</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-[#1a1917] max-w-2xl leading-[0.95]">
-            Everything For Your <br />
+          <h2 className="text-[8.5vw] min-[400px]:text-[2.25rem] sm:text-4xl md:text-5xl font-extrabold tracking-tighter text-[#1a1917] max-w-2xl leading-[1.05] sm:leading-[0.95]">
+            <span className="inline-block">Everything For Your</span> <br className="hidden sm:block" />
             <span className="text-primary font-stylish text-[1.1em]">Project</span>
           </h2>
         </div>
@@ -41,12 +41,12 @@ export function CategorySection() {
             return (
               <div
                 key={category.id}
-                className={`${gridSpanClass} h-[280px] md:h-[380px] rounded-3xl overflow-hidden relative group border border-black/5 bg-white shadow-sm hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/50 transition-all duration-500 premium-transform`}
+                className={`${gridSpanClass} h-[320px] md:h-[380px] rounded-3xl overflow-hidden relative group border border-black/5 bg-white shadow-sm hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/50 transition-all duration-500 premium-transform`}
                 data-cursor="view"
               >
                 <Link href={`/shop?category=${category.slug}`} className="block w-full h-full relative">
                   {/* Image overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-10" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10" />
                   <Image
                     src={category.image}
                     alt={category.name}
@@ -57,23 +57,26 @@ export function CategorySection() {
 
                   {/* Content */}
                   <div className="absolute inset-0 z-20 p-6 md:p-8 flex flex-col justify-end text-left overflow-hidden">
-                    <div className="flex items-end justify-between w-full relative z-30">
-                      <div className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-16 lg:group-hover:-translate-y-24 max-w-[80%]">
-                        <span className="text-[10px] font-extrabold text-primary tracking-widest uppercase block mb-1">
+                    <div className="flex items-end justify-between w-full relative z-30 gap-4">
+                      <div className="flex flex-col justify-end flex-1 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] lg:group-hover:-translate-y-2">
+                        <span className="text-[10px] font-extrabold text-primary tracking-widest uppercase block mb-1 drop-shadow-md">
                           {category.count} Products
                         </span>
-                        <h3 className="text-xl md:text-2xl font-extrabold text-white uppercase tracking-tight leading-tight">
+                        <h3 className="text-xl md:text-2xl font-extrabold text-white uppercase tracking-tight leading-tight drop-shadow-md">
                           {category.name}
                         </h3>
+                        
+                        <div className="grid grid-rows-[1fr] lg:grid-rows-[0fr] lg:group-hover:grid-rows-[1fr] transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] mt-2">
+                          <p className="text-xs md:text-sm text-white/90 font-medium leading-[1.6] opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-500 overflow-hidden line-clamp-2 md:line-clamp-3">
+                            {category.description}
+                          </p>
+                        </div>
                       </div>
-                      <div className="p-3 rounded-full bg-white/10 group-hover:bg-primary group-hover:text-white text-white backdrop-blur-md transition-all duration-500 shrink-0 relative z-30">
+                      
+                      <div className="p-3 rounded-full bg-white/10 group-hover:bg-primary group-hover:text-white text-white backdrop-blur-md transition-all duration-500 shrink-0 self-end relative z-30 lg:group-hover:-translate-y-2">
                         <ArrowUpRight className="h-5 w-5 group-hover:rotate-45 transition-transform duration-500" />
                       </div>
                     </div>
-
-                    <p className="absolute bottom-6 md:bottom-8 left-6 md:left-8 pr-16 text-xs md:text-sm text-white/90 font-medium leading-[1.6] max-w-[90%] md:max-w-sm opacity-0 group-hover:opacity-100 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] transform translate-y-4 group-hover:translate-y-0 pointer-events-none line-clamp-3">
-                      {category.description}
-                    </p>
                   </div>
                 </Link>
               </div>

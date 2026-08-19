@@ -128,7 +128,7 @@ export function DiscoverBySpace() {
               delay: 0.3,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="relative w-full will-change-transform"
+            className="relative w-full will-change-transform mt-8 md:mt-0"
             style={{ filter: isInView ? "none" : "blur(4px)" }}
           >
             {/* Ambient orange glow behind SVG */}
@@ -141,9 +141,9 @@ export function DiscoverBySpace() {
               }}
             />
 
-            {/* The SVG as a responsive image — preserves exact design */}
+            {/* Desktop view of SVG (1 row of 6) */}
             <div
-              className="relative w-full"
+              className="hidden md:block relative w-full"
               style={{ aspectRatio: "7852 / 2471" }}
             >
               <Image
@@ -151,10 +151,36 @@ export function DiscoverBySpace() {
                 alt="Product categories for every space: Doors & Entry, Kitchen, Bedroom, Office, Interior Finishing, and Workshop"
                 fill
                 priority={false}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1600px"
+                sizes="(min-width: 768px) 100vw, 1600px"
                 className="object-contain select-none"
                 style={{ imageRendering: "crisp-edges" }}
               />
+            </div>
+
+            {/* Mobile view of SVG (2 rows of 3) */}
+            <div className="md:hidden flex flex-col gap-4">
+              <div className="w-full relative overflow-hidden" style={{ aspectRatio: "3926 / 2471" }}>
+                <Image
+                  src="/catos.svg"
+                  alt="Product categories - Part 1"
+                  fill
+                  priority={false}
+                  sizes="100vw"
+                  className="object-cover object-left select-none"
+                  style={{ imageRendering: "crisp-edges" }}
+                />
+              </div>
+              <div className="w-full relative overflow-hidden" style={{ aspectRatio: "3926 / 2471" }}>
+                <Image
+                  src="/catos.svg"
+                  alt="Product categories - Part 2"
+                  fill
+                  priority={false}
+                  sizes="100vw"
+                  className="object-cover object-right select-none"
+                  style={{ imageRendering: "crisp-edges" }}
+                />
+              </div>
             </div>
           </motion.div>
 
@@ -174,24 +200,6 @@ export function DiscoverBySpace() {
               </article>
             ))}
           </div>
-
-          {/* Mobile CTA — shown only on small screens for accessibility */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-10 flex flex-wrap justify-center gap-3 md:hidden"
-          >
-            {CATEGORIES.map((cat) => (
-              <a
-                key={cat.slug}
-                href={`/shop?category=${cat.slug}`}
-                className="inline-flex items-center gap-1.5 rounded-full border border-[#FF6A2A]/30 bg-[#FF6A2A]/5 px-4 py-2 text-xs font-bold text-[#FF6A2A] transition-all hover:bg-[#FF6A2A]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF6A2A]"
-              >
-                {cat.title}
-              </a>
-            ))}
-          </motion.div>
         </div>
       </section>
     </>

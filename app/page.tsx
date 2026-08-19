@@ -43,7 +43,7 @@ export default async function Home() {
       {/* 2. Elite Animated Marquee Hero */}
       <AnimatedMarqueeHero
         tagline="PREMIUM ARCHITECTURAL HARDWARE | TRUSTED ACROSS PAKISTAN"
-        title={"Premium Hardware\nFor Exceptional Spaces."}
+        title={"Premium Hardware\nFor\u00A0Exceptional Spaces."}
         description="Discover premium architectural hardware, designer door fittings, smart security solutions, professional tools, and finishing accessories trusted by architects, builders, and homeowners across Pakistan."
         ctaText="Explore Products"
       />

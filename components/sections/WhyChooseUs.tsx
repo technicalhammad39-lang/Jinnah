@@ -66,6 +66,47 @@ function HorizontalConnector({ isHovered, className }: { isHovered: boolean; cla
   );
 }
 
+function VerticalConnector({ isHovered, index, className }: { isHovered: boolean; index: number; className?: string }) {
+  const isEven = index % 2 === 0;
+  const pathD = isEven 
+    ? "M 10,0 C -20,10 40,22 10,32" 
+    : "M 10,0 C 40,10 -20,22 10,32";
+    
+  return (
+    <div className={cn("absolute -bottom-[32px] left-[68px] -translate-x-1/2 w-5 h-[32px] z-10 pointer-events-none md:hidden", className)}>
+      <svg 
+        className="absolute inset-0 w-full h-full overflow-visible" 
+        preserveAspectRatio="none" 
+        viewBox="0 0 20 32"
+        style={{ 
+          opacity: isHovered ? 1 : 0.72,
+          transition: "opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1)",
+        }}
+      >
+        <path 
+          d={pathD}
+          fill="none" 
+          stroke="rgba(255,106,42,0.25)" 
+          strokeWidth="3" 
+          vectorEffect="non-scaling-stroke"
+        />
+        <motion.path 
+          d={pathD}
+          fill="none" 
+          stroke="#FF9A55" 
+          strokeWidth="4" 
+          vectorEffect="non-scaling-stroke"
+          pathLength="100"
+          strokeDasharray="40 160"
+          animate={{ strokeDashoffset: [200, 0] }}
+          transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+          style={{ filter: "drop-shadow(0 0 8px rgba(255,106,42,0.8))" }}
+        />
+      </svg>
+    </div>
+  );
+}
+
 export function WhyChooseUs() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
@@ -122,7 +163,7 @@ export function WhyChooseUs() {
         </div>
       </div>
 
-      <div className="relative w-full max-w-[1920px] px-6 lg:px-12 mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-16 gap-x-12 lg:gap-x-16 mt-0">
+      <div className="relative w-full max-w-[1920px] px-6 lg:px-12 mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-8 md:gap-y-16 gap-x-12 lg:gap-x-16 mt-0">
         {features.map((feature, index) => {
             const isHovered = hoveredIndex === index;
             const isOtherHovered = hoveredIndex !== null && hoveredIndex !== index;
@@ -195,6 +236,11 @@ export function WhyChooseUs() {
                 {/* Horizontal Connector - Tablet (MD) */}
                 {(index + 1) % 2 !== 0 && index !== features.length - 1 && (
                   <HorizontalConnector isHovered={isHovered} className="hidden md:block lg:hidden w-[48px] -right-[48px]" />
+                )}
+
+                {/* Vertical Connector - Mobile (SM) */}
+                {index !== features.length - 1 && (
+                  <VerticalConnector isHovered={isHovered} index={index} />
                 )}
               </div>
             );
