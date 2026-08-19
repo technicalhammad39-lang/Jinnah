@@ -295,10 +295,8 @@ export function AnimatedMarqueeHero({
                     {parts.map((part, i) => {
                       let spanClass = "";
                       const lowerPart = part.toLowerCase();
-                      if (lowerPart === "premium") {
+                      if (lowerPart === "premium" || lowerPart === "hardware") {
                         spanClass = "font-stylish text-primary text-[#e05a2b] italic font-medium text-[1.1em]";
-                      } else if (lowerPart === "hardware") {
-                        spanClass = "md:font-stylish md:text-primary md:text-[#e05a2b] md:italic md:font-medium md:text-[1.1em]";
                       }
                       
                       return (
