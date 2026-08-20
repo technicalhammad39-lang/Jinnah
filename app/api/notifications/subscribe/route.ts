@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getFirestore } from "firebase-admin/firestore";
-import { adminApp } from "@/lib/firebase-admin";
+import { getAdminApp } from "@/lib/firebase-admin";
 
 export async function POST(req: Request) {
   try {
@@ -13,14 +13,15 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!adminApp) {
+    const app = getAdminApp();
+    if (!app) {
       return NextResponse.json(
         { error: "Firebase Admin is not configured." },
-        { status: 500 }
+        { status: 503 }
       );
     }
 
-    const db = getFirestore(adminApp);
+    const db = getFirestore(app);
     
     // We use the endpoint as a unique identifier to prevent duplicates
     // since endpoints are unique per device/browser.

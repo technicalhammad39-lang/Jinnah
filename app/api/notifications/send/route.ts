@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import webpush from "web-push";
 import { getFirestore } from "firebase-admin/firestore";
-import { adminApp } from "@/lib/firebase-admin";
+import { getAdminApp } from "@/lib/firebase-admin";
 
 let isWebPushConfigured = false;
 
@@ -38,15 +38,16 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!adminApp) {
-      console.error("Firebase Admin is missing.");
+    const app = getAdminApp();
+    if (!app) {
+      console.error("[Notifications/Send] Firebase Admin is not configured.");
       return NextResponse.json(
-        { error: "Firebase Admin is not configured." },
-        { status: 500 }
+        { error: "Firebase Admin is not configured. Notifications require server-side Firebase." },
+        { status: 503 }
       );
     }
 
-    const db = getFirestore(adminApp);
+    const db = getFirestore(app);
     const subscriptionsSnapshot = await db.collection("subscriptions").get();
     
     if (subscriptionsSnapshot.empty) {

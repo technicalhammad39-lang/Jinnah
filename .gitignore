@@ -3,8 +3,10 @@ node_modules/
 coverage/
 .DS_Store
 *.log
+
+# Environment files — ignore all except committed ones
 .env*
 !.env.example
+!.env.production
 
 .vercel
-.env*

@@ -1,9 +1,19 @@
 import { NextResponse } from 'next/server';
-import { adminDb } from '@/lib/firebase-admin';
+import { adminDb, getAdminApp } from '@/lib/firebase-admin';
 import * as admin from 'firebase-admin';
 
 export async function POST(req: Request) {
   try {
+    // Early check: Firebase Admin must be available for checkout
+    const app = getAdminApp();
+    if (!app) {
+      console.error('[Checkout] Firebase Admin is not configured. Cannot process orders.');
+      return NextResponse.json(
+        { error: 'Server configuration error. Please contact support. (Code: FA_MISSING)' },
+        { status: 503 }
+      );
+    }
+
     const body = await req.json();
     const { customerInfo, items, paymentMethod, customerType, couponCode } = body;
     
