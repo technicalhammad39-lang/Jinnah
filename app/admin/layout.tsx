@@ -68,7 +68,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
       {/* Sidebar */}
       <aside 
-        className={`absolute inset-y-4 left-4 z-50 lg:static lg:my-4 lg:ml-4 lg:h-[calc(100vh-2rem)] bg-gradient-to-b from-[#E04A1A] to-[#C8300A] text-white rounded-3xl shadow-2xl transform transition-all duration-300 ease-in-out lg:translate-x-0 flex flex-col shrink-0 overflow-hidden ${
+        className={`absolute inset-y-4 left-4 z-50 lg:static lg:my-4 lg:ml-4 lg:h-[calc(100vh-2rem)] bg-gradient-to-b from-gray-900 to-black text-white rounded-3xl shadow-2xl transform transition-all duration-300 ease-in-out lg:translate-x-0 flex flex-col shrink-0 overflow-hidden ${
           sidebarOpen ? "translate-x-0" : "-translate-x-[120%]"
         } ${isCollapsed ? "w-20" : "w-72"}`}
       >

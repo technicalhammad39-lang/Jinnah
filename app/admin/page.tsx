@@ -35,7 +35,7 @@ export default function AdminDashboard() {
     messages: 0,
   });
   const [productData, setProductData] = useState<{name: string, count: number}[]>([]);
-  const [chartData, setChartData] = useState<{name: string, visitors: number}[]>([]);
+  const [chartData, setChartData] = useState<{name: string, orders: number}[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -81,19 +81,19 @@ export default function AdminDashboard() {
       setStats(prev => ({ ...prev, products: snapshot.size }));
     });
 
-    // 3. Real-time sync for Orders (Content Growth) & Total Orders count
+    // 3. Real-time sync for Orders & Total Orders count
     // Generate last 7 days names
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const today = new Date();
     const last7Days = Array.from({length: 7}).map((_, i) => {
       const d = new Date();
       d.setDate(today.getDate() - (6 - i));
-      return { name: days[d.getDay()], date: d, visitors: 0 }; // visitors = orders
+      return { name: days[d.getDay()], date: d, orders: 0 };
     });
 
     const unsubscribeOrders = onSnapshot(collection(db, "orders"), (snapshot) => {
       // Reset counts
-      const updated7Days = last7Days.map(d => ({ ...d, visitors: 0 }));
+      const updated7Days = last7Days.map(d => ({ ...d, orders: 0 }));
 
       snapshot.docs.forEach(doc => {
         const data = doc.data();
@@ -105,7 +105,7 @@ export default function AdminDashboard() {
             d.date.getMonth() === orderDate.getMonth()
           );
           if (dayMatch) {
-            dayMatch.visitors += 1;
+            dayMatch.orders += 1;
           }
         }
       });
@@ -179,16 +179,16 @@ export default function AdminDashboard() {
             <div>
               <h3 className="text-lg font-bold text-[#1a1917] flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-[#FF6A2A]" />
-                Content Growth
+                Order Trends
               </h3>
-              <p className="text-sm text-[#1a1917]/50">Weekly engagement metrics</p>
+              <p className="text-sm text-[#1a1917]/50">Weekly order metrics</p>
             </div>
           </div>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData}>
                 <defs>
-                  <linearGradient id="colorVisitors" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="colorOrders" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#FF6A2A" stopOpacity={0.3}/>
                     <stop offset="95%" stopColor="#FF6A2A" stopOpacity={0}/>
                   </linearGradient>
@@ -200,7 +200,7 @@ export default function AdminDashboard() {
                   contentStyle={{ backgroundColor: '#ffffff', border: '1px solid rgba(26,25,23,0.1)', borderRadius: '12px' }}
                   itemStyle={{ color: '#1a1917' }}
                 />
-                <Area type="monotone" dataKey="visitors" stroke="#FF6A2A" strokeWidth={3} fillOpacity={1} fill="url(#colorVisitors)" />
+                <Area type="monotone" dataKey="orders" stroke="#FF6A2A" strokeWidth={3} fillOpacity={1} fill="url(#colorOrders)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
