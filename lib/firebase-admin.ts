@@ -26,8 +26,18 @@ if (globalForFirebaseAdmin.firebaseAdminApp !== undefined) {
     adminApp = null;
   } else {
     try {
-      // Parse private key correctly whether it contains literal \n characters or actual newlines
-      const formattedPrivateKey = privateKey.replace(/^"|"$/g, '').replace(/\\n/g, '\n');
+      // Parse private key correctly whether it contains literal \n characters, actual newlines, or is wrapped in quotes
+      let formattedPrivateKey = privateKey;
+      
+      // Remove surrounding quotes if present (Hostinger sometimes passes them)
+      if (formattedPrivateKey.startsWith('"') && formattedPrivateKey.endsWith('"')) {
+        formattedPrivateKey = formattedPrivateKey.slice(1, -1);
+      } else if (formattedPrivateKey.startsWith("'") && formattedPrivateKey.endsWith("'")) {
+        formattedPrivateKey = formattedPrivateKey.slice(1, -1);
+      }
+      
+      // Replace literal escaped newlines with actual newline characters
+      formattedPrivateKey = formattedPrivateKey.replace(/\\n/g, '\n');
 
       adminApp = admin.initializeApp({
         credential: admin.credential.cert({
@@ -37,9 +47,9 @@ if (globalForFirebaseAdmin.firebaseAdminApp !== undefined) {
         }),
         storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
       });
-      console.log("[Firebase Admin] Initialized successfully with explicit service-account credentials.");
+      console.log(`[Firebase Admin] Initialized successfully for project: ${projectId}`);
     } catch (error: any) {
-      console.error('[Firebase Admin] Initialization error:', error.message);
+      console.error('[Firebase Admin] Initialization error details:', error.message);
       adminApp = null;
     }
   }
