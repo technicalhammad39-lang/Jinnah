@@ -53,7 +53,7 @@ export default function AboutPage() {
           {/* Top Orange Dotted Gradient */}
           <div 
             className="absolute top-0 left-0 right-0 h-96 pointer-events-none" 
-            style={{ backgroundImage: adial-gradient(circle at center,  1px, transparent 1px), backgroundSize: px 24px, opacity:  }}
+            style={{ backgroundImage: 'radial-gradient(circle at center, #FF6A2A 1.5px, transparent 1.5px)', backgroundSize: '24px 24px', opacity: 0.5 }}
           />
           
           <div className="relative z-10 max-w-7xl mx-auto w-full px-6 flex flex-col md:flex-row items-center justify-between gap-12">

@@ -41,8 +41,13 @@ export default function CategoriesPage() {
                 <span className="text-primary font-stylish normal-case text-[1.1em]">Collections</span>
               </h1>
               
-              <p className="text-base md:text-lg text-muted-foreground font-medium leading-relaxed max-w-xl mx-auto whitespace-normal">
-                Discover our meticulously organized catalog of architectural hardware. From mechanical masterpieces to smart security solutions, find exactly what your project demands.
+              <p className="text-sm md:text-lg text-muted-foreground font-medium leading-relaxed max-w-xl mx-auto px-4 sm:px-6 whitespace-normal">
+                <span className="sm:hidden">
+                  Discover our meticulously organized catalog of premium architectural hardware and smart security solutions.
+                </span>
+                <span className="hidden sm:inline">
+                  Discover our meticulously organized catalog of architectural hardware. From mechanical masterpieces to smart security solutions, find exactly what your project demands.
+                </span>
               </p>
             </motion.div>
           </div>
@@ -74,7 +79,7 @@ export default function CategoriesPage() {
               <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter">Explore Categories</h2>
             </div>
           
-          <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="relative z-10 grid grid-cols-3 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-6 lg:gap-8">
             {CATEGORIES.map((cat, i) => (
               <motion.div
                 key={cat.id}
@@ -82,24 +87,25 @@ export default function CategoriesPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="col-span-1"
               >
-                <Link href={`/shop?category=${cat.slug}`} className="group block relative rounded-[32px] bg-white border border-black/5 p-6 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2">
-                  <div className="relative h-48 w-full rounded-2xl overflow-hidden mb-6 bg-black/5">
+                <Link href={`/shop?category=${cat.slug}`} className="group block relative rounded-xl sm:rounded-[32px] bg-white border border-black/5 p-2 sm:p-6 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 h-full flex flex-col">
+                  <div className="relative aspect-square sm:h-48 w-full rounded-lg sm:rounded-2xl overflow-hidden mb-2 sm:mb-6 bg-black/5 shrink-0">
                     <Image
                       src={getPublicUploadUrl(cat.image)}
                       alt={cat.name}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-110"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      sizes="(max-width: 640px) 33vw, (max-width: 1024px) 50vw, 33vw"
                     />
                   </div>
-                  <h3 className="text-xl font-extrabold uppercase tracking-tight text-[#1a1917] group-hover:text-primary transition-colors">
+                  <h3 className="text-[10px] sm:text-xl font-extrabold uppercase tracking-tight text-[#1a1917] group-hover:text-primary transition-colors text-center sm:text-left leading-tight mt-auto sm:mt-0">
                     {cat.name}
                   </h3>
-                  <p className="text-sm text-muted-foreground mt-2 mb-4 leading-relaxed line-clamp-2">
+                  <p className="hidden sm:block text-sm text-muted-foreground mt-2 mb-4 leading-relaxed line-clamp-2">
                     {cat.description}
                   </p>
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary">
+                  <div className="hidden sm:flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary">
                     <span>View Collection</span>
                     <ArrowRight className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
                   </div>

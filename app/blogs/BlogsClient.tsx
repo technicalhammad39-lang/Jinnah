@@ -26,7 +26,7 @@ export default function BlogsClient({ initialBlogs = [] }: { initialBlogs: any[]
           {/* Top Orange Dotted Gradient */}
           <div 
             className="absolute top-0 left-0 right-0 h-full pointer-events-none -z-10" 
-            style={{ backgroundImage: adial-gradient(circle at center,  1px, transparent 1px), backgroundSize: px 24px, opacity:  }}
+            style={{ backgroundImage: 'radial-gradient(circle at center, #FF6A2A 1.5px, transparent 1.5px)', backgroundSize: '24px 24px', opacity: 0.5 }}
           />
           <div className="noise-texture absolute inset-0 opacity-100 mix-blend-overlay pointer-events-none -z-10" />
           <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">

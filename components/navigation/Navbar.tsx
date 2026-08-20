@@ -123,7 +123,7 @@ export function Navbar() {
           </div>
 
           <Link href="/" className="relative z-10 group flex flex-shrink-0 items-center transition-transform duration-300 hover:scale-105">
-            <div className="relative h-10 w-[140px] md:w-[160px]">
+            <div className="relative h-10 w-[120px] sm:w-[140px] md:w-[160px]">
               <Image src="/jinnah-logo.webp" alt="Jinnah Hardware Store" fill className="object-contain object-left" priority />
             </div>
           </Link>

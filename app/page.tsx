@@ -44,7 +44,16 @@ export default async function Home() {
       <AnimatedMarqueeHero
         tagline="PREMIUM ARCHITECTURAL HARDWARE | TRUSTED ACROSS PAKISTAN"
         title={"Premium Hardware\nFor\u00A0Exceptional Spaces."}
-        description="Discover premium architectural hardware, designer door fittings, smart security solutions, professional tools, and finishing accessories trusted by architects, builders, and homeowners across Pakistan."
+        description={
+          <>
+            <span className="sm:hidden">
+              Discover premium architectural hardware, designer door fittings, and smart security solutions trusted across Pakistan.
+            </span>
+            <span className="hidden sm:inline">
+              Discover premium architectural hardware, designer door fittings, smart security solutions, professional tools, and finishing accessories trusted by architects, builders, and homeowners across Pakistan.
+            </span>
+          </>
+        }
         ctaText="Explore Products"
       />
 

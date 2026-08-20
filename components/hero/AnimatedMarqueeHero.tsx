@@ -17,7 +17,7 @@ import { FloatingHeroActions } from "./FloatingHeroActions";
 interface AnimatedMarqueeHeroProps {
   tagline: string;
   title: string;
-  description: string;
+  description: React.ReactNode;
   ctaText: string;
   className?: string;
 }
@@ -281,7 +281,7 @@ export function AnimatedMarqueeHero({
         >
 
           <div className="w-full max-w-[92rem] space-y-4 sm:space-y-5 lg:space-y-7 mt-10 sm:mt-14 md:mt-16">
-            <h1 className="mx-auto w-full text-balance text-[3.1rem] font-black leading-[0.95] tracking-[-0.052em] sm:text-[4.25rem] md:text-[5rem] lg:text-[5.35rem] xl:text-[6rem] 2xl:text-[6.85rem]">
+            <h1 className="mx-auto w-full text-balance text-[clamp(3.2rem,11vw,4.25rem)] font-black leading-[0.95] tracking-[-0.052em] md:text-[5rem] lg:text-[5.35rem] xl:text-[6rem] 2xl:text-[6.85rem]">
               {titleLines.map((line, lineIndex) => {
                 const parts = line.split(/(premium|hardware)/i);
                 return (
@@ -295,8 +295,10 @@ export function AnimatedMarqueeHero({
                     {parts.map((part, i) => {
                       let spanClass = "";
                       const lowerPart = part.toLowerCase();
-                      if (lowerPart === "premium" || lowerPart === "hardware") {
+                      if (lowerPart === "premium") {
                         spanClass = "font-stylish text-primary text-[#e05a2b] italic font-medium text-[1.1em]";
+                      } else if (lowerPart === "hardware") {
+                        spanClass = "text-primary text-[#e05a2b] font-bold not-italic text-inherit md:font-stylish md:italic md:font-medium md:text-[1.1em]";
                       }
                       
                       return (
@@ -310,14 +312,14 @@ export function AnimatedMarqueeHero({
               })}
             </h1>
 
-            <motion.p
+            <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={getEntranceTransition(descriptionDelay, 0.92)}
-              className="mx-auto max-w-[58rem] px-2 text-[13px] font-medium leading-[1.65] tracking-wide text-muted-foreground sm:text-base sm:leading-8 md:text-[1.08rem] lg:text-[1.16rem] will-change-[transform,opacity]"
+              className="mx-auto max-w-[58rem] px-4 sm:px-6 w-full text-sm sm:text-base font-medium leading-[1.65] tracking-wide text-muted-foreground sm:leading-8 md:text-[1.08rem] lg:text-[1.16rem] will-change-[transform,opacity]"
             >
               {description}
-            </motion.p>
+            </motion.div>
           </div>
         </motion.div>
 

@@ -27,13 +27,13 @@ export default function BrandsClient({ initialBrands = [] }: { initialBrands: an
         {/* HERO SECTION */}
         <section className="relative px-6 py-24 md:py-36 overflow-hidden flex items-center justify-center min-h-[50vh] bg-white">
           {/* Globe Background */}
-          <div className="absolute inset-0 z-0 pointer-events-none opacity-30 md:opacity-50 flex items-center justify-center w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="relative w-full h-full min-h-[50vh]">
+          <div className="absolute inset-0 z-0 pointer-events-none opacity-30 md:opacity-50 flex items-center justify-center w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-hidden md:overflow-visible">
+            <div className="relative w-full h-[300px] md:h-full min-h-[300px] md:min-h-[50vh]">
               <Image 
                 src="/glob.png" 
                 alt="Global Brands Background" 
                 fill
-                className="object-contain object-center"
+                className="object-contain md:object-cover object-center scale-[1.3] md:scale-100 mt-10 md:mt-0"
                 priority
               />
             </div>
@@ -80,7 +80,7 @@ export default function BrandsClient({ initialBrands = [] }: { initialBrands: an
                 <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-white drop-shadow-sm">Our Portfolio</h2>
               </div>
             
-            <div className="flex flex-wrap justify-center gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {brands.map((brand, i) => (
               <motion.div
                 key={brand.id}
@@ -88,15 +88,17 @@ export default function BrandsClient({ initialBrands = [] }: { initialBrands: an
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="group relative w-full md:w-[calc(50%-16px)] lg:w-[calc(33.333%-22px)] max-w-md rounded-[32px] bg-white border border-black/5 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 flex flex-col h-full overflow-hidden"
+                className="group relative w-full rounded-2xl md:rounded-[32px] bg-white border border-black/5 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 flex flex-col h-full overflow-hidden"
               >
-                <div className="w-full h-32 sm:h-40 relative bg-white flex items-center justify-center shrink-0 p-8">
+                <div className="w-full h-40 sm:h-48 relative bg-white flex items-center justify-center shrink-0">
                   {brand.image ? (
-                    <Image src={getPublicUploadUrl(brand.image)} alt={brand.brandName || brand.name} fill className="object-contain p-6 transition-transform duration-700 group-hover:scale-110" />
+                    <div className="relative w-[70%] h-[70%] mx-auto">
+                      <Image src={getPublicUploadUrl(brand.image)} alt={brand.brandName || brand.name} fill className="object-contain transition-transform duration-700 group-hover:scale-110" />
+                    </div>
                   ) : (
-                    <span className="text-3xl font-black text-black/10 uppercase tracking-widest">{brand.brandName || brand.name}</span>
+                    <span className="text-2xl sm:text-3xl font-black text-black/10 uppercase tracking-widest">{brand.brandName || brand.name}</span>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
                 </div>
                 
                 <div className="p-6 md:p-8 flex flex-col flex-1">

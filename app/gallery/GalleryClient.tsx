@@ -88,7 +88,7 @@ export default function GalleryClient({ initialGallery = [] }: { initialGallery:
           {/* Grey Dotted Background */}
           <div 
             className="absolute inset-0 pointer-events-none -z-10" 
-            style={{ backgroundImage: adial-gradient(circle at center,  1px, transparent 1px), backgroundSize: px 24px, opacity:  }}
+            style={{ backgroundImage: 'radial-gradient(circle at center, #cbd5e1 1.5px, transparent 1.5px)', backgroundSize: '24px 24px', opacity: 0.5 }}
           />
           <div className="noise-texture absolute inset-0 opacity-100 mix-blend-overlay pointer-events-none -z-10" />
           <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
