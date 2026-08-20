@@ -26,7 +26,7 @@ export function GallerySection() {
     <section id="gallery-section" data-no-premium-reveal className="pt-8 pb-24 md:pt-12 md:pb-32 w-full relative z-10 bg-transparent">
       <div className="absolute bottom-[10%] right-[5%] w-[45vw] h-[45vw] rounded-full glow-blob-orange opacity-[0.1]" />
 
-      <div className="max-w-[1740px] mx-auto px-6 md:px-8 xl:px-12 mb-12 md:mb-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 md:mb-16">
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
           <div className="space-y-4 max-w-2xl text-left">
             <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
@@ -45,7 +45,7 @@ export function GallerySection() {
 
       {/* Interactive Expandable Panels Gallery (InteractiveSelector Concept) */}
       <div className="w-full">
-        <div className="flex flex-col lg:flex-row h-[700px] lg:h-[600px] xl:h-[700px] w-full max-w-[1740px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12 gap-2 lg:gap-4">
+        <div className="flex flex-col lg:flex-row h-[700px] lg:h-[600px] xl:h-[700px] w-full max-w-7xl mx-auto px-4 sm:px-4 sm:px-6 lg:px-8 gap-2 lg:gap-4">
           {galleryItems.map((item, index) => {
             const isActive = activeItem === item.id;
             

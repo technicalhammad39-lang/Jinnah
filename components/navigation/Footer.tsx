@@ -60,7 +60,7 @@ export function Footer() {
     <footer className={`relative z-10 border-t border-white/5 bg-[#121110] pt-12 md:pt-20 pb-8 md:pb-10 text-white/90 ${isHome ? "" : "rounded-t-[32px] md:rounded-t-[40px]"}`}>
       <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-primary to-transparent" />
 
-      <div className="mx-auto grid max-w-[1740px] grid-cols-1 gap-10 md:gap-12 border-b border-white/5 px-6 md:px-8 xl:px-12 pb-10 md:pb-16 text-left md:grid-cols-2 lg:grid-cols-12">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 md:gap-12 border-b border-white/5 px-4 sm:px-6 lg:px-8 pb-10 md:pb-16 text-left md:grid-cols-2 lg:grid-cols-12">
         <div className="space-y-6 lg:col-span-4">
           <Link href="/" className="flex items-center group transition-transform hover:scale-105 w-fit max-w-full">
             <div className="relative h-16 w-[260px] max-w-full md:h-20 flex items-center justify-start">
@@ -202,7 +202,7 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="mx-auto flex max-w-[1740px] flex-col items-center justify-between gap-6 px-6 md:px-8 xl:px-12 pt-10 text-center text-xs font-semibold tracking-wider text-[#7c7b77] sm:flex-row sm:text-left">
+      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-4 sm:px-6 lg:px-8 pt-10 text-center text-xs font-semibold tracking-wider text-[#7c7b77] sm:flex-row sm:text-left">
         <div>
           <p className="uppercase">&copy; {new Date().getFullYear()} JINNAH HARDWARE STORE. ALL RIGHTS RESERVED.</p>
           <div className="mt-4 flex flex-wrap justify-center sm:justify-start gap-x-4 gap-y-2">

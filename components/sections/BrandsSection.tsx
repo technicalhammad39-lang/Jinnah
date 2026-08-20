@@ -58,7 +58,7 @@ export function BrandsSection() {
             {marqueeItemsRow1.map((brand, index) => (
               <div
                 key={`r1-${brand.id}-${index}`}
-                className="brand-marquee-card w-[280px] h-[120px] rounded-2xl bg-white border border-black/5 flex items-center justify-center shadow-sm hover:border-primary/20 hover:shadow-md transition-all group relative overflow-hidden premium-transform"
+                className="brand-marquee-card w-[280px] h-[160px] rounded-2xl bg-white border border-black/5 flex items-center justify-center shadow-sm hover:border-primary/20 hover:shadow-md transition-all group relative overflow-hidden premium-transform p-8"
               >
                 <Image
                   src={brand.logo ? getPublicUploadUrl(brand.logo) : PLACEHOLDER_IMAGES[index % PLACEHOLDER_IMAGES.length]}
@@ -67,7 +67,7 @@ export function BrandsSection() {
                   sizes="280px"
                   loading="lazy"
                   decoding="async"
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
             ))}
@@ -80,7 +80,7 @@ export function BrandsSection() {
             {marqueeItemsRow2.map((brand, index) => (
               <div
                 key={`r2-${brand.id}-${index}`}
-                className="brand-marquee-card w-[280px] h-[120px] rounded-2xl bg-white border border-black/5 flex items-center justify-center shadow-sm hover:border-primary/20 hover:shadow-md transition-all group relative overflow-hidden premium-transform"
+                className="brand-marquee-card w-[280px] h-[160px] rounded-2xl bg-white border border-black/5 flex items-center justify-center shadow-sm hover:border-primary/20 hover:shadow-md transition-all group relative overflow-hidden premium-transform p-8"
               >
                 <Image
                   src={brand.logo ? getPublicUploadUrl(brand.logo) : PLACEHOLDER_IMAGES[(index + 3) % PLACEHOLDER_IMAGES.length]}
@@ -89,7 +89,7 @@ export function BrandsSection() {
                   sizes="280px"
                   loading="lazy"
                   decoding="async"
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
             ))}

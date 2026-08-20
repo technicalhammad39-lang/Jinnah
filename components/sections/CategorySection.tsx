@@ -7,22 +7,20 @@ import Link from "next/link";
 
 export function CategorySection() {
   return (
-    <section id="categories-section" className="pt-16 pb-8 md:pt-24 md:pb-12 max-w-[1740px] mx-auto px-6 md:px-8 xl:px-12 relative z-10">
+    <section id="categories-section" className="pt-16 pb-8 md:pt-24 md:pb-12 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
       {/* Background Accent */}
       <div className="absolute top-[40%] right-[10%] w-[35vw] h-[35vw] rounded-full glow-blob-orange opacity-[0.25]" />
 
       {/* Header Info */}
-      <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-12 md:mb-16 gap-4">
-        <div className="space-y-4 max-w-2xl text-left">
-          <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-            <span>Browse Collections</span>
-          </div>
-          <h2 className="text-[8.5vw] min-[400px]:text-[2.25rem] sm:text-4xl md:text-5xl font-extrabold tracking-tighter text-[#1a1917] max-w-2xl leading-[1.05] sm:leading-[0.95]">
-            <span className="inline-block">Everything For Your</span> <br className="hidden sm:block" />
-            <span className="text-primary font-stylish text-[1.1em]">Project</span>
-          </h2>
+      <div className="mx-auto max-w-3xl text-center space-y-4 mb-12 md:mb-16">
+        <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest justify-center">
+          <span>Browse Collections</span>
         </div>
-        <p className="text-sm text-muted-foreground max-w-sm text-left leading-relaxed font-medium">
+        <h2 className="text-[8.5vw] min-[400px]:text-[2.25rem] sm:text-4xl md:text-5xl font-extrabold tracking-tighter text-[#1a1917] leading-[1.05] sm:leading-[0.95]">
+          <span className="inline-block">Everything For Your</span> <br className="hidden sm:block" />
+          <span className="text-primary font-stylish text-[1.1em]">Project</span>
+        </h2>
+        <p className="mx-auto max-w-2xl text-sm text-muted-foreground leading-relaxed font-medium">
           Whether you are a builder drafting high-end residences or a homeowner remodeling cabinet systems, explore our heavy-duty products.
         </p>
       </div>

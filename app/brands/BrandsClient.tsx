@@ -27,8 +27,8 @@ export default function BrandsClient({ initialBrands = [] }: { initialBrands: an
         {/* HERO SECTION */}
         <section className="relative px-6 py-24 md:py-36 overflow-hidden flex items-center justify-center min-h-[50vh] bg-white">
           {/* Globe Background */}
-          <div className="absolute inset-0 z-0 pointer-events-none opacity-30 md:opacity-50 flex items-center justify-center">
-            <div className="relative w-[150%] sm:w-full max-w-6xl h-[100%] md:h-[120%]">
+          <div className="absolute inset-0 z-0 pointer-events-none opacity-30 md:opacity-50 flex items-center justify-center w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="relative w-full h-full min-h-[50vh]">
               <Image 
                 src="/glob.png" 
                 alt="Global Brands Background" 
@@ -60,8 +60,12 @@ export default function BrandsClient({ initialBrands = [] }: { initialBrands: an
           </div>
         </section>
 
-        <div className="px-6 md:px-8 xl:px-12 max-w-[1740px] mx-auto my-12 md:my-24 relative z-10">
-          <section className="pt-24 pb-24 px-6 bg-gradient-to-br from-[#ff9a55] via-[#ff7c3a] to-[#FF6A2A] rounded-[2.5rem] md:rounded-[3rem] relative overflow-hidden shadow-2xl shadow-orange-500/20">
+        <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto my-12 md:my-24 relative z-10">
+          <section className="pt-24 pb-24 px-6 bg-zinc-950 rounded-[2.5rem] md:rounded-[3rem] relative overflow-hidden shadow-2xl shadow-orange-500/20">
+            {/* Sophisticated Deep Orange Mesh Gradient Layers */}
+            <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[60%] bg-[#FF6A2A] rounded-full mix-blend-screen blur-[120px] opacity-40 pointer-events-none" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-[#ff9a55] rounded-full mix-blend-screen blur-[130px] opacity-30 pointer-events-none" />
+            <div className="absolute top-[40%] left-[30%] w-[40%] h-[50%] bg-[#ff5500] rounded-full mix-blend-screen blur-[140px] opacity-30 pointer-events-none" />
             {/* White Dotted Pattern for contrast against orange */}
             <div 
               className="absolute inset-0 pointer-events-none z-0 mix-blend-overlay" 
@@ -71,7 +75,7 @@ export default function BrandsClient({ initialBrands = [] }: { initialBrands: an
               }}
             />
             
-            <div className="max-w-[1740px] mx-auto relative z-10">
+            <div className="w-full max-w-7xl mx-auto relative z-10">
               <div className="mb-10 text-center">
                 <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-white drop-shadow-sm">Our Portfolio</h2>
               </div>
@@ -86,9 +90,9 @@ export default function BrandsClient({ initialBrands = [] }: { initialBrands: an
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 className="group relative w-full md:w-[calc(50%-16px)] lg:w-[calc(33.333%-22px)] max-w-md rounded-[32px] bg-white border border-black/5 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 flex flex-col h-full overflow-hidden"
               >
-                <div className="w-full h-28 sm:h-32 relative bg-black/5 flex items-center justify-center shrink-0">
+                <div className="w-full h-32 sm:h-40 relative bg-white flex items-center justify-center shrink-0 p-8">
                   {brand.image ? (
-                    <Image src={getPublicUploadUrl(brand.image)} alt={brand.brandName || brand.name} fill className="object-contain p-4 transition-transform duration-700 group-hover:scale-110" />
+                    <Image src={getPublicUploadUrl(brand.image)} alt={brand.brandName || brand.name} fill className="object-contain p-6 transition-transform duration-700 group-hover:scale-110" />
                   ) : (
                     <span className="text-3xl font-black text-black/10 uppercase tracking-widest">{brand.brandName || brand.name}</span>
                   )}
@@ -124,7 +128,7 @@ export default function BrandsClient({ initialBrands = [] }: { initialBrands: an
         </div>
 
         {/* BRAND VALUES */}
-        <div className="px-6 md:px-8 xl:px-12 max-w-[1740px] mx-auto my-24 relative z-10">
+        <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto my-24 relative z-10">
           <section className="py-24 px-6 md:px-12 bg-[#1a1917] rounded-[2.5rem] md:rounded-[3rem] text-white relative overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.1)]">
             
             {/* Background Glow */}

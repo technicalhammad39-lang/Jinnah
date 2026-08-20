@@ -106,7 +106,7 @@ export function Navbar() {
         }`}
       >
         <div
-          className={`relative mx-auto flex w-full max-w-[1740px] min-w-0 items-center justify-between rounded-full border px-4 py-2.5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:px-6 md:py-3 lg:px-5 lg:py-2.5 xl:px-7 xl:py-3 will-change-[transform,background-color,backdrop-filter] ${
+          className={`relative mx-auto flex w-full max-w-7xl min-w-0 items-center justify-between rounded-full border px-4 py-2.5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:px-6 md:py-3 lg:px-5 lg:py-2.5 xl:px-7 xl:py-3 will-change-[transform,background-color,backdrop-filter] ${
             isElevated
               ? "border-white/55 bg-white/58 shadow-[0_22px_60px_rgba(26,25,23,0.1)] backdrop-blur-xl"
               : "border-white/70 bg-white/76 shadow-[0_14px_36px_rgba(26,25,23,0.07)] backdrop-blur-lg"

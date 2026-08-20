@@ -55,9 +55,9 @@ export default async function Home() {
       <section id="featured-products-section" className="relative z-10 bg-transparent pt-8 pb-16 md:pt-12 md:pb-24">
         <div className="absolute top-[30%] left-[5%] h-[35vw] w-[35vw] rounded-full glow-blob-orange opacity-[0.1]" />
 
-        <div className="mx-auto max-w-[1740px] px-6 md:px-8 xl:px-12">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
-          <div className="mb-8 flex flex-col items-start justify-between gap-4 md:mb-12 md:flex-row md:items-end">
+          <div className="mb-8 flex flex-col md:flex-row items-start md:items-end justify-between gap-6 md:gap-4 md:mb-12">
             <div className="max-w-2xl space-y-4 text-left">
               <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                 <Sparkles className="h-3.5 w-3.5 text-primary" />
@@ -66,27 +66,23 @@ export default async function Home() {
               <h2 className="text-3xl font-extrabold leading-[0.95] tracking-tighter text-[#1a1917] md:text-5xl">
                 Curated Featured <span className="text-primary">Hardware</span>
               </h2>
+              <p className="max-w-sm text-left text-sm font-medium leading-relaxed text-muted-foreground">
+                Explore our most coveted precision locks, hand-finished brass lever handles, and heavy industrial drills.
+              </p>
             </div>
 
-            <p className="max-w-sm text-left text-sm font-medium leading-relaxed text-muted-foreground">
-              Explore our most coveted precision locks, hand-finished brass lever handles, and heavy industrial drills.
-            </p>
+            <div className="flex items-center gap-4 w-full md:w-auto mt-4 md:mt-0">
+              <Link
+                href="/shop"
+                className="group inline-flex w-full md:w-auto justify-center cursor-pointer items-center gap-2 rounded-full bg-[#1a1917] px-7 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-md transition-all duration-300 hover:bg-primary hover:shadow-[0_0_15px_rgba(255,90,31,0.4)]"
+              >
+                <span>View Products</span>
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1.5" />
+              </Link>
+            </div>
           </div>
 
           <FeaturedProductsCarousel products={featuredProducts} />
-
-          {/* Bottom Action */}
-          <div className="mt-14 flex items-center justify-center gap-6">
-            <div className="h-[2px] w-16 sm:w-32 md:w-48 bg-gradient-to-l from-primary via-primary/50 to-transparent rounded-full shadow-[0_0_8px_rgba(255,90,31,0.5)] opacity-80" />
-            <Link
-              href="/shop"
-              className="group inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#1a1917] px-7 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-md transition-all duration-300 hover:bg-primary hover:shadow-[0_0_15px_rgba(255,90,31,0.4)]"
-            >
-              <span>View Products</span>
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1.5" />
-            </Link>
-            <div className="h-[2px] w-16 sm:w-32 md:w-48 bg-gradient-to-r from-primary via-primary/50 to-transparent rounded-full shadow-[0_0_8px_rgba(255,90,31,0.5)] opacity-80" />
-          </div>
         </div>
       </section>
 

@@ -142,7 +142,7 @@ export function ShopClient({ initialProducts = [], initialBrands = [] }: { initi
   return (
     <div className="min-h-screen flex flex-col justify-between bg-transparent pt-24 md:pt-28">
       {/* Search Header Area */}
-      <div className="max-w-[1740px] mx-auto px-6 w-full text-left py-4 md:py-8">
+      <div className="max-w-7xl mx-auto px-6 w-full text-left py-4 md:py-8">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-black/5 pb-6 md:pb-8 gap-4">
           <div>
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">
@@ -197,7 +197,7 @@ export function ShopClient({ initialProducts = [], initialBrands = [] }: { initi
       </div>
 
       {/* Main Tab Rendering Block */}
-      <div className="max-w-[1740px] mx-auto px-6 md:px-8 xl:px-12 w-full flex-grow pb-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-grow pb-24">
         {activeTab === "products" && (
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 items-start">
 
