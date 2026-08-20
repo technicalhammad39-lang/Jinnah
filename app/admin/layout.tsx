@@ -68,33 +68,33 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
       {/* Sidebar */}
       <aside 
-        className={`absolute inset-y-4 left-4 z-50 lg:static lg:my-4 lg:ml-4 lg:h-[calc(100vh-2rem)] bg-gradient-to-b from-gray-900 to-black text-white rounded-3xl shadow-2xl transform transition-all duration-300 ease-in-out lg:translate-x-0 flex flex-col shrink-0 overflow-hidden ${
+        className={`absolute inset-y-4 left-4 z-50 lg:static lg:my-4 lg:ml-4 lg:h-[calc(100vh-2rem)] bg-gradient-to-br from-white via-orange-50/50 to-orange-100/60 text-[#1a1917] rounded-3xl shadow-[0_8px_30px_rgb(255,106,42,0.12)] border border-orange-500/10 transform transition-all duration-300 ease-in-out lg:translate-x-0 flex flex-col shrink-0 overflow-hidden ${
           sidebarOpen ? "translate-x-0" : "-translate-x-[120%]"
         } ${isCollapsed ? "w-20" : "w-72"}`}
       >
-        <div className="h-20 flex items-center justify-between px-4 border-b border-white/10 shrink-0 bg-white/5">
+        <div className="h-20 flex items-center justify-between px-4 border-b border-orange-500/10 shrink-0 bg-orange-500/5">
           <Link href="/admin" className={`relative transition-all duration-300 ${isCollapsed ? "h-10 w-10 overflow-hidden" : "h-16 w-52"} flex items-center justify-start`}>
             {isCollapsed ? (
               <Image src="/favicon.svg" alt="Jinnah" fill className="object-contain" />
             ) : (
-              <Image src="/jinnah-bottom.png" alt="Jinnah Hardware" fill className="object-contain object-left" />
+              <Image src="/jinnah-bottom.png" alt="Jinnah Hardware" fill className="object-contain object-left drop-shadow-sm" />
             )}
           </Link>
           <div className="flex items-center gap-2">
             <button 
               onClick={() => setIsCollapsed(!isCollapsed)} 
-              className="hidden lg:flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 p-2 rounded-xl transition-colors"
+              className="hidden lg:flex items-center justify-center text-orange-950/40 hover:text-[#FF6A2A] hover:bg-orange-500/10 p-2 rounded-xl transition-colors"
             >
               {isCollapsed ? <ChevronsRight className="w-5 h-5" /> : <ChevronsLeft className="w-5 h-5" />}
             </button>
-            <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-white/70 hover:text-white">
+            <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-orange-950/60 hover:text-[#FF6A2A]">
               <X className="h-6 w-6" />
             </button>
           </div>
         </div>
 
         <div className={`flex-1 py-6 px-3 space-y-1 custom-scrollbar ${isCollapsed ? "overflow-y-hidden hover:overflow-y-auto" : "overflow-y-auto"}`}>
-          {!isCollapsed && <div className="text-xs font-bold text-white/50 uppercase tracking-wider mb-4 px-3">Main Menu</div>}
+          {!isCollapsed && <div className="text-xs font-bold text-orange-950/40 uppercase tracking-wider mb-4 px-3">Main Menu</div>}
           {sidebarLinks.map((link) => {
             const isActive = pathname === link.href;
             const Icon = link.icon;
@@ -106,33 +106,33 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
                 title={link.name}
                 className={`flex items-center gap-3 py-3 rounded-xl transition-all ${isCollapsed ? "px-3 justify-center" : "px-4"} ${
                   isActive 
-                    ? "bg-white text-[#FF6A2A] font-bold shadow-md" 
-                    : "text-white/80 hover:bg-white/10 hover:text-white font-medium"
+                    ? "bg-gradient-to-r from-[#FF6A2A] to-[#FF8A50] text-white font-bold shadow-md shadow-orange-500/25" 
+                    : "text-orange-950/70 hover:bg-orange-500/10 hover:text-orange-950 font-medium"
                 }`}
               >
-                <Icon className={`h-5 w-5 shrink-0 ${isActive ? "text-[#FF6A2A]" : "text-white/70"}`} />
+                <Icon className={`h-5 w-5 shrink-0 ${isActive ? "text-white" : "text-orange-950/50"}`} />
                 {!isCollapsed && <span className="truncate">{link.name}</span>}
               </Link>
             );
           })}
         </div>
 
-        <div className={`p-4 border-t border-white/10 shrink-0 bg-white/5 ${isCollapsed ? "flex flex-col gap-2 items-center" : ""}`}>
-          <div className={`flex items-center gap-3 mb-2 rounded-xl bg-white/10 ${isCollapsed ? "p-2 justify-center" : "px-3 py-3"}`}>
-            <div className="w-8 h-8 shrink-0 rounded-full bg-white flex items-center justify-center text-[#FF6A2A] font-bold shadow-inner">
+        <div className={`p-4 border-t border-orange-500/10 shrink-0 bg-orange-500/5 ${isCollapsed ? "flex flex-col gap-2 items-center" : ""}`}>
+          <div className={`flex items-center gap-3 mb-2 rounded-xl bg-white/60 shadow-sm border border-orange-500/10 ${isCollapsed ? "p-2 justify-center" : "px-3 py-3"}`}>
+            <div className="w-8 h-8 shrink-0 rounded-full bg-gradient-to-br from-[#FF6A2A] to-[#FF8A50] flex items-center justify-center text-white font-bold shadow-inner">
               {user?.email?.[0].toUpperCase() || "A"}
             </div>
             {!isCollapsed && (
-              <div className="flex-1 overflow-hidden text-white">
-                <p className="text-sm font-semibold truncate">{user?.email}</p>
-                <p className="text-xs text-white/70">Super Admin</p>
+              <div className="flex-1 overflow-hidden text-orange-950">
+                <p className="text-sm font-bold truncate">{user?.email}</p>
+                <p className="text-xs text-orange-950/60 font-medium">Super Admin</p>
               </div>
             )}
           </div>
           <button 
             onClick={logout}
             title="Logout"
-            className={`flex items-center gap-3 py-3 rounded-xl text-white hover:bg-white/10 transition-colors font-medium ${isCollapsed ? "px-3 justify-center" : "px-4 w-full"}`}
+            className={`flex items-center gap-3 py-3 rounded-xl text-orange-950/70 hover:bg-orange-500/10 hover:text-orange-950 transition-colors font-medium ${isCollapsed ? "px-3 justify-center" : "px-4 w-full"}`}
           >
             <LogOut className="h-5 w-5 shrink-0 opacity-80" />
             {!isCollapsed && <span>Logout</span>}
