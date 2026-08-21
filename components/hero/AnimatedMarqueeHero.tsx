@@ -357,7 +357,7 @@ export function AnimatedMarqueeHero({
               }}
               className="relative left-1/2 w-[220vw] sm:w-[160vw] md:w-[130vw] lg:w-[110vw] max-w-none -translate-x-1/2 will-change-transform"
             >
-              <motion.div style={{ y: showcaseY, scale: showcaseScale }} className="relative will-change-transform mt-8 sm:mt-0">
+              <motion.div style={{ y: showcaseY, scale: showcaseScale }} className="relative will-change-transform mt-8 sm:-mt-4 md:-mt-12 lg:-mt-24 xl:-mt-32">
                 <Image
                   src="/hero-bottom.png"
                   alt="Premium hardware showcase featuring a smart lock, precision hinge, professional drill, brass lever, and finish samples."
