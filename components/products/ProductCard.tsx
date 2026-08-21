@@ -262,13 +262,20 @@ function ProductCardComponent({ product }: ProductCardProps) {
             </h3>
           </Link>
 
-          <div className="mb-4 flex items-baseline gap-2">
-            <span className="text-base font-black text-foreground md:text-lg">
-              Rs. {pricing.finalPrice.toLocaleString()}
-            </span>
+          <div className="mb-4 flex items-center flex-wrap gap-2">
+            <div className="flex items-baseline gap-2">
+              <span className="text-base font-black text-foreground md:text-lg">
+                Rs. {pricing.finalPrice.toLocaleString()}
+              </span>
+              {pricing.hasDiscount && (
+                <span className="text-xs font-semibold text-muted-foreground line-through">
+                  Rs. {pricing.originalPrice.toLocaleString()}
+                </span>
+              )}
+            </div>
             {pricing.hasDiscount && (
-              <span className="text-xs font-semibold text-muted-foreground line-through">
-                Rs. {pricing.originalPrice.toLocaleString()}
+              <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-600 ring-1 ring-inset ring-emerald-500/20">
+                {pricing.discountType === 'percentage' ? `${pricing.discountValue}% OFF` : `Rs. ${pricing.discountAmount} OFF`}
               </span>
             )}
           </div>
