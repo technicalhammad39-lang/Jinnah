@@ -76,7 +76,7 @@ export function ContactSection() {
       {/* Background blobs */}
       <div className="absolute top-[20%] right-[20%] w-[35vw] h-[35vw] rounded-full glow-blob-orange opacity-[0.1]" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-stretch">
 
           {/* Left Side: Contact Information & WhatsApp Links */}

@@ -114,7 +114,7 @@ export default function GalleryClient({ initialGallery = [] }: { initialGallery:
             <Image src="/hero-shape.svg" alt="Shape Right" fill className="object-contain object-right scale-x-[-1]" priority />
           </motion.div>
 
-          <div className="max-w-7xl mx-auto space-y-6 relative z-10">
+          <div className="max-w-[1920px] mx-auto space-y-6 relative z-10">
             {/* Side Glows */}
             <div className="absolute top-1/2 left-0 md:left-10 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px] pointer-events-none -z-10" />
             <div className="absolute top-1/2 right-0 md:right-10 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px] pointer-events-none -z-10" />
@@ -138,7 +138,7 @@ export default function GalleryClient({ initialGallery = [] }: { initialGallery:
         </section>
 
         {/* CATEGORY FILTERS */}
-        <section className="px-6 max-w-7xl mx-auto mb-12">
+        <section className="px-6 max-w-[1920px] mx-auto mb-12">
           <div className="flex flex-wrap items-center justify-center gap-2">
             {GALLERY_CATEGORIES.map((cat) => (
               <button
@@ -157,7 +157,7 @@ export default function GalleryClient({ initialGallery = [] }: { initialGallery:
         </section>
 
         {/* MASONRY GRID */}
-        <section className="px-6 max-w-7xl mx-auto">
+        <section className="px-6 max-w-[1920px] mx-auto">
           <motion.div layout className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
             <AnimatePresence>
               {filteredImages.map((img) => (

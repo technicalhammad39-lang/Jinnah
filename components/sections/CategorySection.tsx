@@ -7,7 +7,7 @@ import Link from "next/link";
 
 export function CategorySection() {
   return (
-    <section id="categories-section" className="pt-16 pb-8 md:pt-24 md:pb-12 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <section id="categories-section" className="pt-16 pb-8 md:pt-24 md:pb-12 w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
       {/* Background Accent */}
       <div className="absolute top-[40%] right-[10%] w-[35vw] h-[35vw] rounded-full glow-blob-orange opacity-[0.25]" />
 

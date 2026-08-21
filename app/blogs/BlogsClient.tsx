@@ -52,7 +52,7 @@ export default function BlogsClient({ initialBlogs = [] }: { initialBlogs: any[]
             <Image src="/hero-shape.svg" alt="Shape Right" fill className="object-contain object-right scale-x-[-1]" priority />
           </motion.div>
 
-          <div className="max-w-7xl mx-auto space-y-6 relative z-10">
+          <div className="max-w-[1920px] mx-auto space-y-6 relative z-10">
             {/* Side Glows */}
             <div className="absolute top-1/2 left-0 md:left-10 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px] pointer-events-none -z-10" />
             <div className="absolute top-1/2 right-0 md:right-10 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px] pointer-events-none -z-10" />
@@ -76,7 +76,7 @@ export default function BlogsClient({ initialBlogs = [] }: { initialBlogs: any[]
         </section>
 
         {/* BLOGS GRID */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 md:mt-12">
+        <section className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 mt-8 md:mt-12">
           {loading ? (
             <div className="flex justify-center py-20">
               <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />

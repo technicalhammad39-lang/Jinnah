@@ -56,7 +56,7 @@ export default function AboutPage() {
             style={{ backgroundImage: 'radial-gradient(circle at center, #FF6A2A 1.5px, transparent 1.5px)', backgroundSize: '24px 24px', opacity: 0.5 }}
           />
           
-          <div className="relative z-10 max-w-7xl mx-auto w-full px-6 flex flex-col md:flex-row items-center justify-between gap-12">
+          <div className="relative z-10 max-w-[1920px] mx-auto w-full px-6 flex flex-col md:flex-row items-center justify-between gap-12">
             <div className="w-full md:w-1/2 space-y-8 pl-0 lg:pl-12">
               <motion.div
                 initial={{ opacity: 0, x: -80 }}
@@ -102,7 +102,7 @@ export default function AboutPage() {
           {/* Top Orange Gradient */}
           <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-primary/15 to-transparent pointer-events-none" />
           
-          <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="max-w-[1920px] mx-auto px-6 relative z-10">
             {loading ? (
               <div className="flex justify-center items-center py-32">
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -163,7 +163,7 @@ export default function AboutPage() {
         </section>
 
         {/* TIMELINE SECTION */}
-        <section className="py-24 px-6 max-w-7xl mx-auto">
+        <section className="py-24 px-6 max-w-[1920px] mx-auto">
           <div className="text-center mb-16 space-y-4">
             <h2 className="text-3xl md:text-5xl font-extrabold uppercase tracking-tighter text-[#1a1917]">Our Journey</h2>
             <p className="text-sm text-muted-foreground max-w-xl mx-auto font-medium">A legacy of precision and growth over the decades.</p>

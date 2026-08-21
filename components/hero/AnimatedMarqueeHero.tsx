@@ -277,7 +277,7 @@ export function AnimatedMarqueeHero({
 
         <motion.div
           style={{ y: contentY, opacity: contentOpacity, scale: contentScale, filter: contentBlur }}
-          className="relative z-20 mx-auto flex w-full max-w-7xl flex-1 flex-col items-center justify-center pb-2 sm:pb-3 lg:pb-4 xl:pb-6"
+          className="relative z-20 mx-auto flex w-full max-w-[1920px] flex-1 flex-col items-center justify-center pb-2 sm:pb-3 lg:pb-4 xl:pb-6"
         >
 
           <div className="w-full max-w-[92rem] space-y-4 sm:space-y-5 lg:space-y-7 mt-4 sm:mt-6 md:mt-8 px-2 sm:px-0">

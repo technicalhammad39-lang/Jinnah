@@ -167,7 +167,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
         {/* Page Content */}
         <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto custom-scrollbar">
-          <div className="max-w-7xl mx-auto w-full">
+          <div className="max-w-[1920px] mx-auto w-full">
             {children}
           </div>
         </main>

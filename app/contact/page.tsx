@@ -80,7 +80,7 @@ export default function ContactPage() {
             style={{ backgroundImage: 'radial-gradient(circle at center, #FF6A2A 1.5px, transparent 1.5px)', backgroundSize: '24px 24px', opacity: 0.5 }}
           />
 
-          <div className="relative z-10 max-w-7xl mx-auto w-full px-0 md:px-6 flex flex-col md:flex-row items-center justify-between gap-12">
+          <div className="relative z-10 max-w-[1920px] mx-auto w-full px-0 md:px-6 flex flex-col md:flex-row items-center justify-between gap-12">
             <div className="w-full md:w-1/2 space-y-6 text-center md:text-left pl-0 lg:pl-12">
               <motion.div
                 initial={{ opacity: 0, x: -50 }}
@@ -122,7 +122,7 @@ export default function ContactPage() {
         </section>
 
         {/* CONTACT GRID */}
-        <section className="pt-8 pb-20 px-6 max-w-7xl mx-auto relative mt-0">
+        <section className="pt-8 pb-20 px-6 max-w-[1920px] mx-auto relative mt-0">
           {/* Top-down Orange Glow Gradient */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[400px] bg-gradient-to-b from-primary/10 via-primary/5 to-transparent pointer-events-none -z-10 rounded-full blur-3xl opacity-60" />
           

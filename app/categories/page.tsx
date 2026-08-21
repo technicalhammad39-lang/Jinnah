@@ -57,7 +57,7 @@ export default function CategoriesPage() {
             initial={{ opacity: 0, scale: 0.95, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] z-10 -mt-8 md:-mt-16"
+            className="relative w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] z-10 -mt-8 md:-mt-16"
           >
             <Image 
               src="/catos.svg" 
@@ -74,7 +74,7 @@ export default function CategoriesPage() {
           {/* Top Orange Gradient */}
           <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-primary/15 to-transparent pointer-events-none" />
           
-          <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="max-w-[1920px] mx-auto px-6 relative z-10">
             <div className="relative z-10 mb-16">
               <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter">Explore Categories</h2>
             </div>
@@ -117,7 +117,7 @@ export default function CategoriesPage() {
         </section>
 
         {/* APPLICATIONS SECTION */}
-        <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto my-24 relative z-10">
+        <div className="px-4 sm:px-6 lg:px-8 max-w-[1920px] mx-auto my-24 relative z-10">
           <section className="py-24 px-6 md:px-12 bg-[#1a1917] rounded-[2.5rem] md:rounded-[3rem] text-white relative overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.1)]">
             
             {/* Background Glow */}

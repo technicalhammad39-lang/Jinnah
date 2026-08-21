@@ -184,7 +184,7 @@ export default function CheckoutClient() {
 
   return (
     <div className="min-h-screen bg-[#faf9f6] pt-28 pb-20 md:pt-32">
-      <div className="mx-auto max-w-7xl px-4 md:px-6">
+      <div className="mx-auto max-w-[1920px] px-4 md:px-6">
         {/* Breadcrumb / Step Indicator */}
         <div className="mb-8 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground md:mb-12">
           <Link href="/shop" className="hover:text-primary transition-colors">Shop</Link>

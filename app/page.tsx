@@ -64,7 +64,7 @@ export default async function Home() {
       <section id="featured-products-section" className="relative z-10 bg-transparent pt-8 pb-16 md:pt-12 md:pb-24">
         <div className="absolute top-[30%] left-[5%] h-[35vw] w-[35vw] rounded-full glow-blob-orange opacity-[0.1]" />
 
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-8 flex flex-col md:flex-row items-start md:items-end justify-between gap-6 md:gap-4 md:mb-12">
             <div className="max-w-2xl space-y-4 text-left">

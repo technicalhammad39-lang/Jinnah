@@ -145,7 +145,7 @@ export function WhyChooseUs() {
 
   return (
     <section data-no-premium-reveal className="pt-12 pb-24 md:pt-20 md:pb-32 bg-[#faf9f6] relative z-10 overflow-hidden">
-      <div className="w-full max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+      <div className="w-full max-w-[1920px] mx-auto px-6 lg:px-12 relative z-10">
         <div className="flex flex-col items-center justify-center text-center mb-16 md:mb-24 gap-6">
           <div className="space-y-4 w-full max-w-[90vw] md:max-w-5xl mx-auto flex flex-col items-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-white shadow-sm px-3.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">

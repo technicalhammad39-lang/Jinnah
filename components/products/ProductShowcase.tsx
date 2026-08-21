@@ -75,7 +75,7 @@ export function ProductShowcase() {
       <div className="glow-blob-orange absolute top-[20%] left-[20%] h-[45vw] w-[45vw] rounded-full opacity-[0.2]" />
       <div className="glow-blob-orange absolute right-[10%] bottom-[20%] h-[45vw] w-[45vw] rounded-full opacity-[0.15]" />
 
-      <div className="mx-auto max-w-7xl px-6">
+      <div className="mx-auto max-w-[1920px] px-6">
         <div className="mx-auto mb-16 max-w-2xl space-y-4 text-center md:mb-20">
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/10 bg-primary/5 px-3.5 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
             <span>Spotlight Innovation</span>
