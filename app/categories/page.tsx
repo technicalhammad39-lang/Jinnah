@@ -34,14 +34,14 @@ export default function CategoriesPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              className="space-y-6 w-full max-w-5xl mx-auto mb-4 md:mb-6"
+              className="space-y-6 w-full max-w-5xl mx-auto mb-0 md:mb-2"
             >
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter text-[#1a1917] leading-[0.95] md:whitespace-nowrap">
                 Precision{" "}
                 <span className="text-primary font-stylish normal-case text-[1.1em]">Collections</span>
               </h1>
               
-              <p className="text-sm md:text-lg text-muted-foreground font-medium leading-relaxed max-w-xl mx-auto px-4 sm:px-6 whitespace-normal">
+              <p className="text-sm md:text-lg text-muted-foreground font-medium leading-relaxed max-w-3xl mx-auto px-4 sm:px-6 whitespace-normal">
                 <span className="sm:hidden">
                   Discover our meticulously organized catalog of premium architectural hardware and smart security solutions.
                 </span>
@@ -57,7 +57,7 @@ export default function CategoriesPage() {
             initial={{ opacity: 0, scale: 0.95, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] z-10 mt-0"
+            className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] z-10 -mt-8 md:-mt-16"
           >
             <Image 
               src="/catos.svg" 
@@ -90,12 +90,12 @@ export default function CategoriesPage() {
                 className="col-span-1"
               >
                 <Link href={`/shop?category=${cat.slug}`} className="group block relative rounded-xl sm:rounded-[32px] bg-white border border-black/5 p-2 sm:p-6 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 h-full flex flex-col">
-                  <div className="relative aspect-square sm:h-44 w-full rounded-lg sm:rounded-2xl overflow-hidden mb-1 sm:mb-2 bg-transparent shrink-0">
+                  <div className="relative aspect-square sm:h-48 w-full rounded-lg sm:rounded-2xl overflow-hidden mb-2 sm:mb-6 bg-black/5 shrink-0">
                     <Image
                       src={getPublicUploadUrl(cat.image)}
                       alt={cat.name}
                       fill
-                      className="object-cover object-top scale-[1.05] -translate-y-2 sm:-translate-y-4 transition-transform duration-700 group-hover:scale-[1.15] group-hover:-translate-y-5"
+                      className="object-cover transition-transform duration-700 group-hover:scale-110"
                       sizes="(max-width: 640px) 33vw, (max-width: 1024px) 50vw, 33vw"
                     />
                   </div>
@@ -122,6 +122,11 @@ export default function CategoriesPage() {
             
             {/* Background Glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[300px] bg-[radial-gradient(ellipse_at_top,rgba(255,106,42,0.15)_0%,transparent_70%)] pointer-events-none" />
+
+            {/* Top Map Graphic */}
+            <div className="absolute top-0 left-0 w-full h-[300px] md:h-[600px] opacity-[0.08] pointer-events-none">
+              <Image src="/map-right.png" alt="Map Graphic" fill className="object-cover object-top" />
+            </div>
 
             <div className="max-w-[1400px] mx-auto relative z-10">
               <div className="mb-20 text-center space-y-4">
