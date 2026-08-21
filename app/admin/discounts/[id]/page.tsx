@@ -30,6 +30,15 @@ export default function DiscountEditor({ params }: { params: Promise<{ id: strin
     endsAt: "",
   });
 
+  // Helper to format ISO string to local datetime-local format
+  const formatForInput = (isoString?: string) => {
+    if (!isoString) return "";
+    const d = new Date(isoString);
+    if (isNaN(d.getTime())) return isoString;
+    const tzOffset = d.getTimezoneOffset() * 60000;
+    return new Date(d.getTime() - tzOffset).toISOString().slice(0, 16);
+  };
+
   useEffect(() => {
     async function fetchProducts() {
       try {
@@ -51,8 +60,11 @@ export default function DiscountEditor({ params }: { params: Promise<{ id: strin
         const docRef = doc(db, "discounts", id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
+          const data = docSnap.data();
           setFormData({
-            ...docSnap.data()
+            ...data,
+            startsAt: formatForInput(data.startsAt),
+            endsAt: formatForInput(data.endsAt),
           } as any);
         } else {
           toast.error("Discount not found");
@@ -98,6 +110,8 @@ export default function DiscountEditor({ params }: { params: Promise<{ id: strin
       const dataToSave = {
         ...formData,
         value: Number(formData.value),
+        startsAt: formData.startsAt ? new Date(formData.startsAt).toISOString() : "",
+        endsAt: formData.endsAt ? new Date(formData.endsAt).toISOString() : "",
         productIds: formData.scope === 'all_products' ? [] : formData.productIds,
         updatedAt: serverTimestamp()
       };
@@ -281,13 +295,23 @@ export default function DiscountEditor({ params }: { params: Promise<{ id: strin
             <h2 className="text-lg font-bold mb-4 border-b pb-2">Schedule (Optional)</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Starts At</label>
+                <div className="flex items-center justify-between pl-1">
+                  <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider">Starts At</label>
+                  <button 
+                    type="button" 
+                    onClick={() => setFormData({...formData, startsAt: ""})}
+                    className="text-xs font-bold text-[#FF6A2A] hover:underline"
+                  >
+                    Publish Now
+                  </button>
+                </div>
                 <input 
                   type="datetime-local" 
                   value={formData.startsAt || ""}
                   onChange={e => setFormData({...formData, startsAt: e.target.value})}
                   className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
                 />
+                <p className="text-xs text-[#1a1917]/50 pl-1">Leave empty or click "Publish Now" to activate immediately.</p>
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Ends At</label>
