@@ -48,11 +48,9 @@
   }
 }
 
-@layer utilities {
-  .font-stylish {
-    font-family: var(--font-serif), serif;
-    font-style: italic;
-  }
+@utility font-stylish {
+  font-family: var(--font-serif), serif;
+  font-style: italic;
 }
 
 /* Global Scrollbars */
