@@ -5,6 +5,7 @@ import { AppProvider } from "@/context/AppContext";
 import { AppChrome } from "@/components/providers/AppChrome";
 
 import { JsonLd } from "@/components/seo/JsonLd";
+import { TopTicker } from "@/components/navigation/TopTicker";
 import PushNotificationManager from "@/components/notifications/PushNotificationManager";
 import { Toaster } from "sonner";
 
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <JsonLd />
       </head>
       <body suppressHydrationWarning className="bg-[#faf9f6] text-[#1a1917] antialiased selection:bg-primary/20 selection:text-primary overflow-x-hidden">
+        <TopTicker />
         <AppProvider>
           <PushNotificationManager />
           <Toaster position="top-center" richColors theme="light" />

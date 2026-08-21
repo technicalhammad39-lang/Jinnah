@@ -13,11 +13,12 @@ import { getPaymentMethods } from "@/lib/data-fetcher";
 import { toast } from "sonner";
 import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
+import { calculateProductPrice } from "@/lib/discount-engine";
 
 export default function CheckoutClient() {
   const router = useRouter();
   const { user } = useAuth();
-  const { cart, cartSubtotal } = useCartState();
+  const { cart, cartSubtotal, cartDiscountTotal, cartFinalTotal, discounts } = useCartState();
   const { clearCart } = useCartActions();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,10 +41,7 @@ export default function CheckoutClient() {
 
   const [checkoutStep, setCheckoutStep] = useState<1 | 2 | 3>(1);
 
-  // Coupon state
-  const [couponCodeInput, setCouponCodeInput] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string, discountAmount: number } | null>(null);
-  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState<1 | 2 | 3>(1);
 
   useEffect(() => {
     getPaymentMethods().then((methods) => {
@@ -144,61 +142,7 @@ export default function CheckoutClient() {
     }
   };
 
-  const applyCoupon = async () => {
-    if (!couponCodeInput) return;
-    setIsApplyingCoupon(true);
-    
-    try {
-      const q = query(collection(db, "coupons"), where("code", "==", couponCodeInput.toUpperCase()));
-      const snap = await getDocs(q);
-      
-      if (snap.empty) {
-        toast.error("Invalid coupon code.");
-        setAppliedCoupon(null);
-        return;
-      }
-      
-      const c = snap.docs[0].data();
-      
-      const now = new Date();
-      const isExpired = c.expiryDate && new Date(c.expiryDate) < now;
-      const isLimitReached = c.usageLimit > 0 && c.usedCount >= c.usageLimit;
-      
-      if (!c.active || isExpired || isLimitReached) {
-        toast.error("This coupon is expired or no longer valid.");
-        setAppliedCoupon(null);
-        return;
-      }
-      
-      if (c.minOrderAmount && cartSubtotal < c.minOrderAmount) {
-        toast.error(`Minimum order amount of Rs. ${c.minOrderAmount} required.`);
-        setAppliedCoupon(null);
-        return;
-      }
-      
-      let discountAmount = 0;
-      if (c.discountType === 'percentage') {
-        discountAmount = (cartSubtotal * c.discountValue) / 100;
-      } else {
-        discountAmount = c.discountValue;
-      }
-      
-      if (discountAmount > cartSubtotal) discountAmount = cartSubtotal;
-      
-      setAppliedCoupon({ code: c.code, discountAmount });
-      toast.success("Coupon applied successfully!");
-    } catch (error) {
-      console.error("Error applying coupon:", error);
-      toast.error("Failed to verify coupon.");
-    } finally {
-      setIsApplyingCoupon(false);
-    }
-  };
 
-  const removeCoupon = () => {
-    setAppliedCoupon(null);
-    setCouponCodeInput("");
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -212,7 +156,6 @@ export default function CheckoutClient() {
         customerType: user ? "account" : "guest",
         paymentMethod,
         items: cart,
-        couponCode: appliedCoupon?.code || null,
       };
 
       const res = await fetch("/api/checkout", {
@@ -408,7 +351,9 @@ export default function CheckoutClient() {
               <h3 className="mb-6 text-lg font-bold text-foreground">Order Summary</h3>
               
               <div className="mb-6 max-h-[320px] space-y-4 overflow-y-auto pr-2">
-                {cart.map((item) => (
+                {cart.map((item) => {
+                  const pricing = calculateProductPrice(item.product.price, item.product.id, discounts);
+                  return (
                   <div key={`${item.product.id}-${item.selectedColor}-${item.selectedSize}`} className="flex gap-4">
                     <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-[#efece6]">
                       <Image
@@ -436,46 +381,29 @@ export default function CheckoutClient() {
                         )}
                       </div>
                       <div className="mt-1 font-bold">
-                        Rs. {(item.product.price * item.quantity).toLocaleString()}
+                        Rs. {(pricing.finalPrice * item.quantity).toLocaleString()}
+                        {pricing.hasDiscount && (
+                          <span className="ml-2 text-xs font-semibold text-muted-foreground line-through">
+                            Rs. {(pricing.originalPrice * item.quantity).toLocaleString()}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-
-              <div className="border-t border-black/5 pt-6 pb-6">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={couponCodeInput}
-                    onChange={(e) => setCouponCodeInput(e.target.value)}
-                    placeholder="Discount code"
-                    disabled={!!appliedCoupon}
-                    className="flex-grow rounded-xl border border-black/10 bg-white px-4 py-2 text-sm outline-none focus:border-primary disabled:opacity-60 uppercase"
-                  />
-                  {appliedCoupon ? (
-                    <button onClick={removeCoupon} type="button" className="rounded-xl bg-red-100 text-red-600 px-4 py-2 text-sm font-bold hover:bg-red-200 transition-colors">
-                      Remove
-                    </button>
-                  ) : (
-                    <button onClick={applyCoupon} type="button" disabled={isApplyingCoupon || !couponCodeInput} className="rounded-xl bg-[#1a1917] text-white px-4 py-2 text-sm font-bold disabled:opacity-50 transition-colors">
-                      Apply
-                    </button>
-                  )}
-                </div>
+                )})}
               </div>
 
               <div className="space-y-3 border-t border-black/5 pt-6">
                 <div className="flex justify-between text-sm text-muted-foreground">
-                  <span>Subtotal</span>
-                  <span className="font-semibold text-foreground">Rs. {cartSubtotal.toLocaleString()}</span>
-                </div>
-                {appliedCoupon && (
-                  <div className="flex justify-between text-sm font-semibold text-emerald-600">
-                    <span>Discount ({appliedCoupon.code})</span>
-                    <span>- Rs. {appliedCoupon.discountAmount.toLocaleString()}</span>
-                  </div>
-                )}
+                   <span>Subtotal</span>
+                   <span className="font-semibold text-foreground">Rs. {cartSubtotal.toLocaleString()}</span>
+                 </div>
+                 {cartDiscountTotal > 0 && (
+                   <div className="flex justify-between text-sm text-rose-500">
+                     <span>Discount</span>
+                     <span className="font-semibold">-Rs. {cartDiscountTotal.toLocaleString()}</span>
+                   </div>
+                 )}
                 <div className="flex justify-between text-sm text-muted-foreground">
                   <span>Shipping</span>
                   <span className="font-semibold text-emerald-600">Free Delivery</span>
@@ -483,7 +411,7 @@ export default function CheckoutClient() {
                 <div className="my-2 h-[1px] bg-black/5" />
                 <div className="flex justify-between text-lg font-extrabold text-foreground">
                   <span>Total</span>
-                  <span>Rs. {(cartSubtotal - (appliedCoupon?.discountAmount || 0)).toLocaleString()}</span>
+                  <span>Rs. {cartFinalTotal.toLocaleString()}</span>
                 </div>
               </div>
 

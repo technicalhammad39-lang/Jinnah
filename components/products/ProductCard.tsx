@@ -23,6 +23,8 @@ import {
 } from "@/context/AppContext";
 import { Product } from "@/data/products";
 import { getPublicUploadUrl } from "@/lib/utils";
+import { calculateProductPrice } from "@/lib/discount-engine";
+import { useCartState } from "@/context/AppContext";
 
 interface ProductCardProps {
   product: Product;
@@ -31,6 +33,7 @@ interface ProductCardProps {
 function ProductCardComponent({ product }: ProductCardProps) {
   const { addToCart } = useCartActions();
   const { wishlist } = useWishlistState();
+  const { discounts } = useCartState();
   const { toggleWishlist } = useWishlistActions();
   const { setQuickViewProduct, setCartOpen } = useOverlayActions();
   const router = useRouter();
@@ -68,6 +71,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
   }, []);
 
   const isWishlisted = wishlist.includes(product.id);
+  const pricing = calculateProductPrice(product.price, product.id, discounts);
 
   const nextImage = (event: React.MouseEvent) => {
     event.stopPropagation();
@@ -199,11 +203,11 @@ function ProductCardComponent({ product }: ProductCardProps) {
               BEST SELLER
             </span>
           )}
-          {product.discount && product.discount > 0 ? (
+          {pricing.hasDiscount && (
             <span className="rounded-full bg-rose-500 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-widest text-white shadow-md">
-              -{product.discount}%
+              {pricing.discountType === 'percentage' ? `-${pricing.discountValue}%` : `-Rs. ${pricing.discountAmount}`}
             </span>
-          ) : null}
+          )}
           {product.stockQuantity !== undefined && product.stockQuantity <= 0 && (
             <span className="rounded-full bg-black px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-widest text-white shadow-md">
               OUT OF STOCK
@@ -260,11 +264,11 @@ function ProductCardComponent({ product }: ProductCardProps) {
 
           <div className="mb-4 flex items-baseline gap-2">
             <span className="text-base font-black text-foreground md:text-lg">
-              Rs. {product.price.toLocaleString()}
+              Rs. {pricing.finalPrice.toLocaleString()}
             </span>
-            {product.originalPrice !== undefined && product.originalPrice > product.price && (
+            {pricing.hasDiscount && (
               <span className="text-xs font-semibold text-muted-foreground line-through">
-                Rs. {product.originalPrice.toLocaleString()}
+                Rs. {pricing.originalPrice.toLocaleString()}
               </span>
             )}
           </div>

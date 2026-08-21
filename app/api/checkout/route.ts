@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { adminDb, getAdminApp } from '@/lib/firebase-admin';
 import * as admin from 'firebase-admin';
+import { calculateProductPrice, Discount } from '@/lib/discount-engine';
 
 export async function POST(req: Request) {
   try {
@@ -15,14 +16,13 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { customerInfo, items, paymentMethod, customerType, couponCode } = body;
+    const { customerInfo, items, paymentMethod, customerType } = body;
     
     if (!items || items.length === 0) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
     // Server-side validation
-    let subtotal = 0;
     const validatedItems = [];
     
     for (const item of items) {
@@ -44,13 +44,12 @@ export async function POST(req: Request) {
         }
       }
       
-      const itemPrice = p.price;
-      subtotal += itemPrice * item.quantity;
-      
       validatedItems.push({
-        productId: item.product.id,
-        name: p.name,
-        price: itemPrice,
+        product: {
+          id: item.product.id,
+          name: p.name,
+          price: p.price,
+        },
         quantity: item.quantity,
         selectedColor: item.selectedColor || null,
         selectedSize: item.selectedSize || null,
@@ -58,42 +57,35 @@ export async function POST(req: Request) {
       });
     }
     
-    let discount = 0;
-    let appliedCoupon = null;
-    
-    // Process Coupon
-    if (couponCode) {
-      const couponQuery = await adminDb.collection('coupons').where('code', '==', couponCode.toUpperCase()).get();
-      if (!couponQuery.empty) {
-        const cDoc = couponQuery.docs[0];
-        const c = cDoc.data();
-        
-        const now = new Date();
-        const isExpired = c.expiryDate && new Date(c.expiryDate) < now;
-        const isLimitReached = c.usageLimit > 0 && c.usedCount >= c.usageLimit;
-        
-        if (c.active && !isExpired && !isLimitReached) {
-          if (!c.minOrderAmount || subtotal >= c.minOrderAmount) {
-            // Valid coupon
-            appliedCoupon = c.code;
-            if (c.discountType === 'percentage') {
-              discount = (subtotal * c.discountValue) / 100;
-            } else {
-              discount = c.discountValue;
-            }
-            
-            if (discount > subtotal) discount = subtotal; // don't go below 0
+    // Fetch active discounts from server
+    const discountsSnap = await adminDb.collection('discounts').where('isActive', '==', true).get();
+    const activeDiscounts = discountsSnap.docs.map(doc => {
+      const data = doc.data();
+      return { id: doc.id, ...data } as Discount;
+    });
 
-            // Increment used count immediately in a transaction or just update
-            await adminDb.collection('coupons').doc(cDoc.id).update({
-              usedCount: admin.firestore.FieldValue.increment(1)
-            });
-          }
-        }
-      }
-    }
+    let subtotal = 0;
+    let discountTotal = 0;
     
-    const total = subtotal - discount;
+    const processedItems = validatedItems.map(item => {
+      const pricing = calculateProductPrice(item.product.price, item.product.id, activeDiscounts);
+      
+      subtotal += (item.product.price * item.quantity);
+      discountTotal += (pricing.discountAmount * item.quantity);
+      
+      return {
+        productId: item.product.id,
+        name: item.product.name,
+        price: item.product.price,
+        quantity: item.quantity,
+        selectedColor: item.selectedColor,
+        selectedSize: item.selectedSize,
+        image: item.image,
+        pricingSnapshot: pricing
+      };
+    });
+    
+    const total = subtotal - discountTotal;
     
     // Batch write to update stock and save order
     const batch = adminDb.batch();
@@ -123,10 +115,9 @@ export async function POST(req: Request) {
       customerInfo,
       customerType,
       paymentMethod,
-      items: validatedItems,
+      items: processedItems,
       subtotal,
-      discount,
-      appliedCoupon,
+      discount: discountTotal,
       total,
       status: "pending",
       createdAt: admin.firestore.FieldValue.serverTimestamp(),

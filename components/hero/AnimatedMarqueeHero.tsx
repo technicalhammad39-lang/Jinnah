@@ -75,7 +75,7 @@ export function AnimatedMarqueeHero({
   const contentOpacity = useTransform(scrollYProgress, [0, 0.3, 0.6], [1, 0.9, 0]); 
   const contentBlur = useTransform(scrollYProgress, [0, 0.3, 0.6], ["blur(0px)", "blur(8px)", "blur(16px)"]);
   
-  const showcaseY = useTransform(scrollYProgress, [0, 1], [0, -30]);
+  const showcaseY = useTransform(scrollYProgress, [0, 1], [0, -120]);
   const showcaseScale = useTransform(scrollYProgress, [0, 0.8], [1, 0.92]);
   const imageScrollOpacity = useTransform(scrollYProgress, [0.1, 0.7], [1, 0]);
   const backgroundY = useTransform(scrollYProgress, [0, 1], [0, -18]);
@@ -188,7 +188,7 @@ export function AnimatedMarqueeHero({
         onPointerMove={canUseParallax ? handlePointerMove : undefined}
         onPointerLeave={canUseParallax ? handlePointerLeave : undefined}
         className={cn(
-          "relative isolate flex min-h-[92svh] w-full flex-col overflow-hidden bg-[#f5f2ed] px-4 pt-24 pb-0 text-center sm:px-6 md:px-8 md:pt-28 lg:min-h-screen lg:px-16 xl:px-24 2xl:px-[7.5rem]",
+          "relative isolate flex min-h-[92svh] w-full flex-col overflow-hidden bg-[#f5f2ed] px-4 pt-24 pb-0 text-center sm:px-6 md:px-8 md:pt-32 lg:min-h-screen lg:px-16 xl:px-24 2xl:px-[7.5rem]",
           className
         )}
       >
@@ -280,8 +280,8 @@ export function AnimatedMarqueeHero({
           className="relative z-20 mx-auto flex w-full max-w-7xl flex-1 flex-col items-center justify-center pb-2 sm:pb-3 lg:pb-4 xl:pb-6"
         >
 
-          <div className="w-full max-w-[92rem] space-y-4 sm:space-y-5 lg:space-y-7 mt-10 sm:mt-14 md:mt-16">
-            <h1 className="mx-auto w-full text-balance text-[clamp(3.2rem,11vw,4.25rem)] font-black leading-[0.95] tracking-[-0.052em] md:text-[5rem] lg:text-[5.35rem] xl:text-[6rem] 2xl:text-[6.85rem]">
+          <div className="w-full max-w-[92rem] space-y-4 sm:space-y-5 lg:space-y-7 mt-4 sm:mt-6 md:mt-8 px-2 sm:px-0">
+            <h1 className="mx-auto w-full text-balance break-words text-[clamp(2.5rem,11vw,4.25rem)] font-black leading-[0.95] tracking-[-0.052em] md:text-[5rem] lg:text-[5.35rem] xl:text-[6rem] 2xl:text-[6.85rem]">
               {titleLines.map((line, lineIndex) => {
                 const parts = line.split(/(premium|hardware)/i);
                 return (
@@ -298,7 +298,7 @@ export function AnimatedMarqueeHero({
                       if (lowerPart === "premium") {
                         spanClass = "font-stylish text-primary text-[#e05a2b] italic font-medium text-[1.1em]";
                       } else if (lowerPart === "hardware") {
-                        spanClass = "text-primary text-[#e05a2b] font-bold not-italic text-inherit md:font-stylish md:italic md:font-medium md:text-[1.1em]";
+                        spanClass = "text-black font-bold not-italic md:font-stylish md:italic md:font-medium md:text-[1.1em]";
                       }
                       
                       return (
@@ -323,7 +323,7 @@ export function AnimatedMarqueeHero({
           </div>
         </motion.div>
 
-        <div className="relative z-10 -mt-[clamp(2.75rem,7vw,6.75rem)] w-full overflow-visible">
+        <div className="relative z-10 mt-0 w-full overflow-visible">
           <motion.div
             initial={{
               opacity: 0,
@@ -355,9 +355,9 @@ export function AnimatedMarqueeHero({
                 rotateY: smoothTiltY,
                 perspective: "1600px",
               }}
-              className="relative left-1/2 w-[104vw] max-w-none -translate-x-1/2 will-change-transform"
+              className="relative left-1/2 w-[220vw] sm:w-[160vw] md:w-[130vw] lg:w-[110vw] max-w-none -translate-x-1/2 will-change-transform"
             >
-              <motion.div style={{ y: showcaseY, scale: showcaseScale }} className="relative will-change-transform">
+              <motion.div style={{ y: showcaseY, scale: showcaseScale }} className="relative will-change-transform mt-8 sm:mt-0">
                 <Image
                   src="/hero-bottom.png"
                   alt="Premium hardware showcase featuring a smart lock, precision hinge, professional drill, brass lever, and finish samples."

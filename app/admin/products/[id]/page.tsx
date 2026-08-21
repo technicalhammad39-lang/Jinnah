@@ -28,7 +28,6 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
     description: "",
     shortDescription: "",
     price: 0,
-    originalPrice: 0,
     currency: "PKR",
     images: [] as string[],
     featured: false,
@@ -68,7 +67,6 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
             ...formData,
             ...data,
             price: data.price || 0,
-            originalPrice: data.originalPrice || 0,
             stockQuantity: data.stockQuantity !== undefined ? data.stockQuantity : (data.availability === "in-stock" ? 50 : 0),
             features: Array.isArray(data.features) ? data.features.join("\n") : (data.features || ""),
             allowedPaymentMethods: data.allowedPaymentMethods || ["ALL"]
@@ -158,17 +156,10 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
     try {
       const featuresArray = formData.features.split("\n").filter(f => f.trim() !== "");
       
-      let discount = 0;
-      if (formData.originalPrice > formData.price && formData.price > 0) {
-        discount = Math.round(((formData.originalPrice - formData.price) / formData.originalPrice) * 100);
-      }
-
       const dataToSave = {
         ...formData,
         price: Number(formData.price),
-        originalPrice: Number(formData.originalPrice),
         stockQuantity: Number(formData.stockQuantity),
-        discount, // Auto-calculated percentage
         features: featuresArray,
         updatedAt: serverTimestamp()
       };
@@ -269,7 +260,7 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
             <h2 className="text-lg font-bold mb-4 border-b pb-2">Pricing & Inventory</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Selling Price (Rs.)</label>
+                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Base Price (Rs.)</label>
                 <input 
                   type="number" 
                   required
@@ -278,16 +269,7 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
                   className="w-full bg-white border border-emerald-200 focus:border-emerald-500 ring-1 ring-emerald-100 rounded-xl py-3 px-4 text-emerald-800 font-bold focus:outline-none transition-colors"
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Original Price (Rs.)</label>
-                <input 
-                  type="number" 
-                  value={formData.originalPrice}
-                  onChange={e => setFormData({...formData, originalPrice: Number(e.target.value)})}
-                  className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-muted-foreground focus:outline-none focus:border-[#FF6A2A] transition-colors"
-                  placeholder="Leave 0 if no discount"
-                />
-              </div>
+
               <div className="space-y-2">
                 <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Stock Quantity</label>
                 <input 

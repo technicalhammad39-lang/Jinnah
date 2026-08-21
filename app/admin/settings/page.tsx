@@ -102,6 +102,48 @@ export default function AdminSettings() {
           </div>
         </div>
 
+        {/* Top Banner Ticker */}
+        <div className="bg-white border border-[#1a1917]/5 rounded-2xl p-6 shadow-xl space-y-6">
+          <div className="flex items-center justify-between border-b border-[#1a1917]/5 pb-4 mb-4">
+            <div className="flex items-center gap-2">
+              <Globe className="w-5 h-5 text-[#FF6A2A]" />
+              <h2 className="text-lg font-bold text-[#1a1917]">Top Banner Ticker</h2>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                className="sr-only peer"
+                checked={settings.tickerEnabled || false}
+                onChange={e => setSettings({...settings, tickerEnabled: e.target.checked})}
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#FF6A2A]"></div>
+            </label>
+          </div>
+          
+          <div className="grid grid-cols-1 gap-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Ticker Message</label>
+              <input 
+                type="text" 
+                value={settings.tickerText || ""}
+                onChange={e => setSettings({...settings, tickerText: e.target.value})}
+                placeholder="e.g., Free shipping on all orders over Rs. 5,000!"
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Optional Link</label>
+              <input 
+                type="url" 
+                value={settings.tickerLink || ""}
+                onChange={e => setSettings({...settings, tickerLink: e.target.value})}
+                placeholder="e.g., /shop"
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Contact Details */}
         <div className="bg-white border border-[#1a1917]/5 rounded-2xl p-6 shadow-xl space-y-6">
           <div className="flex items-center gap-2 border-b border-[#1a1917]/5 pb-4 mb-4">

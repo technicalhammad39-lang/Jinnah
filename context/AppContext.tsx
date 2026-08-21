@@ -9,6 +9,9 @@ import React, {
   useState,
 } from "react";
 import { Product } from "@/data/products";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { Discount, calculateProductPrice } from "@/lib/discount-engine";
 
 export interface CartItem {
   product: Product;
@@ -21,6 +24,9 @@ interface CartStateContextType {
   cart: CartItem[];
   cartCount: number;
   cartSubtotal: number;
+  cartDiscountTotal: number;
+  cartFinalTotal: number;
+  discounts: Discount[];
 }
 
 interface CartActionsContextType {
@@ -86,6 +92,21 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [searchOpen, setSearchOpenState] = useState(false);
   const [quickViewProduct, setQuickViewProductState] = useState<Product | null>(null);
   const [storageReady, setStorageReady] = useState(false);
+  const [discounts, setDiscounts] = useState<Discount[]>([]);
+
+  useEffect(() => {
+    async function fetchDiscounts() {
+      try {
+        const q = query(collection(db, "discounts"), where("isActive", "==", true));
+        const snap = await getDocs(q);
+        const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Discount));
+        setDiscounts(data);
+      } catch (err) {
+        console.error("Error fetching discounts:", err);
+      }
+    }
+    fetchDiscounts();
+  }, []);
 
   useEffect(() => {
     try {
@@ -225,13 +246,27 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     [cart]
   );
 
+  const cartDiscountTotal = useMemo(() => {
+    return cart.reduce((sum, item) => {
+      const pricing = calculateProductPrice(item.product.price, item.product.id, discounts);
+      return sum + (pricing.discountAmount * item.quantity);
+    }, 0);
+  }, [cart, discounts]);
+
+  const cartFinalTotal = useMemo(() => {
+    return cartSubtotal - cartDiscountTotal;
+  }, [cartSubtotal, cartDiscountTotal]);
+
   const cartStateValue = useMemo(
     () => ({
       cart,
       cartCount,
       cartSubtotal,
+      cartDiscountTotal,
+      cartFinalTotal,
+      discounts,
     }),
-    [cart, cartCount, cartSubtotal]
+    [cart, cartCount, cartSubtotal, cartDiscountTotal, cartFinalTotal, discounts]
   );
 
   const cartActionsValue = useMemo(

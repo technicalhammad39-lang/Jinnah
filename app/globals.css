@@ -57,8 +57,8 @@
 
 /* Global Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 2px;
+  height: 2px;
 }
 
 ::-webkit-scrollbar-track {
@@ -66,12 +66,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #e5dfd5;
+  background: rgba(224, 90, 43, 0.4);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #ff5a1f;
+  background: #e05a2b;
 }
 
 /* Sidebar Custom Scrollbar */
@@ -81,7 +81,7 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
+  width: 3px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -105,6 +105,8 @@ html {
   color: #1a1917;
   overflow-x: hidden;
   width: 100vw;
+  scrollbar-width: thin;
+  scrollbar-color: #dcd3c7 transparent;
 }
 
 body {
@@ -224,8 +226,27 @@ button {
   gap: 3rem;
 }
 
+/* Global Top Ticker */
+@keyframes tickerMarquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-33.333%, 0, 0);
+  }
+}
+
+.ticker-track {
+  animation: tickerMarquee 25s linear infinite;
+  will-change: transform;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .trust-strip-track {
+  .trust-strip-track, .ticker-track {
     animation: none;
   }
 }
