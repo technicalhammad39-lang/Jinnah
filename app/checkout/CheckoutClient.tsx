@@ -41,8 +41,6 @@ export default function CheckoutClient() {
 
   const [checkoutStep, setCheckoutStep] = useState<1 | 2 | 3>(1);
 
-  const [checkoutStep, setCheckoutStep] = useState<1 | 2 | 3>(1);
-
   useEffect(() => {
     getPaymentMethods().then((methods) => {
       if (methods.length > 0) {

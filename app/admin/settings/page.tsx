@@ -19,7 +19,10 @@ export default function AdminSettings() {
     facebook: "",
     instagram: "",
     twitter: "",
-    whatsapp: "+923076924116"
+    whatsapp: "+923076924116",
+    tickerEnabled: false,
+    tickerText: "",
+    tickerLink: ""
   });
 
   const fetchSettings = async () => {
