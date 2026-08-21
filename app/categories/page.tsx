@@ -90,12 +90,12 @@ export default function CategoriesPage() {
                 className="col-span-1"
               >
                 <Link href={`/shop?category=${cat.slug}`} className="group block relative rounded-xl sm:rounded-[32px] bg-white border border-black/5 p-2 sm:p-6 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 h-full flex flex-col">
-                  <div className="relative aspect-square sm:h-48 w-full rounded-lg sm:rounded-2xl overflow-hidden mb-2 sm:mb-6 bg-black/5 shrink-0">
+                  <div className="relative aspect-square sm:h-44 w-full rounded-lg sm:rounded-2xl overflow-hidden mb-1 sm:mb-2 bg-transparent shrink-0">
                     <Image
                       src={getPublicUploadUrl(cat.image)}
                       alt={cat.name}
                       fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-110"
+                      className="object-cover object-top scale-[1.05] -translate-y-2 sm:-translate-y-4 transition-transform duration-700 group-hover:scale-[1.15] group-hover:-translate-y-5"
                       sizes="(max-width: 640px) 33vw, (max-width: 1024px) 50vw, 33vw"
                     />
                   </div>
