@@ -11,42 +11,16 @@ import * as admin from 'firebase-admin';
 //
 //   FIREBASE_PROJECT_ID
 //   FIREBASE_CLIENT_EMAIL
-//   FIREBASE_PRIVATE_KEY
+//   FIREBASE_PRIVATE_KEY_BASE64
 //
 // On Hostinger, these must be set via the hPanel environment
-// variables UI, or via a .env.production.local file on the server,
-// or via the startup script.
+// variables UI, or via a .env.production.local file on the server.
 // ============================================================
 
 // Global singleton to survive Next.js HMR in development
 const globalForFirebaseAdmin = global as unknown as {
   firebaseAdminApp: admin.app.App | null | undefined;
 };
-
-/**
- * Parse FIREBASE_PRIVATE_KEY from various environment formats.
- * Handles:
- *   - Surrounding double quotes: "-----BEGIN..."
- *   - Surrounding single quotes: '-----BEGIN...'
- *   - Literal escaped newlines: \\n
- *   - Already-correct newlines
- *   - Base64-encoded JSON service account (future-proofing)
- */
-function parsePrivateKey(raw: string): string {
-  let key = raw;
-
-  // Strip surrounding quotes (Hostinger and many hosting panels add these)
-  if ((key.startsWith('"') && key.endsWith('"')) ||
-      (key.startsWith("'") && key.endsWith("'"))) {
-    key = key.slice(1, -1);
-  }
-
-  // Replace literal \\n sequences with actual newline characters
-  // This handles: -----BEGIN PRIVATE KEY-----\\nMIIEv...\\n-----END PRIVATE KEY-----\\n
-  key = key.replace(/\\n/g, '\n');
-
-  return key;
-}
 
 /**
  * Validates that a parsed private key has the correct PEM structure.
@@ -61,16 +35,16 @@ function isValidPrivateKeyFormat(key: string): boolean {
 function logDiagnostic(
   projectId: string | undefined,
   clientEmail: string | undefined,
-  privateKey: string | undefined,
+  hasBase64Key: boolean,
   parsedKey: string | null,
   error: string | null
 ): void {
   console.log('=== [Firebase Admin] Environment Diagnostic ===');
   console.log(`  PROJECT_ID:       ${projectId ? 'present (' + projectId + ')' : 'MISSING'}`);
   console.log(`  CLIENT_EMAIL:     ${clientEmail ? 'present' : 'MISSING'}`);
-  console.log(`  PRIVATE_KEY:      ${privateKey ? 'present (' + privateKey.length + ' chars)' : 'MISSING'}`);
+  console.log(`  PRIVATE_KEY (B64): ${hasBase64Key ? 'present' : 'MISSING'}`);
   if (parsedKey) {
-    console.log(`  PRIVATE_KEY_FORMAT: ${isValidPrivateKeyFormat(parsedKey) ? 'valid PEM' : 'INVALID (no BEGIN/END markers)'}`);
+    console.log(`  DECODED_PEM:      ${isValidPrivateKeyFormat(parsedKey) ? 'valid format' : 'INVALID (no BEGIN/END markers)'}`);
   }
   if (error) {
     console.log(`  INIT_ERROR:       ${error}`);
@@ -98,29 +72,59 @@ function initializeFirebaseAdmin(): admin.app.App | null {
   // Read environment variables at RUNTIME
   const projectId = process.env.FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const rawPrivateKey = process.env.FIREBASE_PRIVATE_KEY;
+  
+  // We explicitly want the BASE64 version
+  // If the user still has the raw one, we fallback to it for backward compatibility during transition,
+  // but we STRONGLY prefer the BASE64 one.
+  const base64Key = process.env.FIREBASE_PRIVATE_KEY_BASE64;
+  const rawFallbackKey = process.env.FIREBASE_PRIVATE_KEY;
 
-  // Check for missing variables
-  if (!projectId || !clientEmail || !rawPrivateKey) {
+  if (!projectId || !clientEmail || (!base64Key && !rawFallbackKey)) {
     const missing: string[] = [];
     if (!projectId) missing.push('FIREBASE_PROJECT_ID');
     if (!clientEmail) missing.push('FIREBASE_CLIENT_EMAIL');
-    if (!rawPrivateKey) missing.push('FIREBASE_PRIVATE_KEY');
+    if (!base64Key && !rawFallbackKey) missing.push('FIREBASE_PRIVATE_KEY_BASE64');
 
-    logDiagnostic(projectId, clientEmail, rawPrivateKey, null,
+    logDiagnostic(projectId, clientEmail, false, null,
       `Missing environment variables: ${missing.join(', ')}`);
 
     globalForFirebaseAdmin.firebaseAdminApp = null;
     return null;
   }
 
-  // Parse the private key
-  const parsedKey = parsePrivateKey(rawPrivateKey);
+  let parsedKey = '';
+
+  try {
+    if (base64Key) {
+      // Decode Base64 securely
+      let decoded = Buffer.from(base64Key, 'base64').toString('utf8');
+      
+      // Strip accidental surrounding quotes that hosting providers might inject
+      if ((decoded.startsWith('"') && decoded.endsWith('"')) || (decoded.startsWith("'") && decoded.endsWith("'"))) {
+        decoded = decoded.slice(1, -1);
+      }
+
+      // Ensure explicit replacement of literal '\\n' with standard '\n'
+      decoded = decoded.replace(/\\n/g, '\n').trim();
+      parsedKey = decoded;
+    } else if (rawFallbackKey) {
+      let decoded = rawFallbackKey;
+      if ((decoded.startsWith('"') && decoded.endsWith('"')) || (decoded.startsWith("'") && decoded.endsWith("'"))) {
+        decoded = decoded.slice(1, -1);
+      }
+      decoded = decoded.replace(/\\n/g, '\n').trim();
+      parsedKey = decoded;
+    }
+  } catch (err: any) {
+    logDiagnostic(projectId, clientEmail, !!base64Key, null, 'Failed to decode or parse private key: ' + err.message);
+    globalForFirebaseAdmin.firebaseAdminApp = null;
+    return null;
+  }
 
   // Validate key format
   if (!isValidPrivateKeyFormat(parsedKey)) {
-    logDiagnostic(projectId, clientEmail, rawPrivateKey, parsedKey,
-      'Private key does not contain valid PEM BEGIN/END markers after parsing');
+    logDiagnostic(projectId, clientEmail, !!base64Key, parsedKey,
+      'Private key does not contain valid PEM BEGIN/END markers after decoding');
     globalForFirebaseAdmin.firebaseAdminApp = null;
     return null;
   }
@@ -136,13 +140,13 @@ function initializeFirebaseAdmin(): admin.app.App | null {
       storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
     });
 
-    logDiagnostic(projectId, clientEmail, rawPrivateKey, parsedKey, null);
+    logDiagnostic(projectId, clientEmail, !!base64Key, parsedKey, null);
     console.log(`[Firebase Admin] ✓ Initialized successfully for project: ${projectId}`);
 
     globalForFirebaseAdmin.firebaseAdminApp = app;
     return app;
   } catch (error: any) {
-    logDiagnostic(projectId, clientEmail, rawPrivateKey, parsedKey, error.message);
+    logDiagnostic(projectId, clientEmail, !!base64Key, parsedKey, error.message);
     console.error(`[Firebase Admin] ✗ Initialization failed: ${error.message}`);
 
     globalForFirebaseAdmin.firebaseAdminApp = null;
@@ -181,8 +185,8 @@ const createProxy = <T extends object>(serviceName: string, initializer: () => T
         throw new Error(
           `Firebase Admin is not configured — cannot access ${serviceName}. ` +
           `Check server logs for "[Firebase Admin] Environment Diagnostic" output. ` +
-          `Ensure FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY ` +
-          `are set in the production runtime environment.`
+          `Ensure FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY_BASE64 ` +
+          `are correctly set in the production runtime environment.`
         );
       }
       const instance = initializer();

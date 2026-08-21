@@ -21,7 +21,7 @@ const serifFont = Cormorant_Garamond({
   style: ["italic"],
   variable: "--font-serif",
   display: "swap",
-  preload: true,
+  preload: false,
 });
 
 export const metadata: Metadata = {

@@ -40,7 +40,8 @@ export async function GET(
           'Cache-Control': 'public, max-age=31536000, immutable',
         },
       });
-    } catch (e) {
+    } catch (e: any) {
+      console.warn(`[Upload Route] 404 - File Not Found: ${filePath}. Environment HOSTINGER_UPLOAD_ROOT=${process.env.HOSTINGER_UPLOAD_ROOT}`);
       return new NextResponse('File Not Found', { status: 404 });
     }
   } catch (error) {

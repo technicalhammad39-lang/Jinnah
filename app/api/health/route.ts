@@ -1,39 +1,27 @@
 import { NextResponse } from 'next/server';
 import { getAdminApp } from '@/lib/firebase-admin';
 
-/**
- * Health check endpoint for diagnosing Firebase Admin configuration.
- * 
- * GET /api/health
- * 
- * Returns a safe diagnostic summary — NEVER exposes actual credentials.
- * Use this after deploying to Hostinger to verify the runtime environment.
- */
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   const projectId = process.env.FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const rawPrivateKey = process.env.FIREBASE_PRIVATE_KEY;
+  
+  const rawKey = process.env.FIREBASE_PRIVATE_KEY;
+  const base64Key = process.env.FIREBASE_PRIVATE_KEY_BASE64;
   const hostingerUploadRoot = process.env.HOSTINGER_UPLOAD_ROOT;
   const vapidPrivate = process.env.VAPID_PRIVATE_KEY;
 
   // Attempt initialization (will use cached singleton if already done)
   const adminApp = getAdminApp();
 
-  // Parse private key status
-  let privateKeyStatus = 'MISSING';
-  if (rawPrivateKey) {
-    let parsed = rawPrivateKey;
-    if ((parsed.startsWith('"') && parsed.endsWith('"')) ||
-        (parsed.startsWith("'") && parsed.endsWith("'"))) {
-      parsed = parsed.slice(1, -1);
-    }
-    parsed = parsed.replace(/\\n/g, '\n');
-
-    if (parsed.includes('-----BEGIN') && parsed.includes('-----END')) {
-      privateKeyStatus = 'present (valid PEM format)';
-    } else {
-      privateKeyStatus = `present but INVALID format (${rawPrivateKey.length} chars, no PEM markers found)`;
-    }
+  // Basic sanity check without exposing values
+  let keyStatus = 'MISSING';
+  if (base64Key) {
+    keyStatus = `present (Base64 length: ${base64Key.length})`;
+  } else if (rawKey) {
+    keyStatus = `present (Raw length: ${rawKey.length})`;
   }
 
   const diagnostic = {
@@ -45,9 +33,9 @@ export async function GET() {
     firebase_admin: {
       FIREBASE_PROJECT_ID: projectId ? `present (${projectId})` : 'MISSING',
       FIREBASE_CLIENT_EMAIL: clientEmail ? 'present' : 'MISSING',
-      FIREBASE_PRIVATE_KEY: privateKeyStatus,
+      FIREBASE_PRIVATE_KEY_BASE64: keyStatus,
       initialized: !!adminApp,
-      status: adminApp ? '✓ Firebase Admin is working' : '✗ Firebase Admin is NOT configured',
+      status: adminApp ? '✓ Firebase Admin is working' : '✗ Firebase Admin is NOT configured (check logs)',
     },
 
     uploads: {
