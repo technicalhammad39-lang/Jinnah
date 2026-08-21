@@ -298,7 +298,7 @@ export function AnimatedMarqueeHero({
                       if (lowerPart === "premium") {
                         spanClass = "font-stylish text-primary text-[#e05a2b] italic font-medium text-[1.1em]";
                       } else if (lowerPart === "hardware") {
-                        spanClass = "text-black font-bold not-italic md:font-stylish md:italic md:font-medium md:text-[1.1em]";
+                        spanClass = "text-[#1a1815] font-bold not-italic md:font-stylish md:text-primary md:text-[#e05a2b] md:italic md:font-medium md:text-[1.1em]";
                       }
                       
                       return (
