@@ -27,18 +27,16 @@ export function GallerySection() {
       <div className="absolute bottom-[10%] right-[5%] w-[45vw] h-[45vw] rounded-full glow-blob-orange opacity-[0.1]" />
 
       <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 mb-12 md:mb-16">
-        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
-          <div className="space-y-4 max-w-2xl text-left">
-            <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-              <span>Interactive Spaces</span>
-            </div>
-            <h2 className="text-3xl md:text-5xl font-extrabold tracking-tighter text-[#1a1917] leading-[0.95]">
-              The Architectural <br />
-              <span className="text-primary">Showroom Gallery</span>
-            </h2>
+        <div className="text-center max-w-3xl mx-auto space-y-4">
+          <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest justify-center">
+            <span>Interactive Spaces</span>
           </div>
-          <p className="text-sm text-muted-foreground max-w-sm text-left md:text-right leading-relaxed font-medium">
-            Explore our curated hardware deployed in high-end residential, commercial, and industrial projects worldwide.
+          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tighter text-[#1a1917] leading-[0.95]">
+            The Architectural{" "}
+            <span className="text-primary">Showroom Gallery</span>
+          </h2>
+          <p className="text-sm md:text-base text-muted-foreground leading-relaxed font-medium max-w-xl mx-auto">
+            Explore curated hardware deployed in high-end projects worldwide.
           </p>
         </div>
       </div>
