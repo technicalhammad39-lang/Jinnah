@@ -43,21 +43,20 @@ export function GallerySection() {
 
       {/* Interactive Expandable Panels Gallery (InteractiveSelector Concept) */}
       <div className="w-full">
-        <div className="flex flex-col lg:flex-row h-[700px] lg:h-[600px] xl:h-[700px] w-full max-w-[1920px] mx-auto px-4 sm:px-4 sm:px-6 lg:px-8 gap-2 lg:gap-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-10%" }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-col lg:flex-row h-[700px] lg:h-[600px] xl:h-[700px] w-full max-w-[1920px] mx-auto px-4 sm:px-4 sm:px-6 lg:px-8 gap-2 lg:gap-4"
+        >
           {galleryItems.map((item, index) => {
             const isActive = activeItem === item.id;
             
             return (
-              <motion.div
+              <div
                 data-gallery-panel
                 key={item.id}
-                initial={{ opacity: 0, y: 40, scale: 0.98 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true, margin: "-10%" }}
-                transition={{ 
-                  duration: 0.7, 
-                  ease: [0.22, 1, 0.36, 1] 
-                }}
                 className={cn(
                   "relative rounded-[2rem] overflow-hidden cursor-pointer transition-all duration-700 ease-in-out border border-black/5 bg-[#efece6] premium-transform",
                   isActive ? "flex-[4] lg:flex-[5]" : "flex-[1] hover:flex-[1.2]"
@@ -135,10 +134,10 @@ export function GallerySection() {
                 </motion.div>
 
 
-              </motion.div>
+              </div>
             );
           })}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

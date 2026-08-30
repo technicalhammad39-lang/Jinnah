@@ -56,37 +56,24 @@ export function AboutSection() {
               />
             </motion.div>
 
-            {/* Parallax Curve going into the founder image box */}
+            {/* Fast Animated Curve going into the image */}
             <svg 
               className="absolute inset-0 w-full h-full z-10 pointer-events-none overflow-visible"
               viewBox="0 0 100 100" 
               preserveAspectRatio="none"
             >
-              {/* Outer Glow */}
               <motion.path 
-                d="M -20,85 C 30,85 45,25 75,25"
+                d="M -10,-20 C 10,20 30,75 85,75"
                 fill="none" 
                 stroke="#FF6A2A" 
-                strokeWidth="6" 
+                strokeWidth="10" 
+                strokeLinecap="round"
                 vectorEffect="non-scaling-stroke"
-                style={{ 
-                  pathLength,
-                  opacity: pathOpacity,
-                  filter: "drop-shadow(0 0 12px rgba(255,106,42,0.8))"
-                }}
-              />
-              {/* Core Line */}
-              <motion.path 
-                d="M -20,85 C 30,85 45,25 75,25"
-                fill="none" 
-                stroke="#ffffff" 
-                strokeWidth="2" 
-                strokeDasharray="6 4"
-                vectorEffect="non-scaling-stroke"
-                style={{ 
-                  pathLength,
-                  opacity: pathOpacity
-                }}
+                initial={{ pathLength: 0, opacity: 0 }}
+                whileInView={{ pathLength: 1, opacity: 1 }}
+                viewport={{ once: true, margin: "-10%" }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                style={{ filter: "drop-shadow(0 0 8px rgba(255,106,42,0.4))" }}
               />
             </svg>
 
