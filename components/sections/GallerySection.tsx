@@ -27,11 +27,11 @@ export function GallerySection() {
       <div className="absolute bottom-[10%] right-[5%] w-[45vw] h-[45vw] rounded-full glow-blob-orange opacity-[0.1]" />
 
       <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 mb-12 md:mb-16">
-        <div className="text-center max-w-3xl mx-auto space-y-4">
+        <div className="text-center max-w-5xl mx-auto space-y-4 px-2">
           <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest justify-center">
             <span>Interactive Spaces</span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tighter text-[#1a1917] leading-[0.95]">
+          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tighter text-[#1a1917] leading-[0.95] lg:whitespace-nowrap">
             The Architectural{" "}
             <span className="text-primary">Showroom Gallery</span>
           </h2>
