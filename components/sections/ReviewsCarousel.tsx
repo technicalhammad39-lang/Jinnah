@@ -107,7 +107,7 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
 
       <div className="relative w-full py-8 md:py-12">
         {/* The solid rotated orange shape behind the cards */}
-        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 w-[150vw] -left-[25vw] h-[95%] sm:h-[105%] bg-primary -rotate-6 origin-center z-0" />
+        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 w-[150vw] -left-[25vw] h-[95%] sm:h-[105%] bg-primary -rotate-3 origin-center z-0" />
 
         <div 
           className="relative max-w-4xl mx-auto h-[320px] md:h-[400px] flex items-center justify-center z-10 px-6"
@@ -180,8 +180,8 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
                   ))}
                 </div>
 
-                <div className="flex-1 overflow-y-auto w-full pr-1 md:pr-2 mb-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-black/10 [&::-webkit-scrollbar-thumb]:rounded-full relative z-10">
-                  <p className="text-sm sm:text-base md:text-xl text-[#1a1917] font-medium leading-relaxed italic">
+                <div className="flex-1 overflow-hidden w-full px-2 mb-4 relative z-10 flex items-center justify-center">
+                  <p className="text-sm sm:text-base md:text-xl text-[#1a1917] font-medium leading-relaxed italic line-clamp-4 md:line-clamp-none">
                     "{currentReview.text}"
                   </p>
                 </div>
