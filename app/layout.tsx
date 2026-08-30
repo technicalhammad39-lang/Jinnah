@@ -55,8 +55,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <JsonLd />
       </head>
       <body suppressHydrationWarning className="bg-[#faf9f6] text-[#1a1917] antialiased selection:bg-primary/20 selection:text-primary overflow-x-hidden">
-        <TopTicker />
         <AppProvider>
+          <TopTicker />
           <PushNotificationManager />
           <Toaster position="top-center" richColors theme="light" />
           {children}

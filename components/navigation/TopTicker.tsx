@@ -2,37 +2,15 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { doc, onSnapshot } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { useOverlayState } from "@/context/AppContext";
 import { Megaphone, ExternalLink } from "lucide-react";
 
 export function TopTicker() {
-  const [ticker, setTicker] = useState<{
-    enabled: boolean;
-    text: string;
-    link: string;
-  }>({
-    enabled: false,
-    text: "",
-    link: "",
-  });
-
+  const { ticker } = useOverlayState();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    // Listen to real-time changes so the admin can update it instantly
-    const unsub = onSnapshot(doc(db, "settings", "global"), (doc) => {
-      if (doc.exists()) {
-        const data = doc.data();
-        setTicker({
-          enabled: !!data.tickerEnabled,
-          text: data.tickerText || "",
-          link: data.tickerLink || "",
-        });
-      }
-    });
-    return () => unsub();
   }, []);
 
   if (!mounted || !ticker.enabled || !ticker.text) return null;

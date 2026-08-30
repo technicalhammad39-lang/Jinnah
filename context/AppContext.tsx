@@ -49,6 +49,7 @@ interface OverlayStateContextType {
   cartOpen: boolean;
   searchOpen: boolean;
   quickViewProduct: Product | null;
+  ticker: { enabled: boolean; text: string; link: string };
 }
 
 interface OverlayActionsContextType {
@@ -91,6 +92,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [cartOpen, setCartOpenState] = useState(false);
   const [searchOpen, setSearchOpenState] = useState(false);
   const [quickViewProduct, setQuickViewProductState] = useState<Product | null>(null);
+  const [ticker, setTicker] = useState({ enabled: false, text: "", link: "" });
   const [storageReady, setStorageReady] = useState(false);
   const [discounts, setDiscounts] = useState<Discount[]>([]);
 
@@ -106,6 +108,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       }
     }
     fetchDiscounts();
+
+    import("firebase/firestore").then(({ doc, onSnapshot }) => {
+      const unsub = onSnapshot(doc(db, "settings", "global"), (docSnapshot) => {
+        if (docSnapshot.exists()) {
+          const data = docSnapshot.data();
+          setTicker({
+            enabled: !!data.tickerEnabled,
+            text: data.tickerText || "",
+            link: data.tickerLink || "",
+          });
+        }
+      });
+      return () => unsub();
+    });
   }, []);
 
   useEffect(() => {
@@ -299,8 +315,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       cartOpen,
       searchOpen,
       quickViewProduct,
+      ticker,
     }),
-    [cartOpen, searchOpen, quickViewProduct]
+    [cartOpen, searchOpen, quickViewProduct, ticker]
   );
 
   const overlayActionsValue = useMemo(
