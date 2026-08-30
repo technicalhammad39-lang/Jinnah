@@ -70,9 +70,9 @@ export default function AboutPage() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.15, ease: "easeOut" }}
-              className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium mt-6 md:mt-8"
+              className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-lg mx-auto leading-relaxed font-medium mt-6 md:mt-8"
             >
-              We are Pakistan's premier purveyor of luxury architectural hardware, bridging the gap between world-class engineering and exceptional local design.
+              Pakistan's premier destination for luxury architectural hardware.
             </motion.p>
           </div>
         </section>
@@ -94,7 +94,7 @@ export default function AboutPage() {
                   <div key={member.id} className={`grid grid-cols-1 lg:grid-cols-2 gap-16 items-center ${index !== leadership.length - 1 ? 'mb-24 md:mb-32' : ''}`}>
                     <div className={`relative ${isEven ? '' : 'order-1 lg:order-2'}`}>
                       {/* Rotated Orange Shape Behind Image */}
-                      <div className="absolute -top-6 sm:-top-8 left-4 right-4 -bottom-4 bg-primary rounded-[3rem] -rotate-6 z-0 shadow-lg" />
+                      <div className="absolute -top-4 -right-10 -bottom-8 -left-6 bg-primary rounded-[3rem] -rotate-6 z-0 shadow-lg" />
                       
                       <div className={`relative z-10 h-[400px] md:h-[500px] rounded-3xl overflow-hidden bg-black/5 shadow-2xl ring-4 ring-white`}>
                         {member.image ? (
