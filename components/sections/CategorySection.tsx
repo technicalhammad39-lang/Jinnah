@@ -17,7 +17,7 @@ export function CategorySection() {
           <span>Browse Collections</span>
         </div>
         <h2 className="text-[8.5vw] min-[400px]:text-[2.25rem] sm:text-4xl md:text-5xl font-extrabold tracking-tighter text-[#1a1917] leading-[1.05] sm:leading-[0.95]">
-          <span className="inline-block">Everything For Your</span> <br className="hidden sm:block" />
+          <span className="inline-block">Everything For Your</span>{" "}
           <span className="text-primary font-stylish text-[1.1em]">Project</span>
         </h2>
         <p className="mx-auto max-w-2xl text-sm text-muted-foreground leading-relaxed font-medium">
@@ -30,16 +30,17 @@ export function CategorySection() {
         <div className="absolute top-[20%] left-[-5%] w-[40vw] h-[40vw] rounded-full glow-blob-orange opacity-[0.15] pointer-events-none" />
         <div className="absolute bottom-[-10%] right-[10%] w-[30vw] h-[30vw] rounded-full glow-blob-orange opacity-[0.2] pointer-events-none" />
         
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-2 sm:gap-4 md:gap-6 relative z-10">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-3 sm:gap-4 md:gap-6 relative z-10">
           {CATEGORIES.map((category, index) => {
-            let gridSpanClass = "col-span-1 md:col-span-2";
+            const isLastOdd = index === CATEGORIES.length - 1 && CATEGORIES.length % 2 !== 0;
+            let gridSpanClass = isLastOdd ? "col-span-2 md:col-span-2" : "col-span-1 md:col-span-2";
             if (index === 0) gridSpanClass = "col-span-1 md:col-span-3";
             if (index === 1) gridSpanClass = "col-span-1 md:col-span-3";
 
             return (
               <div
                 key={category.id}
-                className={`${gridSpanClass} aspect-square sm:aspect-auto sm:h-[220px] md:h-[380px] rounded-2xl md:rounded-3xl overflow-hidden relative group border border-black/5 bg-white shadow-sm hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/50 transition-all duration-500 premium-transform`}
+                className={`${gridSpanClass} aspect-[4/5] sm:aspect-auto sm:h-[220px] md:h-[380px] rounded-2xl md:rounded-3xl overflow-hidden relative group border border-black/5 bg-white shadow-sm hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/50 transition-all duration-500 premium-transform`}
                 data-cursor="view"
               >
                 <Link href={`/shop?category=${category.slug}`} className="block w-full h-full relative">

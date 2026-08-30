@@ -100,7 +100,7 @@ export function DiscoverBySpace() {
               transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
               className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tighter text-[#1a1917] leading-[1.05]"
             >
-              Everything For{" "}
+              Everything Needs For{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6A2A] to-[#FF9A55] font-stylish normal-case text-[1.1em]">
                 Your Project
               </span>
@@ -121,15 +121,15 @@ export function DiscoverBySpace() {
           {/* SVG Cards — Premium Animated Integration */}
           <motion.div
             ref={svgRef}
-            initial={{ opacity: 0, y: 60, scale: 0.96 }}
-            animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
+            initial={{ opacity: 1, y: 40, scale: 0.98 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: "-80px" }}
             transition={{
               duration: 1.1,
-              delay: 0.3,
+              delay: 0.1,
               ease: [0.22, 1, 0.36, 1],
             }}
             className="relative w-full will-change-transform mt-8 md:mt-0"
-            style={{ filter: isInView ? "none" : "blur(4px)" }}
           >
             {/* Ambient orange glow behind SVG */}
             <div
@@ -150,7 +150,7 @@ export function DiscoverBySpace() {
                 src="/catos.svg"
                 alt="Product categories for every space: Doors & Entry, Kitchen, Bedroom, Office, Interior Finishing, and Workshop"
                 fill
-                priority={false}
+                priority={true}
                 sizes="(min-width: 768px) 100vw, 1600px"
                 className="object-contain select-none"
                 style={{ imageRendering: "crisp-edges" }}
@@ -158,29 +158,17 @@ export function DiscoverBySpace() {
             </div>
 
             {/* Mobile view of SVG (2 rows of 3) */}
-            <div className="md:hidden flex flex-col gap-4">
-              <div className="w-full relative overflow-hidden" style={{ aspectRatio: "3926 / 2471" }}>
-                <Image
-                  src="/catos.svg"
-                  alt="Product categories - Part 1"
-                  fill
-                  priority={false}
-                  sizes="100vw"
-                  className="object-cover object-left select-none"
-                  style={{ imageRendering: "crisp-edges" }}
-                />
-              </div>
-              <div className="w-full relative overflow-hidden" style={{ aspectRatio: "3926 / 2471" }}>
-                <Image
-                  src="/catos.svg"
-                  alt="Product categories - Part 2"
-                  fill
-                  priority={false}
-                  sizes="100vw"
-                  className="object-cover object-right select-none"
-                  style={{ imageRendering: "crisp-edges" }}
-                />
-              </div>
+            <div className="md:hidden w-full">
+              <Image
+                src="/catos-mobile.svg"
+                alt="Product categories for every space"
+                width={3926}
+                height={4942}
+                priority={true}
+                sizes="100vw"
+                className="w-full h-auto object-contain select-none"
+                style={{ imageRendering: "crisp-edges" }}
+              />
             </div>
           </motion.div>
 

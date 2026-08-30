@@ -142,7 +142,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
       onClick={handleCardClick}
       className="group relative flex w-full flex-col overflow-hidden rounded-3xl border border-black/5 bg-[#faf9f6] shadow-sm transition-all duration-500 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 h-full premium-transform cursor-pointer"
     >
-      <div className="relative h-[260px] sm:h-[280px] lg:h-[300px] w-full shrink-0 overflow-hidden bg-[#efece6]" data-cursor="view">
+      <div className="relative h-[180px] xs:h-[220px] sm:h-[280px] lg:h-[300px] w-full shrink-0 overflow-hidden bg-[#efece6]" data-cursor="view">
         <Link href={`/shop/${product.slug || product.id}`} className="block h-full w-full">
           <motion.div
             key={product.images?.[currentImageIndex] || "fallback"}
@@ -241,40 +241,40 @@ function ProductCardComponent({ product }: ProductCardProps) {
         </div>
       </div>
 
-      <div className="flex flex-grow flex-col justify-between p-5">
+      <div className="flex flex-grow flex-col justify-between p-3 sm:p-5">
         <div>
           <div className="mb-1.5 flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase leading-none tracking-widest text-primary">
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase leading-none tracking-widest text-primary">
               {product.brand}
             </span>
             <div className="flex items-center gap-1">
-              <Star className="h-3 w-3 fill-primary text-primary" />
-              <span className="text-[10px] font-bold text-[#1a1917]">{product.rating}</span>
-              <span className="text-[9px] font-semibold text-muted-foreground">
+              <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 fill-primary text-primary" />
+              <span className="text-[9px] sm:text-[10px] font-bold text-[#1a1917]">{product.rating}</span>
+              <span className="text-[8px] sm:text-[9px] font-semibold text-muted-foreground">
                 ({product.reviewCount})
               </span>
             </div>
           </div>
 
           <Link href={`/shop/${product.slug || product.id}`}>
-            <h3 className="mb-2 line-clamp-1 text-left text-sm font-bold text-foreground transition-colors hover:text-primary md:text-base">
+            <h3 className="mb-2 line-clamp-1 text-left text-[12px] sm:text-sm font-bold text-foreground transition-colors hover:text-primary md:text-base">
               {product.name}
             </h3>
           </Link>
 
-          <div className="mb-4 flex items-center flex-wrap gap-2">
-            <div className="flex items-baseline gap-2">
-              <span className="text-base font-black text-foreground md:text-lg">
+          <div className="mb-4 flex items-center flex-wrap gap-1.5 sm:gap-2">
+            <div className="flex items-baseline gap-1.5 sm:gap-2">
+              <span className="text-[13px] sm:text-base font-black text-foreground md:text-lg">
                 Rs. {pricing.finalPrice.toLocaleString()}
               </span>
               {pricing.hasDiscount && (
-                <span className="text-xs font-semibold text-muted-foreground line-through">
+                <span className="text-[10px] sm:text-xs font-semibold text-muted-foreground line-through">
                   Rs. {pricing.originalPrice.toLocaleString()}
                 </span>
               )}
             </div>
             {pricing.hasDiscount && (
-              <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-600 ring-1 ring-inset ring-emerald-500/20">
+              <span className="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 sm:px-2 sm:py-1 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-emerald-600 ring-1 ring-inset ring-emerald-500/20">
                 {pricing.discountType === 'percentage' ? `${pricing.discountValue}% OFF` : `Rs. ${pricing.discountAmount} OFF`}
               </span>
             )}
@@ -294,7 +294,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
                         e.preventDefault();
                         setSelectedSize(size);
                       }}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
+                      className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold transition-all border ${
                         selectedSize === size
                           ? "bg-black text-white border-black"
                           : "bg-white text-black/70 border-black/10 hover:border-black/30"
@@ -309,11 +309,11 @@ function ProductCardComponent({ product }: ProductCardProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <button
             onClick={handleBuyNow}
             disabled={isAdding || isSuccess || (product.stockQuantity !== undefined && product.stockQuantity <= 0)}
-            className={`flex-1 flex cursor-pointer items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
+            className={`flex-1 flex cursor-pointer items-center justify-center gap-1.5 rounded-xl py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
               product.stockQuantity !== undefined && product.stockQuantity <= 0
                 ? "bg-black/10 text-muted-foreground cursor-not-allowed"
                 : isSuccess
@@ -338,7 +338,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
               handleAddToCart(e);
             }}
             disabled={isAdding || isSuccess || (product.stockQuantity !== undefined && product.stockQuantity <= 0)}
-            className={`flex h-[38px] w-[38px] flex-shrink-0 cursor-pointer items-center justify-center rounded-xl text-white transition-all duration-300 ${
+            className={`flex h-[32px] w-[32px] sm:h-[38px] sm:w-[38px] flex-shrink-0 cursor-pointer items-center justify-center rounded-xl text-white transition-all duration-300 ${
               product.stockQuantity !== undefined && product.stockQuantity <= 0
                 ? "bg-black/20 cursor-not-allowed"
                 : "bg-[#1a1917] hover:bg-black/80 hover:shadow-md"

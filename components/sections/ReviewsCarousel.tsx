@@ -28,6 +28,21 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
     }
   }, []);
 
+  // Auto-slide functionality
+  useEffect(() => {
+    if (reviews.length <= 1) return;
+    const timer = setInterval(() => {
+      setDirection(1);
+      setCurrentIndex((prevIndex) => {
+        let nextIndex = prevIndex + 1;
+        if (nextIndex >= reviews.length) nextIndex = 0;
+        return nextIndex;
+      });
+    }, 5000); // Change slide every 5 seconds
+    
+    return () => clearInterval(timer);
+  }, [currentIndex, reviews.length]);
+
   if (reviews.length === 0) return null;
 
   const slideVariants = {
@@ -83,9 +98,10 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
         </p>
       </div>
 
-      <div className="relative max-w-4xl mx-auto h-[450px] md:h-[400px] flex items-center justify-center">
+      <div className="relative max-w-4xl mx-auto h-[380px] md:h-[400px] flex items-center justify-center">
+        {/* Desktop Previous Button */}
         <button
-          className="absolute left-0 md:-left-12 z-20 w-12 h-12 flex items-center justify-center rounded-full bg-white shadow-[0_10px_30px_rgba(0,0,0,0.1)] text-[#1a1917] hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+          className="hidden md:flex absolute -left-12 z-20 w-12 h-12 items-center justify-center rounded-full bg-white shadow-[0_10px_30px_rgba(0,0,0,0.1)] text-[#1a1917] hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
           onClick={() => paginate(-1)}
           aria-label="Previous review"
         >
@@ -117,37 +133,39 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
                   paginate(-1);
                 }
               }}
-              className="absolute w-full px-12 md:px-20 touch-pan-y cursor-grab active:cursor-grabbing"
+              className="absolute w-full px-4 sm:px-12 md:px-20 touch-pan-y cursor-grab active:cursor-grabbing"
             >
-              <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-[0_20px_60px_rgba(0,0,0,0.05)] border border-black/5 flex flex-col items-center text-center">
+              <div className="bg-white rounded-3xl md:rounded-[2.5rem] p-6 md:p-12 shadow-[0_20px_60px_rgba(0,0,0,0.05)] border border-black/5 flex flex-col items-center text-center h-[350px] md:h-[350px] overflow-hidden">
                 {currentReview.image && (
-                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden mb-6 border-4 border-[#faf9f6] shadow-lg shrink-0">
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden mb-4 border-4 border-[#faf9f6] shadow-sm shrink-0">
                     <Image
                       src={getPublicUploadUrl(currentReview.image)}
                       alt={currentReview.name}
-                      width={96}
-                      height={96}
+                      width={80}
+                      height={80}
                       className="object-cover w-full h-full"
                     />
                   </div>
                 )}
                 
-                <div className="flex gap-1 mb-6 text-[#FFB800]">
+                <div className="flex gap-1 mb-4 text-[#FFB800] shrink-0">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className="w-5 h-5"
+                      className="w-4 h-4 md:w-5 md:h-5"
                       fill={i < currentReview.rating ? "currentColor" : "none"}
                       stroke={i < currentReview.rating ? "currentColor" : "#e5e7eb"}
                     />
                   ))}
                 </div>
 
-                <p className="text-lg md:text-xl text-[#1a1917] font-medium leading-relaxed italic mb-8 max-w-2xl">
-                  "{currentReview.text}"
-                </p>
+                <div className="flex-1 overflow-y-auto w-full pr-1 md:pr-2 mb-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-black/10 [&::-webkit-scrollbar-thumb]:rounded-full">
+                  <p className="text-base md:text-xl text-[#1a1917] font-medium leading-relaxed italic">
+                    "{currentReview.text}"
+                  </p>
+                </div>
 
-                <h3 className="text-xl font-bold uppercase tracking-tight text-[#1a1917]">
+                <h3 className="text-lg md:text-xl font-bold uppercase tracking-tight text-[#1a1917] shrink-0 mt-auto">
                   {currentReview.name}
                 </h3>
               </div>
@@ -155,8 +173,9 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
           </AnimatePresence>
         </div>
 
+        {/* Desktop Next Button */}
         <button
-          className="absolute right-0 md:-right-12 z-20 w-12 h-12 flex items-center justify-center rounded-full bg-white shadow-[0_10px_30px_rgba(0,0,0,0.1)] text-[#1a1917] hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+          className="hidden md:flex absolute -right-12 z-20 w-12 h-12 items-center justify-center rounded-full bg-white shadow-[0_10px_30px_rgba(0,0,0,0.1)] text-[#1a1917] hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
           onClick={() => paginate(1)}
           aria-label="Next review"
         >
@@ -164,19 +183,39 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
         </button>
       </div>
 
-      <div className="flex items-center justify-center gap-3 mt-12">
-        {reviews.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => handleDotClick(i)}
-            className={`transition-all duration-300 rounded-full focus:outline-none ${
-              i === currentIndex
-                ? "w-8 h-2 bg-primary"
-                : "w-2 h-2 bg-black/10 hover:bg-black/20"
-            }`}
-            aria-label={`Go to slide ${i + 1}`}
-          />
-        ))}
+      <div className="flex items-center justify-center gap-6 mt-8 md:mt-12">
+        {/* Mobile Previous Button */}
+        <button
+          className="flex md:hidden w-10 h-10 items-center justify-center rounded-full bg-white shadow-md border border-black/5 text-[#1a1917] hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+          onClick={() => paginate(-1)}
+          aria-label="Previous review"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+
+        <div className="flex items-center gap-3">
+          {reviews.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => handleDotClick(i)}
+              className={`transition-all duration-300 rounded-full focus:outline-none ${
+                i === currentIndex
+                  ? "w-8 h-2 bg-primary"
+                  : "w-2 h-2 bg-black/10 hover:bg-black/20"
+              }`}
+              aria-label={`Go to slide ${i + 1}`}
+            />
+          ))}
+        </div>
+
+        {/* Mobile Next Button */}
+        <button
+          className="flex md:hidden w-10 h-10 items-center justify-center rounded-full bg-white shadow-md border border-black/5 text-[#1a1917] hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+          onClick={() => paginate(1)}
+          aria-label="Next review"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
       </div>
     </section>
   );

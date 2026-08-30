@@ -43,7 +43,7 @@ export default async function Home() {
       {/* 2. Elite Animated Marquee Hero */}
       <AnimatedMarqueeHero
         tagline="PREMIUM ARCHITECTURAL HARDWARE | TRUSTED ACROSS PAKISTAN"
-        title={"Premium Hardware\nFor\u00A0Exceptional Spaces."}
+        title={"Premium Hardware\nFor Exceptional Spaces."}
         description={
           <>
             <span className="sm:hidden">

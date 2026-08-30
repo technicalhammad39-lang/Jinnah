@@ -48,6 +48,7 @@ export function AnimatedMarqueeHero({
   const pointerPositionRef = useRef<{ x: number; y: number } | null>(null);
   const reduceMotion = useReducedMotion();
   const [canUseParallax, setCanUseParallax] = useState(false);
+  const [isMobile, setIsMobile] = useState(true); // default true for SSR safety, updated in effect
   const instantTransition = { duration: 0 };
   const entranceDelay = 0.12;
   const entranceStagger = 0.1;
@@ -109,13 +110,21 @@ export function AnimatedMarqueeHero({
       setCanUseParallax(pointerQuery.matches && !motionQuery.matches);
     };
 
+    const syncMobileState = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
     syncParallaxCapability();
+    syncMobileState();
+
     pointerQuery.addEventListener("change", syncParallaxCapability);
     motionQuery.addEventListener("change", syncParallaxCapability);
+    window.addEventListener("resize", syncMobileState);
 
     return () => {
       pointerQuery.removeEventListener("change", syncParallaxCapability);
       motionQuery.removeEventListener("change", syncParallaxCapability);
+      window.removeEventListener("resize", syncMobileState);
 
       if (pointerFrameRef.current !== null) {
         window.cancelAnimationFrame(pointerFrameRef.current);
@@ -281,9 +290,9 @@ export function AnimatedMarqueeHero({
         >
 
           <div className="w-full max-w-[92rem] space-y-4 sm:space-y-5 lg:space-y-7 mt-4 sm:mt-6 md:mt-8 px-2 sm:px-0">
-            <h1 className="mx-auto w-full text-balance break-words text-[clamp(2.5rem,11vw,4.25rem)] font-black leading-[0.95] tracking-[-0.052em] md:text-[5rem] lg:text-[5.35rem] xl:text-[6rem] 2xl:text-[6.85rem]">
+            <h1 className="mx-auto w-full text-balance break-words text-[clamp(2.15rem,10.5vw,4.25rem)] font-black leading-[0.95] tracking-[-0.052em] md:text-[5rem] lg:text-[5.35rem] xl:text-[6rem] 2xl:text-[6.85rem]">
               {titleLines.map((line, lineIndex) => {
-                const parts = line.split(/(premium|hardware)/i);
+                const parts = line.split(/(premium|hardware|exceptional)/i);
                 return (
                   <motion.span
                     key={lineIndex}
@@ -299,11 +308,18 @@ export function AnimatedMarqueeHero({
                         spanClass = "font-stylish text-primary text-[#e05a2b] italic font-medium text-[1.1em]";
                       } else if (lowerPart === "hardware") {
                         spanClass = "text-[#1a1815] font-bold not-italic md:font-stylish md:text-primary md:text-[#e05a2b] md:italic md:font-medium md:text-[1.1em]";
+                      } else if (lowerPart === "exceptional") {
+                        spanClass = "relative inline-block font-stylish text-primary text-[#e05a2b] italic font-medium text-[1.1em] z-10";
                       }
                       
                       return (
                         <span key={i} className={spanClass}>
                           {part}
+                          {lowerPart === "exceptional" && (
+                            <svg className="absolute -bottom-[2px] sm:-bottom-1 md:-bottom-2 left-0 w-full h-[6px] sm:h-[12px] md:h-[18px] text-[#e05a2b] opacity-80 -z-10" preserveAspectRatio="none" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M2,85 C20,50 80,40 98,75" stroke="currentColor" strokeWidth="6" strokeLinecap="round" fill="none" />
+                            </svg>
+                          )}
                         </span>
                       );
                     })}
@@ -316,7 +332,7 @@ export function AnimatedMarqueeHero({
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={getEntranceTransition(descriptionDelay, 0.92)}
-              className="mx-auto max-w-[58rem] px-4 sm:px-6 w-full text-sm sm:text-base font-medium leading-[1.65] tracking-wide text-muted-foreground sm:leading-8 md:text-[1.08rem] lg:text-[1.16rem] will-change-[transform,opacity]"
+              className="mx-auto max-w-[280px] sm:max-w-[58rem] px-4 sm:px-6 w-full text-[13px] sm:text-base font-medium leading-[1.65] tracking-wide text-muted-foreground sm:leading-8 md:text-[1.08rem] lg:text-[1.16rem] will-change-[transform,opacity]"
             >
               {description}
             </motion.div>
@@ -349,15 +365,15 @@ export function AnimatedMarqueeHero({
           >
             <motion.div
               style={{
-                y: imageFloatY,
-                x: imageFloatX,
-                rotateX: smoothTiltX,
-                rotateY: smoothTiltY,
+                y: isMobile ? 0 : imageFloatY,
+                x: isMobile ? 0 : imageFloatX,
+                rotateX: isMobile ? 0 : smoothTiltX,
+                rotateY: isMobile ? 0 : smoothTiltY,
                 perspective: "1600px",
               }}
-              className="relative left-1/2 w-[220vw] sm:w-[160vw] md:w-[130vw] lg:w-[110vw] max-w-none -translate-x-1/2 will-change-transform"
+              className="relative left-1/2 w-[160vw] sm:w-[160vw] md:w-[130vw] lg:w-[110vw] max-w-[800px] md:max-w-none -translate-x-1/2 will-change-transform"
             >
-              <motion.div style={{ y: showcaseY, scale: showcaseScale }} className="relative will-change-transform mt-8 sm:-mt-4 md:-mt-12 lg:-mt-24 xl:-mt-32">
+              <motion.div style={{ y: isMobile ? 0 : showcaseY, scale: showcaseScale }} className="relative will-change-transform mt-2 sm:-mt-4 md:-mt-12 lg:-mt-24 xl:-mt-32">
                 <Image
                   src="/hero-bottom.png"
                   alt="Premium hardware showcase featuring a smart lock, precision hinge, professional drill, brass lever, and finish samples."

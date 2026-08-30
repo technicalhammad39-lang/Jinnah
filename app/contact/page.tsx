@@ -37,7 +37,7 @@ export default function ContactPage() {
 
   const contactInfo = [
     {
-      title: "Showroom Location",
+      title: "Shop Location",
       desc: "Opposite Gulbarag Town, Bahawalpur Road, Hasilpur",
       icon: MapPin,
       action: "Get Directions",
@@ -59,7 +59,7 @@ export default function ContactPage() {
     },
     {
       title: "Operating Hours",
-      desc: "Mon - Sat: 10:00 AM - 8:00 PM\nSunday: Closed",
+      desc: "Mon - Mon: 8:00 AM - 8:00 PM",
       icon: Clock,
       action: null,
       href: null,
@@ -75,12 +75,18 @@ export default function ContactPage() {
         {/* HERO SECTION */}
         <section className="relative px-6 pt-32 pb-4 md:pt-48 md:pb-12 bg-transparent overflow-hidden">
           {/* Top Orange Dotted Gradient */}
-          <div 
-            className="absolute top-0 left-0 right-0 h-96 pointer-events-none z-0" 
-            style={{ backgroundImage: 'radial-gradient(circle at center, #FF6A2A 1.5px, transparent 1.5px)', backgroundSize: '24px 24px', opacity: 0.5 }}
+          <div
+            className="absolute top-0 left-0 right-0 h-96 pointer-events-none z-0"
+            style={{
+              backgroundImage: 'radial-gradient(circle at center, #FF6A2A 1.5px, transparent 1.5px)',
+              backgroundSize: '12px 12px',
+              opacity: 0.5,
+              maskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+            }}
           />
 
-          <div className="relative z-10 max-w-[1920px] mx-auto w-full px-0 md:px-6 flex flex-col md:flex-row items-center justify-between gap-12">
+          <div className="relative z-10 max-w-[1740px] mx-auto w-full px-0 md:px-6 flex flex-col md:flex-row items-center justify-between gap-12">
             <div className="w-full md:w-1/2 space-y-6 text-center md:text-left pl-0 lg:pl-12">
               <motion.div
                 initial={{ opacity: 0, x: -50 }}
@@ -109,12 +115,12 @@ export default function ContactPage() {
                 transition={{ duration: 1.2, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className="relative w-full max-w-[500px] h-[300px] md:h-[450px]"
               >
-                <Image 
-                  src="/contact-cartoon.png" 
-                  alt="Contact Cartoon" 
-                  fill 
-                  className="object-contain object-center md:object-right" 
-                  priority 
+                <Image
+                  src="/contact-cartoon.png"
+                  alt="Contact Cartoon"
+                  fill
+                  className="object-contain object-center md:object-right"
+                  priority
                 />
               </motion.div>
             </div>
@@ -122,16 +128,16 @@ export default function ContactPage() {
         </section>
 
         {/* CONTACT GRID */}
-        <section className="pt-8 pb-20 px-6 max-w-[1920px] mx-auto relative mt-0">
+        <section className="pt-8 pb-20 px-6 max-w-[1740px] mx-auto relative mt-0">
           {/* Top-down Orange Glow Gradient */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[400px] bg-gradient-to-b from-primary/10 via-primary/5 to-transparent pointer-events-none -z-10 rounded-full blur-3xl opacity-60" />
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20 relative z-10">
             {contactInfo.map((info, i) => {
               const Icon = info.icon;
               const CardWrapper = info.href ? 'a' : 'div';
               const wrapperProps = info.href ? { href: info.href, target: "_blank", rel: "noopener noreferrer" } : {};
-              
+
               return (
                 <motion.div
                   key={i}
@@ -148,7 +154,7 @@ export default function ContactPage() {
                     <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 rounded-[1.5rem] bg-gradient-to-br from-[#FF9A55] to-[#FF6A2A] shadow-[0_10px_25px_-5px_rgba(255,106,42,0.4)] text-white flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:-translate-y-1">
                       <Icon className="h-8 w-8 drop-shadow-md" />
                     </div>
-                    
+
                     <div className="mt-6 flex-1 flex flex-col items-center justify-center space-y-2">
                       <h3 className="text-xs font-bold uppercase tracking-widest text-white/50">{info.title}</h3>
                       <p className="text-lg md:text-xl font-bold text-white whitespace-pre-line leading-snug">{info.desc}</p>
