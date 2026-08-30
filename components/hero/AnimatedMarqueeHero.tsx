@@ -107,9 +107,11 @@ export function AnimatedMarqueeHero({
           delay,
         };
 
-  const renderTitleLines = (lines: string[]) => {
+  const renderTitleLines = (lines: string[], isDesktop: boolean) => {
     return lines.map((line, lineIndex) => {
-      const parts = line.split(/(premium|hardware|exceptional)/i);
+      // For desktop, match the old behavior: only split on premium and hardware
+      const splitRegex = isDesktop ? /(premium|hardware)/i : /(premium|hardware|exceptional)/i;
+      const parts = line.split(splitRegex);
       return (
         <motion.span
           key={lineIndex}
@@ -121,19 +123,30 @@ export function AnimatedMarqueeHero({
           {parts.map((part, i) => {
             let spanClass = "";
             const lowerPart = part.toLowerCase();
-            if (lowerPart === "premium") {
-              spanClass = "font-stylish text-primary text-[#e05a2b] italic font-medium text-[1.1em] md:text-[1.1em]";
-            } else if (lowerPart === "hardware") {
-              spanClass = "text-[#1a1815] font-bold not-italic md:font-stylish md:text-primary md:text-[#e05a2b] md:italic md:font-medium md:text-[1.1em]";
-            } else if (lowerPart === "exceptional") {
-              spanClass = "relative inline-block font-stylish text-primary text-[#e05a2b] italic font-medium text-[1.25em] md:text-[1.1em] z-10 leading-tight";
+            
+            if (isDesktop) {
+              // Old desktop logic
+              if (lowerPart === "premium") {
+                spanClass = "font-stylish text-primary text-[#e05a2b] italic font-medium text-[1.1em]";
+              } else if (lowerPart === "hardware") {
+                spanClass = "text-[#1a1815] font-bold not-italic md:font-stylish md:text-primary md:text-[#e05a2b] md:italic md:font-medium md:text-[1.1em]";
+              }
+            } else {
+              // Current mobile logic
+              if (lowerPart === "premium") {
+                spanClass = "font-stylish text-primary text-[#e05a2b] italic font-medium text-[1.1em]";
+              } else if (lowerPart === "hardware") {
+                spanClass = "text-[#1a1815] font-bold not-italic md:font-stylish md:text-primary md:text-[#e05a2b] md:italic md:font-medium md:text-[1.1em]";
+              } else if (lowerPart === "exceptional") {
+                spanClass = "relative inline-block font-stylish text-primary text-[#e05a2b] italic font-medium text-[1.25em] z-10 leading-tight";
+              }
             }
             
             return (
               <span key={i} className={spanClass}>
                 {part}
-                {lowerPart === "exceptional" && (
-                  <svg className="absolute -bottom-[2px] sm:-bottom-1 md:-bottom-2 left-0 w-[105%] h-[8px] sm:h-[12px] md:h-[18px] text-[#e05a2b] opacity-90 -z-10" preserveAspectRatio="none" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                {!isDesktop && lowerPart === "exceptional" && (
+                  <svg className="absolute -bottom-[2px] left-0 w-[105%] h-[8px] text-[#e05a2b] opacity-90 -z-10" preserveAspectRatio="none" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <path d="M2,80 C30,60 70,55 98,70 L97,86 C70,65 30,75 2,84 Z" fill="currentColor" />
                   </svg>
                 )}
@@ -335,12 +348,12 @@ export function AnimatedMarqueeHero({
           <div className="w-full max-w-[92rem] space-y-3 sm:space-y-5 lg:space-y-7 mt-6 sm:mt-6 md:mt-8 px-4 sm:px-0">
             {/* MOBILE TITLE */}
             <h1 className="md:hidden mx-auto w-full text-balance break-words text-[clamp(2.25rem,11.5vw,4rem)] font-black leading-[0.95] tracking-tight">
-              {renderTitleLines(mobileTitleLines)}
+              {renderTitleLines(mobileTitleLines, false)}
             </h1>
             
             {/* DESKTOP TITLE */}
             <h1 className="hidden md:block mx-auto w-full text-balance break-words md:text-[5rem] lg:text-[5.35rem] xl:text-[6rem] 2xl:text-[6.85rem] font-black leading-[0.95] tracking-[-0.052em]">
-              {renderTitleLines(desktopTitleLines)}
+              {renderTitleLines(desktopTitleLines, true)}
             </h1>
 
             <motion.div
