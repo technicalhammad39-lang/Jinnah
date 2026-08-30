@@ -89,11 +89,11 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
   const currentReview = reviews[currentIndex];
 
   return (
-    <section className="py-16 md:py-24 relative overflow-x-hidden bg-transparent">
+    <section className="py-12 md:py-16 relative overflow-x-hidden bg-transparent">
       {/* Subtle Background Accent */}
       <div className="absolute top-[20%] left-[-5%] w-[40vw] h-[40vw] rounded-full glow-blob-orange opacity-[0.1] pointer-events-none" />
 
-      <div className="max-w-[1200px] mx-auto text-center mb-16 relative z-10 px-6">
+      <div className="max-w-[1200px] mx-auto text-center mb-10 relative z-10 px-6">
         <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest justify-center mb-4">
           <span>Testimonials</span>
         </div>
@@ -105,9 +105,9 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
         </p>
       </div>
 
-      <div className="relative w-full py-12 md:py-20">
+      <div className="relative w-full py-8 md:py-12">
         {/* The solid rotated orange shape behind the cards */}
-        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 w-[150vw] -left-[25vw] h-[120%] sm:h-[130%] bg-primary -rotate-6 origin-center z-0" />
+        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 w-[150vw] -left-[25vw] h-[95%] sm:h-[105%] bg-primary -rotate-6 origin-center z-0" />
 
         <div 
           className="relative max-w-4xl mx-auto h-[320px] md:h-[400px] flex items-center justify-center z-10 px-6"
