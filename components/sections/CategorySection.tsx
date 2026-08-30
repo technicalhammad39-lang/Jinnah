@@ -58,15 +58,15 @@ export function CategorySection() {
                   <div className="absolute inset-0 z-20 p-2 sm:p-4 md:p-8 flex flex-col justify-end text-left overflow-hidden">
                     <div className="flex items-end justify-between w-full relative z-30 gap-1 sm:gap-4">
                       <div className="flex flex-col justify-end flex-1 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] lg:group-hover:-translate-y-2">
-                        <span className="text-[8px] sm:text-[10px] font-extrabold text-primary tracking-widest uppercase block mb-0.5 sm:mb-1 drop-shadow-md truncate">
-                          {category.count} <span className="hidden sm:inline">Products</span>
+                        <span className="text-[10px] sm:text-[11px] font-extrabold text-primary tracking-widest uppercase block mb-0.5 sm:mb-1 drop-shadow-md truncate">
+                          {category.count} <span>Products</span>
                         </span>
-                        <h3 className="text-[11px] sm:text-sm md:text-2xl font-extrabold text-white uppercase tracking-tight leading-tight drop-shadow-md">
+                        <h3 className="text-sm xs:text-base md:text-2xl font-extrabold text-white uppercase tracking-tight leading-tight drop-shadow-md">
                           {category.name}
                         </h3>
                         
-                        <div className="hidden sm:grid grid-rows-[1fr] lg:grid-rows-[0fr] lg:group-hover:grid-rows-[1fr] transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] mt-2">
-                          <p className="text-[10px] sm:text-xs md:text-sm text-white/90 font-medium leading-[1.6] opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-500 overflow-hidden line-clamp-2 md:line-clamp-3">
+                        <div className="grid grid-rows-[1fr] lg:grid-rows-[0fr] lg:group-hover:grid-rows-[1fr] transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] mt-1 sm:mt-2">
+                          <p className="text-[10px] sm:text-xs md:text-sm text-white/90 font-medium leading-[1.4] sm:leading-[1.6] opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-500 overflow-hidden line-clamp-2 md:line-clamp-3">
                             {category.description}
                           </p>
                         </div>

@@ -67,31 +67,26 @@ function HorizontalConnector({ isHovered, className }: { isHovered: boolean; cla
 }
 
 function VerticalConnector({ isHovered, index, className }: { isHovered: boolean; index: number; className?: string }) {
-  const isEven = index % 2 === 0;
-  const pathD = isEven 
-    ? "M 10,0 C -20,10 40,22 10,32" 
-    : "M 10,0 C 40,10 -20,22 10,32";
-    
   return (
-    <div className={cn("absolute -bottom-[32px] left-[68px] -translate-x-1/2 w-5 h-[32px] z-10 pointer-events-none md:hidden", className)}>
+    <div className={cn("absolute -bottom-[48px] left-1/2 -translate-x-1/2 w-[4px] h-[48px] z-10 pointer-events-none md:hidden", className)}>
       <svg 
         className="absolute inset-0 w-full h-full overflow-visible" 
         preserveAspectRatio="none" 
-        viewBox="0 0 20 32"
+        viewBox="0 0 4 100"
         style={{ 
           opacity: isHovered ? 1 : 0.72,
           transition: "opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1)",
         }}
       >
         <path 
-          d={pathD}
+          d="M 2,0 L 2,100"
           fill="none" 
           stroke="rgba(255,106,42,0.25)" 
           strokeWidth="3" 
           vectorEffect="non-scaling-stroke"
         />
         <motion.path 
-          d={pathD}
+          d="M 2,0 L 2,100"
           fill="none" 
           stroke="#FF9A55" 
           strokeWidth="4" 
@@ -144,9 +139,9 @@ export function WhyChooseUs() {
   ];
 
   return (
-    <section data-no-premium-reveal className="pt-12 pb-24 md:pt-20 md:pb-32 bg-[#faf9f6] relative z-10 overflow-hidden">
+    <section data-no-premium-reveal className="pt-8 pb-16 md:pt-20 md:pb-32 bg-[#faf9f6] relative z-10 overflow-hidden">
       <div className="w-full max-w-[1920px] mx-auto px-6 lg:px-12 relative z-10">
-        <div className="flex flex-col items-center justify-center text-center mb-16 md:mb-24 gap-6">
+        <div className="flex flex-col items-center justify-center text-center mb-10 md:mb-24 gap-4 md:gap-6">
           <div className="space-y-4 w-full max-w-[90vw] md:max-w-5xl mx-auto flex flex-col items-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-white shadow-sm px-3.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
@@ -163,7 +158,7 @@ export function WhyChooseUs() {
         </div>
       </div>
 
-      <div className="relative w-full max-w-[1400px] px-6 lg:px-12 mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-8 md:gap-y-16 gap-x-12 lg:gap-x-16 mt-0">
+      <div className="relative w-full max-w-[1400px] px-6 lg:px-12 mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-[48px] md:gap-y-16 gap-x-12 lg:gap-x-16 mt-0">
         {features.map((feature, index) => {
             const isHovered = hoveredIndex === index;
             const isOtherHovered = hoveredIndex !== null && hoveredIndex !== index;
@@ -189,19 +184,19 @@ export function WhyChooseUs() {
                   )}
                 >
                   <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 15 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.4, delay: index * 0.05 }}
                     className={cn(
-                      "group rounded-[2rem] border transition-all duration-500 h-full min-h-[240px] flex flex-col justify-start relative z-20 pt-14 pb-8 px-8",
+                      "group rounded-[1.5rem] border transition-all duration-400 h-full min-h-[240px] flex flex-col justify-start items-center text-center md:items-start md:text-left relative z-20 pt-14 pb-8 px-6 md:px-8",
                       "bg-gradient-to-br from-[#202020]/95 via-[#171717]/95 to-[#111111]/95 backdrop-blur-2xl text-left",
                       "border-white/10 shadow-[0_15px_40px_-15px_rgba(0,0,0,0.2),inset_0_1px_1px_rgba(255,255,255,0.02)]"
                     )}
                   >
                     <div 
                       className={cn(
-                        "absolute top-0 left-8 -translate-y-1/2 w-[72px] h-[72px] rounded-[1.25rem] flex items-center justify-center transition-all duration-500",
+                        "absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 md:left-10 md:translate-x-0 w-[72px] h-[72px] rounded-2xl flex items-center justify-center transition-all duration-500",
                         "backdrop-blur-xl bg-gradient-to-br from-[#FF9A55] to-[#FF6A2A] border border-white/20",
                         isHovered 
                           ? "shadow-[0_12px_30px_-8px_rgba(255,106,42,0.6),inset_0_1px_1px_rgba(255,255,255,0.4)] rotate-6 scale-110" 

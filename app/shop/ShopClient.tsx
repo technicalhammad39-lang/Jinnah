@@ -326,7 +326,7 @@ export function ShopClient({ initialProducts = [], initialBrands = [] }: { initi
               
               {/* Staggered dynamic grid */}
               {displayedProducts.length > 0 ? (
-                <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
                   {displayedProducts.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
@@ -372,7 +372,7 @@ export function ShopClient({ initialProducts = [], initialBrands = [] }: { initi
         {activeTab === "wishlist" && (
           <div className="space-y-6">
             {wishlistProducts.length > 0 ? (
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
                 {wishlistProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}

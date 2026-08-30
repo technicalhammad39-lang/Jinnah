@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import Image from "next/image";
-import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, Quote } from "lucide-react";
 import { getPublicUploadUrl } from "@/lib/utils";
 
 interface Review {
@@ -18,6 +17,7 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
   const [reviews, setReviews] = useState<Review[]>(initialReviews);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     // If we didn't get initial reviews, fetch them
@@ -30,7 +30,7 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
 
   // Auto-slide functionality
   useEffect(() => {
-    if (reviews.length <= 1) return;
+    if (reviews.length <= 1 || isPaused) return;
     const timer = setInterval(() => {
       setDirection(1);
       setCurrentIndex((prevIndex) => {
@@ -41,7 +41,7 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
     }, 5000); // Change slide every 5 seconds
     
     return () => clearInterval(timer);
-  }, [currentIndex, reviews.length]);
+  }, [currentIndex, reviews.length, isPaused]);
 
   if (reviews.length === 0) return null;
 
@@ -88,24 +88,36 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
   const currentReview = reviews[currentIndex];
 
   return (
-    <section className="py-24 px-6 bg-[#faf9f6] relative overflow-hidden">
-      <div className="max-w-[1200px] mx-auto text-center mb-16">
-        <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-[#1a1917]">
+    <section className="py-24 px-6 relative overflow-hidden bg-[#faf9f6]">
+      {/* Rotated Background Shape */}
+      <div className="absolute -inset-[10%] bg-gradient-to-br from-[#1a1917] via-[#111111] to-[#0a0a0a] rotate-[3deg] scale-110 z-0 origin-center pointer-events-none shadow-[inset_0_0_100px_rgba(255,106,42,0.15)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,106,42,0.15),transparent_50%)] z-0 pointer-events-none" />
+
+      <div className="max-w-[1200px] mx-auto text-center mb-16 relative z-10">
+        <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-white drop-shadow-md">
           What Our Clients Say
         </h2>
-        <p className="mt-4 text-muted-foreground font-medium">
+        <p className="mt-4 text-white/70 font-medium max-w-2xl mx-auto">
           Hear from the architects, builders, and homeowners who trust our hardware.
         </p>
       </div>
 
-      <div className="relative max-w-4xl mx-auto h-[380px] md:h-[400px] flex items-center justify-center">
-        {/* Desktop Previous Button */}
+      <div 
+        className="relative max-w-4xl mx-auto h-[320px] md:h-[400px] flex items-center justify-center z-10"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onTouchStart={() => setIsPaused(true)}
+        onTouchEnd={() => {
+          setTimeout(() => setIsPaused(false), 2000);
+        }}
+      >
+        {/* Previous Button (All viewports) */}
         <button
-          className="hidden md:flex absolute -left-12 z-20 w-12 h-12 items-center justify-center rounded-full bg-white shadow-[0_10px_30px_rgba(0,0,0,0.1)] text-[#1a1917] hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+          className="flex absolute left-0 sm:-left-6 md:-left-12 z-20 w-10 h-10 md:w-12 md:h-12 items-center justify-center rounded-full bg-white shadow-[0_10px_30px_rgba(0,0,0,0.1)] text-[#1a1917] hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 -translate-x-2 sm:translate-x-0"
           onClick={() => paginate(-1)}
           aria-label="Previous review"
         >
-          <ChevronLeft className="w-6 h-6" />
+          <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
         </button>
 
         <div className="w-full h-full relative flex items-center justify-center perspective-1000">
@@ -135,7 +147,9 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
               }}
               className="absolute w-full px-4 sm:px-12 md:px-20 touch-pan-y cursor-grab active:cursor-grabbing"
             >
-              <div className="bg-white rounded-3xl md:rounded-[2.5rem] p-6 md:p-12 shadow-[0_20px_60px_rgba(0,0,0,0.05)] border border-black/5 flex flex-col items-center text-center h-[350px] md:h-[350px] overflow-hidden">
+              <div className="bg-white rounded-3xl md:rounded-[2.5rem] p-6 md:p-12 shadow-[0_20px_60px_rgba(0,0,0,0.05)] border border-black/5 flex flex-col items-center text-center h-[280px] md:h-[350px] overflow-hidden relative group">
+                <Quote className="absolute top-4 right-6 w-16 h-16 md:w-24 md:h-24 text-black/[0.02] -scale-x-100 rotate-12 transition-transform duration-500 group-hover:rotate-0" />
+                
                 {currentReview.image && (
                   <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden mb-4 border-4 border-[#faf9f6] shadow-sm shrink-0">
                     <Image
@@ -159,13 +173,13 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
                   ))}
                 </div>
 
-                <div className="flex-1 overflow-y-auto w-full pr-1 md:pr-2 mb-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-black/10 [&::-webkit-scrollbar-thumb]:rounded-full">
-                  <p className="text-base md:text-xl text-[#1a1917] font-medium leading-relaxed italic">
+                <div className="flex-1 overflow-y-auto w-full pr-1 md:pr-2 mb-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-black/10 [&::-webkit-scrollbar-thumb]:rounded-full relative z-10">
+                  <p className="text-sm sm:text-base md:text-xl text-[#1a1917] font-medium leading-relaxed italic">
                     "{currentReview.text}"
                   </p>
                 </div>
 
-                <h3 className="text-lg md:text-xl font-bold uppercase tracking-tight text-[#1a1917] shrink-0 mt-auto">
+                <h3 className="text-base sm:text-lg md:text-xl font-bold uppercase tracking-tight text-[#1a1917] shrink-0 mt-auto relative z-10">
                   {currentReview.name}
                 </h3>
               </div>
@@ -173,26 +187,17 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
           </AnimatePresence>
         </div>
 
-        {/* Desktop Next Button */}
+        {/* Next Button (All viewports) */}
         <button
-          className="hidden md:flex absolute -right-12 z-20 w-12 h-12 items-center justify-center rounded-full bg-white shadow-[0_10px_30px_rgba(0,0,0,0.1)] text-[#1a1917] hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+          className="flex absolute right-0 sm:-right-6 md:-right-12 z-20 w-10 h-10 md:w-12 md:h-12 items-center justify-center rounded-full bg-white shadow-[0_10px_30px_rgba(0,0,0,0.1)] text-[#1a1917] hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 translate-x-2 sm:translate-x-0"
           onClick={() => paginate(1)}
           aria-label="Next review"
         >
-          <ChevronRight className="w-6 h-6" />
+          <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
         </button>
       </div>
 
-      <div className="flex items-center justify-center gap-6 mt-8 md:mt-12">
-        {/* Mobile Previous Button */}
-        <button
-          className="flex md:hidden w-10 h-10 items-center justify-center rounded-full bg-white shadow-md border border-black/5 text-[#1a1917] hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
-          onClick={() => paginate(-1)}
-          aria-label="Previous review"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-
+      <div className="flex items-center justify-center gap-6 mt-8 md:mt-12 relative z-10">
         <div className="flex items-center gap-3">
           {reviews.map((_, i) => (
             <button
@@ -201,21 +206,12 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
               className={`transition-all duration-300 rounded-full focus:outline-none ${
                 i === currentIndex
                   ? "w-8 h-2 bg-primary"
-                  : "w-2 h-2 bg-black/10 hover:bg-black/20"
+                  : "w-2 h-2 bg-white/20 hover:bg-white/40"
               }`}
               aria-label={`Go to slide ${i + 1}`}
             />
           ))}
         </div>
-
-        {/* Mobile Next Button */}
-        <button
-          className="flex md:hidden w-10 h-10 items-center justify-center rounded-full bg-white shadow-md border border-black/5 text-[#1a1917] hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
-          onClick={() => paginate(1)}
-          aria-label="Next review"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
       </div>
     </section>
   );

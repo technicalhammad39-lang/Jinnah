@@ -43,7 +43,7 @@ export default async function Home() {
       {/* 2. Elite Animated Marquee Hero */}
       <AnimatedMarqueeHero
         tagline="PREMIUM ARCHITECTURAL HARDWARE | TRUSTED ACROSS PAKISTAN"
-        title={"Premium Hardware\nFor Exceptional Spaces."}
+        title={"Premium\nHardware For\nExceptional Spaces."}
         description={
           <>
             <span className="sm:hidden">
@@ -80,10 +80,10 @@ export default async function Home() {
               </p>
             </div>
 
-            <div className="flex items-center gap-4 w-full md:w-auto mt-4 md:mt-0">
+            <div className="hidden md:flex items-center gap-4 w-auto mt-0">
               <Link
                 href="/shop"
-                className="group inline-flex w-full md:w-auto justify-center cursor-pointer items-center gap-2 rounded-full bg-[#1a1917] px-7 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-md transition-all duration-300 hover:bg-primary hover:shadow-[0_0_15px_rgba(255,90,31,0.4)]"
+                className="group inline-flex justify-center cursor-pointer items-center gap-2 rounded-full bg-[#1a1917] px-7 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-md transition-all duration-300 hover:bg-primary hover:shadow-[0_0_15px_rgba(255,90,31,0.4)]"
               >
                 <span>View Products</span>
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1.5" />
@@ -92,6 +92,16 @@ export default async function Home() {
           </div>
 
           <FeaturedProductsCarousel products={featuredProducts} />
+
+          <div className="mt-8 flex md:hidden items-center justify-center w-full">
+            <Link
+              href="/shop"
+              className="group inline-flex w-full justify-center cursor-pointer items-center gap-2 rounded-full bg-[#1a1917] px-7 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-md transition-all duration-300 hover:bg-primary hover:shadow-[0_0_15px_rgba(255,90,31,0.4)]"
+            >
+              <span>View All Products</span>
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1.5" />
+            </Link>
+          </div>
         </div>
       </section>
 

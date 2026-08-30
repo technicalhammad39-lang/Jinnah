@@ -84,9 +84,14 @@ export function AnimatedMarqueeHero({
   const imageFloatY = useTransform(smoothTiltX, (value) => value * -0.8);
   const imageFloatX = useTransform(smoothTiltY, (value) => value * 0.7);
 
-  const titleLines = useMemo(
+  const desktopTitleLines = useMemo(
     () => title.split("\n").map((line) => line.trim()).filter(Boolean),
     [title]
+  );
+  
+  const mobileTitleLines = useMemo(
+    () => `Premium\nHardware\u00A0For\nExceptional Spaces.`.split("\n").map((line) => line.trim()).filter(Boolean),
+    []
   );
 
   const descriptionDelay = entranceDelay + 2 * entranceStagger + 0.1;
@@ -101,6 +106,44 @@ export function AnimatedMarqueeHero({
           ease: WORD_ENTRANCE_EASE,
           delay,
         };
+
+  const renderTitleLines = (lines: string[]) => {
+    return lines.map((line, lineIndex) => {
+      const parts = line.split(/(premium|hardware|exceptional)/i);
+      return (
+        <motion.span
+          key={lineIndex}
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={getEntranceTransition(entranceDelay + lineIndex * entranceStagger)}
+          className="block will-change-[transform,opacity] font-bold tracking-tight opacity-95 text-[#1a1815]"
+        >
+          {parts.map((part, i) => {
+            let spanClass = "";
+            const lowerPart = part.toLowerCase();
+            if (lowerPart === "premium") {
+              spanClass = "font-stylish text-primary text-[#e05a2b] italic font-medium text-[1.1em] md:text-[1.1em]";
+            } else if (lowerPart === "hardware") {
+              spanClass = "text-[#1a1815] font-bold not-italic md:font-stylish md:text-primary md:text-[#e05a2b] md:italic md:font-medium md:text-[1.1em]";
+            } else if (lowerPart === "exceptional") {
+              spanClass = "relative inline-block font-stylish text-primary text-[#e05a2b] italic font-medium text-[1.25em] md:text-[1.1em] z-10 leading-tight";
+            }
+            
+            return (
+              <span key={i} className={spanClass}>
+                {part}
+                {lowerPart === "exceptional" && (
+                  <svg className="absolute -bottom-[2px] sm:-bottom-1 md:-bottom-2 left-0 w-[105%] h-[8px] sm:h-[12px] md:h-[18px] text-[#e05a2b] opacity-90 -z-10" preserveAspectRatio="none" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2,80 C30,60 70,55 98,70 L97,86 C70,65 30,75 2,84 Z" fill="currentColor" />
+                  </svg>
+                )}
+              </span>
+            );
+          })}
+        </motion.span>
+      );
+    });
+  };
 
   useEffect(() => {
     const pointerQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -289,50 +332,22 @@ export function AnimatedMarqueeHero({
           className="relative z-20 mx-auto flex w-full max-w-[1920px] flex-1 flex-col items-center justify-center pb-2 sm:pb-3 lg:pb-4 xl:pb-6"
         >
 
-          <div className="w-full max-w-[92rem] space-y-4 sm:space-y-5 lg:space-y-7 mt-4 sm:mt-6 md:mt-8 px-2 sm:px-0">
-            <h1 className="mx-auto w-full text-balance break-words text-[clamp(2.15rem,10.5vw,4.25rem)] font-black leading-[0.95] tracking-[-0.052em] md:text-[5rem] lg:text-[5.35rem] xl:text-[6rem] 2xl:text-[6.85rem]">
-              {titleLines.map((line, lineIndex) => {
-                const parts = line.split(/(premium|hardware|exceptional)/i);
-                return (
-                  <motion.span
-                    key={lineIndex}
-                    initial={{ opacity: 0, y: -30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={getEntranceTransition(entranceDelay + lineIndex * entranceStagger)}
-                    className="block will-change-[transform,opacity] font-bold tracking-tight opacity-95 text-[#1a1815]"
-                  >
-                    {parts.map((part, i) => {
-                      let spanClass = "";
-                      const lowerPart = part.toLowerCase();
-                      if (lowerPart === "premium") {
-                        spanClass = "font-stylish text-primary text-[#e05a2b] italic font-medium text-[1.1em]";
-                      } else if (lowerPart === "hardware") {
-                        spanClass = "text-[#1a1815] font-bold not-italic md:font-stylish md:text-primary md:text-[#e05a2b] md:italic md:font-medium md:text-[1.1em]";
-                      } else if (lowerPart === "exceptional") {
-                        spanClass = "relative inline-block font-stylish text-primary text-[#e05a2b] italic font-medium text-[1.1em] z-10";
-                      }
-                      
-                      return (
-                        <span key={i} className={spanClass}>
-                          {part}
-                          {lowerPart === "exceptional" && (
-                            <svg className="absolute -bottom-[2px] sm:-bottom-1 md:-bottom-2 left-0 w-full h-[6px] sm:h-[12px] md:h-[18px] text-[#e05a2b] opacity-80 -z-10" preserveAspectRatio="none" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M2,85 C20,50 80,40 98,75" stroke="currentColor" strokeWidth="6" strokeLinecap="round" fill="none" />
-                            </svg>
-                          )}
-                        </span>
-                      );
-                    })}
-                  </motion.span>
-                );
-              })}
+          <div className="w-full max-w-[92rem] space-y-3 sm:space-y-5 lg:space-y-7 mt-6 sm:mt-6 md:mt-8 px-4 sm:px-0">
+            {/* MOBILE TITLE */}
+            <h1 className="md:hidden mx-auto w-full text-balance break-words text-[clamp(2.25rem,11.5vw,4rem)] font-black leading-[0.95] tracking-tight">
+              {renderTitleLines(mobileTitleLines)}
+            </h1>
+            
+            {/* DESKTOP TITLE */}
+            <h1 className="hidden md:block mx-auto w-full text-balance break-words md:text-[5rem] lg:text-[5.35rem] xl:text-[6rem] 2xl:text-[6.85rem] font-black leading-[0.95] tracking-[-0.052em]">
+              {renderTitleLines(desktopTitleLines)}
             </h1>
 
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={getEntranceTransition(descriptionDelay, 0.92)}
-              className="mx-auto max-w-[280px] sm:max-w-[58rem] px-4 sm:px-6 w-full text-[13px] sm:text-base font-medium leading-[1.65] tracking-wide text-muted-foreground sm:leading-8 md:text-[1.08rem] lg:text-[1.16rem] will-change-[transform,opacity]"
+              className="mx-auto max-w-[90vw] sm:max-w-[58rem] px-2 sm:px-6 w-full text-[15px] sm:text-base font-medium leading-[1.65] tracking-wide text-muted-foreground sm:leading-8 md:text-[1.08rem] lg:text-[1.16rem] will-change-[transform,opacity]"
             >
               {description}
             </motion.div>

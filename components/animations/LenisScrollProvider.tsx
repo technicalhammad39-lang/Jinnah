@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 
 const premiumScrollEase = (time: number) => 1 - Math.pow(1 - time, 4);
 
 export function LenisScrollProvider() {
+  const pathname = usePathname();
+  const lenisRef = useRef<Lenis | null>(null);
   useEffect(() => {
     const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -35,6 +38,7 @@ export function LenisScrollProvider() {
     });
 
     window.__lenis = lenis;
+    lenisRef.current = lenis;
 
     let disposed = false;
     let updateScrollTrigger: () => void = () => undefined;
@@ -69,12 +73,21 @@ export function LenisScrollProvider() {
       refreshScrollTrigger();
     };
 
+    const resizeObserver = new ResizeObserver(() => {
+      refresh();
+    });
+    
+    if (document.body) {
+      resizeObserver.observe(document.body);
+    }
+
     window.addEventListener("load", refresh, { once: true });
     window.addEventListener("resize", refresh, { passive: true });
     document.fonts?.ready.then(refresh, () => undefined);
 
     return () => {
       disposed = true;
+      resizeObserver.disconnect();
       unsubscribe();
       window.cancelAnimationFrame(rafId);
       window.removeEventListener("load", refresh);
@@ -84,8 +97,16 @@ export function LenisScrollProvider() {
       if (window.__lenis === lenis) {
         window.__lenis = undefined;
       }
+      lenisRef.current = null;
     };
   }, []);
+
+  // Trigger resize when pathname changes
+  useEffect(() => {
+    if (lenisRef.current) {
+      lenisRef.current.resize();
+    }
+  }, [pathname]);
 
   return null;
 }

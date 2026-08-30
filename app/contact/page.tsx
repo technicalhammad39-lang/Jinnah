@@ -87,11 +87,12 @@ export default function ContactPage() {
           />
 
           <div className="relative z-10 max-w-[1740px] mx-auto w-full px-0 md:px-6 flex flex-col md:flex-row items-center justify-between gap-12">
-            <div className="w-full md:w-1/2 space-y-6 text-center md:text-left pl-0 lg:pl-12">
+            <div className="w-full md:w-1/2 space-y-6 text-center md:text-left pl-0 lg:pl-12 flex flex-col items-center md:items-start">
               <motion.div
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6 }}
+                className="w-full"
               >
                 <h1 className="text-5xl md:text-6xl lg:text-[5.5rem] font-black uppercase tracking-tighter text-foreground leading-[0.9]">
                   Get In <span className="text-primary font-stylish normal-case text-[1.1em]">Touch</span>
@@ -101,7 +102,7 @@ export default function ContactPage() {
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
-                className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-xl mx-auto md:mx-0 leading-relaxed font-medium"
+                className="text-base md:text-lg lg:text-xl text-muted-foreground text-center md:text-left max-w-xl mx-auto md:mx-0 leading-relaxed font-medium"
               >
                 Whether you are an architect sourcing for a mega-project, or a homeowner looking for the perfect handle, our specialists are ready to assist.
               </motion.p>

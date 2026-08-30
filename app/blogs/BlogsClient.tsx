@@ -37,7 +37,7 @@ export default function BlogsClient({ initialBlogs = [] }: { initialBlogs: any[]
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1, delay: 0.2 }}
-            className="absolute left-0 top-0 bottom-0 w-[200px] md:w-[350px] lg:w-[500px] xl:w-[600px] z-0 pointer-events-none -translate-x-[40%] opacity-60 rotate-12"
+            className="absolute left-0 top-0 bottom-0 w-[200px] md:w-[350px] lg:w-[500px] xl:w-[600px] z-0 pointer-events-none -translate-x-[65%] sm:-translate-x-[50%] md:-translate-x-[40%] opacity-60 rotate-12"
           >
             <Image src="/hero-shape.svg" alt="Shape Left" fill className="object-contain object-left scale-x-[-1]" priority />
           </motion.div>
@@ -47,7 +47,7 @@ export default function BlogsClient({ initialBlogs = [] }: { initialBlogs: any[]
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1, delay: 0.3 }}
-            className="absolute right-0 top-0 bottom-0 w-[200px] md:w-[350px] lg:w-[500px] xl:w-[600px] z-0 pointer-events-none translate-x-[40%] opacity-60 -rotate-12"
+            className="absolute right-0 top-0 bottom-0 w-[200px] md:w-[350px] lg:w-[500px] xl:w-[600px] z-0 pointer-events-none translate-x-[65%] sm:translate-x-[50%] md:translate-x-[40%] opacity-60 -rotate-12"
           >
             <Image src="/hero-shape.svg" alt="Shape Right" fill className="object-contain object-right scale-x-[-1]" priority />
           </motion.div>

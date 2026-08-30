@@ -142,7 +142,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
       onClick={handleCardClick}
       className="group relative flex w-full flex-col overflow-hidden rounded-3xl border border-black/5 bg-[#faf9f6] shadow-sm transition-all duration-500 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 h-full premium-transform cursor-pointer"
     >
-      <div className="relative h-[180px] xs:h-[220px] sm:h-[280px] lg:h-[300px] w-full shrink-0 overflow-hidden bg-[#efece6]" data-cursor="view">
+      <div className="relative h-[150px] xs:h-[170px] sm:h-[260px] lg:h-[300px] w-full shrink-0 overflow-hidden bg-[#efece6]" data-cursor="view">
         <Link href={`/shop/${product.slug || product.id}`} className="block h-full w-full">
           <motion.div
             key={product.images?.[currentImageIndex] || "fallback"}
@@ -241,7 +241,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
         </div>
       </div>
 
-      <div className="flex flex-grow flex-col justify-between p-3 sm:p-5">
+      <div className="flex flex-grow flex-col justify-between p-2.5 sm:p-5">
         <div>
           <div className="mb-1.5 flex items-center justify-between">
             <span className="text-[9px] sm:text-[10px] font-bold uppercase leading-none tracking-widest text-primary">

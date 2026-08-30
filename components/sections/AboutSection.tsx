@@ -1,7 +1,8 @@
 "use client";
 
+import { useRef } from "react";
 import Image from "next/image";
-import { motion } from "motion/react";
+import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowRight, User, ShieldCheck, Briefcase } from "lucide-react";
 import { scrollToTarget } from "@/lib/smooth-scroll";
 
@@ -20,8 +21,17 @@ export function AboutSection() {
     }
   };
 
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["0 0.9", "0.6 0.5"],
+  });
+
+  const pathLength = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  const pathOpacity = useTransform(scrollYProgress, [0, 0.2, 1], [0, 1, 1]);
+
   return (
-    <section id="about-section" data-no-premium-reveal className="py-24 md:py-32 bg-black/[0.01] relative z-10 border-y border-black/5">
+    <section ref={sectionRef} id="about-section" data-no-premium-reveal className="py-24 md:py-32 bg-black/[0.01] relative z-10 border-y border-black/5 overflow-hidden">
       <div className="absolute top-[30%] left-[10%] w-[35vw] h-[35vw] rounded-full glow-blob-orange opacity-[0.15]" />
 
       <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -45,6 +55,40 @@ export function AboutSection() {
                 className="h-full w-full object-cover"
               />
             </motion.div>
+
+            {/* Parallax Curve going into the founder image box */}
+            <svg 
+              className="absolute inset-0 w-full h-full z-10 pointer-events-none overflow-visible"
+              viewBox="0 0 100 100" 
+              preserveAspectRatio="none"
+            >
+              {/* Outer Glow */}
+              <motion.path 
+                d="M -20,85 C 30,85 45,25 75,25"
+                fill="none" 
+                stroke="#FF6A2A" 
+                strokeWidth="6" 
+                vectorEffect="non-scaling-stroke"
+                style={{ 
+                  pathLength,
+                  opacity: pathOpacity,
+                  filter: "drop-shadow(0 0 12px rgba(255,106,42,0.8))"
+                }}
+              />
+              {/* Core Line */}
+              <motion.path 
+                d="M -20,85 C 30,85 45,25 75,25"
+                fill="none" 
+                stroke="#ffffff" 
+                strokeWidth="2" 
+                strokeDasharray="6 4"
+                vectorEffect="non-scaling-stroke"
+                style={{ 
+                  pathLength,
+                  opacity: pathOpacity
+                }}
+              />
+            </svg>
 
             {/* Overlapping Top-Right Image with Badge */}
             <motion.div

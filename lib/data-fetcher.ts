@@ -31,16 +31,26 @@ export async function getFeaturedProducts() {
       collection(db, "products"), 
       where("featured", "==", true),
       orderBy("createdAt", "desc"),
-      limit(10)
+      limit(6)
     );
     const snapshot = await getDocs(q);
     const data = snapshot.docs.map(doc => ({ id: doc.id, ...serializeData(doc.data()) })) as any[];
-    // Fallback to latest products if no featured products
-    if (data.length === 0) {
+    
+    // Ensure we return exactly 6 products (fill with latest if needed)
+    if (data.length < 6) {
+      const remainingNeeded = 6 - data.length;
       const q2 = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(10));
       const snap2 = await getDocs(q2);
-      return snap2.docs.map(doc => ({ id: doc.id, ...serializeData(doc.data()) })) as any[];
+      
+      const latestData = snap2.docs.map(doc => ({ id: doc.id, ...serializeData(doc.data()) })) as any[];
+      
+      // Filter out products already in 'data'
+      const existingIds = new Set(data.map(p => p.id));
+      const newProducts = latestData.filter(p => !existingIds.has(p.id)).slice(0, remainingNeeded);
+      
+      return [...data, ...newProducts];
     }
+    
     return data;
   } catch (error) {
     console.error("Error fetching featured products:", error);

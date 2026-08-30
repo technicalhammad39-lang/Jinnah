@@ -24,41 +24,26 @@ const GALLERY_CATEGORIES = [
 ];
 
 export default function GalleryClient({ initialGallery = [] }: { initialGallery: any[] }) {
-  const [activeCategory, setActiveCategory] = useState("All");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   
-  // Add random heights for masonry effect if not provided
-  const processed = initialGallery.map((item, i) => {
-    const heights = ["h-[400px]", "h-[300px]", "h-[350px]", "h-[500px]", "h-[250px]"];
-    return {
-      ...item,
-      height: heights[i % heights.length]
-    };
-  });
-  
-  const [galleryImages, setGalleryImages] = useState<any[]>(processed);
+  const galleryImages = initialGallery;
 
-
-
-  const filteredImages = galleryImages.filter(
-    (img) => activeCategory === "All" || img.category === activeCategory
-  );
 
   const handleNext = (e?: React.MouseEvent) => {
     e?.stopPropagation();
     if (lightboxIndex !== null) {
-      setLightboxIndex((lightboxIndex + 1) % filteredImages.length);
+      setLightboxIndex((lightboxIndex + 1) % galleryImages.length);
     }
   };
 
   const handlePrev = (e?: React.MouseEvent) => {
     e?.stopPropagation();
     if (lightboxIndex !== null) {
-      setLightboxIndex((lightboxIndex - 1 + filteredImages.length) % filteredImages.length);
+      setLightboxIndex((lightboxIndex - 1 + galleryImages.length) % galleryImages.length);
     }
   };
 
-  const currentImage = lightboxIndex !== null ? filteredImages[lightboxIndex] : null;
+  const currentImage = lightboxIndex !== null ? galleryImages[lightboxIndex] : null;
 
   useEffect(() => {
     if (lightboxIndex !== null) {
@@ -99,7 +84,7 @@ export default function GalleryClient({ initialGallery = [] }: { initialGallery:
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1, delay: 0.2 }}
-            className="absolute left-0 top-0 bottom-0 w-[200px] md:w-[350px] lg:w-[500px] xl:w-[600px] z-0 pointer-events-none -translate-x-[40%] opacity-60 rotate-12"
+            className="absolute left-0 top-0 bottom-0 w-[200px] md:w-[350px] lg:w-[500px] xl:w-[600px] z-0 pointer-events-none -translate-x-[65%] sm:-translate-x-[50%] md:-translate-x-[40%] opacity-60 rotate-12"
           >
             <Image src="/hero-shape.svg" alt="Shape Left" fill className="object-contain object-left scale-x-[-1]" priority />
           </motion.div>
@@ -109,7 +94,7 @@ export default function GalleryClient({ initialGallery = [] }: { initialGallery:
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1, delay: 0.3 }}
-            className="absolute right-0 top-0 bottom-0 w-[200px] md:w-[350px] lg:w-[500px] xl:w-[600px] z-0 pointer-events-none translate-x-[40%] opacity-60 -rotate-12"
+            className="absolute right-0 top-0 bottom-0 w-[200px] md:w-[350px] lg:w-[500px] xl:w-[600px] z-0 pointer-events-none translate-x-[65%] sm:translate-x-[50%] md:translate-x-[40%] opacity-60 -rotate-12"
           >
             <Image src="/hero-shape.svg" alt="Shape Right" fill className="object-contain object-right scale-x-[-1]" priority />
           </motion.div>
@@ -137,30 +122,10 @@ export default function GalleryClient({ initialGallery = [] }: { initialGallery:
           </div>
         </section>
 
-        {/* CATEGORY FILTERS */}
-        <section className="px-6 max-w-[1920px] mx-auto mb-12">
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            {GALLERY_CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-5 py-2.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest transition-all duration-300 ${
-                  activeCategory === cat
-                    ? "bg-[#1a1917] text-white shadow-md"
-                    : "bg-white border border-black/5 text-muted-foreground hover:border-primary/30 hover:text-primary"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {/* MASONRY GRID */}
-        <section className="px-6 max-w-[1920px] mx-auto">
+        <section className="px-6 max-w-[1920px] mx-auto pt-10">
           <motion.div layout className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
             <AnimatePresence>
-              {filteredImages.map((img) => (
+              {galleryImages.map((img) => (
                 <motion.div
                   key={img.id}
                   layout
@@ -168,14 +133,15 @@ export default function GalleryClient({ initialGallery = [] }: { initialGallery:
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.4 }}
-                  className={`relative w-full rounded-2xl overflow-hidden group cursor-pointer bg-black/5 break-inside-avoid ${img.height}`}
-                  onClick={() => setLightboxIndex(filteredImages.findIndex(i => i.id === img.id))}
+                  className={`relative w-full rounded-2xl overflow-hidden group cursor-pointer bg-black/5 break-inside-avoid`}
+                  onClick={() => setLightboxIndex(galleryImages.findIndex(i => i.id === img.id))}
                 >
                   <Image
                     src={getPublicUploadUrl(img.url || img.src)}
                     alt={img.alt || img.title || "Gallery image"}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    width={1000}
+                    height={1000}
+                    className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   />
                   
