@@ -51,23 +51,23 @@ export function BrandsSection() {
       </div>
 
       {/* Marquee Container */}
-      <div className="flex flex-col gap-8 relative z-10 w-full">
+      <div className="flex flex-col gap-6 md:gap-8 relative z-10 w-full">
         {/* Row 1 - Scrolling Left */}
         <div data-premium-card className="flex overflow-hidden">
           <div className="brand-marquee-track whitespace-nowrap" style={{ "--brand-marquee-duration": "25s" } as CSSProperties}>
             {marqueeItemsRow1.map((brand, index) => (
               <div
                 key={`r1-${brand.id}-${index}`}
-                className="brand-marquee-card w-[280px] h-[160px] rounded-2xl bg-white border border-black/5 flex items-center justify-center shadow-sm hover:border-primary/20 hover:shadow-md transition-all group relative overflow-hidden premium-transform p-8"
+                className="brand-marquee-card w-[160px] h-[90px] md:w-[200px] md:h-[110px] lg:w-[240px] lg:h-[130px] rounded-xl md:rounded-2xl bg-white border border-black/5 flex items-center justify-center shadow-sm hover:border-primary/20 hover:shadow-md transition-all group relative overflow-hidden premium-transform p-4 md:p-6 lg:p-8 mx-2 md:mx-4"
               >
                 <Image
                   src={brand.logo ? getPublicUploadUrl(brand.logo) : PLACEHOLDER_IMAGES[index % PLACEHOLDER_IMAGES.length]}
                   alt={`${brand.brandName || brand.name} logo`}
                   fill
-                  sizes="280px"
+                  sizes="(max-width: 768px) 160px, (max-width: 1024px) 200px, 240px"
                   loading="lazy"
                   decoding="async"
-                  className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
+                  className="object-contain p-2 md:p-3 group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
             ))}
@@ -80,16 +80,16 @@ export function BrandsSection() {
             {marqueeItemsRow2.map((brand, index) => (
               <div
                 key={`r2-${brand.id}-${index}`}
-                className="brand-marquee-card w-[280px] h-[160px] rounded-2xl bg-white border border-black/5 flex items-center justify-center shadow-sm hover:border-primary/20 hover:shadow-md transition-all group relative overflow-hidden premium-transform p-8"
+                className="brand-marquee-card w-[160px] h-[90px] md:w-[200px] md:h-[110px] lg:w-[240px] lg:h-[130px] rounded-xl md:rounded-2xl bg-white border border-black/5 flex items-center justify-center shadow-sm hover:border-primary/20 hover:shadow-md transition-all group relative overflow-hidden premium-transform p-4 md:p-6 lg:p-8 mx-2 md:mx-4"
               >
                 <Image
                   src={brand.logo ? getPublicUploadUrl(brand.logo) : PLACEHOLDER_IMAGES[(index + 3) % PLACEHOLDER_IMAGES.length]}
                   alt={`${brand.brandName || brand.name} logo`}
                   fill
-                  sizes="280px"
+                  sizes="(max-width: 768px) 160px, (max-width: 1024px) 200px, 240px"
                   loading="lazy"
                   decoding="async"
-                  className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
+                  className="object-contain p-2 md:p-3 group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
             ))}
