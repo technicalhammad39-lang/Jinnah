@@ -40,7 +40,7 @@ export function CategorySection() {
             return (
               <div
                 key={category.id}
-                className={`${gridSpanClass} aspect-[4/5] sm:aspect-auto sm:h-[220px] md:h-[380px] rounded-2xl md:rounded-3xl overflow-hidden relative group border border-black/5 bg-white shadow-sm hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/50 transition-all duration-500 premium-transform`}
+                className={`${gridSpanClass} ${isLastOdd ? 'aspect-[2/1.2] sm:aspect-auto' : 'aspect-[4/5] sm:aspect-auto'} sm:h-[220px] md:h-[380px] rounded-2xl md:rounded-3xl overflow-hidden relative group border border-black/5 bg-white shadow-sm hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/50 transition-all duration-500 premium-transform`}
                 data-cursor="view"
               >
                 <Link href={`/shop?category=${category.slug}`} className="block w-full h-full relative">
@@ -65,7 +65,7 @@ export function CategorySection() {
                           {category.name}
                         </h3>
                         
-                        <div className="grid grid-rows-[1fr] lg:grid-rows-[0fr] lg:group-hover:grid-rows-[1fr] transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] mt-1 sm:mt-2">
+                        <div className="hidden sm:grid grid-rows-[1fr] lg:grid-rows-[0fr] lg:group-hover:grid-rows-[1fr] transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] mt-1 sm:mt-2">
                           <p className="text-[10px] sm:text-xs md:text-sm text-white/90 font-medium leading-[1.4] sm:leading-[1.6] opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-500 overflow-hidden line-clamp-2 md:line-clamp-3">
                             {category.description}
                           </p>

@@ -57,8 +57,8 @@ export default async function Home() {
         ctaText="Explore Products"
       />
 
-      {/* 3. Shop By Category Bento Layout */}
-      <CategorySection />
+      {/* 3. Discover By Space Premium Section (Swapped with Category) */}
+      <DiscoverBySpace />
 
       {/* 4. Featured Products Grid */}
       <section id="featured-products-section" className="relative z-10 bg-transparent pt-8 pb-16 md:pt-12 md:pb-24">
@@ -105,8 +105,8 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 5. Discover By Space Premium Section */}
-      <DiscoverBySpace />
+      {/* 5. Shop By Category Bento Layout (Swapped with DiscoverBySpace) */}
+      <CategorySection />
 
       {/* 6. Brands Column marquee showcase */}
       <BrandsSection />
