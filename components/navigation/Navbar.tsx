@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useCartState, useOverlayActions } from "@/context/AppContext";
+import { useCartState, useOverlayActions, useOverlayState } from "@/context/AppContext";
 import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowRight,
@@ -29,6 +29,8 @@ const NAV_LINKS = [
   { name: "Contact", href: "/contact" },
 ] as const;
 
+import { useIsScrolling } from "@/hooks/useIsScrolling";
+
 export function Navbar() {
   const { cartCount } = useCartState();
   const { setCartOpen, setSearchOpen } = useOverlayActions();
@@ -39,9 +41,10 @@ export function Navbar() {
   const router = useRouter();
   const isElevated = scrolled || pathname !== "/";
   const scrollStateRef = useRef(scrolled);
+  const isScrolling = useIsScrolling(250);
   
-  // Is the ticker actively displayed at the top of the viewport?
-  const showTickerOffset = ticker.enabled && !!ticker.text && !isElevated;
+  // Is the ticker actively displayed? It hides when scrolling (if elevated).
+  const showTickerOffset = ticker.enabled && !!ticker.text && (!isElevated || !isScrolling);
 
   useEffect(() => {
     let frameId = 0;
