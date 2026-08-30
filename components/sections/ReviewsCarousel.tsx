@@ -91,8 +91,8 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
   return (
     <section className="py-24 px-6 relative overflow-hidden bg-[#faf9f6]">
       {/* Rotated Background Shape */}
-      <div className="absolute -inset-[10%] bg-gradient-to-br from-[#1a1917] via-[#111111] to-[#0a0a0a] rotate-[3deg] scale-110 z-0 origin-center pointer-events-none shadow-[inset_0_0_100px_rgba(255,106,42,0.15)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,106,42,0.15),transparent_50%)] z-0 pointer-events-none" />
+      <div className="absolute inset-0 w-[110%] -left-[5%] bg-gradient-to-br from-[#1a1917] via-[#3d1804] to-[#0a0a0a] -rotate-3 origin-center pointer-events-none shadow-[inset_0_0_120px_rgba(255,106,42,0.3)] z-0" />
+      <div className="absolute inset-0 w-[110%] -left-[5%] bg-[radial-gradient(circle_at_top_right,rgba(255,106,42,0.4),transparent_60%)] -rotate-3 origin-center pointer-events-none z-0" />
 
       <div className="max-w-[1200px] mx-auto text-center mb-16 relative z-10">
         <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-white drop-shadow-md">
