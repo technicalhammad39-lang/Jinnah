@@ -89,30 +89,36 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
   const currentReview = reviews[currentIndex];
 
   return (
-    <section className="py-24 px-6 relative overflow-hidden bg-[#faf9f6]">
-      {/* Rotated Background Shape */}
-      <div className="absolute inset-0 w-[110%] -left-[5%] bg-gradient-to-br from-[#1a1917] via-[#3d1804] to-[#0a0a0a] -rotate-3 origin-center pointer-events-none shadow-[inset_0_0_120px_rgba(255,106,42,0.3)] z-0" />
-      <div className="absolute inset-0 w-[110%] -left-[5%] bg-[radial-gradient(circle_at_top_right,rgba(255,106,42,0.4),transparent_60%)] -rotate-3 origin-center pointer-events-none z-0" />
+    <section className="py-16 md:py-24 relative overflow-x-hidden bg-transparent">
+      {/* Subtle Background Accent */}
+      <div className="absolute top-[20%] left-[-5%] w-[40vw] h-[40vw] rounded-full glow-blob-orange opacity-[0.1] pointer-events-none" />
 
-      <div className="max-w-[1200px] mx-auto text-center mb-16 relative z-10">
-        <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-white drop-shadow-md">
+      <div className="max-w-[1200px] mx-auto text-center mb-16 relative z-10 px-6">
+        <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest justify-center mb-4">
+          <span>Testimonials</span>
+        </div>
+        <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-[#1a1917]">
           What Our Clients Say
         </h2>
-        <p className="mt-4 text-white/70 font-medium max-w-2xl mx-auto">
+        <p className="mt-4 text-muted-foreground font-medium max-w-2xl mx-auto">
           Hear from the architects, builders, and homeowners who trust our hardware.
         </p>
       </div>
 
-      <div 
-        className="relative max-w-4xl mx-auto h-[320px] md:h-[400px] flex items-center justify-center z-10"
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
-        onTouchStart={() => setIsPaused(true)}
-        onTouchEnd={() => {
-          setTimeout(() => setIsPaused(false), 2000);
-        }}
-      >
-        {/* Previous Button (All viewports) */}
+      <div className="relative w-full py-12 md:py-20">
+        {/* The solid rotated orange shape behind the cards */}
+        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 w-[150vw] -left-[25vw] h-[120%] sm:h-[130%] bg-primary -rotate-6 origin-center z-0" />
+
+        <div 
+          className="relative max-w-4xl mx-auto h-[320px] md:h-[400px] flex items-center justify-center z-10 px-6"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          onTouchStart={() => setIsPaused(true)}
+          onTouchEnd={() => {
+            setTimeout(() => setIsPaused(false), 2000);
+          }}
+        >
+          {/* Previous Button (All viewports) */}
         <button
           className="flex absolute left-0 sm:-left-6 md:-left-12 z-20 w-10 h-10 md:w-12 md:h-12 items-center justify-center rounded-full bg-white shadow-[0_10px_30px_rgba(0,0,0,0.1)] text-[#1a1917] hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 -translate-x-2 sm:translate-x-0"
           onClick={() => paginate(-1)}
@@ -198,7 +204,7 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
         </button>
       </div>
 
-      <div className="flex items-center justify-center gap-6 mt-8 md:mt-12 relative z-10">
+      <div className="flex items-center justify-center gap-6 mt-12 relative z-10 px-6">
         <div className="flex items-center gap-3">
           {reviews.map((_, i) => (
             <button
@@ -207,12 +213,13 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
               className={`transition-all duration-300 rounded-full focus:outline-none ${
                 i === currentIndex
                   ? "w-8 h-2 bg-primary"
-                  : "w-2 h-2 bg-white/20 hover:bg-white/40"
+                  : "w-2 h-2 bg-[#1a1917]/20 hover:bg-[#1a1917]/40"
               }`}
               aria-label={`Go to slide ${i + 1}`}
             />
           ))}
         </div>
+      </div>
       </div>
     </section>
   );
