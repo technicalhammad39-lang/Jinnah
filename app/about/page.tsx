@@ -49,15 +49,15 @@ export default function AboutPage() {
       <main className="flex-1 pb-20">
         
         {/* HERO SECTION */}
-        <section className="relative px-6 pt-32 pb-12 md:pt-48 md:pb-24 bg-transparent overflow-hidden min-h-[70vh] flex flex-col justify-center">
+        <section className="relative px-6 pt-32 pb-4 md:pt-48 md:pb-12 bg-transparent overflow-hidden min-h-[60vh] flex flex-col justify-center">
           {/* Top Orange Dotted Gradient */}
           <div 
             className="absolute top-0 left-0 right-0 h-96 pointer-events-none" 
             style={{ backgroundImage: 'radial-gradient(circle at center, #FF6A2A 1.5px, transparent 1.5px)', backgroundSize: '24px 24px', opacity: 0.5 }}
           />
           
-          <div className="relative z-10 max-w-[1920px] mx-auto w-full px-6 flex flex-col md:flex-row items-center justify-between gap-12">
-            <div className="w-full md:w-1/2 space-y-8 pl-0 lg:pl-12">
+          <div className="relative z-10 max-w-[1920px] mx-auto w-full px-6 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
+            <div className="w-full md:w-1/2 space-y-6 md:space-y-8 pl-0 lg:pl-12 text-center md:text-left flex flex-col items-center md:items-start">
               <motion.div
                 initial={{ opacity: 0, x: -80 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -78,18 +78,18 @@ export default function AboutPage() {
             </div>
             
             {/* Right Image */}
-            <div className="w-full md:w-1/2 flex items-center justify-center md:justify-end">
+            <div className="w-full md:w-1/2 flex items-center justify-center md:justify-end mt-[-2rem] md:mt-0">
               <motion.div
                 initial={{ opacity: 0, y: 150 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1.2, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                className="relative w-full max-w-[650px] h-[350px] md:h-[500px] lg:h-[650px]"
+                className="relative w-full max-w-[550px] h-[320px] sm:h-[400px] md:h-[500px] lg:h-[650px] -mt-6 sm:-mt-10 md:mt-0 mb-[-1rem] md:mb-0"
               >
                 <Image 
                   src="/about-cartoon1.png" 
                   alt="About Character" 
                   fill
-                  className="object-contain object-right" 
+                  className="object-contain object-center md:object-right" 
                   priority 
                 />
               </motion.div>
@@ -98,7 +98,7 @@ export default function AboutPage() {
         </section>
 
         {/* FOUNDER STORY */}
-        <section className="pt-32 pb-24 bg-white rounded-t-[3rem] md:rounded-t-[4rem] relative overflow-hidden shadow-[0_-20px_60px_rgba(0,0,0,0.03)] -mt-12">
+        <section className="pt-20 pb-16 md:pt-28 md:pb-24 bg-white rounded-t-[3rem] md:rounded-t-[4rem] relative overflow-hidden shadow-[0_-20px_60px_rgba(0,0,0,0.03)] -mt-12 z-20">
           {/* Top Orange Gradient */}
           <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-primary/15 to-transparent pointer-events-none" />
           
@@ -111,17 +111,22 @@ export default function AboutPage() {
               leadership.map((member, index) => {
                 const isEven = index % 2 === 0;
                 return (
-                  <div key={member.id} className={`grid grid-cols-1 lg:grid-cols-2 gap-16 items-center ${index !== leadership.length - 1 ? 'mb-32' : ''}`}>
-                    <div className={`relative h-[500px] rounded-3xl overflow-hidden bg-black/5 ${isEven ? '' : 'order-1 lg:order-2'}`}>
-                      {member.image ? (
-                        <Image src={getPublicUploadUrl(member.image)} alt={member.name} fill className="object-cover object-top" />
-                      ) : (
-                        <div className="w-full h-full bg-gray-200" />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                      <div className={`absolute bottom-8 text-white ${isEven ? 'left-8' : 'right-8 text-right'}`}>
-                        <p className="text-[10px] font-extrabold uppercase tracking-widest text-primary mb-1">{member.role}</p>
-                        <p className="text-3xl font-black">{member.name}</p>
+                  <div key={member.id} className={`grid grid-cols-1 lg:grid-cols-2 gap-16 items-center ${index !== leadership.length - 1 ? 'mb-24 md:mb-32' : ''}`}>
+                    <div className={`relative ${isEven ? '' : 'order-1 lg:order-2'}`}>
+                      {/* Rotated Orange Shape Behind Image */}
+                      <div className="absolute -top-6 sm:-top-8 left-4 right-4 -bottom-4 bg-primary rounded-[3rem] -rotate-6 z-0 shadow-lg" />
+                      
+                      <div className={`relative z-10 h-[400px] md:h-[500px] rounded-3xl overflow-hidden bg-black/5 shadow-2xl ring-4 ring-white`}>
+                        {member.image ? (
+                          <Image src={getPublicUploadUrl(member.image)} alt={member.name} fill className="object-cover object-top" />
+                        ) : (
+                          <div className="w-full h-full bg-gray-200" />
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                        <div className={`absolute bottom-8 text-white ${isEven ? 'left-8' : 'right-8 text-right'}`}>
+                          <p className="text-[10px] font-extrabold uppercase tracking-widest text-primary mb-1">{member.role}</p>
+                          <p className="text-3xl font-black">{member.name}</p>
+                        </div>
                       </div>
                     </div>
                     <div className={`space-y-8 ${isEven ? '' : 'order-2 lg:order-1'}`}>
@@ -136,19 +141,24 @@ export default function AboutPage() {
                           </p>
                         )}
                       </div>
-                      <div className="grid grid-cols-2 gap-6 pt-6 border-t border-black/5">
-                        {member.feature1Title && (
-                          <div className="space-y-2">
-                            <ShieldCheck className="h-5 w-5 text-primary" />
-                            <p className="text-xs font-bold uppercase tracking-widest">{member.feature1Title}</p>
-                          </div>
-                        )}
-                        {member.feature2Title && (
-                          <div className="space-y-2">
-                            <Briefcase className="h-5 w-5 text-primary" />
-                            <p className="text-xs font-bold uppercase tracking-widest">{member.feature2Title}</p>
-                          </div>
-                        )}
+                      <div className="relative mt-8 md:mt-12">
+                        {/* Rotated Orange Shape Behind Options */}
+                        <div className="absolute inset-0 bg-primary rounded-3xl -rotate-6 sm:-rotate-3 z-0 scale-[1.03] shadow-md" />
+                        
+                        <div className="relative z-10 grid grid-cols-2 gap-4 sm:gap-6 p-5 sm:p-6 bg-white rounded-3xl shadow-sm border border-black/5">
+                          {member.feature1Title && (
+                            <div className="space-y-2">
+                              <ShieldCheck className="h-5 w-5 text-primary" />
+                              <p className="text-xs font-bold uppercase tracking-widest">{member.feature1Title}</p>
+                            </div>
+                          )}
+                          {member.feature2Title && (
+                            <div className="space-y-2">
+                              <Briefcase className="h-5 w-5 text-primary" />
+                              <p className="text-xs font-bold uppercase tracking-widest">{member.feature2Title}</p>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
