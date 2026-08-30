@@ -23,8 +23,14 @@ export function GallerySection() {
   if (galleryItems.length === 0) return null;
 
   return (
-    <section id="gallery-section" data-no-premium-reveal className="pt-8 pb-24 md:pt-12 md:pb-32 w-full relative z-10 bg-transparent">
-      <div className="absolute bottom-[10%] right-[5%] w-[45vw] h-[45vw] rounded-full glow-blob-orange opacity-[0.1]" />
+    <section id="gallery-section" data-no-premium-reveal className="pt-8 pb-24 md:pt-12 md:pb-32 w-full relative z-10 bg-transparent overflow-hidden">
+      <div className="absolute bottom-[10%] right-[5%] w-[45vw] h-[45vw] rounded-full glow-blob-orange opacity-[0.1] pointer-events-none" />
+      <div className="hidden md:block absolute top-[2%] -left-[5%] w-[320px] h-[320px] opacity-[0.15] -rotate-[12deg] pointer-events-none">
+        <Image src="/hero-shape.svg" alt="decorative shape" fill className="object-contain" />
+      </div>
+      <div className="hidden md:block absolute top-[2%] -right-[5%] w-[280px] h-[280px] opacity-[0.2] rotate-[15deg] scale-x-[-1] pointer-events-none">
+        <Image src="/hero-shape.svg" alt="decorative shape" fill className="object-contain" />
+      </div>
 
       <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 mb-12 md:mb-16">
         <div className="text-center max-w-5xl mx-auto space-y-4 px-2">

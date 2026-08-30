@@ -35,7 +35,13 @@ export function BrandsSection() {
 
   return (
     <section id="brands-section" className="py-16 md:py-24 w-full overflow-hidden relative z-10 bg-[#faf9f6]">
-      <div className="absolute bottom-[10%] left-[5%] w-[35vw] h-[35vw] rounded-full glow-blob-orange opacity-[0.1]" />
+      <div className="absolute bottom-[10%] left-[5%] w-[35vw] h-[35vw] rounded-full glow-blob-orange opacity-[0.1] pointer-events-none" />
+      <div className="hidden md:block absolute top-[5%] -left-[5%] w-[320px] h-[320px] opacity-[0.2] -rotate-[15deg] pointer-events-none">
+        <Image src="/hero-shape.svg" alt="decorative shape" fill className="object-contain" />
+      </div>
+      <div className="hidden md:block absolute top-[10%] -right-[5%] w-[280px] h-[280px] opacity-[0.25] rotate-[20deg] scale-x-[-1] pointer-events-none">
+        <Image src="/hero-shape.svg" alt="decorative shape" fill className="object-contain" />
+      </div>
 
       {/* Title */}
       <div className="text-center max-w-2xl mx-auto mb-16 space-y-4 px-6 relative z-10">

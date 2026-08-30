@@ -16,6 +16,7 @@ import { AgencyCredit } from "@/components/sections/AgencyCredit";
 import { Footer } from "@/components/navigation/Footer";
 import { ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -61,8 +62,11 @@ export default async function Home() {
       <DiscoverBySpace />
 
       {/* 4. Featured Products Grid */}
-      <section id="featured-products-section" className="relative z-10 bg-transparent pt-8 pb-16 md:pt-12 md:pb-24">
-        <div className="absolute top-[30%] left-[5%] h-[35vw] w-[35vw] rounded-full glow-blob-orange opacity-[0.1]" />
+      <section id="featured-products-section" className="relative z-10 bg-transparent pt-8 pb-16 md:pt-12 md:pb-24 overflow-hidden">
+        <div className="absolute top-[30%] left-[5%] h-[35vw] w-[35vw] rounded-full glow-blob-orange opacity-[0.1] pointer-events-none" />
+        <div className="hidden md:block absolute top-[5%] -right-[4%] w-[320px] h-[320px] opacity-[0.2] rotate-[20deg] scale-x-[-1] pointer-events-none">
+          <Image src="/hero-shape.svg" alt="decorative shape" fill className="object-contain" />
+        </div>
 
         <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
@@ -73,7 +77,7 @@ export default async function Home() {
                 <span>Modern Masterpieces</span>
               </div>
               <h2 className="text-3xl font-extrabold leading-[0.95] tracking-tighter text-[#1a1917] md:text-5xl">
-                Curated Featured <span className="text-primary">Hardware</span>
+                Featured <span className="text-primary">Hardware</span>
               </h2>
               <p className="max-w-sm text-left text-sm font-medium leading-relaxed text-muted-foreground">
                 Explore our most coveted precision locks, hand-finished brass lever handles, and heavy industrial drills.

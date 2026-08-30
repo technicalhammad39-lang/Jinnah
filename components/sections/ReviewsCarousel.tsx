@@ -92,6 +92,12 @@ export function ReviewsCarousel({ initialReviews = [] }: { initialReviews?: Revi
     <section className="py-12 md:py-16 relative overflow-x-hidden bg-transparent">
       {/* Subtle Background Accent */}
       <div className="absolute top-[20%] left-[-5%] w-[40vw] h-[40vw] rounded-full glow-blob-orange opacity-[0.1] pointer-events-none" />
+      <div className="hidden md:block absolute top-[5%] -left-[4%] w-[320px] h-[320px] opacity-[0.22] -rotate-[5deg] pointer-events-none">
+        <Image src="/hero-shape.svg" alt="decorative shape" fill className="object-contain" />
+      </div>
+      <div className="hidden md:block absolute top-[10%] -right-[4%] w-[280px] h-[280px] opacity-[0.18] rotate-[10deg] scale-x-[-1] pointer-events-none">
+        <Image src="/hero-shape.svg" alt="decorative shape" fill className="object-contain" />
+      </div>
 
       <div className="max-w-[1200px] mx-auto text-center mb-10 relative z-10 px-6">
         <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest justify-center mb-4">
