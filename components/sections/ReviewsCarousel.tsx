@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ChevronLeft, ChevronRight, Star, Quote } from "lucide-react";
 import { getPublicUploadUrl } from "@/lib/utils";
+import Image from "next/image";
 
 interface Review {
   id: string;
