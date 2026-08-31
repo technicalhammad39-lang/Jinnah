@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight, CornerDownLeft, Search, X, Loader2 } from "lucide-react";
 import { useOverlayActions, useOverlayState } from "@/context/AppContext";
 import { getPublicUploadUrl } from "@/lib/utils";
+import { useIsScrolling } from "@/hooks/useIsScrolling";
 
 const POPULAR_SEARCHES = ["Smart Lock", "Brass Lever", "T-Bar Pull", "Brushless", "Glass Switch"];
 const QUICK_CATEGORIES = [
@@ -17,10 +18,23 @@ const QUICK_CATEGORIES = [
 ];
 
 export function SearchOverlay() {
-  const { searchOpen } = useOverlayState();
+  const { searchOpen, ticker } = useOverlayState();
   const { setSearchOpen } = useOverlayActions();
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  
+  const [scrolled, setScrolled] = useState(false);
+  const isScrolling = useIsScrolling(250);
+  const showTickerOffset = ticker.enabled && !!ticker.text && (!scrolled || !isScrolling);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
   
   const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -108,7 +122,9 @@ export function SearchOverlay() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-50 flex flex-col items-center overflow-y-auto bg-[#faf9f6]/95 p-4 backdrop-blur-xl md:p-12"
+          className={`fixed inset-x-0 bottom-0 z-50 flex flex-col items-center overflow-y-auto bg-[#faf9f6]/95 p-4 backdrop-blur-xl md:p-12 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            showTickerOffset ? "top-[40px]" : "top-0"
+          }`}
         >
           <div className="mb-8 flex w-full max-w-4xl justify-end md:mb-16">
             <button

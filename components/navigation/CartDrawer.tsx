@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
@@ -22,8 +22,28 @@ import {
 export function CartDrawer() {
   const { cart, cartCount, cartSubtotal } = useCartState();
   const { updateCartQuantity, removeFromCart, clearCart } = useCartActions();
-  const { cartOpen } = useOverlayState();
+  const { cartOpen, ticker } = useOverlayState();
   const { setCartOpen } = useOverlayActions();
+
+  const [scrolled, setScrolled] = useState(false);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const showTickerOffset = ticker.enabled && !!ticker.text && (!scrolled || !isScrolling);
+
+  useEffect(() => {
+    let scrollTimeout: NodeJS.Timeout;
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+      setIsScrolling(true);
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => setIsScrolling(false), 250);
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearTimeout(scrollTimeout);
+    };
+  }, []);
 
   useEffect(() => {
     if (!cartOpen) {
@@ -60,7 +80,9 @@ export function CartDrawer() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setCartOpen(false)}
-            className="fixed inset-0 z-50 cursor-pointer bg-black/30 backdrop-blur-sm"
+            className={`fixed right-0 left-0 bottom-0 z-50 cursor-pointer bg-black/30 backdrop-blur-sm transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              showTickerOffset ? "top-[40px]" : "top-0"
+            }`}
           />
 
           <motion.div
@@ -71,7 +93,9 @@ export function CartDrawer() {
             animate={{ x: "0%" }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 bottom-0 z-50 flex w-full max-w-md flex-col border-l border-black/5 bg-[#faf9f6] shadow-2xl"
+            className={`fixed right-0 bottom-0 z-50 flex w-full max-w-md flex-col border-l border-black/5 bg-[#faf9f6] shadow-2xl transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              showTickerOffset ? "top-[40px]" : "top-0"
+            }`}
           >
             <div className="flex items-center justify-between border-b border-black/5 p-6">
               <div className="flex items-center gap-2.5">

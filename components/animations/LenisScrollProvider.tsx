@@ -10,6 +10,10 @@ export function LenisScrollProvider() {
   const pathname = usePathname();
   const lenisRef = useRef<Lenis | null>(null);
   useEffect(() => {
+    if (typeof window !== "undefined" && 'scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+
     const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     if (reducedMotionQuery.matches) {
@@ -101,11 +105,21 @@ export function LenisScrollProvider() {
     };
   }, []);
 
-  // Trigger resize when pathname changes
+  // Trigger resize and reset scroll when pathname changes
   useEffect(() => {
     if (lenisRef.current) {
+      window.scrollTo(0, 0);
       lenisRef.current.resize();
     }
+    
+    // Force a ScrollTrigger refresh after DOM updates to clear stuck pin spacers
+    const timer = setTimeout(() => {
+      import("gsap/ScrollTrigger").then(({ ScrollTrigger }) => {
+        ScrollTrigger.refresh();
+      });
+    }, 200);
+
+    return () => clearTimeout(timer);
   }, [pathname]);
 
   return null;

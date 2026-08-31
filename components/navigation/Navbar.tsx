@@ -191,7 +191,9 @@ export function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex flex-col bg-[#faf9f6]/92 p-6 backdrop-blur-2xl lg:hidden"
+            className={`fixed inset-x-0 bottom-0 z-50 flex flex-col bg-[#faf9f6]/92 p-6 backdrop-blur-2xl lg:hidden transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              showTickerOffset ? "top-[40px]" : "top-0"
+            }`}
           >
             <div className="flex items-center justify-between border-b border-black/5 py-4">
               <Link href="/" className="flex items-center transition-transform hover:scale-105" onClick={() => setMobileMenuOpen(false)}>

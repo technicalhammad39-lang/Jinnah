@@ -174,3 +174,25 @@ export async function getReviews() {
     return [];
   }
 }
+
+export async function getLeadership() {
+  try {
+    const q = query(collection(db, "leadership"), orderBy("order", "asc"));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...serializeData(doc.data()) })) as any[];
+  } catch (error) {
+    console.error("Error fetching leadership:", error);
+    return [];
+  }
+}
+
+export async function getCategories() {
+  try {
+    const q = query(collection(db, "categories"), orderBy("order", "asc"));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...serializeData(doc.data()) })) as any[];
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    return [];
+  }
+}

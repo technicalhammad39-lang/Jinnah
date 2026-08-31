@@ -147,8 +147,7 @@ export function PremiumScrollAnimations() {
     return () => {
       if (timer) window.clearTimeout(timer);
       if (context) {
-        // When cleaning up, clear all inline styles added by GSAP to prevent elements from staying hidden
-        gsap.set(`${SECTION_SELECTOR} *, ${CARD_SELECTOR}`, { clearProps: "all" });
+        // Revert only GSAP-applied styles without destroying React/Next.js inline styles
         context.revert();
       }
     };

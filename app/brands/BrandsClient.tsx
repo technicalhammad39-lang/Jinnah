@@ -91,13 +91,11 @@ export default function BrandsClient({ initialBrands = [] }: { initialBrands: an
                 className="group relative w-full rounded-2xl md:rounded-[32px] bg-white border border-black/5 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 flex flex-col h-full overflow-hidden"
               >
                 <div className="w-full h-40 sm:h-48 relative bg-white flex items-center justify-center shrink-0">
-                  {brand.image ? (
+                  {(brand.logo || brand.image) ? (
                     <div className="relative w-[70%] h-[70%] mx-auto">
-                      <Image src={getPublicUploadUrl(brand.image)} alt={brand.brandName || brand.name} fill className="object-contain transition-transform duration-700 group-hover:scale-110" />
+                      <Image src={getPublicUploadUrl(brand.logo || brand.image)} alt={brand.brandName || brand.name} fill className="object-contain transition-transform duration-700 group-hover:scale-110" />
                     </div>
-                  ) : (
-                    <span className="text-2xl sm:text-3xl font-black text-black/10 uppercase tracking-widest">{brand.brandName || brand.name}</span>
-                  )}
+                  ) : null}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
                 </div>
                 

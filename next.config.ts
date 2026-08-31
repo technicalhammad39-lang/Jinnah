@@ -29,6 +29,7 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
+    formats: ["image/avif", "image/webp"],
   },
   ...(process.platform === "win32" ? {} : { output: "standalone" as const }),
   transpilePackages: ["motion"],
