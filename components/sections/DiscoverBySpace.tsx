@@ -89,10 +89,10 @@ export function DiscoverBySpace() {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80vw] h-[80vw] md:w-[50vw] md:h-[50vw] rounded-full bg-[#FF6A2A]/5 blur-[120px]" />
           
           {/* Decorative side shapes */}
-          <div className="hidden md:block absolute top-[5%] -left-[8%] w-[400px] h-[400px] opacity-[0.25] -rotate-12">
+          <div className="hidden md:block absolute top-[5%] -left-[8%] w-[400px] h-[400px] opacity-[0.7] -rotate-12">
             <Image src="/hero-shape.svg" alt="decorative shape" fill className="object-contain" />
           </div>
-          <div className="hidden md:block absolute top-[15%] -right-[5%] w-[300px] h-[300px] opacity-[0.15] rotate-[25deg] scale-x-[-1]">
+          <div className="hidden md:block absolute top-[15%] -right-[5%] w-[300px] h-[300px] opacity-[0.5] rotate-[25deg] scale-x-[-1]">
             <Image src="/hero-shape.svg" alt="decorative shape" fill className="object-contain" />
           </div>
         </div>

@@ -142,7 +142,7 @@ export function WhyChooseUs() {
   return (
     <section data-no-premium-reveal className="pt-8 pb-16 md:pt-20 md:pb-32 bg-[#faf9f6] relative z-10 overflow-hidden">
       {/* Decorative side shapes */}
-      <div className="hidden md:block absolute top-[5%] -left-[4%] w-[380px] h-[380px] opacity-[0.25] -rotate-[10deg] pointer-events-none">
+      <div className="hidden md:block absolute top-[5%] -left-[4%] w-[380px] h-[380px] opacity-[0.7] -rotate-[10deg] pointer-events-none">
         <Image src="/hero-shape.svg" alt="decorative shape" fill className="object-contain" />
       </div>
       <div className="hidden md:block absolute top-[10%] -right-[4%] w-[320px] h-[320px] opacity-[0.18] rotate-[15deg] scale-x-[-1] pointer-events-none">

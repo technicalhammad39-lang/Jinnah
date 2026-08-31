@@ -63,8 +63,8 @@ export default async function Home() {
 
       {/* 4. Featured Products Grid */}
       <section id="featured-products-section" className="relative z-10 bg-transparent pt-8 pb-16 md:pt-12 md:pb-24 overflow-hidden">
-        <div className="absolute top-[30%] left-[5%] h-[35vw] w-[35vw] rounded-full glow-blob-orange opacity-[0.1] pointer-events-none" />
-        <div className="hidden md:block absolute top-[5%] -right-[4%] w-[320px] h-[320px] opacity-[0.2] rotate-[20deg] scale-x-[-1] pointer-events-none">
+        <div className="absolute top-[30%] left-[5%] h-[35vw] w-[35vw] rounded-full glow-blob-orange opacity-[0.4] pointer-events-none" />
+        <div className="hidden md:block absolute top-[5%] -right-[4%] w-[320px] h-[320px] opacity-[0.6] rotate-[20deg] scale-x-[-1] pointer-events-none">
           <Image src="/hero-shape.svg" alt="decorative shape" fill className="object-contain" />
         </div>
 
