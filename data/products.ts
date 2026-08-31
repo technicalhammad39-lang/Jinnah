@@ -54,7 +54,11 @@ export interface Review {
   userId: string;
   userName: string;
   rating: number;
+  title?: string;
   reviewText: string;
+  images?: string[];
+  helpfulVotes?: number;
+  reported?: boolean;
   verifiedPurchase: boolean;
   status: 'pending' | 'approved' | 'rejected';
   createdAt: string;
