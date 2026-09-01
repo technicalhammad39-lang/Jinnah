@@ -11,6 +11,10 @@ import {
   SlidersHorizontal, Heart, User, Sparkles, ShoppingBag, ArrowUpDown, ChevronRight, ShieldCheck, Loader2
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { getPublicUploadUrl } from "@/lib/utils";
 
 export function ShopClient({ initialProducts = [], initialBrands = [] }: { initialProducts: any[], initialBrands: any[] }) {
   const { wishlist } = useWishlistState();
@@ -24,6 +28,27 @@ export function ShopClient({ initialProducts = [], initialBrands = [] }: { initi
   const [brands, setBrands] = useState<any[]>(initialBrands);
   const [loadingData, setLoadingData] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [shopBottomBanner, setShopBottomBanner] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchBanner = async () => {
+      try {
+        const q = query(
+          collection(db, "banners"),
+          where("pageKey", "==", "shop_bottom"),
+          where("active", "==", true)
+        );
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+          // Take the first active banner for this location
+          setShopBottomBanner(snapshot.docs[0].data().imageUrl);
+        }
+      } catch (error) {
+        console.error("Error fetching shop banner:", error);
+      }
+    };
+    fetchBanner();
+  }, []);
 
   // Filter States
   const [searchQuery, setSearchQuery] = useState("");
@@ -140,7 +165,7 @@ export function ShopClient({ initialProducts = [], initialBrands = [] }: { initi
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-transparent pt-24 md:pt-28">
+    <div className="min-h-screen flex flex-col justify-between bg-transparent pt-32 md:pt-44">
       {/* Search Header Area */}
       <div className="max-w-[1920px] mx-auto px-6 w-full text-left py-4 md:py-8">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-black/5 pb-6 md:pb-8 gap-4">
@@ -399,6 +424,21 @@ export function ShopClient({ initialProducts = [], initialBrands = [] }: { initi
           </div>
         )}
       </div>
+
+      {/* Dynamic Shop Bottom Banner */}
+      {shopBottomBanner && (
+        <div className="max-w-[1920px] mx-auto px-6 w-full mt-12 mb-12 lg:mb-20">
+          <div className="relative w-full aspect-[21/9] md:aspect-[4/1] rounded-2xl md:rounded-3xl overflow-hidden shadow-lg border border-black/5">
+            <Image 
+              src={getPublicUploadUrl(shopBottomBanner)} 
+              alt="Promotional Banner" 
+              fill 
+              className="object-cover"
+              sizes="100vw"
+            />
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

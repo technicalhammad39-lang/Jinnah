@@ -139,7 +139,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
               alt={`${product.name} - View ${currentImageIndex + 1}`}
               fill
               sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-              className="h-full w-full object-contain p-4 mix-blend-multiply transition-transform duration-700 group-hover:scale-105"
+              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
           </motion.div>
         </Link>
@@ -254,7 +254,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
               handleAddToCart(e);
             }}
             disabled={isAdding || isSuccess || (product.stockQuantity !== undefined && product.stockQuantity <= 0)}
-            className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-primary/20 py-2 text-xs font-bold transition-colors ${
+            className={`flex w-10 shrink-0 items-center justify-center rounded-lg border border-primary/20 transition-colors ${
               product.stockQuantity !== undefined && product.stockQuantity <= 0
                 ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
                 : isSuccess
@@ -262,8 +262,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
                 : "bg-primary/5 text-primary hover:bg-primary hover:text-white"
             }`}
           >
-            {isAdding ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : isSuccess ? <Check className="h-3.5 w-3.5" /> : <ShoppingCart className="h-3.5 w-3.5" />}
-            {isSuccess ? "Added" : "Cart"}
+            {isAdding ? <Loader2 className="h-4 w-4 animate-spin" /> : isSuccess ? <Check className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
           </button>
           
           <button

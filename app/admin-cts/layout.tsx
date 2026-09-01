@@ -24,7 +24,8 @@ import {
   FolderTree,
   Ticket,
   ChevronsLeft,
-  ChevronsRight
+  ChevronsRight,
+  Presentation
 } from "lucide-react";
 import Image from "next/image";
 
@@ -38,6 +39,7 @@ const sidebarLinks = [
   { name: "Gallery", href: "/admin-cts/gallery", icon: ImageIcon },
   { name: "About Profiles", href: "/admin-cts/leadership", icon: Users },
   { name: "Reviews", href: "/admin-cts/reviews", icon: Star },
+  { name: "Banners", href: "/admin-cts/banners", icon: Presentation },
   { name: "Discounts", href: "/admin-cts/discounts", icon: Ticket },
   { name: "Messages", href: "/admin-cts/messages", icon: MessageSquare },
   { name: "Notifications", href: "/admin-cts/notifications", icon: Bell },

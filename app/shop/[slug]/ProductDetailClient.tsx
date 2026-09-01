@@ -401,8 +401,8 @@ export default function ProductDetailClient({
                   <div className="flex-grow">
                     <p className="text-xs font-bold text-[#1a1917]">
                       {shippingSettings.benefitType === "free_shipping" 
-                        ? `Free Shipping on Orders Over Rs. ${shippingSettings.thresholdValue.toLocaleString()}!` 
-                        : `Extra Discount on Orders Over Rs. ${shippingSettings.thresholdValue.toLocaleString()}!`}
+                        ? `Free Shipping on Orders Over Rs. ${shippingSettings.thresholdAmount.toLocaleString()}!` 
+                        : `Extra Discount on Orders Over Rs. ${shippingSettings.thresholdAmount.toLocaleString()}!`}
                     </p>
                     <p className="text-[11px] text-gray-600 mt-0.5">
                       {shippingResult.thresholdRemaining > 0
