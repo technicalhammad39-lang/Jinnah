@@ -100,26 +100,45 @@ export function CategoriesClient() {
             initial={{ opacity: 0, scale: 0.95, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="relative w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] z-10 -mt-10 md:-mt-20"
+            className="relative w-full max-w-[1920px] mx-auto z-10 -mt-2 md:-mt-20"
           >
-            <Image 
-              src="/catos.svg" 
-              alt="Categories Hero Architecture" 
-              fill 
-              className="object-contain object-bottom" 
-              priority
-            />
+            {/* Desktop SVG (Single row) */}
+            <div className="hidden sm:block relative w-full h-[400px] md:h-[500px] lg:h-[600px] px-6 lg:px-8">
+              <Image 
+                src="/catos.svg" 
+                alt="Categories Hero Architecture" 
+                fill 
+                className="object-contain object-bottom" 
+                priority
+              />
+            </div>
+
+            {/* Mobile SVG (Split into 2 rows of 3) */}
+            <div className="flex flex-col sm:hidden w-full overflow-hidden relative mt-8 px-4">
+              {/* Top 3 */}
+              <div className="relative w-full aspect-[1.58] overflow-hidden">
+                <div className="absolute top-0 left-0 w-[200%] h-full">
+                  <Image src="/catos.svg" fill className="object-contain object-left-bottom" alt="Categories Top" priority />
+                </div>
+              </div>
+              {/* Bottom 3 */}
+              <div className="relative w-full aspect-[1.58] overflow-hidden -mt-[4%]">
+                <div className="absolute top-0 right-0 w-[200%] h-full">
+                  <Image src="/catos.svg" fill className="object-contain object-right-bottom" alt="Categories Bottom" priority />
+                </div>
+              </div>
+            </div>
           </motion.div>
         </section>
 
         {/* ALL CATEGORIES GRID */}
-        <section className="pt-32 pb-24 bg-white rounded-t-[3rem] md:rounded-t-[4rem] relative overflow-hidden shadow-[0_-20px_60px_rgba(0,0,0,0.03)] mt-8">
+        <section className="pt-16 pb-24 md:pt-32 bg-white rounded-t-[3rem] md:rounded-t-[4rem] relative overflow-hidden shadow-[0_-20px_60px_rgba(0,0,0,0.03)] -mt-2 md:mt-8">
           {/* Top Orange Gradient */}
           <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-primary/15 to-transparent pointer-events-none" />
           
           <div className="max-w-[1920px] mx-auto px-6 relative z-10">
-            <div className="relative z-10 mb-16">
-              <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter">Explore Categories</h2>
+            <div className="relative z-10 mb-10 md:mb-16">
+              <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-center md:text-left">Explore Categories</h2>
             </div>
           
           {/* Loading State */}
