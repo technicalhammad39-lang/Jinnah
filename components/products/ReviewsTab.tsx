@@ -131,12 +131,16 @@ export default function ReviewsTab({ product }: ReviewsTabProps) {
         helpfulVotes: 0,
         reported: false,
         verifiedPurchase: false,
-        status: 'pending', // Needs approval from admin
+        status: 'approved', // Directly public without admin approval
         createdAt: new Date().toISOString(),
       };
 
-      await addDoc(collection(db, 'reviews'), newReview);
-      alert("Review submitted successfully! It will appear after approval by our team.");
+      const docRef = await addDoc(collection(db, 'reviews'), newReview);
+      
+      // Update local state to immediately show the new review
+      setReviews(prev => [{ id: docRef.id, ...newReview } as Review, ...prev]);
+
+      alert("Review submitted successfully!");
       setIsWriting(false);
       // Reset form
       setRating(0);
@@ -252,7 +256,7 @@ export default function ReviewsTab({ product }: ReviewsTabProps) {
                   type="text" 
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/50 focus:border-brand-orange transition-all" 
+                  className="w-full px-4 py-3 bg-white border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" 
                   placeholder="John Doe" 
                 />
               </div>
@@ -262,7 +266,7 @@ export default function ReviewsTab({ product }: ReviewsTabProps) {
                   type="text" 
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/50 focus:border-brand-orange transition-all" 
+                  className="w-full px-4 py-3 bg-white border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" 
                   placeholder="Summarize your experience" 
                 />
               </div>
@@ -274,7 +278,7 @@ export default function ReviewsTab({ product }: ReviewsTabProps) {
                 rows={4} 
                 value={reviewText}
                 onChange={(e) => setReviewText(e.target.value)}
-                className="w-full px-4 py-3 bg-white border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/50 focus:border-brand-orange transition-all resize-y" 
+                className="w-full px-4 py-3 bg-white border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-y" 
                 placeholder="Tell us more about your experience with this product..."
               ></textarea>
             </div>
@@ -296,7 +300,7 @@ export default function ReviewsTab({ product }: ReviewsTabProps) {
                   </div>
                 ))}
                 
-                <label className="flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed border-zinc-300 rounded-xl text-zinc-500 hover:bg-zinc-100 hover:border-brand-orange hover:text-brand-orange transition-colors cursor-pointer relative">
+                <label className="flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed border-zinc-300 rounded-xl text-zinc-500 hover:bg-zinc-100 hover:border-primary hover:text-primary transition-colors cursor-pointer relative">
                   {isUploading ? (
                     <Loader2 className="w-6 h-6 animate-spin" />
                   ) : (
@@ -315,7 +319,7 @@ export default function ReviewsTab({ product }: ReviewsTabProps) {
                 type="button" 
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="px-8 py-3.5 bg-brand-orange text-white font-bold rounded-xl hover:bg-brand-orange/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-8 py-3.5 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isSubmitting ? (
                   <><Loader2 className="w-5 h-5 animate-spin" /> Submitting...</>
@@ -332,7 +336,7 @@ export default function ReviewsTab({ product }: ReviewsTabProps) {
       <div className="space-y-8">
         {loading ? (
           <div className="py-12 flex justify-center items-center">
-            <Loader2 className="w-8 h-8 animate-spin text-brand-orange" />
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : filteredReviews.length === 0 ? (
           <div className="text-center py-12 bg-zinc-50 rounded-2xl border border-zinc-100">
