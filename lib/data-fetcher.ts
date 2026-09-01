@@ -186,11 +186,33 @@ export async function getLeadership() {
   }
 }
 
-export async function getCategories() {
+export async function getCategories(onlyActive = false) {
   try {
-    const q = query(collection(db, "categories"), orderBy("order", "asc"));
+    let q;
+    if (onlyActive) {
+      q = query(collection(db, "categories"), where("status", "==", "active"), orderBy("name", "asc"));
+    } else {
+      try {
+        q = query(collection(db, "categories"), orderBy("name", "asc"));
+      } catch {
+        q = query(collection(db, "categories"));
+      }
+    }
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...serializeData(doc.data()) })) as any[];
+    const categories = snapshot.docs.map(doc => ({ id: doc.id, ...serializeData(doc.data()) })) as any[];
+    
+    // Get all products to count per category (works for both legacy text and new categoryId)
+    const productsSnap = await getDocs(collection(db, "products"));
+    const products = productsSnap.docs.map(d => d.data());
+    
+    return categories
+      .filter(cat => !onlyActive || (cat.status || "active") === "active")
+      .map(cat => ({
+        ...cat,
+        count: products.filter(p =>
+          p.categoryId === cat.id || p.category === cat.name
+        ).length
+      }));
   } catch (error) {
     console.error("Error fetching categories:", error);
     return [];

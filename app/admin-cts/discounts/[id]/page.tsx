@@ -68,7 +68,7 @@ export default function DiscountEditor({ params }: { params: Promise<{ id: strin
           } as any);
         } else {
           toast.error("Discount not found");
-          router.push("/admin/discounts");
+          router.push("/admin-cts/discounts");
         }
       } catch (error) {
         console.error("Error fetching discount:", error);
@@ -128,7 +128,7 @@ export default function DiscountEditor({ params }: { params: Promise<{ id: strin
         await setDoc(doc(db, "discounts", id), dataToSave, { merge: true });
         toast.success("Discount updated successfully");
       }
-      router.push("/admin/discounts");
+      router.push("/admin-cts/discounts");
     } catch (error) {
       console.error("Error saving discount:", error);
       toast.error("Failed to save discount");
@@ -149,7 +149,7 @@ export default function DiscountEditor({ params }: { params: Promise<{ id: strin
     <div className="max-w-4xl space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
       <div className="flex items-center gap-4">
         <Link 
-          href="/admin/discounts"
+          href="/admin-cts/discounts"
           className="p-2 bg-[#1a1917]/5 hover:bg-[#1a1917]/10 rounded-full transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />

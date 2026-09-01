@@ -10,7 +10,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { getPublicUploadUrl } from "@/lib/utils";
 
-export default function CategoryEditor() {
+export default function LeadershipEditor() {
   const params = useParams();
   const router = useRouter();
   const isNew = params.id === "new";
@@ -21,32 +21,36 @@ export default function CategoryEditor() {
 
   const [formData, setFormData] = useState({
     name: "",
-    slug: "",
+    role: "",
     image: "",
-    description: "",
+    description1: "",
+    description2: "",
+    feature1Title: "",
+    feature2Title: "",
+    order: 0
   });
 
   useEffect(() => {
     if (isNew) return;
     
-    async function fetchCategory() {
+    async function fetchMember() {
       try {
-        const docRef = doc(db, "categories", params.id as string);
+        const docRef = doc(db, "leadership", params.id as string);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           setFormData({ ...formData, ...docSnap.data() } as any);
         } else {
-          toast.error("Category not found");
-          router.push("/admin/categories");
+          toast.error("Member not found");
+          router.push("/admin-cts/leadership");
         }
       } catch (error) {
-        console.error("Error fetching category:", error);
-        toast.error("Failed to load category");
+        console.error("Error fetching member:", error);
+        toast.error("Failed to load member");
       } finally {
         setLoading(false);
       }
     }
-    fetchCategory();
+    fetchMember();
   }, [params.id, isNew, router]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,7 +61,7 @@ export default function CategoryEditor() {
       const file = e.target.files[0];
       const data = new FormData();
       data.append("file", file);
-      data.append("folder", "gallery"); // Re-using gallery folder for categories
+      data.append("folder", "gallery"); // re-using gallery folder for general images
 
       const res = await fetch("/api/upload", {
         method: "POST",
@@ -86,23 +90,24 @@ export default function CategoryEditor() {
     try {
       const dataToSave = {
         ...formData,
+        order: Number(formData.order),
         updatedAt: serverTimestamp()
       };
 
       if (isNew) {
-        await addDoc(collection(db, "categories"), {
+        await addDoc(collection(db, "leadership"), {
           ...dataToSave,
           createdAt: serverTimestamp()
         });
-        toast.success("Category created successfully");
+        toast.success("Member created successfully");
       } else {
-        await setDoc(doc(db, "categories", params.id as string), dataToSave, { merge: true });
-        toast.success("Category updated successfully");
+        await setDoc(doc(db, "leadership", params.id as string), dataToSave, { merge: true });
+        toast.success("Member updated successfully");
       }
-      router.push("/admin/categories");
+      router.push("/admin-cts/leadership");
     } catch (error) {
-      console.error("Error saving category:", error);
-      toast.error("Failed to save category");
+      console.error("Error saving member:", error);
+      toast.error("Failed to save member");
     } finally {
       setSaving(false);
     }
@@ -120,14 +125,14 @@ export default function CategoryEditor() {
     <div className="max-w-4xl space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex items-center gap-4">
         <Link 
-          href="/admin/categories"
+          href="/admin-cts/leadership"
           className="p-2 bg-[#1a1917]/5 hover:bg-[#1a1917]/10 rounded-full transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-[#1a1917]">{isNew ? "Create Category" : "Edit Category"}</h1>
-          <p className="text-[#1a1917]/50 text-sm mt-1">{isNew ? "Add a new category to your catalog" : "Update existing category details"}</p>
+          <h1 className="text-2xl font-bold text-[#1a1917]">{isNew ? "Add Leadership Member" : "Edit Member"}</h1>
+          <p className="text-[#1a1917]/50 text-sm mt-1">{isNew ? "Add a new member to your leadership section" : "Update existing member details"}</p>
         </div>
       </div>
 
@@ -135,7 +140,7 @@ export default function CategoryEditor() {
         <div className="bg-white border border-[#1a1917]/5 rounded-2xl p-6 shadow-xl space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Category Name</label>
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Full Name</label>
               <input 
                 type="text" 
                 required
@@ -145,32 +150,74 @@ export default function CategoryEditor() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Slug (URL-friendly)</label>
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Role & Title</label>
               <input 
                 type="text" 
                 required
-                value={formData.slug}
-                onChange={e => setFormData({...formData, slug: e.target.value})}
+                value={formData.role}
+                onChange={e => setFormData({...formData, role: e.target.value})}
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Order (Sort index)</label>
+              <input 
+                type="number" 
+                required
+                value={formData.order}
+                onChange={e => setFormData({...formData, order: Number(e.target.value)})}
                 className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Description</label>
+            <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">First Paragraph Description</label>
             <textarea 
-              value={formData.description}
-              onChange={e => setFormData({...formData, description: e.target.value})}
+              value={formData.description1}
+              onChange={e => setFormData({...formData, description1: e.target.value})}
               className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors h-24 resize-none"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Category Image</label>
+            <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Second Paragraph Description (Optional)</label>
+            <textarea 
+              value={formData.description2}
+              onChange={e => setFormData({...formData, description2: e.target.value})}
+              className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors h-24 resize-none"
+            />
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Feature 1 Title</label>
+              <input 
+                type="text" 
+                value={formData.feature1Title}
+                onChange={e => setFormData({...formData, feature1Title: e.target.value})}
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                placeholder="e.g. Uncompromising Quality"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Feature 2 Title</label>
+              <input 
+                type="text" 
+                value={formData.feature2Title}
+                onChange={e => setFormData({...formData, feature2Title: e.target.value})}
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                placeholder="e.g. Consultative Approach"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Profile Image</label>
             <div className="flex gap-4 items-center">
               {formData.image ? (
-                <div className="relative w-32 h-32 rounded-xl overflow-hidden border border-[#1a1917]/10 group">
-                  <Image src={getPublicUploadUrl(formData.image)} alt="Category Image" fill className="object-cover" />
+                <div className="relative w-32 h-40 rounded-xl overflow-hidden border border-[#1a1917]/10 group">
+                  <Image src={getPublicUploadUrl(formData.image)} alt="Profile" fill className="object-cover" />
                   <button 
                     type="button"
                     onClick={() => setFormData({...formData, image: ""})}
@@ -180,9 +227,9 @@ export default function CategoryEditor() {
                   </button>
                 </div>
               ) : (
-                <label className="w-32 h-32 rounded-xl border-2 border-dashed border-[#1a1917]/20 flex flex-col items-center justify-center cursor-pointer hover:border-[#FF6A2A] hover:bg-[#FF6A2A]/5 transition-colors">
+                <label className="w-32 h-40 rounded-xl border-2 border-dashed border-[#1a1917]/20 flex flex-col items-center justify-center cursor-pointer hover:border-[#FF6A2A] hover:bg-[#FF6A2A]/5 transition-colors">
                   {uploading ? <Loader2 className="w-6 h-6 animate-spin text-[#FF6A2A]" /> : <UploadCloud className="w-6 h-6 text-[#1a1917]/50" />}
-                  <span className="text-[10px] text-[#1a1917]/50 mt-2 uppercase font-bold text-center px-2">Upload Image</span>
+                  <span className="text-[10px] text-[#1a1917]/50 mt-2 uppercase font-bold text-center px-2">Upload Photo</span>
                   <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
                 </label>
               )}
@@ -198,7 +245,7 @@ export default function CategoryEditor() {
             className="bg-[#FF6A2A] hover:bg-[#e5591c] text-white font-bold py-3 px-8 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50"
           >
             {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-            {isNew ? "Create Category" : "Save Changes"}
+            {isNew ? "Create Member" : "Save Changes"}
           </button>
         </div>
       </form>

@@ -19,11 +19,14 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
+  const [categories, setCategories] = useState<{id: string; name: string; slug: string}[]>([]);
 
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
     category: "",
+    categoryId: "",
+    categorySlug: "",
     brand: "",
     description: "",
     shortDescription: "",
@@ -45,17 +48,20 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
   });
 
   useEffect(() => {
-    // Fetch payment methods for the checkboxes
-    async function fetchPaymentMethods() {
+    // Fetch payment methods and categories
+    async function fetchInitialData() {
       try {
-        const q = query(collection(db, "payment-methods"), orderBy("order", "asc"));
-        const snap = await getDocs(q);
-        setPaymentMethods(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        const [pmSnap, catSnap] = await Promise.all([
+          getDocs(query(collection(db, "payment-methods"), orderBy("order", "asc"))),
+          getDocs(query(collection(db, "categories"), orderBy("name", "asc")))
+        ]);
+        setPaymentMethods(pmSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+        setCategories(catSnap.docs.map(d => ({ id: d.id, name: (d.data() as any).name || '', slug: (d.data() as any).slug || '' })));
       } catch (err) {
-        console.error("Error fetching payment methods", err);
+        console.error("Error fetching initial data", err);
       }
     }
-    fetchPaymentMethods();
+    fetchInitialData();
   }, []);
 
   useEffect(() => {
@@ -77,7 +83,7 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
           } as any);
         } else {
           toast.error("Product not found");
-          router.push("/admin/products");
+          router.push("/admin-cts/products");
         }
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -179,7 +185,7 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
         await setDoc(doc(db, "products", id), dataToSave, { merge: true });
         toast.success("Product updated successfully");
       }
-      router.push("/admin/products");
+      router.push("/admin-cts/products");
     } catch (error) {
       console.error("Error saving product:", error);
       toast.error("Failed to save product");
@@ -200,7 +206,7 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
     <div className="max-w-4xl space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
       <div className="flex items-center gap-4">
         <Link 
-          href="/admin/products"
+          href="/admin-cts/products"
           className="p-2 bg-[#1a1917]/5 hover:bg-[#1a1917]/10 rounded-full transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -240,13 +246,28 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Category</label>
-                <input 
-                  type="text" 
+                <select
                   required
-                  value={formData.category}
-                  onChange={e => setFormData({...formData, category: e.target.value})}
+                  value={formData.categoryId || formData.category}
+                  onChange={e => {
+                    const selected = categories.find(c => c.id === e.target.value);
+                    setFormData(prev => ({
+                      ...prev,
+                      categoryId: selected?.id || '',
+                      category: selected?.name || '',
+                      categorySlug: selected?.slug || ''
+                    }));
+                  }}
                   className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
-                />
+                >
+                  <option value="">-- Select Category --</option>
+                  {categories.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
+                {formData.category && !formData.categoryId && (
+                  <p className="text-xs text-amber-600 pl-1">Current: "{formData.category}" (legacy text). Please re-select.</p>
+                )}
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Brand</label>

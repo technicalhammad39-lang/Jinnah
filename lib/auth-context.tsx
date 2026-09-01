@@ -38,8 +38,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setIsAdmin(true);
           } else {
             setIsAdmin(false);
-            if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
-              router.push("/admin/login");
+            if (pathname.startsWith("/admin-cts") && pathname !== "/admin-cts/login") {
+              router.push("/admin-cts/login");
             }
           }
         } catch (error) {
@@ -49,8 +49,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setUser(null);
         setIsAdmin(false);
-        if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
-          router.push("/admin/login");
+        if (pathname.startsWith("/admin-cts") && pathname !== "/admin-cts/login") {
+          router.push("/admin-cts/login");
         }
       }
       setLoading(false);
@@ -61,11 +61,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     await signOut(auth);
-    router.push("/admin/login");
+    router.push("/admin-cts/login");
   };
 
   // If loading and trying to access an admin route, show loader
-  if (loading && pathname.startsWith("/admin")) {
+  if (loading && pathname.startsWith("/admin-cts")) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <Loader2 className="w-10 h-10 text-[#FF6A2A] animate-spin" />
@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   // If not admin and trying to access admin (except login), don't render children
-  if (!loading && !isAdmin && pathname.startsWith("/admin") && pathname !== "/admin/login") {
+  if (!loading && !isAdmin && pathname.startsWith("/admin-cts") && pathname !== "/admin-cts/login") {
     return null;
   }
 

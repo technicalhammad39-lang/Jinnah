@@ -21,7 +21,7 @@ export default function ReviewsAdmin() {
   const [editForm, setEditForm] = useState({ id: "", name: "", text: "", rating: 5, image: "", active: true, order: 0 });
 
   useEffect(() => {
-    if (!authLoading && !user) router.push("/admin/login");
+    if (!authLoading && !user) router.push("/admin-cts/login");
   }, [user, authLoading, router]);
 
   const fetchReviews = async () => {

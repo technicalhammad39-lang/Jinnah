@@ -20,7 +20,7 @@ export default function PaymentMethodsAdmin() {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && !user) router.push("/admin/login");
+    if (!authLoading && !user) router.push("/admin-cts/login");
   }, [user, authLoading, router]);
 
   const fetchMethods = async () => {

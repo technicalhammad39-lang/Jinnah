@@ -4,12 +4,56 @@ import { Navbar } from "@/components/navigation/Navbar";
 import { Footer } from "@/components/navigation/Footer";
 import Image from "next/image";
 import { motion } from "motion/react";
-import { ArrowRight, Box, Layers, Hammer, ShieldCheck } from "lucide-react";
+import { ArrowRight, Box, Layers, Hammer, ShieldCheck, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { CATEGORIES } from "@/data/products";
 import { getPublicUploadUrl } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { collection, getDocs, query, orderBy, where } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+
+interface DBCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  image?: string;
+  status?: string;
+  count?: number;
+}
 
 export function CategoriesClient() {
+  const [dbCategories, setDbCategories] = useState<DBCategory[]>([]);
+  const [catLoading, setCatLoading] = useState(true);
+  const [productCounts, setProductCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        // Fetch active categories
+        const catSnap = await getDocs(query(collection(db, "categories"), orderBy("name", "asc")));
+        const cats = catSnap.docs.map(d => ({ id: d.id, ...(d.data() as any) })) as DBCategory[];
+        const activeCats = cats.filter(c => (c.status || "active") === "active");
+
+        // Fetch all products to count per category
+        const prodSnap = await getDocs(collection(db, "products"));
+        const counts: Record<string, number> = {};
+        prodSnap.docs.forEach(d => {
+          const data = d.data();
+          // Match by categoryId or legacy category name
+          const matched = activeCats.find(c => c.id === data.categoryId || c.name === data.category);
+          if (matched) counts[matched.id] = (counts[matched.id] || 0) + 1;
+        });
+
+        setProductCounts(counts);
+        setDbCategories(activeCats);
+      } catch (err) {
+        console.error("Error loading categories:", err);
+      } finally {
+        setCatLoading(false);
+      }
+    }
+    loadCategories();
+  }, []);
   const applications = [
     { title: "Residential Villas", icon: Box, desc: "Premium fittings for luxury home entrances and interiors. Ensuring unparalleled security combined with bespoke architectural aesthetics for modern and classic estates." },
     { title: "Commercial Offices", icon: Layers, desc: "High-traffic endurance hardware and access control. Engineered to withstand heavy daily use while maintaining sleek, professional profiles for corporate environments." },
@@ -78,8 +122,25 @@ export function CategoriesClient() {
               <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter">Explore Categories</h2>
             </div>
           
+          {/* Loading State */}
+          {catLoading && (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-10 h-10 animate-spin text-primary" />
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!catLoading && dbCategories.length === 0 && (
+            <div className="text-center py-20">
+              <p className="text-xl font-bold text-[#1a1917]/40">No categories available yet.</p>
+              <p className="text-sm text-[#1a1917]/30 mt-2">Check back soon — categories will appear here once added.</p>
+            </div>
+          )}
+
+          {/* Categories Grid */}
+          {!catLoading && dbCategories.length > 0 && (
           <div className="relative z-10 grid grid-cols-3 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-6 lg:gap-8">
-            {CATEGORIES.map((cat, i) => (
+            {dbCategories.map((cat, i) => (
               <motion.div
                 key={cat.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -90,30 +151,45 @@ export function CategoriesClient() {
               >
                 <Link href={`/shop?category=${cat.slug}`} className="group block relative rounded-xl sm:rounded-[32px] bg-white border border-black/5 p-2 sm:p-6 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 h-full flex flex-col">
                   <div className="relative aspect-square sm:h-48 w-full rounded-lg sm:rounded-2xl overflow-hidden mb-2 sm:mb-6 bg-black/5 shrink-0">
-                    <Image
-                      src={getPublicUploadUrl(cat.image)}
-                      alt={cat.name}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-110"
-                      sizes="(max-width: 640px) 33vw, (max-width: 1024px) 50vw, 33vw"
-                    />
+                    {cat.image ? (
+                      <Image
+                        src={getPublicUploadUrl(cat.image)}
+                        alt={cat.name}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                        sizes="(max-width: 640px) 33vw, (max-width: 1024px) 50vw, 33vw"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100">
+                        <span className="text-3xl">📦</span>
+                      </div>
+                    )}
                   </div>
                   <h3 className="text-[10px] sm:text-xl font-extrabold uppercase tracking-tight text-[#1a1917] group-hover:text-primary transition-colors text-center sm:text-left leading-tight mt-auto sm:mt-0">
                     {cat.name}
                   </h3>
-                  <p className="hidden sm:block text-sm text-muted-foreground mt-2 mb-4 leading-relaxed line-clamp-2">
-                    {cat.description}
-                  </p>
-                  <div className="hidden sm:flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary">
-                    <span>View Collection</span>
-                    <ArrowRight className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
+                  {cat.description && (
+                    <p className="hidden sm:block text-sm text-muted-foreground mt-2 mb-4 leading-relaxed line-clamp-2">
+                      {cat.description}
+                    </p>
+                  )}
+                  <div className="hidden sm:flex items-center justify-between mt-auto">
+                    <span className="text-xs text-muted-foreground font-medium">
+                      {productCounts[cat.id] || 0} product{(productCounts[cat.id] || 0) !== 1 ? "s" : ""}
+                    </span>
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary">
+                      <span>View Collection</span>
+                      <ArrowRight className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
+                    </div>
                   </div>
                 </Link>
               </motion.div>
             ))}
           </div>
+          )}
           </div>
         </section>
+
 
         {/* APPLICATIONS SECTION */}
         <div className="px-4 sm:px-6 lg:px-8 max-w-[1920px] mx-auto my-24 relative z-10">

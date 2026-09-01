@@ -29,20 +29,20 @@ import {
 import Image from "next/image";
 
 const sidebarLinks = [
-  { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
-  { name: "Products", href: "/admin/products", icon: Package },
-  { name: "Brands", href: "/admin/brands", icon: Tags },
-  { name: "Categories", href: "/admin/categories", icon: FolderTree },
-  { name: "Blogs", href: "/admin/blogs", icon: FileText },
-  { name: "Gallery", href: "/admin/gallery", icon: ImageIcon },
-  { name: "About Profiles", href: "/admin/leadership", icon: Users },
-  { name: "Reviews", href: "/admin/reviews", icon: Star },
-  { name: "Discounts", href: "/admin/discounts", icon: Ticket },
-  { name: "Messages", href: "/admin/messages", icon: MessageSquare },
-  { name: "Notifications", href: "/admin/notifications", icon: Bell },
-  { name: "Payments", href: "/admin/payment-methods", icon: CreditCard },
-  { name: "Settings", href: "/admin/settings", icon: Settings },
+  { name: "Dashboard", href: "/admin-cts", icon: LayoutDashboard },
+  { name: "Orders", href: "/admin-cts/orders", icon: ShoppingCart },
+  { name: "Products", href: "/admin-cts/products", icon: Package },
+  { name: "Brands", href: "/admin-cts/brands", icon: Tags },
+  { name: "Categories", href: "/admin-cts/categories", icon: FolderTree },
+  { name: "Blogs", href: "/admin-cts/blogs", icon: FileText },
+  { name: "Gallery", href: "/admin-cts/gallery", icon: ImageIcon },
+  { name: "About Profiles", href: "/admin-cts/leadership", icon: Users },
+  { name: "Reviews", href: "/admin-cts/reviews", icon: Star },
+  { name: "Discounts", href: "/admin-cts/discounts", icon: Ticket },
+  { name: "Messages", href: "/admin-cts/messages", icon: MessageSquare },
+  { name: "Notifications", href: "/admin-cts/notifications", icon: Bell },
+  { name: "Payments", href: "/admin-cts/payment-methods", icon: CreditCard },
+  { name: "Settings", href: "/admin-cts/settings", icon: Settings },
 ];
 
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {
@@ -52,7 +52,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const { logout, user } = useAuth();
 
   // If this is the login page, don't show the dashboard shell
-  if (pathname === "/admin/login") {
+  if (pathname === "/admin-cts/login") {
     return <>{children}</>;
   }
 
@@ -73,7 +73,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
         } ${isCollapsed ? "w-20" : "w-72"}`}
       >
         <div className="h-20 flex items-center justify-between px-4 border-b border-orange-500/10 shrink-0 bg-orange-500/5">
-          <Link href="/admin" className={`relative transition-all duration-300 ${isCollapsed ? "h-10 w-10 overflow-hidden" : "h-16 w-52"} flex items-center justify-start`}>
+          <Link href="/admin-cts" className={`relative transition-all duration-300 ${isCollapsed ? "h-10 w-10 overflow-hidden" : "h-16 w-52"} flex items-center justify-start`}>
             {isCollapsed ? (
               <Image src="/favicon.svg" alt="Jinnah" fill className="object-contain" />
             ) : (

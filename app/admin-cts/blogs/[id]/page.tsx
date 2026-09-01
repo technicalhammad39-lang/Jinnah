@@ -42,7 +42,7 @@ export default function BlogEditor() {
           setFormData({ ...formData, ...docSnap.data() } as any);
         } else {
           toast.error("Blog post not found");
-          router.push("/admin/blogs");
+          router.push("/admin-cts/blogs");
         }
       } catch (error) {
         console.error("Error fetching blog:", error);
@@ -105,7 +105,7 @@ export default function BlogEditor() {
         await setDoc(doc(db, "blogs", params.id as string), dataToSave, { merge: true });
         toast.success("Blog post updated successfully");
       }
-      router.push("/admin/blogs");
+      router.push("/admin-cts/blogs");
     } catch (error) {
       console.error("Error saving blog:", error);
       toast.error("Failed to save blog post");
@@ -126,7 +126,7 @@ export default function BlogEditor() {
     <div className="max-w-5xl space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex items-center gap-4">
         <Link 
-          href="/admin/blogs"
+          href="/admin-cts/blogs"
           className="p-2 bg-[#1a1917]/5 hover:bg-[#1a1917]/10 rounded-full transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />

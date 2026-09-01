@@ -62,7 +62,7 @@ export default function AdminProducts() {
           <p className="text-[#1a1917]/50 text-sm mt-1">Manage your store's inventory</p>
         </div>
         <Link 
-          href="/admin/products/new"
+          href="/admin-cts/products/new"
           className="bg-[#FF6A2A] hover:bg-[#e5591c] text-white font-bold py-2.5 px-5 rounded-xl transition-colors flex items-center justify-center gap-2"
         >
           <Plus className="w-5 h-5" />
@@ -142,7 +142,7 @@ export default function AdminProducts() {
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Link 
-                          href={`/admin/products/${product.id}`}
+                          href={`/admin-cts/products/${product.id}`}
                           className="p-2 text-[#1a1917]/40 hover:text-[#1a1917] hover:bg-[#1a1917]/5 rounded-lg transition-colors"
                         >
                           <Edit2 className="w-4 h-4" />

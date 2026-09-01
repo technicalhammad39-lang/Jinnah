@@ -21,7 +21,7 @@ export default function AdminLogin() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push("/admin");
+      router.push("/admin-cts");
     } catch (err: any) {
       setError("Invalid admin credentials");
     } finally {

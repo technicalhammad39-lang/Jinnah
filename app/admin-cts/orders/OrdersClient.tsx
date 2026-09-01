@@ -64,7 +64,7 @@ export default function OrdersClient() {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/admin/login");
+      router.push("/admin-cts/login");
     }
   }, [user, loading, router]);
 
