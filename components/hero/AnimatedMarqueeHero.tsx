@@ -146,7 +146,7 @@ export function AnimatedMarqueeHero({
               <span key={i} className={spanClass}>
                 {part}
                 {!isDesktop && lowerPart === "exceptional" && (
-                  <svg className="absolute -bottom-[2px] left-0 w-[105%] h-[8px] text-[#e05a2b] opacity-90 -z-10" preserveAspectRatio="none" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                  <svg className="absolute bottom-[4px] left-0 w-[105%] h-[8px] text-[#e05a2b] opacity-90 -z-10" preserveAspectRatio="none" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <path d="M2,80 C30,60 70,55 98,70 L97,86 C70,65 30,75 2,84 Z" fill="currentColor" />
                   </svg>
                 )}
@@ -253,7 +253,7 @@ export function AnimatedMarqueeHero({
         onPointerMove={canUseParallax ? handlePointerMove : undefined}
         onPointerLeave={canUseParallax ? handlePointerLeave : undefined}
         className={cn(
-          "relative isolate flex min-h-[92svh] w-full flex-col overflow-hidden bg-[#f5f2ed] px-4 pt-24 pb-0 text-center sm:px-6 md:px-8 md:pt-32 lg:min-h-screen lg:px-16 xl:px-24 2xl:px-[7.5rem]",
+          "relative isolate flex min-h-[92svh] w-full flex-col overflow-hidden bg-[#f5f2ed] px-4 pt-36 pb-0 text-center sm:px-6 md:px-8 md:pt-36 lg:min-h-screen lg:px-16 xl:px-24 2xl:px-[7.5rem]",
           className
         )}
       >
