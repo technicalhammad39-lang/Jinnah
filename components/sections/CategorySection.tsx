@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { CATEGORIES } from "@/data/products";
 import Image from "next/image";
@@ -10,10 +10,10 @@ export function CategorySection() {
     <section id="categories-section" className="pt-16 pb-8 md:pt-24 md:pb-12 w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
       {/* Background Accent */}
       <div className="absolute top-[40%] right-[10%] w-[35vw] h-[35vw] rounded-full glow-blob-orange opacity-[0.7] pointer-events-none" />
-      <div className="hidden md:block absolute top-[2%] -left-[6%] w-[350px] h-[350px] opacity-[0.18] -rotate-6 pointer-events-none">
+      <div className="hidden md:block absolute top-[2%] -left-[6%] w-[350px] h-[350px] opacity-[0.5] -rotate-6 pointer-events-none">
         <Image src="/hero-shape.svg" alt="decorative shape" fill className="object-contain" />
       </div>
-      <div className="hidden md:block absolute top-[8%] -right-[6%] w-[300px] h-[300px] opacity-[0.22] rotate-12 scale-x-[-1] pointer-events-none">
+      <div className="hidden md:block absolute top-[8%] -right-[6%] w-[300px] h-[300px] opacity-[0.6] rotate-12 scale-x-[-1] pointer-events-none">
         <Image src="/hero-shape.svg" alt="decorative shape" fill className="object-contain" />
       </div>
 
@@ -92,3 +92,4 @@ export function CategorySection() {
     </section>
   );
 }
+

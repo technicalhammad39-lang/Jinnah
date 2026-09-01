@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
@@ -145,7 +145,7 @@ export function WhyChooseUs() {
       <div className="hidden md:block absolute top-[5%] -left-[4%] w-[380px] h-[380px] opacity-[0.7] -rotate-[10deg] pointer-events-none">
         <Image src="/hero-shape.svg" alt="decorative shape" fill className="object-contain" />
       </div>
-      <div className="hidden md:block absolute top-[10%] -right-[4%] w-[320px] h-[320px] opacity-[0.18] rotate-[15deg] scale-x-[-1] pointer-events-none">
+      <div className="hidden md:block absolute top-[10%] -right-[4%] w-[320px] h-[320px] opacity-[0.5] rotate-[15deg] scale-x-[-1] pointer-events-none">
         <Image src="/hero-shape.svg" alt="decorative shape" fill className="object-contain" />
       </div>
 
@@ -253,3 +253,4 @@ export function WhyChooseUs() {
     </section>
   );
 }
+

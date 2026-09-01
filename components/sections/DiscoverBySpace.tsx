@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useRef } from "react";
 import Image from "next/image";
@@ -43,7 +43,7 @@ const jsonLd = {
   "@type": "CollectionPage",
   name: "Find Products For Every Space",
   description:
-    "Discover curated hardware collections for every space — doors, kitchen, bedroom, office, interior finishing, and workshop.",
+    "Discover curated hardware collections for every space â€” doors, kitchen, bedroom, office, interior finishing, and workshop.",
   hasPart: CATEGORIES.map((cat) => ({
     "@type": "ItemList",
     name: cat.title,
@@ -126,7 +126,7 @@ export function DiscoverBySpace() {
             </motion.p>
           </div>
 
-          {/* SVG Cards — Premium Animated Integration */}
+          {/* SVG Cards â€” Premium Animated Integration */}
           <motion.div
             ref={svgRef}
             initial={{ opacity: 1, y: 40, scale: 0.98 }}
@@ -142,7 +142,7 @@ export function DiscoverBySpace() {
             {/* Ambient orange glow behind SVG */}
             <div
               aria-hidden="true"
-              className="absolute inset-x-[10%] top-[10%] bottom-[10%] rounded-[3rem] opacity-20 blur-3xl pointer-events-none"
+              className="absolute inset-x-[10%] top-[10%] bottom-[10%] rounded-[3rem] opacity-70 blur-3xl pointer-events-none"
               style={{
                 background:
                   "radial-gradient(ellipse at 50% 50%, rgba(255,106,42,0.35) 0%, transparent 70%)",
@@ -180,7 +180,7 @@ export function DiscoverBySpace() {
             </div>
           </motion.div>
 
-          {/* SEO Semantic HTML — Visually hidden but fully crawlable */}
+          {/* SEO Semantic HTML â€” Visually hidden but fully crawlable */}
           <div className="sr-only" aria-label="Product categories">
             {CATEGORIES.map((cat) => (
               <article key={cat.slug}>
@@ -201,3 +201,4 @@ export function DiscoverBySpace() {
     </>
   );
 }
+

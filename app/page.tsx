@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+﻿export const dynamic = "force-dynamic";
 // import { PRODUCTS } from "@/data/products";
 import { getFeaturedProducts } from "@/lib/data-fetcher";
 import { Navbar } from "@/components/navigation/Navbar";
@@ -138,4 +138,5 @@ export default async function Home() {
     </div>
   );
 }
+
 

@@ -102,7 +102,7 @@ export default function BlogsClient({ initialBlogs = [] }: { initialBlogs: any[]
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-muted-foreground/30">
-                        <Image src="/hero-shape.svg" alt="Placeholder" width={100} height={100} className="opacity-20" />
+                        <Image src="/hero-shape.svg" alt="Placeholder" width={100} height={100} className="opacity-70" />
                       </div>
                     )}
                     <div className="absolute top-4 left-4">

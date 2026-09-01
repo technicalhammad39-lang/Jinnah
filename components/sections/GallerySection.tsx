@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 // import { GALLERY_ITEMS } from "@/data/products";
 import { getGallery } from "@/lib/data-fetcher";
@@ -148,3 +148,4 @@ export function GallerySection() {
     </section>
   );
 }
+

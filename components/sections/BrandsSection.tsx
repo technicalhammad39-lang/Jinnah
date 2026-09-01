@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 // import { BRANDS } from "@/data/products";
 import { getBrands } from "@/lib/data-fetcher";
@@ -105,3 +105,4 @@ export function BrandsSection() {
     </section>
   );
 }
+

@@ -9,13 +9,17 @@ import {
   Heart,
   Check,
   Loader2,
-  MessageCircle,
   Star,
   ChevronRight,
   ShieldCheck,
   Truck,
   RotateCcw,
   Zap,
+  ChevronLeft,
+  Minus,
+  Plus,
+  Info,
+  Clock,
   ThumbsUp
 } from "lucide-react";
 import {
@@ -23,7 +27,9 @@ import {
   useWishlistActions,
   useWishlistState,
   useOverlayActions,
+  useCartState
 } from "@/context/AppContext";
+import { calculateProductPrice } from "@/lib/discount-engine";
 import { getPublicUploadUrl } from "@/lib/utils";
 import { Navbar } from "@/components/navigation/Navbar";
 import { Footer } from "@/components/navigation/Footer";
@@ -46,10 +52,12 @@ export default function ProductDetailClient({
   const { wishlist } = useWishlistState();
   const { toggleWishlist } = useWishlistActions();
   const { setCartOpen } = useOverlayActions();
+  const { discounts } = useCartState();
   
   const [activeImage, setActiveImage] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
+  const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
@@ -96,8 +104,16 @@ export default function ProductDetailClient({
     .filter(p => p.id !== initialProduct.id && (p.category === initialProduct.category || p.brand === initialProduct.brand))
     .slice(0, 4);
 
+  const handleQuantityChange = (type: 'increase' | 'decrease') => {
+    if (type === 'increase' && quantity < (initialProduct.stockQuantity || 1)) {
+      setQuantity(prev => prev + 1);
+    } else if (type === 'decrease' && quantity > 1) {
+      setQuantity(prev => prev - 1);
+    }
+  };
+
   const handleBuyNow = () => {
-    addToCart(initialProduct, 1, selectedColor, selectedSize);
+    addToCart(initialProduct, quantity, selectedColor, selectedSize);
     router.push('/checkout');
   };
 
@@ -111,7 +127,7 @@ export default function ProductDetailClient({
     addTimerRef.current = window.setTimeout(() => {
       setIsAdding(false);
       setIsSuccess(true);
-      addToCart(initialProduct, 1, selectedColor, selectedSize);
+      addToCart(initialProduct, quantity, selectedColor, selectedSize);
       
       setCartOpen(true);
 
@@ -127,18 +143,20 @@ export default function ProductDetailClient({
   
   const formatHTML = (html: string) => {
     if (!html) return '';
-    // Basic check if it's just text to preserve line breaks
     if (!/<[a-z][\s\S]*>/i.test(html)) {
       return html.replace(/\n/g, '<br />');
     }
     return html;
   };
 
+  // Price calculations using discount engine
+  const pricing = calculateProductPrice(initialProduct.price, initialProduct.id, discounts || []);
+
   return (
     <div className="min-h-screen flex flex-col bg-[#faf9f6] pt-28">
       <Navbar />
       
-      <main className="flex-grow max-w-[1440px] mx-auto w-full px-6 py-8 pb-32 sm:pb-32">
+      <main className="flex-grow max-w-[1440px] mx-auto w-full px-6 py-8 pb-32 sm:pb-16">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-muted-foreground mb-8">
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
@@ -148,25 +166,28 @@ export default function ProductDetailClient({
           <span className="text-[#1a1917] truncate max-w-[150px] sm:max-w-[200px]">{initialProduct.name}</span>
         </div>
 
+        {/* TOP SECTION: 3 COLUMNS */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mb-16">
-          {/* Images Section */}
-          <div className="lg:col-span-6 xl:col-span-7 flex flex-col gap-4 sticky top-32 h-fit">
-            <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-white shadow-sm border border-gray-200">
-              {activeImage ? (
+          
+          {/* LEFT COLUMN: Images Section (5/12) */}
+          <div className="lg:col-span-5 flex flex-col gap-4">
+            <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-white shadow-sm border border-gray-200 group">
+              {activeImage && (
                 <Image
                   src={getPublicUploadUrl(activeImage)}
                   alt={initialProduct.name}
                   fill
-                  sizes="(min-width: 1024px) 50vw, 100vw"
-                  className="object-contain p-4 mix-blend-multiply"
+                  sizes="(min-width: 1024px) 40vw, 100vw"
+                  className="object-contain p-4 mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
                   priority
                 />
-              ) : null}
+              )}
               {initialProduct.isNew && (
                 <div className="absolute top-4 left-4 z-10 rounded bg-primary px-3 py-1 text-xs font-bold uppercase tracking-wide text-white shadow-md">
                   New Arrival
                 </div>
               )}
+              {/* Prev / Next Buttons overlay (Optional for future) */}
             </div>
 
             {/* Thumbnails */}
@@ -193,8 +214,8 @@ export default function ProductDetailClient({
             )}
           </div>
 
-          {/* Product Info Section */}
-          <div className="lg:col-span-6 xl:col-span-5 flex flex-col">
+          {/* CENTER COLUMN: Details, Variants, Action Buttons (4/12) */}
+          <div className="lg:col-span-4 flex flex-col">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-extrabold uppercase tracking-widest text-primary">
                 {initialProduct.brand || initialProduct.category}
@@ -211,39 +232,43 @@ export default function ProductDetailClient({
               </button>
             </div>
             
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-gray-900 mb-4 leading-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 mb-3 leading-tight">
               {initialProduct.name}
             </h1>
             
-            <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100">
+            <div className="flex items-center gap-4 mb-4 pb-4 border-b border-gray-100">
               <div className="flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setActiveTab('reviews')}>
                 <div className="flex text-amber-400">
                   <Star className="h-5 w-5 fill-current" />
-                  <Star className="h-5 w-5 fill-current" />
-                  <Star className="h-5 w-5 fill-current" />
-                  <Star className="h-5 w-5 fill-current" />
-                  <Star className="h-5 w-5 fill-current opacity-50" />
+                  <span className="font-bold text-gray-900 ml-1">{initialProduct.rating || "0.0"}</span>
                 </div>
-                <span className="font-bold text-gray-900 ml-1">{initialProduct.rating || "0.0"}</span>
                 <span className="text-sm font-medium text-gray-500">
                   ({initialProduct.reviewCount || 0} reviews)
                 </span>
               </div>
             </div>
 
-            <div className="flex items-baseline gap-3 mb-8">
-              <span className="text-3xl sm:text-4xl font-black text-gray-900">
-                Rs. {initialProduct.price.toLocaleString()}
+            {/* Price Block */}
+            <div className="flex items-end gap-3 mb-6">
+              <span className="text-3xl font-black text-gray-900">
+                Rs. {pricing.finalPrice.toLocaleString()}
               </span>
-              {initialProduct.originalPrice > initialProduct.price && (
-                <span className="text-xl font-semibold text-gray-400 line-through">
-                  Rs. {initialProduct.originalPrice.toLocaleString()}
-                </span>
+              {pricing.hasDiscount && (
+                <>
+                  <span className="text-lg font-semibold text-gray-400 line-through mb-0.5">
+                    Rs. {pricing.originalPrice.toLocaleString()}
+                  </span>
+                  <span className="mb-1 rounded bg-red-100 px-2 py-0.5 text-xs font-bold text-red-600">
+                    -{pricing.discountType === 'percentage' 
+                        ? `${pricing.discountValue}%` 
+                        : `Rs. ${pricing.discountValue}`}
+                  </span>
+                </>
               )}
             </div>
 
             {/* Options */}
-            <div className="space-y-6 mb-10">
+            <div className="space-y-6 mb-8">
               {initialProduct.colors && initialProduct.colors.length > 0 && (
                 <div>
                   <h3 className="text-sm font-semibold text-gray-900 mb-3">
@@ -291,38 +316,108 @@ export default function ProductDetailClient({
               )}
             </div>
 
-            {/* Premium Trust Box */}
-            <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm space-y-4 mb-6">
-              <div className="flex items-center gap-3">
-                <div className="bg-emerald-50 p-2 rounded-full text-emerald-600">
-                  <ShieldCheck className="h-5 w-5" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-gray-900">Secure Checkout</h4>
-                  <p className="text-xs text-gray-500">100% protected payments</p>
+            {/* Inline Purchase Actions (Desktop Center Column) */}
+            <div className="flex flex-col gap-4 mt-auto">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-gray-900">Quantity</span>
+                <div className="flex items-center rounded-lg border border-gray-200 bg-white overflow-hidden shadow-sm">
+                  <button
+                    onClick={() => handleQuantityChange('decrease')}
+                    disabled={quantity <= 1}
+                    className="flex h-10 w-10 items-center justify-center text-gray-500 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </button>
+                  <div className="flex h-10 w-10 items-center justify-center font-bold text-gray-900 text-sm border-x border-gray-100">
+                    {quantity}
+                  </div>
+                  <button
+                    onClick={() => handleQuantityChange('increase')}
+                    disabled={quantity >= (initialProduct.stockQuantity || 1)}
+                    className="flex h-10 w-10 items-center justify-center text-gray-500 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="bg-blue-50 p-2 rounded-full text-blue-600">
+
+              {initialProduct.stockQuantity <= 0 ? (
+                <div className="py-4 px-4 bg-red-50 text-red-600 rounded-xl text-center font-bold text-sm border border-red-100">
+                  Currently Out of Stock
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={isAdding || isSuccess}
+                    className={`flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold shadow-sm transition-all border ${
+                      isSuccess
+                        ? "bg-green-50 text-green-600 border-green-200"
+                        : "bg-white text-primary border-primary hover:bg-primary/5"
+                    }`}
+                  >
+                    {isAdding ? <Loader2 className="h-5 w-5 animate-spin" /> : isSuccess ? <Check className="h-5 w-5" /> : <ShoppingCart className="h-5 w-5" />}
+                    {isSuccess ? "Added to Cart" : "Add to Cart"}
+                  </button>
+                  <button
+                    onClick={handleBuyNow}
+                    className="flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold shadow-md transition-all bg-primary text-white hover:bg-primary/90 hover:shadow-lg"
+                  >
+                    <Zap className="h-4 w-4" /> Buy Now
+                  </button>
+                </div>
+              )}
+            </div>
+
+          </div>
+
+          {/* RIGHT COLUMN: Trust Box & Delivery Info (3/12) */}
+          <div className="lg:col-span-3 flex flex-col gap-6">
+            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm flex flex-col gap-5 sticky top-32">
+              <h3 className="font-bold text-gray-900 border-b border-gray-100 pb-3">Delivery & Policies</h3>
+              
+              <div className="flex items-start gap-4">
+                <div className="bg-blue-50 p-2.5 rounded-full text-blue-600 shrink-0">
                   <Truck className="h-5 w-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-gray-900">Fast & Reliable Delivery</h4>
-                  <p className="text-xs text-gray-500">Across Pakistan</p>
+                  <h4 className="text-sm font-bold text-gray-900">Standard Delivery</h4>
+                  <p className="text-xs text-gray-500 mt-0.5">3-5 working days across Pakistan. Special rates apply for heavy items.</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="bg-amber-50 p-2 rounded-full text-amber-600">
+              
+              <div className="flex items-start gap-4">
+                <div className="bg-emerald-50 p-2.5 rounded-full text-emerald-600 shrink-0">
+                  <ShieldCheck className="h-5 w-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-gray-900">Secure Payment</h4>
+                  <p className="text-xs text-gray-500 mt-0.5">We use SSL encryption to ensure safe and secure transactions.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="bg-amber-50 p-2.5 rounded-full text-amber-600 shrink-0">
                   <RotateCcw className="h-5 w-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-gray-900">7 Days Return Policy</h4>
-                  <p className="text-xs text-gray-500">Hassle-free returns</p>
+                  <h4 className="text-sm font-bold text-gray-900">Return Policy</h4>
+                  <p className="text-xs text-gray-500 mt-0.5">7 days hassle-free return policy if items are damaged or incorrect.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="bg-purple-50 p-2.5 rounded-full text-purple-600 shrink-0">
+                  <Clock className="h-5 w-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-gray-900">24/7 Support</h4>
+                  <p className="text-xs text-gray-500 mt-0.5">Dedicated customer service to assist with your queries.</p>
                 </div>
               </div>
             </div>
-            
           </div>
+
         </div>
 
         {/* Tabs Section (Description, Features, Specifications, Reviews) */}
@@ -426,54 +521,9 @@ export default function ProductDetailClient({
         )}
       </main>
 
-      {/* Universal Sticky Bottom Purchase Bar (Desktop & Mobile) */}
-      <div className="fixed bottom-0 left-0 right-0 p-3 sm:p-4 bg-white/90 backdrop-blur-xl border-t border-gray-200 z-50 flex items-center justify-between shadow-[0_-8px_30px_rgba(0,0,0,0.08)] pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-        <div className="hidden sm:flex items-center gap-4 max-w-7xl mx-auto w-full px-6">
-          {/* Desktop Left Side */}
-          <div className="flex items-center gap-3 flex-1">
-            {initialProduct.images?.[0] && (
-              <div className="relative h-12 w-12 rounded bg-gray-50 border border-gray-100">
-                <Image src={getPublicUploadUrl(initialProduct.images[0])} alt="" fill className="object-contain p-1" />
-              </div>
-            )}
-            <div>
-              <p className="text-sm font-bold text-gray-900 line-clamp-1 max-w-md">{initialProduct.name}</p>
-              <p className="text-xs text-gray-500 font-medium">Rs. {initialProduct.price.toLocaleString()}</p>
-            </div>
-          </div>
-          
-          {/* Desktop Right Side (Buttons) */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleAddToCart}
-              disabled={isAdding || isSuccess || initialProduct.stockQuantity <= 0}
-              className={`flex items-center justify-center gap-2 rounded-lg px-6 py-2.5 text-sm font-bold shadow-sm transition-all border ${
-                initialProduct.stockQuantity <= 0
-                  ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-                  : isSuccess
-                  ? "bg-green-50 text-green-600 border-green-200"
-                  : "bg-white text-primary border-primary hover:bg-primary/5"
-              }`}
-            >
-              {isAdding ? <Loader2 className="h-4 w-4 animate-spin" /> : isSuccess ? <Check className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
-              {isSuccess ? "Added" : "Add to Cart"}
-            </button>
-            <button
-              onClick={handleBuyNow}
-              disabled={initialProduct.stockQuantity <= 0}
-              className={`flex items-center justify-center gap-2 rounded-lg px-8 py-2.5 text-sm font-bold shadow-md transition-all ${
-                initialProduct.stockQuantity <= 0
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-primary text-white hover:bg-primary/90 hover:shadow-lg"
-              }`}
-            >
-              <Zap className="h-4 w-4" /> Buy Now
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile View */}
-        <div className="flex sm:hidden items-center gap-3 w-full">
+      {/* Universal Sticky Bottom Purchase Bar (Mobile ONLY now) */}
+      <div className="flex md:hidden fixed bottom-0 left-0 right-0 p-3 sm:p-4 bg-white/90 backdrop-blur-xl border-t border-gray-200 z-50 items-center justify-between shadow-[0_-8px_30px_rgba(0,0,0,0.08)] pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <div className="flex items-center gap-3 w-full">
           <button
             onClick={handleBuyNow}
             disabled={initialProduct.stockQuantity <= 0}
