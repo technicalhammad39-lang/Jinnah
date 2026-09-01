@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Product, Review } from '@/data/products';
 import { Star, CheckCircle, ThumbsUp, MessageSquare, Image as ImageIcon } from 'lucide-react';
 import Image from 'next/image';
@@ -10,52 +10,25 @@ interface ReviewsTabProps {
 }
 
 // Mock Reviews for UI
-const mockReviews: Review[] = [
-  {
-    id: "rev-1",
-    productId: "prod-1",
-    userId: "user-1",
-    userName: "Ahmed Raza",
-    rating: 5,
-    title: "Absolutely Premium Quality",
-    reviewText: "I recently installed these handles on my main entrance door and they look absolutely stunning. The weight of the brass is substantial, and the knurled finish gives a very premium tactile feel. Worth every penny.",
-    verifiedPurchase: true,
-    status: "approved",
-    createdAt: "2023-11-15T10:20:30Z",
-    helpfulVotes: 12,
-    images: ["https://picsum.photos/seed/rev1a/400/400"]
-  },
-  {
-    id: "rev-2",
-    productId: "prod-1",
-    userId: "user-2",
-    userName: "Usman Ali",
-    rating: 4,
-    title: "Great product but slightly delayed shipping",
-    reviewText: "The lock itself is fantastic. Very smooth mechanism and feels very durable. Taking one star off because it took 5 days to arrive instead of the promised 3.",
-    verifiedPurchase: true,
-    status: "approved",
-    createdAt: "2023-10-22T14:45:00Z",
-    helpfulVotes: 4
-  },
-  {
-    id: "rev-3",
-    productId: "prod-1",
-    userId: "user-3",
-    userName: "Sara K.",
-    rating: 5,
-    title: "Exactly what I was looking for!",
-    reviewText: "Perfect match for my modern interior. The matte black finish is flawless and doesn't show fingerprints easily.",
-    verifiedPurchase: true,
-    status: "approved",
-    createdAt: "2023-09-05T09:15:22Z",
-    helpfulVotes: 8
-  }
-];
+const mockReviews: Review[] = [];
 
 export default function ReviewsTab({ product }: ReviewsTabProps) {
   const [filter, setFilter] = useState<number | 'all'>('all');
   const [isWriting, setIsWriting] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [images, setImages] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setImages(prev => [...prev, ...Array.from(e.target.files!)]);
+    }
+  };
+  
+  const removeImage = (index: number) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
+  };
 
   // Generate distribution
   const distribution = [5, 4, 3, 2, 1].map(stars => {
@@ -81,76 +54,15 @@ export default function ReviewsTab({ product }: ReviewsTabProps) {
           </div>
           <div className="flex gap-1 mb-2">
             {[1, 2, 3, 4, 5].map((star) => (
-              <Star
-                key={star}
-                className={`w-6 h-6 ${
-                  star <= Math.round(product?.rating || 0)
-                    ? 'fill-amber-400 text-amber-400'
-                    : 'fill-zinc-200 text-zinc-200'
-                }`}
-              />
-            ))}
-          </div>
-          <p className="text-zinc-500 font-medium text-sm">Based on {product?.reviewCount || 0} reviews</p>
-        </div>
-
-        {/* Rating Distribution */}
-        <div className="md:col-span-8 flex flex-col justify-center">
-          <div className="space-y-3">
-            {distribution.map(({ stars, count, percentage }) => (
-              <button 
-                key={stars}
-                onClick={() => setFilter(filter === stars ? 'all' : stars)}
-                className="w-full flex items-center gap-4 group"
-              >
-                <div className="flex items-center gap-1 w-16 shrink-0">
-                  <span className="font-medium text-zinc-700">{stars}</span>
-                  <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                </div>
-                <div className="flex-1 h-2.5 bg-zinc-100 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full rounded-full transition-all duration-500 ${filter === stars || filter === 'all' ? 'bg-amber-400' : 'bg-zinc-300'}`}
-                    style={{ width: `${percentage}%` }}
-                  />
-                </div>
-                <div className="w-10 text-right text-sm text-zinc-500 shrink-0 font-medium group-hover:text-zinc-900 transition-colors">
-                  {count}
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <hr className="border-zinc-200 mb-10" />
-
-      {/* Review Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <h4 className="text-2xl font-bold text-zinc-900 mb-1">Recent Reviews</h4>
-          <p className="text-zinc-500 text-sm">
-            {filter === 'all' ? 'Showing all reviews' : `Showing ${filter}-star reviews`}
-          </p>
-        </div>
-        <button
-          onClick={() => setIsWriting(!isWriting)}
-          className="px-6 py-3 bg-zinc-900 text-white font-semibold rounded-lg hover:bg-zinc-800 transition-colors"
-        >
-          {isWriting ? 'Cancel' : 'Write a Review'}
-        </button>
-      </div>
-
-      {/* Write a review form (mocked) */}
-      {isWriting && (
-        <div className="bg-zinc-50 p-6 rounded-2xl border border-zinc-200 mb-10">
-          <h4 className="text-lg font-bold text-zinc-900 mb-4">Write a Review</h4>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1">Rating</label>
-              <div className="flex gap-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button key={star} type="button" className="text-zinc-300 hover:text-amber-400 hover:fill-amber-400 transition-colors">
-                    <Star className="w-8 h-8" />
+                  <button 
+                    key={star} 
+                    type="button" 
+                    onClick={() => setRating(star)}
+                    onMouseEnter={() => setHoverRating(star)}
+                    onMouseLeave={() => setHoverRating(0)}
+                    className={`${(hoverRating || rating) >= star ? 'text-amber-400 fill-amber-400' : 'text-zinc-300'} hover:text-amber-400 transition-colors`}
+                  >
+                    <Star className={`w-8 h-8 ${(hoverRating || rating) >= star ? 'fill-amber-400' : ''}`} />
                   </button>
                 ))}
               </div>
@@ -165,12 +77,29 @@ export default function ReviewsTab({ product }: ReviewsTabProps) {
             </div>
             <div>
               <label className="block text-sm font-medium text-zinc-700 mb-1">Add Photos</label>
-              <button type="button" className="flex items-center justify-center gap-2 w-full md:w-auto px-6 py-3 border-2 border-dashed border-zinc-300 rounded-lg text-zinc-500 hover:bg-zinc-100 transition-colors">
+              <input type="file" hidden ref={fileInputRef} onChange={handleImageChange} multiple accept="image/*" />
+              <button onClick={() => fileInputRef.current?.click()} type="button" className="flex items-center justify-center gap-2 w-full md:w-auto px-6 py-3 border-2 border-dashed border-zinc-300 rounded-lg text-zinc-500 hover:bg-zinc-100 transition-colors">
                 <ImageIcon className="w-5 h-5" />
                 <span>Upload Images</span>
               </button>
+              {images.length > 0 && (
+                <div className="flex gap-4 mt-4 flex-wrap">
+                  {images.map((img, idx) => (
+                    <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-zinc-200 group">
+                      <Image src={URL.createObjectURL(img)} alt="preview" fill className="object-cover" />
+                      <button 
+                        type="button" 
+                        onClick={() => removeImage(idx)}
+                        className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold transition-opacity"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <button type="button" className="px-8 py-3 bg-brand-orange text-white font-bold rounded-lg hover:bg-brand-orange/90 transition-colors">
+            <button type="button" className="px-8 py-3 bg-[#f97316] text-white font-bold rounded-lg hover:bg-[#ea580c] transition-colors">
               Submit Review
             </button>
           </div>
