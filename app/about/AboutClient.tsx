@@ -112,7 +112,7 @@ export function AboutClient({ leadership }: { leadership: any[] }) {
                   <div key={member.id} className={`grid grid-cols-1 lg:grid-cols-2 gap-16 items-center ${index !== leadership.length - 1 ? 'mb-24 md:mb-32' : ''}`}>
                     <div className={`relative ${isEven ? '' : 'order-1 lg:order-2'}`}>
                       {/* Rotated Orange Shape Behind Image */}
-                      <div className="absolute -top-8 right-16 -bottom-8 left-16 bg-gradient-to-br from-[#FFC107] to-[#FF6A2A] rounded-[3rem] -rotate-6 z-0 shadow-lg" />
+                      <div className="absolute -top-6 -left-2 -right-2 -bottom-6 md:-top-8 md:left-16 md:right-16 md:-bottom-8 bg-gradient-to-br from-[#FFC107] to-[#FF6A2A] rounded-[2rem] md:rounded-[3rem] -rotate-6 z-0 shadow-lg" />
                       
                       <div className={`relative z-10 h-[400px] md:h-[500px] rounded-3xl overflow-hidden bg-black/5 shadow-2xl ring-4 ring-white`}>
                         {member.image ? (
