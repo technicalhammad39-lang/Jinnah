@@ -36,6 +36,10 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
     dimensions: "",
     weight: "",
     shippingClass: "",
+    shippingType: "default",
+    shippingFee: 0,
+    deliveryEstimate: "",
+    shippingNote: "",
     features: "",
     allowedPaymentMethods: ["ALL"]
   });
@@ -160,6 +164,7 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
         ...formData,
         price: Number(formData.price),
         stockQuantity: Number(formData.stockQuantity),
+        shippingFee: Number(formData.shippingFee),
         features: featuresArray,
         updatedAt: serverTimestamp()
       };
@@ -279,6 +284,66 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
                   onChange={e => setFormData({...formData, stockQuantity: Number(e.target.value)})}
                   className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
                 />
+              </div>
+            </div>
+          </div>
+
+          {/* Shipping & Delivery */}
+          <div>
+            <h2 className="text-lg font-bold mb-4 border-b pb-2 text-[#FF6A2A]">Shipping & Delivery</h2>
+            <div className="space-y-6">
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Shipping Type</label>
+                  <select
+                    value={formData.shippingType}
+                    onChange={e => setFormData({...formData, shippingType: e.target.value})}
+                    className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                  >
+                    <option value="default">Use Global Default Fee</option>
+                    <option value="free">Free Shipping (Rs. 0)</option>
+                    <option value="fixed">Fixed Shipping Fee</option>
+                  </select>
+                </div>
+                
+                {formData.shippingType === "fixed" && (
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Shipping Fee (Rs.)</label>
+                    <input 
+                      type="number" 
+                      value={formData.shippingFee}
+                      onChange={e => setFormData({...formData, shippingFee: Number(e.target.value)})}
+                      className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                      min="0"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Custom Delivery Estimate (Optional)</label>
+                  <input 
+                    type="text" 
+                    value={formData.deliveryEstimate}
+                    onChange={e => setFormData({...formData, deliveryEstimate: e.target.value})}
+                    placeholder="e.g. 5-7 working days"
+                    className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                  />
+                  <p className="text-[10px] text-gray-500 pl-1">Leave empty to use global default estimate.</p>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Shipping Note (Optional)</label>
+                  <input 
+                    type="text" 
+                    value={formData.shippingNote}
+                    onChange={e => setFormData({...formData, shippingNote: e.target.value})}
+                    placeholder="e.g. Special rates apply for heavy items."
+                    className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                  />
+                </div>
               </div>
             </div>
           </div>

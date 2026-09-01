@@ -56,26 +56,10 @@ export function AboutSection() {
               />
             </motion.div>
 
-            {/* Fast Animated Curve going into the image */}
-            <svg 
-              className="absolute inset-0 w-full h-full z-10 pointer-events-none overflow-visible"
-              viewBox="0 0 100 100" 
-              preserveAspectRatio="none"
-            >
-              <motion.path 
-                d="M -10,-20 C 10,20 30,75 85,75"
-                fill="none" 
-                stroke="#FF6A2A" 
-                strokeWidth="10" 
-                strokeLinecap="round"
-                vectorEffect="non-scaling-stroke"
-                initial={{ pathLength: 0, opacity: 0 }}
-                whileInView={{ pathLength: 1, opacity: 1 }}
-                viewport={{ once: true, margin: "-10%" }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                style={{ filter: "drop-shadow(0 0 8px rgba(255,106,42,0.4))" }}
-              />
-            </svg>
+            {/* Decorative Brush SVG */}
+            <div className="hidden md:block absolute -left-[15%] top-[10%] w-[300px] h-[300px] opacity-[0.6] -rotate-[15deg] pointer-events-none z-10">
+              <Image src="/hero-shape.svg" alt="decorative shape" fill className="object-contain" />
+            </div>
 
             {/* Overlapping Top-Right Image with Badge */}
             <motion.div

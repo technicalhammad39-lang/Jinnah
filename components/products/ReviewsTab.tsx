@@ -10,9 +10,10 @@ import { getPublicUploadUrl } from '@/lib/utils';
 
 interface ReviewsTabProps {
   product: Product;
+  onReviewsLoaded?: (count: number, average: number) => void;
 }
 
-export default function ReviewsTab({ product }: ReviewsTabProps) {
+export default function ReviewsTab({ product, onReviewsLoaded }: ReviewsTabProps) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<number | 'all'>('all');
@@ -47,6 +48,11 @@ export default function ReviewsTab({ product }: ReviewsTabProps) {
           .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
           
         setReviews(fetched);
+        
+        if (onReviewsLoaded) {
+          const avg = fetched.length > 0 ? fetched.reduce((acc, r) => acc + r.rating, 0) / fetched.length : 0;
+          onReviewsLoaded(fetched.length, avg);
+        }
       } catch (error) {
         console.error("Error fetching reviews:", error);
       } finally {
@@ -138,7 +144,13 @@ export default function ReviewsTab({ product }: ReviewsTabProps) {
       const docRef = await addDoc(collection(db, 'reviews'), newReview);
       
       // Update local state to immediately show the new review
-      setReviews(prev => [{ id: docRef.id, ...newReview } as Review, ...prev]);
+      const newReviews = [{ id: docRef.id, ...newReview } as Review, ...reviews];
+      setReviews(newReviews);
+      
+      if (onReviewsLoaded) {
+        const avg = newReviews.length > 0 ? newReviews.reduce((acc, r) => acc + r.rating, 0) / newReviews.length : 0;
+        onReviewsLoaded(newReviews.length, avg);
+      }
 
       alert("Review submitted successfully!");
       setIsWriting(false);

@@ -23,6 +23,12 @@ export interface Product {
   features?: string[];
   stockQuantity: number; // Replaces availability string
   allowedPaymentMethods?: string[]; // ['ALL'] or ['bank', 'cod']
+  
+  // Shipping & Delivery
+  shippingType?: 'free' | 'fixed' | 'default' | null;
+  shippingFee?: number;
+  deliveryEstimate?: string;
+  shippingNote?: string;
 }
 
 export interface Coupon {
@@ -74,6 +80,10 @@ export interface Order {
   discountAmount?: number;
   couponCode?: string;
   shipping: number;
+  appliedBenefit?: {
+    type: 'free_shipping' | 'discount_fixed' | 'discount_percentage';
+    value: number;
+  } | null;
   total: number;
   status: string; // 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
   paymentStatus: string; // 'pending' | 'paid' | 'failed' | 'refunded'

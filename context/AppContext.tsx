@@ -12,6 +12,11 @@ import { Product } from "@/data/products";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Discount, calculateProductPrice } from "@/lib/discount-engine";
+import { 
+  calculateOrderShipping, 
+  GlobalShippingSettings, 
+  ShippingCalculationResult 
+} from "@/lib/shipping-engine";
 
 export interface CartItem {
   product: Product;
@@ -27,6 +32,8 @@ interface CartStateContextType {
   cartDiscountTotal: number;
   cartFinalTotal: number;
   discounts: Discount[];
+  shippingSettings: GlobalShippingSettings | null;
+  shippingResult: ShippingCalculationResult | null;
 }
 
 interface CartActionsContextType {
@@ -95,6 +102,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [ticker, setTicker] = useState({ enabled: false, text: "", link: "" });
   const [storageReady, setStorageReady] = useState(false);
   const [discounts, setDiscounts] = useState<Discount[]>([]);
+  const [shippingSettings, setShippingSettings] = useState<GlobalShippingSettings | null>(null);
 
   useEffect(() => {
     async function fetchDiscounts() {
@@ -117,6 +125,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             enabled: !!data.tickerEnabled,
             text: data.tickerText || "",
             link: data.tickerLink || "",
+          });
+          
+          setShippingSettings({
+            defaultShippingFee: data.defaultShippingFee ?? 200,
+            defaultDeliveryEstimate: data.defaultDeliveryEstimate || "3-5 working days",
+            thresholdEnabled: !!data.thresholdEnabled,
+            thresholdAmount: data.thresholdAmount ?? 10000,
+            benefitType: data.benefitType || "free_shipping",
+            benefitValue: data.benefitValue ?? 0,
+            qrDestinationUrl: data.qrDestinationUrl || ""
           });
         }
       });
@@ -269,9 +287,27 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }, 0);
   }, [cart, discounts]);
 
+  const shippingResult = useMemo(() => {
+    const items = cart.map(item => ({
+      id: item.product.id,
+      price: item.product.price,
+      quantity: item.quantity,
+      shippingType: item.product.shippingType,
+      shippingFee: item.product.shippingFee
+    }));
+    return calculateOrderShipping(cartSubtotal - cartDiscountTotal, items, shippingSettings);
+  }, [cart, cartSubtotal, cartDiscountTotal, shippingSettings]);
+
   const cartFinalTotal = useMemo(() => {
-    return cartSubtotal - cartDiscountTotal;
-  }, [cartSubtotal, cartDiscountTotal]);
+    let total = cartSubtotal - cartDiscountTotal + shippingResult.finalShippingFee;
+    
+    // Apply extra threshold discount if applicable
+    if (shippingResult.appliedBenefit && shippingResult.appliedBenefit.type !== 'free_shipping') {
+      total -= shippingResult.appliedBenefit.value;
+    }
+    
+    return Math.max(0, total);
+  }, [cartSubtotal, cartDiscountTotal, shippingResult]);
 
   const cartStateValue = useMemo(
     () => ({
@@ -281,8 +317,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       cartDiscountTotal,
       cartFinalTotal,
       discounts,
+      shippingSettings,
+      shippingResult,
     }),
-    [cart, cartCount, cartSubtotal, cartDiscountTotal, cartFinalTotal, discounts]
+    [cart, cartCount, cartSubtotal, cartDiscountTotal, cartFinalTotal, discounts, shippingSettings, shippingResult]
   );
 
   const cartActionsValue = useMemo(

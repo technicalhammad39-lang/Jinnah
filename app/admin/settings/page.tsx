@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Save, Loader2, Globe, Phone, Mail, MapPin } from "lucide-react";
+import { Save, Loader2, Globe, Phone, Mail, MapPin, Truck, Gift, QrCode } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AdminSettings() {
@@ -22,7 +22,17 @@ export default function AdminSettings() {
     whatsapp: "+923076924116",
     tickerEnabled: false,
     tickerText: "",
-    tickerLink: ""
+    tickerLink: "",
+    // Shipping & Delivery
+    defaultShippingFee: 200,
+    defaultDeliveryEstimate: "3-5 working days",
+    // Threshold Benefits
+    thresholdEnabled: false,
+    thresholdAmount: 10000,
+    benefitType: "free_shipping",
+    benefitValue: 0,
+    // QR Code
+    qrDestinationUrl: "https://maps.app.goo.gl/..."
   });
 
   const fetchSettings = async () => {
@@ -229,6 +239,124 @@ export default function AdminSettings() {
                 className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
               />
             </div>
+          </div>
+        </div>
+
+        {/* Shipping & Benefits */}
+        <div className="bg-white border border-[#1a1917]/5 rounded-2xl p-6 shadow-xl space-y-6">
+          <div className="flex items-center gap-2 border-b border-[#1a1917]/5 pb-4 mb-4">
+            <Truck className="w-5 h-5 text-[#FF6A2A]" />
+            <h2 className="text-lg font-bold text-[#1a1917]">Global Shipping Settings</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Default Shipping Fee (Rs.)</label>
+              <input 
+                type="number" 
+                value={settings.defaultShippingFee}
+                onChange={e => setSettings({...settings, defaultShippingFee: Number(e.target.value)})}
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                min="0"
+              />
+              <p className="text-[10px] text-gray-500 pl-1">Used if a product doesn't have a specific fee.</p>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Default Delivery Estimate</label>
+              <input 
+                type="text" 
+                value={settings.defaultDeliveryEstimate}
+                onChange={e => setSettings({...settings, defaultDeliveryEstimate: e.target.value})}
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                placeholder="e.g. 3-5 working days"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white border border-[#1a1917]/5 rounded-2xl p-6 shadow-xl space-y-6">
+          <div className="flex items-center gap-2 border-b border-[#1a1917]/5 pb-4 mb-4">
+            <Gift className="w-5 h-5 text-[#FF6A2A]" />
+            <h2 className="text-lg font-bold text-[#1a1917]">Threshold Benefit System</h2>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                checked={settings.thresholdEnabled}
+                onChange={e => setSettings({...settings, thresholdEnabled: e.target.checked})}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#FF6A2A]"></div>
+            </label>
+            <span className="text-sm font-semibold text-[#1a1917]">Enable Order Threshold Benefits</span>
+          </div>
+          
+          {settings.thresholdEnabled && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 bg-gray-50 rounded-xl border border-gray-100">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Threshold Amount (Rs.)</label>
+                <input 
+                  type="number" 
+                  value={settings.thresholdAmount}
+                  onChange={e => setSettings({...settings, thresholdAmount: Number(e.target.value)})}
+                  className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                  min="0"
+                />
+                <p className="text-[10px] text-gray-500 pl-1">Cart subtotal needed to unlock benefit.</p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Benefit Type</label>
+                <select
+                  value={settings.benefitType}
+                  onChange={e => setSettings({...settings, benefitType: e.target.value})}
+                  className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                >
+                  <option value="free_shipping">Free Shipping</option>
+                  <option value="discount_fixed">Extra Discount (Fixed Rs.)</option>
+                  <option value="discount_percentage">Extra Discount (%)</option>
+                </select>
+              </div>
+
+              {(settings.benefitType === "discount_fixed" || settings.benefitType === "discount_percentage") && (
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Benefit Value</label>
+                  <input 
+                    type="number" 
+                    value={settings.benefitValue}
+                    onChange={e => setSettings({...settings, benefitValue: Number(e.target.value)})}
+                    className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                    min="0"
+                  />
+                  <p className="text-[10px] text-gray-500 pl-1">
+                    {settings.benefitType === "discount_fixed" ? "Fixed amount to discount" : "Percentage to discount"}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Business QR */}
+        <div className="bg-white border border-[#1a1917]/5 rounded-2xl p-6 shadow-xl space-y-6">
+          <div className="flex items-center gap-2 border-b border-[#1a1917]/5 pb-4 mb-4">
+            <QrCode className="w-5 h-5 text-[#FF6A2A]" />
+            <h2 className="text-lg font-bold text-[#1a1917]">Business QR Code</h2>
+          </div>
+          
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">QR Destination URL</label>
+            <input 
+              type="text" 
+              value={settings.qrDestinationUrl}
+              onChange={e => setSettings({...settings, qrDestinationUrl: e.target.value})}
+              className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+              placeholder="e.g. https://maps.app.goo.gl/..."
+            />
+            <p className="text-[10px] text-gray-500 pl-1">This link will be dynamically encoded into the shop's QR code shown to customers.</p>
           </div>
         </div>
 

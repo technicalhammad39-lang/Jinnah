@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { adminDb, getAdminApp } from '@/lib/firebase-admin';
 import * as admin from 'firebase-admin';
 import { calculateProductPrice, Discount } from '@/lib/discount-engine';
+import { calculateOrderShipping, GlobalShippingSettings } from '@/lib/shipping-engine';
 
 export async function POST(req: Request) {
   try {
@@ -49,6 +50,8 @@ export async function POST(req: Request) {
           id: item.product.id,
           name: p.name,
           price: p.price,
+          shippingType: p.shippingType,
+          shippingFee: p.shippingFee
         },
         quantity: item.quantity,
         selectedColor: item.selectedColor || null,
@@ -57,6 +60,20 @@ export async function POST(req: Request) {
       });
     }
     
+    // Fetch global settings
+    const globalSettingsDoc = await adminDb.collection('settings').doc('global').get();
+    const globalSettingsData = globalSettingsDoc.exists ? globalSettingsDoc.data() : {};
+    
+    const shippingSettings: GlobalShippingSettings = {
+      defaultShippingFee: globalSettingsData?.defaultShippingFee ?? 200,
+      defaultDeliveryEstimate: globalSettingsData?.defaultDeliveryEstimate || "3-5 working days",
+      thresholdEnabled: !!globalSettingsData?.thresholdEnabled,
+      thresholdAmount: globalSettingsData?.thresholdAmount ?? 10000,
+      benefitType: globalSettingsData?.benefitType || "free_shipping",
+      benefitValue: globalSettingsData?.benefitValue ?? 0,
+      qrDestinationUrl: globalSettingsData?.qrDestinationUrl || ""
+    };
+
     // Fetch active discounts from server
     const discountsSnap = await adminDb.collection('discounts').where('isActive', '==', true).get();
     const activeDiscounts = discountsSnap.docs.map(doc => {
@@ -85,7 +102,23 @@ export async function POST(req: Request) {
       };
     });
     
-    const total = subtotal - discountTotal;
+    const shippingEngineItems = validatedItems.map(item => ({
+      id: item.product.id,
+      price: item.product.price,
+      quantity: item.quantity,
+      shippingType: item.product.shippingType,
+      shippingFee: item.product.shippingFee
+    }));
+
+    const shippingResult = calculateOrderShipping(subtotal - discountTotal, shippingEngineItems, shippingSettings);
+    
+    let total = subtotal - discountTotal + shippingResult.finalShippingFee;
+    
+    // Apply extra threshold discount if applicable
+    if (shippingResult.appliedBenefit && shippingResult.appliedBenefit.type !== 'free_shipping') {
+      total -= shippingResult.appliedBenefit.value;
+    }
+    total = Math.max(0, total);
     
     // Batch write to update stock and save order
     const batch = adminDb.batch();
@@ -118,6 +151,8 @@ export async function POST(req: Request) {
       items: processedItems,
       subtotal,
       discount: discountTotal,
+      shipping: shippingResult.finalShippingFee,
+      appliedBenefit: shippingResult.appliedBenefit || null,
       total,
       status: "pending",
       createdAt: admin.firestore.FieldValue.serverTimestamp(),

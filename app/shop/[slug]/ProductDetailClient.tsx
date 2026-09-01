@@ -32,6 +32,7 @@ import { Footer } from "@/components/navigation/Footer";
 import { ProductCard } from "@/components/products/ProductCard";
 import { ProductGallery } from "@/components/products/ProductGallery";
 import { SellerCard } from "@/components/products/SellerCard";
+import { BusinessQRCode } from "@/components/products/BusinessQRCode";
 import dynamic from "next/dynamic";
 
 const ReviewsTab = dynamic(() => import("@/components/products/ReviewsTab"), {
@@ -50,7 +51,7 @@ export default function ProductDetailClient({
   const { wishlist } = useWishlistState();
   const { toggleWishlist } = useWishlistActions();
   const { setCartOpen } = useOverlayActions();
-  const { discounts } = useCartState();
+  const { discounts, shippingSettings, shippingResult } = useCartState();
   
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
@@ -58,6 +59,8 @@ export default function ProductDetailClient({
   const [isAdding, setIsAdding] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
+  const [actualReviewCount, setActualReviewCount] = useState(initialProduct.reviewCount || 0);
+  const [actualRating, setActualRating] = useState(initialProduct.averageRating || 0);
   const addTimerRef = useRef<number | null>(null);
   const successTimerRef = useRef<number | null>(null);
 
@@ -148,8 +151,15 @@ export default function ProductDetailClient({
   // Price calculations using discount engine
   const pricing = calculateProductPrice(initialProduct.price, initialProduct.id, discounts || []);
 
-  const hasReviews = initialProduct.reviewCount > 0;
-  const rating = initialProduct.averageRating ? Number(initialProduct.averageRating).toFixed(1) : "0.0";
+  const hasReviews = actualReviewCount > 0;
+  const rating = actualRating ? Number(actualRating).toFixed(1) : "0.0";
+  
+  // Display shipping fee
+  const displayShippingFee = initialProduct.shippingType === 'free' ? 0 : 
+                            initialProduct.shippingType === 'fixed' ? (initialProduct.shippingFee || 0) : 
+                            (shippingSettings?.defaultShippingFee || 200);
+                            
+  const displayDeliveryEstimate = initialProduct.deliveryEstimate || shippingSettings?.defaultDeliveryEstimate || "3-5 working days";
 
   return (
     <div className="min-h-screen flex flex-col bg-[#faf9f6] pt-28">
@@ -192,8 +202,11 @@ export default function ProductDetailClient({
               <div className="flex items-center gap-4 flex-wrap">
                 <button 
                   onClick={() => {
-                    setActiveTab('reviews');
-                    window.scrollTo({ top: 600, behavior: 'smooth' }); // Rough scroll, could be improved with refs
+                    const el = document.getElementById('reviews');
+                    if (el) {
+                      const y = el.getBoundingClientRect().top + window.scrollY - 100;
+                      window.scrollTo({ top: y, behavior: 'smooth' });
+                    }
                   }}
                   className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
                 >
@@ -202,7 +215,7 @@ export default function ProductDetailClient({
                   </div>
                   <span className="text-sm font-bold text-gray-700">{rating}</span>
                   <span className="text-sm text-blue-600 font-medium">
-                    ({initialProduct.reviewCount || 0} Reviews)
+                    ({actualReviewCount} Reviews)
                   </span>
                 </button>
 
@@ -356,6 +369,35 @@ export default function ProductDetailClient({
               </button>
             </div>
 
+            {/* Threshold Hype UI (Product Level) */}
+            {shippingSettings?.thresholdEnabled && shippingResult && (
+              <div className="bg-[#FF6A2A]/5 px-4 py-3 border border-[#FF6A2A]/20 rounded-xl mt-2">
+                <div className="flex items-start gap-3">
+                  <div className="bg-white p-2 rounded-full shadow-sm text-[#FF6A2A]">
+                    <Zap className="h-4 w-4" />
+                  </div>
+                  <div className="flex-grow">
+                    <p className="text-xs font-bold text-[#1a1917]">
+                      {shippingSettings.benefitType === "free_shipping" ? "Unlock Free Shipping!" : "Unlock Extra Discount!"}
+                    </p>
+                    <p className="text-[10px] text-gray-600 mt-0.5">
+                      {shippingResult.thresholdRemaining > 0
+                        ? `Add Rs. ${shippingResult.thresholdRemaining.toLocaleString()} more to your cart to claim your benefit.`
+                        : "🎉 Benefit unlocked in your cart!"}
+                    </p>
+                    {shippingResult.thresholdRemaining > 0 && (
+                      <div className="w-full bg-black/5 rounded-full h-1 mt-2 overflow-hidden">
+                        <div 
+                          className="bg-[#FF6A2A] h-1 rounded-full transition-all duration-500 ease-out" 
+                          style={{ width: `${shippingResult.thresholdProgress}%` }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
           </div>
 
           {/* RIGHT COLUMN: Trust Box & Delivery Info & Seller (3/12) */}
@@ -370,10 +412,24 @@ export default function ProductDetailClient({
                   <Truck className="h-5 w-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-gray-900">Standard Delivery</h4>
-                  <p className="text-xs text-gray-500 mt-0.5">3-5 working days across Pakistan.</p>
+                  <h4 className="text-sm font-bold text-gray-900">
+                    {displayShippingFee === 0 ? "Free Delivery" : `Standard Delivery (Rs. ${displayShippingFee})`}
+                  </h4>
+                  <p className="text-xs text-gray-500 mt-0.5">{displayDeliveryEstimate}</p>
                 </div>
               </div>
+              
+              {initialProduct.shippingNote && (
+                <div className="flex items-start gap-4">
+                  <div className="text-[#FF6A2A] shrink-0 mt-0.5">
+                    <Check className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-gray-900">Delivery Note</h4>
+                    <p className="text-xs text-gray-500 mt-0.5">{initialProduct.shippingNote}</p>
+                  </div>
+                </div>
+              )}
               
               <div className="flex items-start gap-4">
                 <div className="text-gray-400 shrink-0 mt-0.5">
@@ -410,6 +466,9 @@ export default function ProductDetailClient({
               </div>
             </div>
 
+            {/* Business QR Code */}
+            <BusinessQRCode />
+
           </div>
 
         </div>
@@ -417,7 +476,7 @@ export default function ProductDetailClient({
         {/* Tabs Section (Description, Features, Specifications, Reviews) */}
         <div className="border-t border-gray-200 pt-16 mb-16">
           <div className="flex gap-8 border-b border-gray-200 mb-8 overflow-x-auto pb-2 scrollbar-hide">
-            {['description', 'features', 'specifications', 'reviews'].map((tab) => (
+            {['description', 'features', 'specifications'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -428,11 +487,6 @@ export default function ProductDetailClient({
                 }`}
               >
                 {tab}
-                {tab === 'reviews' && (
-                  <span className="ml-2 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
-                    {initialProduct.reviewCount || 0}
-                  </span>
-                )}
               </button>
             ))}
           </div>
@@ -491,13 +545,18 @@ export default function ProductDetailClient({
                 )}
               </div>
             )}
-
-            {activeTab === 'reviews' && (
-              <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-                <ReviewsTab product={initialProduct} />
-              </div>
-            )}
           </div>
+        </div>
+
+        {/* Reviews Section - Always Visible */}
+        <div id="reviews" className="border-t border-gray-200 pt-16 mb-16">
+          <ReviewsTab 
+            product={initialProduct} 
+            onReviewsLoaded={(count, avg) => {
+              setActualReviewCount(count);
+              setActualRating(avg);
+            }} 
+          />
         </div>
 
         {/* Related Products */}

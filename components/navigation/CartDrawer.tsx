@@ -20,7 +20,7 @@ import {
 } from "@/context/AppContext";
 
 export function CartDrawer() {
-  const { cart, cartCount, cartSubtotal } = useCartState();
+  const { cart, cartCount, cartSubtotal, cartDiscountTotal, cartFinalTotal, shippingSettings, shippingResult } = useCartState();
   const { updateCartQuantity, removeFromCart, clearCart } = useCartActions();
   const { cartOpen, ticker } = useOverlayState();
   const { setCartOpen } = useOverlayActions();
@@ -114,7 +114,34 @@ export function CartDrawer() {
               </button>
             </div>
 
-            <div className="flex-grow space-y-4 overflow-y-auto p-6">
+            <div className="flex-grow flex flex-col overflow-hidden">
+              {/* Threshold Hype UI */}
+              {shippingSettings?.thresholdEnabled && shippingResult && cartCount > 0 && (
+                <div className="bg-[#FF6A2A]/5 px-6 py-4 border-b border-[#FF6A2A]/10">
+                  <div className="flex justify-between text-xs font-bold mb-2">
+                    <span className="text-[#1a1917]">
+                      {shippingResult.thresholdRemaining > 0
+                        ? `Add Rs. ${shippingResult.thresholdRemaining.toLocaleString()} to unlock ${
+                            shippingSettings.benefitType === "free_shipping"
+                              ? "Free Shipping"
+                              : shippingSettings.benefitType === "discount_fixed"
+                              ? `Rs. ${shippingSettings.benefitValue} Off`
+                              : `${shippingSettings.benefitValue}% Off`
+                          }`
+                        : "🎉 You've unlocked your benefit!"}
+                    </span>
+                    <span className="text-[#FF6A2A]">{Math.round(shippingResult.thresholdProgress)}%</span>
+                  </div>
+                  <div className="w-full bg-black/10 rounded-full h-1.5 overflow-hidden">
+                    <div 
+                      className="bg-[#FF6A2A] h-1.5 rounded-full transition-all duration-500 ease-out" 
+                      style={{ width: `${shippingResult.thresholdProgress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex-grow space-y-4 overflow-y-auto p-6">
               {cart.length === 0 ? (
                 <div className="flex h-full flex-col items-center justify-center space-y-4 py-12 text-center">
                   <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/5 text-primary/40">
@@ -229,8 +256,9 @@ export function CartDrawer() {
                 ))
               )}
             </div>
+          </div>
 
-            {cart.length > 0 && (
+          {cart.length > 0 && (
               <div className="space-y-4 border-t border-black/5 bg-black/[0.02] p-6">
                 <div className="space-y-1.5">
                   <div className="flex justify-between text-sm text-muted-foreground">
@@ -239,14 +267,34 @@ export function CartDrawer() {
                       Rs. {cartSubtotal.toLocaleString()}
                     </span>
                   </div>
+                  {cartDiscountTotal > 0 && (
+                    <div className="flex justify-between text-sm text-emerald-600">
+                      <span>Product Discount</span>
+                      <span className="font-semibold">
+                        -Rs. {cartDiscountTotal.toLocaleString()}
+                      </span>
+                    </div>
+                  )}
+                  {shippingResult?.appliedBenefit && shippingResult.appliedBenefit.type !== 'free_shipping' && (
+                    <div className="flex justify-between text-sm text-emerald-600">
+                      <span>Extra Benefit</span>
+                      <span className="font-semibold">
+                        -Rs. {shippingResult.appliedBenefit.value.toLocaleString()}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-sm text-muted-foreground">
                     <span>Shipping</span>
-                    <span className="font-semibold text-emerald-600">Free Delivery</span>
+                    <span className={`font-semibold ${shippingResult?.finalShippingFee === 0 ? "text-emerald-600" : "text-foreground"}`}>
+                      {shippingResult?.finalShippingFee === 0 
+                        ? "Free Delivery" 
+                        : `Rs. ${shippingResult?.finalShippingFee?.toLocaleString() || 0}`}
+                    </span>
                   </div>
                   <div className="my-2 h-[1px] bg-black/5" />
                   <div className="flex justify-between text-base font-bold text-foreground">
                     <span>Estimated Total</span>
-                    <span>Rs. {cartSubtotal.toLocaleString()}</span>
+                    <span>Rs. {cartFinalTotal.toLocaleString()}</span>
                   </div>
                 </div>
 
