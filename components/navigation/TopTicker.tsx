@@ -2,12 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useOverlayState } from "@/context/AppContext";
 import { Megaphone, ExternalLink } from "lucide-react";
 import { useIsScrolling } from "@/hooks/useIsScrolling";
 
 export function TopTicker() {
   const { ticker } = useOverlayState();
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const isScrolling = useIsScrolling(250);
   const [isElevated, setIsElevated] = useState(false);
@@ -23,7 +25,7 @@ export function TopTicker() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  if (!mounted || !ticker.enabled || !ticker.text) return null;
+  if (!mounted || !ticker.enabled || !ticker.text || pathname?.startsWith('/admin')) return null;
 
   const content = (
     <div className="flex items-center gap-3 whitespace-nowrap px-8 text-[13px] sm:text-sm font-bold tracking-widest text-white uppercase">
