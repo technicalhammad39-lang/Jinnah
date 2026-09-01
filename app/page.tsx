@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 // import { PRODUCTS } from "@/data/products";
-import { getFeaturedProducts } from "@/lib/data-fetcher";
+import { getFeaturedProducts, getSettings } from "@/lib/data-fetcher";
 import { Navbar } from "@/components/navigation/Navbar";
 import { AnimatedMarqueeHero } from "@/components/hero/AnimatedMarqueeHero";
 import { CategorySection } from "@/components/sections/CategorySection";
@@ -35,6 +35,7 @@ export const metadata: Metadata = {
 export default async function Home() {
   // Fetch from Firebase
   const featuredProducts = await getFeaturedProducts();
+  const settings = await getSettings();
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-transparent">
@@ -43,19 +44,21 @@ export default async function Home() {
 
       {/* 2. Elite Animated Marquee Hero */}
       <AnimatedMarqueeHero
-        tagline="PREMIUM ARCHITECTURAL HARDWARE | TRUSTED ACROSS PAKISTAN"
-        title={"Premium Hardware\nFor\u00A0Exceptional Spaces."}
+        tagline={settings?.heroTagline || "PREMIUM ARCHITECTURAL HARDWARE | TRUSTED ACROSS PAKISTAN"}
+        title={settings?.heroTitle || "Premium Hardware\nFor\u00A0Exceptional Spaces."}
         description={
           <>
             <span className="sm:hidden">
-              Discover premium architectural hardware, designer door fittings, and smart security solutions trusted across Pakistan.
+              {settings?.heroDescription 
+                ? settings.heroDescription.split(',')[0] + "." 
+                : "Discover premium architectural hardware, designer door fittings, and smart security solutions trusted across Pakistan."}
             </span>
             <span className="hidden sm:inline">
-              Discover premium architectural hardware, designer door fittings, smart security solutions, professional tools, and finishing accessories trusted by architects, builders, and homeowners across Pakistan.
+              {settings?.heroDescription || "Discover premium architectural hardware, designer door fittings, smart security solutions, professional tools, and finishing accessories trusted by architects, builders, and homeowners across Pakistan."}
             </span>
           </>
         }
-        ctaText="Explore Products"
+        ctaText={settings?.heroCtaText || "Explore Products"}
       />
 
       {/* 3. Discover By Space Premium Section (Swapped with Category) */}
