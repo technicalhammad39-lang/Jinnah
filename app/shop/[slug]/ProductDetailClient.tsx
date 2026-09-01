@@ -61,8 +61,27 @@ export default function ProductDetailClient({
   const [activeTab, setActiveTab] = useState('description');
   const [actualReviewCount, setActualReviewCount] = useState(initialProduct.reviewCount || 0);
   const [actualRating, setActualRating] = useState(initialProduct.averageRating || 0);
+  const [showStickyBar, setShowStickyBar] = useState(false);
   const addTimerRef = useRef<number | null>(null);
   const successTimerRef = useRef<number | null>(null);
+  const mainActionsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // If main actions are out of view, show sticky bar.
+        // We only care about mobile, but we handle mobile classes in the JSX.
+        setShowStickyBar(!entry.isIntersecting);
+      },
+      { threshold: 0, rootMargin: "-100px 0px 0px 0px" } // trigger when it scrolls out
+    );
+
+    if (mainActionsRef.current) {
+      observer.observe(mainActionsRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (initialProduct) {
@@ -332,18 +351,35 @@ export default function ProductDetailClient({
             </div>
 
             {/* Actions (Add to Cart / Buy Now / Wishlist) */}
-            <div className="flex flex-col gap-3 mt-4">
+            <div ref={mainActionsRef} className="flex flex-col gap-3 mt-4">
+              {/* Top row: Buy Now full width */}
+              <button
+                onClick={handleBuyNow}
+                disabled={initialProduct.stockQuantity <= 0}
+                className="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold shadow-md transition-all bg-primary text-white hover:bg-primary/90 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Zap className="h-4 w-4" /> Buy Now
+              </button>
+              
+              {/* Bottom row: Add to Cart and Wishlist */}
               <div className="flex gap-3">
                 <button
-                  onClick={handleBuyNow}
-                  disabled={initialProduct.stockQuantity <= 0}
-                  className="flex-1 flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold shadow-md transition-all bg-primary text-white hover:bg-primary/90 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleAddToCart}
+                  disabled={isAdding || isSuccess || initialProduct.stockQuantity <= 0}
+                  className={`flex-1 flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold shadow-sm transition-all border ${
+                    initialProduct.stockQuantity <= 0
+                      ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                      : isSuccess
+                      ? "bg-green-50 text-green-600 border-green-200"
+                      : "bg-white text-primary border-primary hover:bg-primary/5"
+                  }`}
                 >
-                  <Zap className="h-4 w-4" /> Buy Now
+                  {isAdding ? <Loader2 className="h-5 w-5 animate-spin" /> : isSuccess ? <Check className="h-5 w-5" /> : <ShoppingCart className="h-5 w-5" />}
+                  {initialProduct.stockQuantity <= 0 ? "Out of Stock" : isSuccess ? "Added to Cart" : "Add to Cart"}
                 </button>
                 <button
                   onClick={() => toggleWishlist(initialProduct.id)}
-                  className={`flex h-12 w-12 items-center justify-center rounded-xl shadow-sm border transition-all shrink-0 ${
+                  className={`flex w-[52px] shrink-0 items-center justify-center rounded-xl shadow-sm border transition-all ${
                     isWishlisted
                       ? "bg-red-50 text-red-500 border-red-200 hover:bg-red-100"
                       : "bg-white text-gray-500 border-gray-200 hover:text-red-500 hover:bg-gray-50"
@@ -353,42 +389,30 @@ export default function ProductDetailClient({
                   <Heart className={`h-5 w-5 ${isWishlisted ? "fill-current" : ""}`} />
                 </button>
               </div>
-              <button
-                onClick={handleAddToCart}
-                disabled={isAdding || isSuccess || initialProduct.stockQuantity <= 0}
-                className={`w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold shadow-sm transition-all border ${
-                  initialProduct.stockQuantity <= 0
-                    ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-                    : isSuccess
-                    ? "bg-green-50 text-green-600 border-green-200"
-                    : "bg-white text-primary border-primary hover:bg-primary/5"
-                }`}
-              >
-                {isAdding ? <Loader2 className="h-5 w-5 animate-spin" /> : isSuccess ? <Check className="h-5 w-5" /> : <ShoppingCart className="h-5 w-5" />}
-                {initialProduct.stockQuantity <= 0 ? "Out of Stock" : isSuccess ? "Added to Cart" : "Add to Cart"}
-              </button>
             </div>
 
             {/* Threshold Hype UI (Product Level) */}
             {shippingSettings?.thresholdEnabled && shippingResult && (
-              <div className="bg-[#FF6A2A]/5 px-4 py-3 border border-[#FF6A2A]/20 rounded-xl mt-2">
+              <div className="bg-[#FF6A2A]/5 px-4 py-3 border border-[#FF6A2A]/20 rounded-xl mt-4">
                 <div className="flex items-start gap-3">
                   <div className="bg-white p-2 rounded-full shadow-sm text-[#FF6A2A]">
                     <Zap className="h-4 w-4" />
                   </div>
                   <div className="flex-grow">
                     <p className="text-xs font-bold text-[#1a1917]">
-                      {shippingSettings.benefitType === "free_shipping" ? "Unlock Free Shipping!" : "Unlock Extra Discount!"}
+                      {shippingSettings.benefitType === "free_shipping" 
+                        ? `Free Shipping on Orders Over Rs. ${shippingSettings.thresholdValue.toLocaleString()}!` 
+                        : `Extra Discount on Orders Over Rs. ${shippingSettings.thresholdValue.toLocaleString()}!`}
                     </p>
-                    <p className="text-[10px] text-gray-600 mt-0.5">
+                    <p className="text-[11px] text-gray-600 mt-0.5">
                       {shippingResult.thresholdRemaining > 0
                         ? `Add Rs. ${shippingResult.thresholdRemaining.toLocaleString()} more to your cart to claim your benefit.`
                         : "🎉 Benefit unlocked in your cart!"}
                     </p>
                     {shippingResult.thresholdRemaining > 0 && (
-                      <div className="w-full bg-black/5 rounded-full h-1 mt-2 overflow-hidden">
+                      <div className="w-full bg-black/10 rounded-full h-1.5 mt-2.5 overflow-hidden">
                         <div 
-                          className="bg-[#FF6A2A] h-1 rounded-full transition-all duration-500 ease-out" 
+                          className="bg-[#FF6A2A] h-1.5 rounded-full transition-all duration-500 ease-out" 
                           style={{ width: `${shippingResult.thresholdProgress}%` }}
                         />
                       </div>
@@ -575,8 +599,13 @@ export default function ProductDetailClient({
       </main>
 
       {/* Universal Sticky Bottom Purchase Bar (Mobile ONLY now) */}
-      <div className="flex md:hidden fixed bottom-0 left-0 right-0 p-3 sm:p-4 bg-white/90 backdrop-blur-xl border-t border-gray-200 z-50 items-center justify-between shadow-[0_-8px_30px_rgba(0,0,0,0.08)] pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-        <div className="flex items-center gap-3 w-full">
+      <div 
+        className={`flex md:hidden fixed left-4 right-4 p-2.5 bg-white/95 backdrop-blur-xl border border-gray-200 z-50 items-center justify-between rounded-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.12)] transition-transform duration-300 ease-in-out ${
+          showStickyBar ? "translate-y-0" : "translate-y-[150%]"
+        }`}
+        style={{ bottom: "calc(env(safe-area-inset-bottom) + 16px)" }}
+      >
+        <div className="flex items-center gap-2 w-full">
           <button
             onClick={handleBuyNow}
             disabled={initialProduct.stockQuantity <= 0}
