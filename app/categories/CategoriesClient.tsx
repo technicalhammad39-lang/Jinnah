@@ -67,7 +67,7 @@ export function CategoriesClient() {
       
       <main className="flex-1 pt-24 pb-20">
         {/* HERO WITH SVG INTEGRATION */}
-        <section className="relative w-full overflow-hidden px-6 pt-4 pb-12 md:pt-8 md:pb-16">
+        <section className="relative w-full overflow-hidden px-6 pt-12 pb-4 md:pt-28 md:pb-0">
           {/* Decorative Glows */}
           <div className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(255,106,42,0.08)_0%,transparent_70%)] pointer-events-none rounded-full blur-3xl" />
           <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(0,0,0,0.05)_0%,transparent_70%)] pointer-events-none rounded-full blur-3xl" />
@@ -77,7 +77,7 @@ export function CategoriesClient() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              className="space-y-6 w-full max-w-5xl mx-auto mb-0 md:mb-2"
+              className="space-y-6 w-full max-w-5xl mx-auto mb-0"
             >
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter text-[#1a1917] leading-[0.95] md:whitespace-nowrap">
                 Precision{" "}
@@ -100,7 +100,7 @@ export function CategoriesClient() {
             initial={{ opacity: 0, scale: 0.95, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="relative w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] z-10 -mt-8 md:-mt-16"
+            className="relative w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] z-10 -mt-10 md:-mt-20"
           >
             <Image 
               src="/catos.svg" 
