@@ -19,6 +19,8 @@ export default function AdminSettings() {
     facebook: "",
     instagram: "",
     twitter: "",
+    youtube: "",
+    tiktok: "",
     whatsapp: "+923076924116",
     tickerEnabled: false,
     tickerText: "",
@@ -225,18 +227,50 @@ export default function AdminSettings() {
               <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Facebook URL</label>
               <input 
                 type="url" 
-                value={settings.facebook}
+                value={settings.facebook || ""}
                 onChange={e => setSettings({...settings, facebook: e.target.value})}
                 className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                placeholder="https://facebook.com/..."
               />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Instagram URL</label>
               <input 
                 type="url" 
-                value={settings.instagram}
+                value={settings.instagram || ""}
                 onChange={e => setSettings({...settings, instagram: e.target.value})}
                 className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                placeholder="https://instagram.com/..."
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">TikTok URL</label>
+              <input 
+                type="url" 
+                value={settings.tiktok || ""}
+                onChange={e => setSettings({...settings, tiktok: e.target.value})}
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                placeholder="https://tiktok.com/..."
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">YouTube URL</label>
+              <input 
+                type="url" 
+                value={settings.youtube || ""}
+                onChange={e => setSettings({...settings, youtube: e.target.value})}
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                placeholder="https://youtube.com/..."
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Twitter (X) URL</label>
+              <input 
+                type="url" 
+                value={settings.twitter || ""}
+                onChange={e => setSettings({...settings, twitter: e.target.value})}
+                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                placeholder="https://twitter.com/..."
               />
             </div>
           </div>
