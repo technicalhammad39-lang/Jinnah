@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { collection, query, where, getDocs, addDoc, orderBy, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { Product, Review } from '@/data/products';
 import { Star, CheckCircle, ThumbsUp, MessageSquare, Image as ImageIcon } from 'lucide-react';
 import Image from 'next/image';
@@ -19,6 +21,105 @@ export default function ReviewsTab({ product }: ReviewsTabProps) {
   const [hoverRating, setHoverRating] = useState(0);
   const [images, setImages] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [userName, setUserName] = useState('');
+  const [title, setTitle] = useState('');
+  const [reviewText, setReviewText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [reviews, setReviews] = useState<Review[]>([]);
+
+  // Fetch reviews
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const q = query(
+          collection(db, "reviews"),
+          where("productId", "==", product.id),
+          orderBy("createdAt", "desc")
+        );
+        const snapshot = await getDocs(q);
+        const data = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: doc.data().createdAt?.toDate().toISOString() || new Date().toISOString()
+        })) as Review[];
+        setReviews(data);
+      } catch (err) {
+        console.error("Failed to fetch reviews:", err);
+      }
+    };
+    fetchReviews();
+  }, [product.id]);
+
+  const handleSubmit = async () => {
+    if (rating === 0) return alert("Please select a rating.");
+    if (!userName.trim()) return alert("Please enter your name.");
+    if (!reviewText.trim()) return alert("Please write a review.");
+    
+    setIsLoading(true);
+    try {
+      let uploadedImageUrls: string[] = [];
+      
+      // Upload images one by one if they exist
+      if (images.length > 0) {
+        for (const file of images) {
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("folder", "reviews");
+          
+          const res = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+          });
+          
+          if (res.ok) {
+            const data = await res.json();
+            uploadedImageUrls.push(data.url);
+          } else {
+            console.error("Failed to upload image:", await res.text());
+          }
+        }
+      }
+      
+      // Save review to Firestore
+      const newReview = {
+        productId: product.id,
+        userId: "anonymous", // Assuming guest review
+        userName,
+        rating,
+        title,
+        reviewText,
+        images: uploadedImageUrls,
+        helpfulVotes: 0,
+        reported: false,
+        verifiedPurchase: false,
+        status: 'approved',
+        createdAt: serverTimestamp(),
+      };
+      
+      const docRef = await addDoc(collection(db, "reviews"), newReview);
+      
+      // Add to local state immediately
+      setReviews([{
+        ...newReview,
+        id: docRef.id,
+        createdAt: new Date().toISOString()
+      } as Review, ...reviews]);
+      
+      // Reset form
+      setUserName('');
+      setTitle('');
+      setReviewText('');
+      setRating(0);
+      setImages([]);
+      setIsWriting(false);
+      alert("Review submitted successfully!");
+    } catch (err) {
+      console.error("Submit error:", err);
+      alert("Failed to submit review.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -32,14 +133,14 @@ export default function ReviewsTab({ product }: ReviewsTabProps) {
 
   // Generate distribution
   const distribution = [5, 4, 3, 2, 1].map(stars => {
-    const count = mockReviews.filter(r => r.rating === stars).length;
-    const percentage = mockReviews.length > 0 ? (count / mockReviews.length) * 100 : 0;
+    const count = reviews.filter(r => r.rating === stars).length;
+    const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
     return { stars, count, percentage };
   });
 
   const filteredReviews = filter === 'all' 
-    ? mockReviews 
-    : mockReviews.filter(r => r.rating === filter);
+    ? reviews 
+    : reviews.filter(r => r.rating === filter);
 
   return (
     <div className="py-8">
@@ -68,12 +169,16 @@ export default function ReviewsTab({ product }: ReviewsTabProps) {
               </div>
             </div>
             <div>
+              <label className="block text-sm font-medium text-zinc-700 mb-1">Your Name</label>
+              <input type="text" value={userName} onChange={(e) => setUserName(e.target.value)} className="w-full px-4 py-2 border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="John Doe" />
+            </div>
+            <div>
               <label className="block text-sm font-medium text-zinc-700 mb-1">Review Title</label>
-              <input type="text" className="w-full px-4 py-2 border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Summarize your experience" />
+              <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full px-4 py-2 border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Summarize your experience" />
             </div>
             <div>
               <label className="block text-sm font-medium text-zinc-700 mb-1">Review</label>
-              <textarea rows={4} className="w-full px-4 py-2 border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Tell us more about your experience..."></textarea>
+              <textarea rows={4} value={reviewText} onChange={(e) => setReviewText(e.target.value)} className="w-full px-4 py-2 border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Tell us more about your experience..."></textarea>
             </div>
             <div>
               <label className="block text-sm font-medium text-zinc-700 mb-1">Add Photos</label>
@@ -99,8 +204,8 @@ export default function ReviewsTab({ product }: ReviewsTabProps) {
                 </div>
               )}
             </div>
-            <button type="button" className="px-8 py-3 bg-[#f97316] text-white font-bold rounded-lg hover:bg-[#ea580c] transition-colors">
-              Submit Review
+            <button type="button" disabled={isLoading} onClick={handleSubmit} className="px-8 py-3 bg-[#f97316] text-white font-bold rounded-lg hover:bg-[#ea580c] transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+              {isLoading ? "Submitting..." : "Submit Review"}
             </button>
           </div>
         </div>
