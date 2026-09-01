@@ -109,7 +109,7 @@ export function ContactClient() {
             </div>
 
             {/* Right Cartoon */}
-            <div className="w-full md:w-1/2 flex items-center justify-center md:justify-end">
+            <div className="hidden md:w-1/2 md:flex items-center justify-center md:justify-end">
               <motion.div
                 initial={{ opacity: 0, x: 80 }}
                 animate={{ opacity: 1, x: 0 }}
