@@ -23,11 +23,6 @@ export default function AdminSettings() {
     tickerEnabled: false,
     tickerText: "",
     tickerLink: "",
-    // Hero Section
-    heroTagline: "PREMIUM ARCHITECTURAL HARDWARE | TRUSTED ACROSS PAKISTAN",
-    heroTitle: "Premium Hardware\nFor\u00A0Exceptional Spaces.",
-    heroDescription: "Discover premium architectural hardware, designer door fittings, smart security solutions, professional tools, and finishing accessories trusted by architects, builders, and homeowners across Pakistan.",
-    heroCtaText: "Explore Products",
     // Shipping & Delivery
     defaultShippingFee: 200,
     defaultDeliveryEstimate: "3-5 working days",
@@ -159,59 +154,6 @@ export default function AdminSettings() {
                 className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
               />
             </div>
-          </div>
-        </div>
-
-        {/* Hero Section Configuration */}
-        <div className="bg-white border border-[#1a1917]/5 rounded-2xl p-6 shadow-xl space-y-6">
-          <div className="flex items-center gap-2 border-b border-[#1a1917]/5 pb-4 mb-4">
-            <Globe className="w-5 h-5 text-[#FF6A2A]" />
-            <h2 className="text-lg font-bold text-[#1a1917]">Hero Section Configuration</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Hero Tagline</label>
-              <input 
-                type="text" 
-                value={settings.heroTagline}
-                onChange={e => setSettings({...settings, heroTagline: e.target.value})}
-                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
-                placeholder="e.g. PREMIUM ARCHITECTURAL HARDWARE"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Hero CTA Text</label>
-              <input 
-                type="text" 
-                value={settings.heroCtaText}
-                onChange={e => setSettings({...settings, heroCtaText: e.target.value})}
-                className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
-                placeholder="e.g. Explore Products"
-              />
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Hero Title</label>
-            <textarea 
-              value={settings.heroTitle}
-              onChange={e => setSettings({...settings, heroTitle: e.target.value})}
-              className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors h-20 resize-none"
-              placeholder="e.g. Premium Hardware For Exceptional Spaces."
-            />
-            <p className="text-[10px] text-gray-400 pl-1">Use \n for line breaks</p>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Hero Description</label>
-            <textarea 
-              value={settings.heroDescription}
-              onChange={e => setSettings({...settings, heroDescription: e.target.value})}
-              className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors h-24 resize-none"
-              placeholder="Detailed description under the title..."
-            />
           </div>
         </div>
 
