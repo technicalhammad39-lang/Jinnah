@@ -76,7 +76,7 @@ export default function ReviewsTab({ product }: ReviewsTabProps) {
         <div className="md:col-span-4 flex flex-col items-center justify-center p-8 bg-zinc-50 border border-zinc-200 rounded-2xl">
           <h3 className="text-xl font-bold text-zinc-900 mb-2">Customer Reviews</h3>
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-5xl font-black text-zinc-900">{product.rating.toFixed(1)}</span>
+            <span className="text-5xl font-black text-zinc-900">{(product?.rating || 0).toFixed(1)}</span>
             <span className="text-lg text-zinc-500 font-medium">/ 5</span>
           </div>
           <div className="flex gap-1 mb-2">
@@ -84,14 +84,14 @@ export default function ReviewsTab({ product }: ReviewsTabProps) {
               <Star
                 key={star}
                 className={`w-6 h-6 ${
-                  star <= Math.round(product.rating)
+                  star <= Math.round(product?.rating || 0)
                     ? 'fill-amber-400 text-amber-400'
                     : 'fill-zinc-200 text-zinc-200'
                 }`}
               />
             ))}
           </div>
-          <p className="text-zinc-500 font-medium text-sm">Based on {product.reviewCount} reviews</p>
+          <p className="text-zinc-500 font-medium text-sm">Based on {product?.reviewCount || 0} reviews</p>
         </div>
 
         {/* Rating Distribution */}

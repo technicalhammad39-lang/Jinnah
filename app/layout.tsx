@@ -14,6 +14,7 @@ const sansFont = Poppins({
   weight: ["400", "500", "600", "700", "800", "900"],
   variable: "--font-sans",
   display: "swap",
+  preload: false,
 });
 
 const serifFont = Cormorant_Garamond({
