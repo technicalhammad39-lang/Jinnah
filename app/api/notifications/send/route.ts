@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import webpush from "web-push";
 import { getFirestore } from "firebase-admin/firestore";
-import { getAdminApp } from "@/lib/firebase-admin";
+import { getAdminApp, getFirebaseAdminDiagnostic } from "@/lib/firebase-admin";
 
 let isWebPushConfigured = false;
 
@@ -40,7 +40,13 @@ export async function POST(req: Request) {
 
     const app = getAdminApp();
     if (!app) {
-      console.error("[Notifications/Send] Firebase Admin is not configured.");
+      const diag = getFirebaseAdminDiagnostic();
+      console.error("[Notifications/Send] Firebase Admin is not configured. Diagnostic:", {
+        projectId: diag.FIREBASE_PROJECT_ID,
+        clientEmail: diag.FIREBASE_CLIENT_EMAIL,
+        privateKeyBase64: diag.FIREBASE_PRIVATE_KEY_BASE64,
+        error: diag.error_message,
+      });
       return NextResponse.json(
         { error: "Firebase Admin is not configured. Notifications require server-side Firebase." },
         { status: 503 }

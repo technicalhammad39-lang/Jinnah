@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { adminDb, getAdminApp } from '@/lib/firebase-admin';
+import { adminDb, getAdminApp, getFirebaseAdminDiagnostic } from '@/lib/firebase-admin';
 import * as admin from 'firebase-admin';
 import { calculateProductPrice, Discount } from '@/lib/discount-engine';
 import { calculateOrderShipping, GlobalShippingSettings } from '@/lib/shipping-engine';
@@ -9,7 +9,13 @@ export async function POST(req: Request) {
     // Early check: Firebase Admin must be available for checkout
     const app = getAdminApp();
     if (!app) {
-      console.error('[Checkout] Firebase Admin is not configured. Cannot process orders.');
+      const diag = getFirebaseAdminDiagnostic();
+      console.error('[Checkout] Firebase Admin is not configured. Diagnostic:', {
+        projectId: diag.FIREBASE_PROJECT_ID,
+        clientEmail: diag.FIREBASE_CLIENT_EMAIL,
+        privateKeyBase64: diag.FIREBASE_PRIVATE_KEY_BASE64,
+        error: diag.error_message,
+      });
       return NextResponse.json(
         { error: 'Server configuration error. Please contact support. (Code: FA_MISSING)' },
         { status: 503 }

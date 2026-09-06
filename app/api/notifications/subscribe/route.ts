@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getFirestore } from "firebase-admin/firestore";
-import { getAdminApp } from "@/lib/firebase-admin";
+import { getAdminApp, getFirebaseAdminDiagnostic } from "@/lib/firebase-admin";
 
 export async function POST(req: Request) {
   try {
@@ -15,6 +15,13 @@ export async function POST(req: Request) {
 
     const app = getAdminApp();
     if (!app) {
+      const diag = getFirebaseAdminDiagnostic();
+      console.error("[Notifications/Subscribe] Firebase Admin is not configured. Diagnostic:", {
+        projectId: diag.FIREBASE_PROJECT_ID,
+        clientEmail: diag.FIREBASE_CLIENT_EMAIL,
+        privateKeyBase64: diag.FIREBASE_PRIVATE_KEY_BASE64,
+        error: diag.error_message,
+      });
       return NextResponse.json(
         { error: "Firebase Admin is not configured." },
         { status: 503 }
