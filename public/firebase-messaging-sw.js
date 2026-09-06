@@ -23,7 +23,8 @@ messaging.onBackgroundMessage((payload) => {
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,
-    icon: '/favicon.svg',
+    icon: payload.notification.icon || '/favicon.png',
+    badge: '/favicon.png',
     data: payload.webpush?.fcmOptions?.link ? { url: payload.webpush.fcmOptions.link } : {}
   };
 

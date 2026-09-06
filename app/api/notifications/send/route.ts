@@ -64,7 +64,8 @@ export async function POST(req: Request) {
       title,
       body,
       url: link || "/",
-      icon: icon || "/jinnah-logo.webp"
+      icon: icon || "/favicon.png",
+      badge: "/favicon.png"
     });
 
     const sendPromises = subscriptionsSnapshot.docs.map(async (doc) => {

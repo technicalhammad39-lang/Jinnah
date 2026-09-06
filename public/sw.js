@@ -3,8 +3,8 @@ self.addEventListener('push', function (event) {
     const data = event.data.json()
     const options = {
       body: data.body,
-      icon: data.icon || '/jinnah-logo.webp',
-      badge: '/favicon.svg',
+      icon: data.icon || '/favicon.png',
+      badge: data.badge || '/favicon.png',
       vibrate: [100, 50, 100],
       data: {
         dateOfArrival: Date.now(),
