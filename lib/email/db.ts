@@ -88,6 +88,33 @@ export async function saveStoredEmailSettings(payload: EmailSettings): Promise<v
 // 2. Email Messages
 // -------------------------------------------------------------
 
+export async function findEmailByMessageId(messageId: string): Promise<EmailMessage | null> {
+  if (!messageId) return null;
+  // 1. Try Admin SDK
+  try {
+    const app = getAdminApp();
+    if (app) {
+      const snap = await adminDb.collection("emails").where("messageId", "==", messageId).limit(1).get();
+      if (!snap.empty) {
+        const d = snap.docs[0];
+        return { id: d.id, ...d.data() } as EmailMessage;
+      }
+    }
+  } catch (err) {}
+
+  // 2. Client SDK fallback
+  try {
+    const q = query(collection(clientDb, "emails"), where("messageId", "==", messageId), firestoreLimit(1));
+    const snap = await getDocs(q);
+    if (!snap.empty) {
+      const d = snap.docs[0];
+      return { id: d.id, ...(d.data() as any) } as EmailMessage;
+    }
+  } catch (err) {}
+
+  return null;
+}
+
 export async function getEmailMessages(params: {
   folder: EmailFolder;
   search?: string;
@@ -95,9 +122,9 @@ export async function getEmailMessages(params: {
   isImportant?: boolean;
   limitCount?: number;
 }): Promise<{ messages: EmailMessage[]; folderCounts: Record<string, number> }> {
-  const { folder, search = "", isStarred, isImportant, limitCount = 30 } = params;
+  const { folder, search = "", isStarred, isImportant, limitCount = 50 } = params;
   let rawMessages: EmailMessage[] = [];
-  let unreadCounts: Record<string, number> = {
+  let folderCounts: Record<string, number> = {
     inbox: 0,
     sent: 0,
     drafts: 0,
@@ -123,7 +150,6 @@ export async function getEmailMessages(params: {
       } else {
         q = q.where("folder", "==", folder);
       }
-      q = q.orderBy("createdAt", "desc").limit(limitCount);
 
       const snap = await q.get();
       rawMessages = snap.docs.map((d: any) => ({
@@ -132,53 +158,65 @@ export async function getEmailMessages(params: {
         ...d.data(),
       }));
 
-      const countSnap = await adminDb.collection("emails").where("isRead", "==", false).get();
-      countSnap.forEach((d: any) => {
-        const data = d.data();
-        const f = data.folder || "inbox";
-        if (unreadCounts[f] != null) unreadCounts[f]++;
-      });
-
       queried = true;
     }
   } catch (adminErr: any) {
     console.warn("[Email DB] Admin SDK failed on getEmailMessages, using client SDK fallback:", adminErr?.message);
   }
 
-  // 2. Fallback to Client SDK
+  // 2. Fallback to Client SDK (queries single field to avoid missing composite index errors)
   if (!queried) {
     try {
       const emailsCol = collection(clientDb, "emails");
-      let q = query(
-        emailsCol,
-        where("folder", "==", folder),
-        orderBy("createdAt", "desc"),
-        firestoreLimit(limitCount)
-      );
-
+      let q: any;
       if (isStarred || folder === "starred") {
-        q = query(emailsCol, where("isStarred", "==", true), orderBy("createdAt", "desc"), firestoreLimit(limitCount));
+        q = query(emailsCol, where("isStarred", "==", true));
       } else if (isImportant || folder === "important") {
-        q = query(emailsCol, where("isImportant", "==", true), orderBy("createdAt", "desc"), firestoreLimit(limitCount));
+        q = query(emailsCol, where("isImportant", "==", true));
+      } else {
+        q = query(emailsCol, where("folder", "==", folder));
       }
 
       const snap = await getDocs(q);
       rawMessages = snap.docs.map((d) => ({
         dbKey: d.id,
         id: d.id,
-        ...d.data(),
+        ...(d.data() as any),
       } as EmailMessage));
-
-      const unreadQ = query(emailsCol, where("isRead", "==", false));
-      const unreadSnap = await getDocs(unreadQ);
-      unreadSnap.forEach((d) => {
-        const data = d.data();
-        const f = data.folder || "inbox";
-        if (unreadCounts[f] != null) unreadCounts[f]++;
-      });
+      queried = true;
     } catch (clientErr) {
       console.error("[Email DB] Client SDK failed on getEmailMessages:", clientErr);
     }
+  }
+
+  // Sort by createdAt descending in memory (guarantees fast sorting without requiring Firestore composite indexes)
+  rawMessages.sort((a, b) => {
+    const timeA = new Date(a.createdAt || 0).getTime();
+    const timeB = new Date(b.createdAt || 0).getTime();
+    return timeB - timeA;
+  });
+
+  // Calculate folder counts across all emails
+  try {
+    const emailsCol = collection(clientDb, "emails");
+    const allEmailsSnap = await getDocs(emailsCol);
+    allEmailsSnap.forEach((d) => {
+      const data = d.data();
+      const f = data.folder || "inbox";
+      // Unread count for regular folders
+      if (!data.isRead && folderCounts[f] != null) {
+        folderCounts[f]++;
+      }
+      // Total count for starred / important
+      if (data.isStarred) {
+        folderCounts.starred = (folderCounts.starred || 0) + 1;
+      }
+      if (data.isImportant) {
+        folderCounts.important = (folderCounts.important || 0) + 1;
+      }
+    });
+  } catch (countErr) {
+    console.warn("[Email DB] Failed to calculate unread counts:", countErr);
   }
 
   // Client-level search filter if search string was provided
@@ -198,7 +236,11 @@ export async function getEmailMessages(params: {
     });
   }
 
-  return { messages: rawMessages, folderCounts: unreadCounts };
+  if (limitCount && limitCount > 0) {
+    rawMessages = rawMessages.slice(0, limitCount);
+  }
+
+  return { messages: rawMessages, folderCounts };
 }
 
 export async function saveEmailMessageDoc(messageData: any): Promise<string> {
@@ -318,6 +360,8 @@ export async function saveEmailLogDoc(log: Partial<EmailLog>): Promise<void> {
 }
 
 export async function getEmailLogsList(statusFilter = "all", limitCount = 50): Promise<EmailLog[]> {
+  let logs: EmailLog[] = [];
+
   try {
     const app = getAdminApp();
     if (app) {
@@ -325,26 +369,37 @@ export async function getEmailLogsList(statusFilter = "all", limitCount = 50): P
       if (statusFilter !== "all") {
         q = q.where("status", "==", statusFilter);
       }
-      q = q.orderBy("timestamp", "desc").limit(limitCount);
       const snap = await q.get();
-      return snap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+      logs = snap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
     }
   } catch (adminErr) {
     // Admin failed, try client SDK
   }
 
-  try {
-    const logsCol = collection(clientDb, "email_logs");
-    let q = query(logsCol, orderBy("timestamp", "desc"), firestoreLimit(limitCount));
-    if (statusFilter !== "all") {
-      q = query(logsCol, where("status", "==", statusFilter), orderBy("timestamp", "desc"), firestoreLimit(limitCount));
+  if (logs.length === 0) {
+    try {
+      const logsCol = collection(clientDb, "email_logs");
+      let q: any;
+      if (statusFilter !== "all") {
+        q = query(logsCol, where("status", "==", statusFilter));
+      } else {
+        q = query(logsCol);
+      }
+      const snap = await getDocs(q);
+      logs = snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) } as EmailLog));
+    } catch (clientErr) {
+      console.error("[Email DB] Failed to get email logs:", clientErr);
+      return [];
     }
-    const snap = await getDocs(q);
-    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as EmailLog));
-  } catch (clientErr) {
-    console.error("[Email DB] Failed to get email logs:", clientErr);
-    return [];
   }
+
+  // In-memory sort by timestamp descending
+  logs.sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
+  if (limitCount && limitCount > 0) {
+    logs = logs.slice(0, limitCount);
+  }
+
+  return logs;
 }
 
 // -------------------------------------------------------------
@@ -425,8 +480,8 @@ export async function getNewsletterData(): Promise<{ subscribers: any[]; campaig
     const subQ = query(collection(clientDb, "email_subscribers"), orderBy("subscribedAt", "desc"), firestoreLimit(200));
     const campQ = query(collection(clientDb, "email_newsletters"), orderBy("createdAt", "desc"), firestoreLimit(50));
     const [subSnap, campSnap] = await Promise.all([getDocs(subQ), getDocs(campQ)]);
-    subscribers = subSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
-    campaigns = campSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    subscribers = subSnap.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
+    campaigns = campSnap.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
   } catch (clientErr) {
     console.error("[Email DB] Failed to get newsletter data:", clientErr);
   }

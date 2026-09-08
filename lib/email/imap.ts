@@ -2,7 +2,7 @@ import { ImapFlow } from "imapflow";
 import { simpleParser } from "mailparser";
 import { EmailSettings, EmailMessage } from "./types";
 import { decryptCredential } from "./crypto";
-import { saveEmailMessageDoc, saveEmailLogDoc, saveStoredEmailSettings } from "./db";
+import { saveEmailMessageDoc, saveEmailLogDoc, saveStoredEmailSettings, findEmailByMessageId } from "./db";
 
 /**
  * Creates an ImapFlow client instance using EmailSettings.
@@ -145,6 +145,13 @@ export async function syncImapInbox(settings: EmailSettings, limit = 20): Promis
           const parsed = await simpleParser(msg.source);
 
           const messageId = parsed.messageId || `imap-${msg.uid}-${settings.imapHost}`;
+
+          // Avoid duplicate insertion during periodic auto-sync
+          const existing = await findEmailByMessageId(messageId);
+          if (existing) {
+            continue;
+          }
+
           const isSeen = msg.flags?.has("\\Seen") || false;
           const isFlagged = msg.flags?.has("\\Flagged") || false;
 

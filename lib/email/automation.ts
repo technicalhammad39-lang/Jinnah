@@ -34,7 +34,7 @@ export async function handleContactFormSubmission(data: {
         name: data.name,
         email: data.email,
       },
-      to: [{ name: "Support Desk", email: "info@hammadgfx.online" }],
+      to: [{ name: "Support Desk", email: "info@jinnah-hardwarestore.com" }],
       subject: `[Website Inquiry] ${subject}`,
       bodyHtml: `
         <div style="font-family:sans-serif; line-height:1.6;">

@@ -210,8 +210,8 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
       <main className="flex-1 w-full pt-28 sm:pt-32 md:pt-36 pb-20 sm:pb-28">
         <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20">
           
-          {/* Navigation Breadcrumb & Live Portal Indicator */}
-          <div className="mb-6 sm:mb-8 flex items-center justify-between">
+          {/* Navigation Breadcrumb */}
+          <div className="mb-6 sm:mb-8 flex items-center justify-start">
             <Link
               href="/shop"
               className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors group"
@@ -219,12 +219,6 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
               <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
               <span>Back to Store</span>
             </Link>
-            <div className="flex items-center gap-2.5 bg-emerald-50 border border-emerald-200/80 px-4 py-1.5 rounded-full shadow-sm">
-              <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-xs sm:text-sm font-black uppercase tracking-widest text-emerald-800">
-                Live Logistics Portal
-              </span>
-            </div>
           </div>
 
           {/* Hero Section & Search Bar - Full-Width Edge to Edge */}

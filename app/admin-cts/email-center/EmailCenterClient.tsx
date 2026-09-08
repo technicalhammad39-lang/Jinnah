@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { 
@@ -57,6 +57,7 @@ export default function EmailCenterClient() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const isSyncingRef = useRef(false);
 
   // Compose modal state
   const [isComposeOpen, setIsComposeOpen] = useState(false);
@@ -84,8 +85,8 @@ export default function EmailCenterClient() {
   }, []);
 
   // Fetch messages for current folder
-  const fetchMessages = useCallback(async () => {
-    setIsLoadingMessages(true);
+  const fetchMessages = useCallback(async (showSpinner = false) => {
+    if (showSpinner) setIsLoadingMessages(true);
     try {
       const params = new URLSearchParams({
         folder: currentFolder,
@@ -99,22 +100,27 @@ export default function EmailCenterClient() {
       }
     } catch (err) {
       console.error("Failed to fetch messages:", err);
-      toast.error("Failed to load email messages");
+      if (showSpinner) {
+        toast.error("Failed to load email messages");
+      }
     } finally {
-      setIsLoadingMessages(false);
+      if (showSpinner) setIsLoadingMessages(false);
     }
   }, [currentFolder, searchTerm]);
 
+  // Initial fetch on mount or folder/search change
   useEffect(() => {
     if (user) {
-      fetchMessages();
+      fetchMessages(true);
       loadTemplates();
     }
-  }, [user, fetchMessages, loadTemplates]);
+  }, [user, currentFolder, searchTerm, fetchMessages, loadTemplates]);
 
   // Trigger IMAP Sync
-  const handleImapSync = async () => {
-    setIsSyncing(true);
+  const handleImapSync = useCallback(async (silent = false) => {
+    if (isSyncingRef.current) return;
+    isSyncingRef.current = true;
+    if (!silent) setIsSyncing(true);
     try {
       const res = await fetch("/api/admin/email/sync", {
         method: "POST",
@@ -123,27 +129,50 @@ export default function EmailCenterClient() {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success(`IMAP Sync Complete: ${data.syncedCount} new emails.`);
-        fetchMessages();
+        if (data.syncedCount > 0) {
+          toast.success(`IMAP: Synced ${data.syncedCount} new email${data.syncedCount > 1 ? "s" : ""}`);
+        } else if (!silent) {
+          toast.info("Inbox is up to date (0 new emails).");
+        }
+        fetchMessages(false);
       } else {
-        toast.error(data.error || "IMAP synchronization failed.");
+        if (!silent) {
+          toast.error(data.error || "IMAP synchronization failed.");
+        }
       }
     } catch (err: any) {
-      toast.error(err.message || "Failed to trigger sync");
+      if (!silent) toast.error(err.message || "Failed to trigger sync");
     } finally {
-      setIsSyncing(false);
+      isSyncingRef.current = false;
+      if (!silent) setIsSyncing(false);
     }
-  };
+  }, [fetchMessages]);
+
+  // Auto-sync every 5 seconds when Mailbox tab is active
+  useEffect(() => {
+    if (!user || activeTab !== "mailbox") return;
+
+    // Trigger sync once immediately when entering Mailbox
+    handleImapSync(true);
+
+    const interval = setInterval(() => {
+      handleImapSync(true);
+      fetchMessages(false);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [user, activeTab, handleImapSync, fetchMessages]);
 
   // Batch actions (mark read, trash, star)
-  const handleBatchAction = async (action: string, targetFolder?: string) => {
-    if (selectedIds.length === 0) return;
+  const handleBatchAction = async (action: string, targetFolder?: string, customIds?: string[]) => {
+    const idsToApply = customIds && customIds.length > 0 ? customIds : selectedIds;
+    if (idsToApply.length === 0) return;
     try {
       const res = await fetch("/api/admin/email/messages", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ids: selectedIds,
+          ids: idsToApply,
           action,
           targetFolder,
         }),
@@ -151,11 +180,13 @@ export default function EmailCenterClient() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      toast.success(data.message || "Updated emails");
-      setSelectedIds([]);
-      fetchMessages();
+      if (!customIds) {
+        toast.success(data.message || "Updated emails");
+        setSelectedIds([]);
+      }
+      fetchMessages(false);
     } catch (err: any) {
-      toast.error(err.message || "Failed to apply batch action");
+      if (!customIds) toast.error(err.message || "Failed to apply batch action");
     }
   };
 
@@ -337,15 +368,19 @@ export default function EmailCenterClient() {
               </div>
 
               {/* IMAP Sync Trigger */}
-              <div className="border-t border-black/5 pt-3">
+              <div className="border-t border-black/5 pt-3 space-y-2">
                 <button
-                  onClick={handleImapSync}
+                  onClick={() => handleImapSync(false)}
                   disabled={isSyncing}
                   className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-black/10 bg-[#faf9f6] py-2 text-xs font-bold text-foreground hover:bg-black/5 transition-all disabled:opacity-60"
                 >
                   <RefreshCw className={`h-3.5 w-3.5 ${isSyncing ? "animate-spin text-primary" : ""}`} />
                   <span>{isSyncing ? "Syncing IMAP..." : "Sync IMAP Inbox"}</span>
                 </button>
+                <div className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground font-medium">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Auto-sync active (every 5s)</span>
+                </div>
               </div>
             </div>
 
@@ -430,7 +465,17 @@ export default function EmailCenterClient() {
                     return (
                       <div
                         key={msgId}
-                        onClick={() => setSelectedMessage(msg)}
+                        onClick={() => {
+                          setSelectedMessage(msg);
+                          if (!msg.isRead && msgId) {
+                            handleBatchAction("mark_read", undefined, [msgId]);
+                            setMessages((prev) =>
+                              prev.map((m) =>
+                                (m.id === msgId || m.dbKey === msgId) ? { ...m, isRead: true } : m
+                              )
+                            );
+                          }
+                        }}
                         className={`group flex items-start gap-3 p-3.5 cursor-pointer transition-colors ${
                           isActive
                             ? "bg-primary/5 border-l-4 border-l-primary"

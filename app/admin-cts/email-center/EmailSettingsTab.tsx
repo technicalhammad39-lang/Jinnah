@@ -527,6 +527,18 @@ export default function EmailSettingsTab() {
               className="w-full rounded-xl border border-black/10 bg-[#faf9f6] p-3 text-sm outline-none focus:border-primary"
             />
           </div>
+
+          <div>
+            <label className="block font-semibold text-muted-foreground mb-1">Reply-To Email Address</label>
+            <input
+              type="email"
+              placeholder="info@jinnah-hardwarestore.com"
+              value={settings.replyToEmail || ""}
+              onChange={(e) => setSettings({ ...settings, replyToEmail: e.target.value })}
+              className="w-full rounded-xl border border-black/10 bg-[#faf9f6] p-3 text-sm outline-none focus:border-primary"
+            />
+            <p className="text-[10px] text-muted-foreground mt-1">When recipients click Reply, replies will arrive here</p>
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3 border-t border-black/5">

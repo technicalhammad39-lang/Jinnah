@@ -50,6 +50,9 @@ export function getBaseEmailLayout(contentHtml: string, previewText = ""): strin
       <td align="center">
         <div class="container">
           <div class="header">
+            <div style="margin-bottom: 12px;">
+              <img src="https://jinnah-hardwarestore.com/jinnah-logo.webp" alt="Jinnah Hardware Store" style="max-height: 52px; width: auto; display: inline-block; vertical-align: middle;" />
+            </div>
             <h1>JINNAH HARDWARE STORE</h1>
             <p>Quality • Trust • Architectural Excellence</p>
           </div>
@@ -58,7 +61,7 @@ export function getBaseEmailLayout(contentHtml: string, previewText = ""): strin
           </div>
           <div class="footer">
             <p style="margin: 0 0 8px 0; font-weight: 600;">Jinnah Hardware Store • Bahawalpur Road, Hasilpur</p>
-            <p style="margin: 0;">Phone: 0300-0421772 | Email: info@hammadgfx.online</p>
+            <p style="margin: 0;">Phone: 0300-0421772 | Email: info@jinnah-hardwarestore.com</p>
             <p style="margin: 12px 0 0 0; font-size: 10px; color: #9c9993;">You received this email because of your transaction or inquiry with Jinnah Hardware.</p>
           </div>
         </div>
