@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -16,8 +16,7 @@ import {
   Zap,
   Minus,
   Plus,
-  Clock,
-  Lock
+  Clock
 } from "lucide-react";
 import {
   useCartActions,
@@ -33,7 +32,6 @@ import { Footer } from "@/components/navigation/Footer";
 import { ProductCard } from "@/components/products/ProductCard";
 import { ProductGallery } from "@/components/products/ProductGallery";
 import { SellerCard } from "@/components/products/SellerCard";
-import { BusinessQRCode } from "@/components/products/BusinessQRCode";
 import dynamic from "next/dynamic";
 
 const ReviewsTab = dynamic(() => import("@/components/products/ReviewsTab"), {
@@ -84,12 +82,38 @@ export default function ProductDetailClient({
     return () => observer.disconnect();
   }, []);
 
+  const availableColors = useMemo(() => {
+    if (initialProduct?.colors && initialProduct.colors.length > 0) {
+      return initialProduct.colors;
+    }
+    return Array.from(
+      new Set(
+        (initialProduct?.variants || [])
+          .map((v: any) => v.color?.trim())
+          .filter((c: any): c is string => Boolean(c))
+      )
+    );
+  }, [initialProduct]);
+
+  const availableSizes = useMemo(() => {
+    if (initialProduct?.sizes && initialProduct.sizes.length > 0) {
+      return initialProduct.sizes;
+    }
+    return Array.from(
+      new Set(
+        (initialProduct?.variants || [])
+          .map((v: any) => v.size?.trim())
+          .filter((s: any): s is string => Boolean(s))
+      )
+    );
+  }, [initialProduct]);
+
   useEffect(() => {
     if (initialProduct) {
-      setSelectedColor(initialProduct.colors?.[0] || "");
-      setSelectedSize(initialProduct.sizes?.[0] || "");
+      setSelectedColor(availableColors[0] || "");
+      setSelectedSize(availableSizes[0] || "");
     }
-  }, [initialProduct]);
+  }, [initialProduct, availableColors, availableSizes]);
 
   useEffect(() => {
     return () => {
@@ -171,9 +195,87 @@ export default function ProductDetailClient({
     }, 600);
   };
 
-  const rawSpecs = initialProduct.specifications;
-  const specifications = (rawSpecs && typeof rawSpecs === 'object' && !Array.isArray(rawSpecs)) ? rawSpecs : {};
+  // Dynamic specifications resolver: combines top-level attributes and custom specifications
+  const specifications = useMemo(() => {
+    if (!initialProduct) return {};
+    const specs: Record<string, string> = {};
+
+    // 1. Dimensions (from Admin Details)
+    const dimensionsVal = initialProduct.dimensions?.trim() || initialProduct.specifications?.["Dimensions"]?.trim() || initialProduct.specifications?.["dimensions"]?.trim();
+    if (dimensionsVal) {
+      specs["Dimensions"] = dimensionsVal;
+    }
+
+    // 2. Weight (from Admin Details)
+    const weightVal = initialProduct.weight?.trim() || initialProduct.specifications?.["Weight"]?.trim() || initialProduct.specifications?.["weight"]?.trim();
+    if (weightVal) {
+      specs["Weight"] = weightVal;
+    }
+
+    // 3. Brand
+    const brandVal = initialProduct.brand?.trim() || initialProduct.specifications?.["Brand"]?.trim();
+    if (brandVal) {
+      specs["Brand"] = brandVal;
+    }
+
+    // 4. Category
+    const categoryVal = initialProduct.category?.trim() || initialProduct.specifications?.["Category"]?.trim();
+    if (categoryVal) {
+      specs["Category"] = categoryVal;
+    }
+
+    // 5. Materials (from variants or top-level)
+    const matList = initialProduct.materials && initialProduct.materials.length > 0 
+      ? initialProduct.materials 
+      : Array.from(new Set((initialProduct.variants || []).map((v: any) => v.material?.trim()).filter((m: any): m is string => Boolean(m))));
+    if (matList.length > 0) {
+      specs["Material"] = matList.join(", ");
+    } else if (initialProduct.specifications?.["Material"]?.trim()) {
+      specs["Material"] = initialProduct.specifications["Material"].trim();
+    }
+
+    // 6. Available Sizes / Options
+    if (availableSizes.length > 0) {
+      specs["Available Sizes"] = availableSizes.join(", ");
+    }
+
+    // 7. Shipping Class (from Admin Details)
+    const shippingClassVal = initialProduct.shippingClass?.trim() || initialProduct.specifications?.["Shipping Class"]?.trim() || initialProduct.specifications?.["shippingClass"]?.trim();
+    if (shippingClassVal) {
+      specs["Shipping Class"] = shippingClassVal;
+    }
+
+    // 8. Custom Delivery Estimate
+    const estimateVal = initialProduct.deliveryEstimate?.trim() || initialProduct.specifications?.["Delivery Estimate"]?.trim();
+    if (estimateVal) {
+      specs["Delivery Estimate"] = estimateVal;
+    }
+
+    // 9. Merge any custom specification key-values that are not yet in specs
+    if (initialProduct.specifications && typeof initialProduct.specifications === "object" && !Array.isArray(initialProduct.specifications)) {
+      for (const [key, val] of Object.entries(initialProduct.specifications)) {
+        if (val && String(val).trim() && !specs[key]) {
+          specs[key] = String(val).trim();
+        }
+      }
+    }
+
+    return specs;
+  }, [initialProduct, availableSizes]);
+
   const hasSpecs = Object.keys(specifications).length > 0;
+
+  // Normalized features list (supports array or newline-delimited string)
+  const featuresList = useMemo(() => {
+    if (!initialProduct?.features) return [];
+    if (Array.isArray(initialProduct.features)) {
+      return initialProduct.features.map((f: any) => String(f).trim()).filter(Boolean);
+    }
+    if (typeof initialProduct.features === "string") {
+      return (initialProduct.features as string).split("\n").map((f: string) => f.trim()).filter(Boolean);
+    }
+    return [];
+  }, [initialProduct?.features]);
   
   const formatHTML = (html: string) => {
     if (!html) return '';
@@ -263,6 +365,13 @@ export default function ProductDetailClient({
               </div>
             </div>
 
+            {/* Short Description */}
+            {initialProduct.shortDescription && (
+              <p className="text-sm text-gray-600 leading-relaxed -mt-1">
+                {initialProduct.shortDescription}
+              </p>
+            )}
+
             <hr className="border-gray-200" />
 
             {/* Pricing Section */}
@@ -306,13 +415,13 @@ export default function ProductDetailClient({
             <hr className="border-gray-200" />
 
             {/* Variants */}
-            {(initialProduct.colors?.length > 0 || initialProduct.sizes?.length > 0) && (
+            {(availableColors.length > 0 || availableSizes.length > 0) && (
               <div className="flex flex-col gap-5">
-                {initialProduct.colors?.length > 0 && (
+                {availableColors.length > 0 && (
                   <div className="flex flex-col gap-2">
                     <span className="text-sm font-bold text-gray-900">Color Family</span>
                     <div className="flex flex-wrap gap-2">
-                      {initialProduct.colors.map((color: string) => (
+                      {availableColors.map((color: string) => (
                         <button
                           key={color}
                           onClick={() => setSelectedColor(color)}
@@ -329,11 +438,11 @@ export default function ProductDetailClient({
                   </div>
                 )}
                 
-                {initialProduct.sizes?.length > 0 && (
+                {availableSizes.length > 0 && (
                   <div className="flex flex-col gap-2">
                     <span className="text-sm font-bold text-gray-900">Size / Option</span>
                     <div className="flex flex-wrap gap-2">
-                      {initialProduct.sizes.map((size: string) => (
+                      {availableSizes.map((size: string) => (
                         <button
                           key={size}
                           onClick={() => setSelectedSize(size)}
@@ -521,19 +630,6 @@ export default function ProductDetailClient({
             {/* Seller Info */}
             <SellerCard />
 
-            {/* Safety & Payment Assurances */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm flex flex-col gap-3">
-              <div className="flex items-center gap-3 text-sm font-bold text-gray-700">
-                <Lock className="w-4 h-4 text-emerald-500" /> Secure Checkout
-              </div>
-              <div className="flex items-center gap-3 text-sm font-bold text-gray-700">
-                <Check className="w-4 h-4 text-emerald-500" /> Cash on Delivery Available
-              </div>
-            </div>
-
-            {/* Business QR Code */}
-            <BusinessQRCode />
-
           </div>
 
         </div>
@@ -570,9 +666,9 @@ export default function ProductDetailClient({
 
             {activeTab === 'features' && (
               <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 max-w-4xl">
-                {initialProduct.features && initialProduct.features.length > 0 ? (
+                {featuresList.length > 0 ? (
                   <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {initialProduct.features.map((feature: string, idx: number) => (
+                    {featuresList.map((feature: string, idx: number) => (
                       <li key={idx} className="flex items-start gap-3 text-sm text-gray-700 font-medium p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
                         <Check className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
                         <span className="leading-relaxed">{feature}</span>

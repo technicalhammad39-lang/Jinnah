@@ -32,11 +32,12 @@ export interface Product {
   brand: string;
   category: string;
   categoryId?: string;
-  categorySlug: string;
+  categorySlug?: string;
   price: number; // The actual selling price
   originalPrice?: number; // The price before discount (optional)
-  rating: number;
-  reviewCount: number;
+  rating?: number;
+  reviewCount?: number;
+  averageRating?: number;
   images: string[];
   colors?: string[]; // Color options
   sizes?: string[]; // Size options
@@ -44,6 +45,7 @@ export interface Product {
   variants?: ProductVariant[]; // Specific inventory variants
   isNew?: boolean;
   isBestSeller?: boolean;
+  bestSeller?: boolean;
   featured?: boolean;
   discount?: number; // Calculated discount percentage
   freeShipping?: boolean;
@@ -51,7 +53,7 @@ export interface Product {
   shortDescription?: string;
   longDescription?: string;
   specifications?: Record<string, string>;
-  features?: string[];
+  features?: string[] | string;
   stockQuantity: number; // Real numeric stock
   lowStockThreshold?: number; // Custom threshold (default 5)
   availability?: 'in-stock' | 'low-stock' | 'out-of-stock' | string;

@@ -38,12 +38,14 @@ export function SellerCard() {
         >
           <MessageCircle className="w-4 h-4" /> Chat
         </Link>
-        <Link 
-          href="/shop" 
-          className="flex-1 flex items-center justify-center gap-2 bg-gray-900 text-white py-2.5 rounded-xl text-sm font-bold hover:bg-black transition-colors"
+        <a 
+          href="https://www.google.com/maps?cid=15825565998081858594&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAMYASAF&hl=en-GB&source=embed" 
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 flex items-center justify-center gap-2 bg-gray-900 text-white py-2.5 rounded-xl text-sm font-bold hover:bg-black transition-colors text-center"
         >
           Go to Store
-        </Link>
+        </a>
       </div>
     </div>
   );

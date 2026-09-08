@@ -137,8 +137,6 @@ export async function syncImapInbox(settings: EmailSettings, limit = 20): Promis
         messagesToProcess.push(message);
       }
 
-      const app = getAdminApp();
-
       for (const msg of messagesToProcess) {
         try {
           if (!msg.source) continue;
@@ -178,6 +176,7 @@ export async function syncImapInbox(settings: EmailSettings, limit = 20): Promis
             : parsed.references
             ? [parsed.references]
             : [];
+          const conversationId = inReplyTo || messageId;
 
           try {
             await saveEmailMessageDoc({

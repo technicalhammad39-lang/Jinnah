@@ -76,15 +76,22 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const data = docSnap.data();
+          const specs = (data.specifications && typeof data.specifications === 'object') ? data.specifications : {};
           setFormData({
             ...formData,
             ...data,
+            dimensions: data.dimensions || specs["Dimensions"] || specs["dimensions"] || "",
+            weight: data.weight || specs["Weight"] || specs["weight"] || "",
+            shippingClass: data.shippingClass || specs["Shipping Class"] || specs["shippingClass"] || "",
+            deliveryEstimate: data.deliveryEstimate || specs["Delivery Estimate"] || "",
             price: data.price || 0,
             stockQuantity: data.stockQuantity !== undefined ? Number(data.stockQuantity) : (data.availability === "in-stock" ? 50 : 0),
             lowStockThreshold: typeof data.lowStockThreshold === 'number' ? data.lowStockThreshold : 5,
             variants: Array.isArray(data.variants) ? data.variants : [],
             features: Array.isArray(data.features) ? data.features.join("\n") : (data.features || ""),
-            allowedPaymentMethods: data.allowedPaymentMethods || ["ALL"]
+            allowedPaymentMethods: data.allowedPaymentMethods || ["ALL"],
+            shortDescription: data.shortDescription || "",
+            description: data.description || data.longDescription || ""
           } as any);
         } else {
           toast.error("Product not found");
@@ -205,7 +212,10 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
     setSaving(true);
 
     try {
-      const featuresArray = formData.features.split("\n").filter(f => f.trim() !== "");
+      const featuresArray = formData.features
+        .split("\n")
+        .map(f => f.trim())
+        .filter(f => f !== "");
       const threshold = Number(formData.lowStockThreshold) || 5;
 
       let totalStock = Number(formData.stockQuantity) || 0;
@@ -215,6 +225,22 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
 
       const availability = totalStock > threshold ? "in-stock" : (totalStock > 0 ? "low-stock" : "out-of-stock");
 
+      // Extract colors, sizes, and materials from variants so top-level selectors work automatically
+      const colors = Array.from(new Set((formData.variants || []).map(v => v.color?.trim()).filter((c): c is string => Boolean(c))));
+      const sizes = Array.from(new Set((formData.variants || []).map(v => v.size?.trim()).filter((s): s is string => Boolean(s))));
+      const materials = Array.from(new Set((formData.variants || []).map(v => v.material?.trim()).filter((m): m is string => Boolean(m))));
+
+      // Compile clean specifications dictionary without empty values
+      const compiledSpecifications: Record<string, string> = {};
+      if (formData.dimensions?.trim()) compiledSpecifications["Dimensions"] = formData.dimensions.trim();
+      if (formData.weight?.trim()) compiledSpecifications["Weight"] = formData.weight.trim();
+      if (formData.brand?.trim()) compiledSpecifications["Brand"] = formData.brand.trim();
+      if (formData.category?.trim()) compiledSpecifications["Category"] = formData.category.trim();
+      if (materials.length > 0) compiledSpecifications["Material"] = materials.join(", ");
+      if (sizes.length > 0) compiledSpecifications["Available Sizes"] = sizes.join(", ");
+      if (formData.shippingClass?.trim()) compiledSpecifications["Shipping Class"] = formData.shippingClass.trim();
+      if (formData.deliveryEstimate?.trim()) compiledSpecifications["Delivery Estimate"] = formData.deliveryEstimate.trim();
+
       const dataToSave = {
         ...formData,
         price: Number(formData.price),
@@ -222,8 +248,19 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
         lowStockThreshold: threshold,
         availability,
         variants: formData.variants || [],
-        shippingFee: Number(formData.shippingFee),
+        colors,
+        sizes,
+        materials,
+        dimensions: formData.dimensions?.trim() || "",
+        weight: formData.weight?.trim() || "",
+        shippingClass: formData.shippingClass?.trim() || "",
+        deliveryEstimate: formData.deliveryEstimate?.trim() || "",
+        shippingNote: formData.shippingNote?.trim() || "",
+        shortDescription: formData.shortDescription?.trim() || "",
+        description: formData.description?.trim() || "",
+        shippingFee: Number(formData.shippingFee) || 0,
         features: featuresArray,
+        specifications: compiledSpecifications,
         updatedAt: serverTimestamp()
       };
 
