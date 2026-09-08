@@ -2,31 +2,64 @@ import { ImapFlow } from "imapflow";
 import { simpleParser } from "mailparser";
 import { EmailSettings, EmailMessage } from "./types";
 import { decryptCredential } from "./crypto";
-import { adminDb, getAdminApp } from "@/lib/firebase-admin";
+import { saveEmailMessageDoc, saveEmailLogDoc, saveStoredEmailSettings } from "./db";
 
 /**
  * Creates an ImapFlow client instance using EmailSettings.
  */
 export function createImapClient(settings: EmailSettings) {
-  if (!settings.imapHost || !settings.imapUser) {
+  const host = (settings.imapHost || "").trim();
+  const user = (settings.imapUser || "").trim();
+  const port = Number(settings.imapPort) || 993;
+  const secure = settings.imapSecure !== undefined ? Boolean(settings.imapSecure) : port === 993;
+
+  if (!host || !user) {
     throw new Error("IMAP Host and Username are required.");
   }
 
-  const plainPassword = decryptCredential(settings.imapPassword);
+  const plainPassword = decryptCredential(settings.imapPassword).trim();
 
   return new ImapFlow({
-    host: settings.imapHost,
-    port: Number(settings.imapPort) || 993,
-    secure: Boolean(settings.imapSecure), // true for 993
+    host,
+    port,
+    secure,
     auth: {
-      user: settings.imapUser,
+      user,
       pass: plainPassword,
     },
     logger: false,
     tls: {
       rejectUnauthorized: false, // Prevents certificate chain issues on custom cPanel / Hostinger mail servers
     },
+    connectionTimeout: 10000,
   });
+}
+
+/**
+ * Formats user-friendly diagnostic messages for IMAP errors.
+ */
+function formatImapErrorMessage(error: any, settings: EmailSettings): string {
+  const msg = error.message || "";
+  const code = error.code || "";
+
+  if (msg.includes("authenticate") || msg.includes("command failed") || msg.includes("auth") || code === "AUTHENTICATIONFAILED") {
+    if (settings.imapHost?.includes("hostinger")) {
+      return (
+        "Hostinger IMAP Authentication Failed: Server imap.hostinger.com rejected the credentials. " +
+        "Please check: " +
+        "(1) Make sure the password is your Email Account password in Hostinger (not your main hPanel account password). " +
+        "(2) Test logging in at https://mail.hostinger.com with this exact email and password. " +
+        "(3) Ensure username is the full email address."
+      );
+    }
+    return `IMAP authentication failed for ${settings.imapHost}. Please check username and password.`;
+  }
+
+  if (code === "ETIMEDOUT" || code === "ESOCKET" || msg.includes("timeout")) {
+    return `Connection to IMAP server ${settings.imapHost}:${settings.imapPort} timed out.`;
+  }
+
+  return msg || "Failed to authenticate with IMAP server.";
 }
 
 /**
@@ -55,9 +88,10 @@ export async function verifyImapConnection(settings: EmailSettings): Promise<{
     try {
       await client.logout();
     } catch {}
+    const friendlyMsg = formatImapErrorMessage(error, settings);
     return {
       success: false,
-      message: error.message || "Failed to authenticate with IMAP server.",
+      message: friendlyMsg,
     };
   }
 }
@@ -145,52 +179,32 @@ export async function syncImapInbox(settings: EmailSettings, limit = 20): Promis
             ? [parsed.references]
             : [];
 
-          const conversationId = inReplyTo || references[0] || messageId;
-
-          if (app) {
-            // Check if email with this messageId already exists in Firestore
-            const existingQuery = await adminDb
-              .collection("emails")
-              .where("messageId", "==", messageId)
-              .limit(1)
-              .get();
-
-            if (!existingQuery.empty) {
-              // Update read/starred flags only
-              const docId = existingQuery.docs[0].id;
-              await adminDb.collection("emails").doc(docId).update({
-                isRead: isSeen,
-                isStarred: isFlagged,
-                updatedAt: new Date().toISOString(),
-              });
-            } else {
-              // Insert new message
-              const docRef = adminDb.collection("emails").doc();
-              await docRef.set({
-                id: docRef.id,
-                folder: "inbox",
-                conversationId,
-                from: fromObj,
-                to: toArray,
-                subject,
-                bodyHtml,
-                bodyText,
-                snippet,
-                isRead: isSeen,
-                isStarred: isFlagged,
-                isImportant: false,
-                hasAttachments: attachments.length > 0,
-                attachments,
-                status: "received",
-                messageId,
-                inReplyTo: inReplyTo || null,
-                references,
-                uid: msg.uid,
-                createdAt: parsed.date ? parsed.date.toISOString() : new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-              });
-              syncedCount++;
-            }
+          try {
+            await saveEmailMessageDoc({
+              folder: "inbox",
+              conversationId,
+              from: fromObj,
+              to: toArray,
+              subject,
+              bodyHtml,
+              bodyText,
+              snippet,
+              isRead: isSeen,
+              isStarred: isFlagged,
+              isImportant: false,
+              hasAttachments: attachments.length > 0,
+              attachments,
+              status: "received",
+              messageId,
+              inReplyTo: inReplyTo || null,
+              references,
+              uid: msg.uid,
+              createdAt: parsed.date ? parsed.date.toISOString() : new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            });
+            syncedCount++;
+          } catch (writeErr) {
+            console.warn("[IMAP Sync Save Msg Error]:", writeErr);
           }
         } catch (parseErr) {
           console.warn("[IMAP Single Message Parse Error]:", parseErr);
@@ -198,18 +212,20 @@ export async function syncImapInbox(settings: EmailSettings, limit = 20): Promis
       }
 
       // Update last sync in settings
-      if (app) {
-        await adminDb.collection("email_settings").doc("main").set(
-          { lastSyncAt: new Date().toISOString() },
-          { merge: true }
-        );
+      try {
+        await saveStoredEmailSettings({
+          ...settings,
+          lastSyncAt: new Date().toISOString(),
+        });
 
-        await adminDb.collection("email_logs").add({
+        await saveEmailLogDoc({
           type: "imap_sync",
           status: "success",
           subject: `Synced ${syncedCount} new messages from IMAP`,
           timestamp: new Date().toISOString(),
         });
+      } catch (logErr) {
+        console.warn("[IMAP Sync Log Error]:", logErr);
       }
     } finally {
       lock.release();
@@ -223,14 +239,15 @@ export async function syncImapInbox(settings: EmailSettings, limit = 20): Promis
       await client.logout();
     } catch {}
 
-    const app = getAdminApp();
-    if (app) {
-      await adminDb.collection("email_logs").add({
+    try {
+      await saveEmailLogDoc({
         type: "imap_sync",
         status: "error",
         errorDetails: error.message || "Unknown IMAP sync failure",
         timestamp: new Date().toISOString(),
       });
+    } catch (logErr) {
+      console.error("[Log Error]:", logErr);
     }
 
     return { success: false, syncedCount: 0, error: error.message || "IMAP sync failed" };

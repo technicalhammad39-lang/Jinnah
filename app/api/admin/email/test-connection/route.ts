@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { verifySmtpConnection } from "@/lib/email/smtp";
 import { verifyImapConnection } from "@/lib/email/imap";
 import { EmailSettings } from "@/lib/email/types";
-import { adminDb, getAdminApp } from "@/lib/firebase-admin";
+import { getStoredEmailSettings } from "@/lib/email/db";
 
 export async function POST(req: Request) {
   try {
@@ -13,20 +13,22 @@ export async function POST(req: Request) {
     }
 
     // If password was sent masked, fetch the actual encrypted password from DB
-    let effectiveConfig: EmailSettings = { ...config };
+    let effectiveConfig: EmailSettings = {
+      ...config,
+      smtpHost: (config.smtpHost || "").trim(),
+      smtpUser: (config.smtpUser || "").trim(),
+      imapHost: (config.imapHost || "").trim(),
+      imapUser: (config.imapUser || "").trim(),
+    };
 
-    if (config.smtpPassword?.includes("••••") || config.imapPassword?.includes("••••")) {
-      const app = getAdminApp();
-      if (app) {
-        const docSnap = await adminDb.collection("email_settings").doc("main").get();
-        if (docSnap.exists) {
-          const dbData = docSnap.data() as EmailSettings;
-          if (config.smtpPassword?.includes("••••")) {
-            effectiveConfig.smtpPassword = dbData.smtpPassword;
-          }
-          if (config.imapPassword?.includes("••••")) {
-            effectiveConfig.imapPassword = dbData.imapPassword;
-          }
+    if (config.smtpPassword?.includes("••••") || config.imapPassword?.includes("••••") || !config.smtpPassword || !config.imapPassword) {
+      const dbData = await getStoredEmailSettings();
+      if (dbData) {
+        if (config.smtpPassword?.includes("••••") || !config.smtpPassword) {
+          effectiveConfig.smtpPassword = dbData.smtpPassword;
+        }
+        if (config.imapPassword?.includes("••••") || !config.imapPassword) {
+          effectiveConfig.imapPassword = dbData.imapPassword;
         }
       }
     }
@@ -48,3 +50,4 @@ export async function POST(req: Request) {
     );
   }
 }
+

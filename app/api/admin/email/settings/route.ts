@@ -1,20 +1,16 @@
 import { NextResponse } from "next/server";
-import { adminDb, getAdminApp } from "@/lib/firebase-admin";
 import { EmailSettings } from "@/lib/email/types";
 import { encryptCredential, maskSensitive } from "@/lib/email/crypto";
+import { getStoredEmailSettings, saveStoredEmailSettings } from "@/lib/email/db";
 
 export async function GET() {
   try {
-    const app = getAdminApp();
-    if (!app) {
-      return NextResponse.json({ error: "Server database configuration error" }, { status: 500 });
-    }
+    const existing = await getStoredEmailSettings();
 
-    const docSnap = await adminDb.collection("email_settings").doc("main").get();
     let settings: EmailSettings;
 
-    if (docSnap.exists) {
-      settings = docSnap.data() as EmailSettings;
+    if (existing) {
+      settings = existing;
     } else {
       // Default initial configuration
       settings = {
@@ -22,16 +18,16 @@ export async function GET() {
         smtpEnabled: true,
         smtpHost: "smtp.hostinger.com",
         smtpPort: 465,
-        smtpUser: "info@hammadgfx.online",
+        smtpUser: "info@jinnah-hardwarestore.com",
         smtpSecure: true,
-        fromEmail: "info@hammadgfx.online",
+        fromEmail: "info@jinnah-hardwarestore.com",
         fromName: "Jinnah Hardware Store",
-        replyToEmail: "info@hammadgfx.online",
+        replyToEmail: "info@jinnah-hardwarestore.com",
 
         imapEnabled: true,
         imapHost: "imap.hostinger.com",
         imapPort: 993,
-        imapUser: "info@hammadgfx.online",
+        imapUser: "info@jinnah-hardwarestore.com",
         imapSecure: true,
         autoSyncIntervalMinutes: 15,
         lastSyncAt: null,
@@ -54,43 +50,37 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const app = getAdminApp();
-    if (!app) {
-      return NextResponse.json({ error: "Server database configuration error" }, { status: 500 });
-    }
-
     const body = await req.json();
-    const docSnap = await adminDb.collection("email_settings").doc("main").get();
-    const existing = docSnap.exists ? (docSnap.data() as EmailSettings) : null;
+    const existing = await getStoredEmailSettings();
 
     let smtpPassToSave = existing?.smtpPassword || "";
     if (body.smtpPassword && !body.smtpPassword.includes("••••")) {
-      smtpPassToSave = encryptCredential(body.smtpPassword);
+      smtpPassToSave = encryptCredential(body.smtpPassword.trim());
     }
 
     let imapPassToSave = existing?.imapPassword || "";
     if (body.imapPassword && !body.imapPassword.includes("••••")) {
-      imapPassToSave = encryptCredential(body.imapPassword);
+      imapPassToSave = encryptCredential(body.imapPassword.trim());
     }
 
     const payloadToSave: EmailSettings = {
       providerPreset: body.providerPreset || "custom",
       smtpEnabled: Boolean(body.smtpEnabled),
-      smtpHost: body.smtpHost || "",
+      smtpHost: (body.smtpHost || "").trim(),
       smtpPort: Number(body.smtpPort) || 465,
-      smtpUser: body.smtpUser || "",
+      smtpUser: (body.smtpUser || "").trim(),
       smtpPassword: smtpPassToSave,
-      smtpSecure: Boolean(body.smtpSecure),
-      fromEmail: body.fromEmail || body.smtpUser || "",
-      fromName: body.fromName || "Jinnah Hardware Store",
-      replyToEmail: body.replyToEmail || body.fromEmail || "",
+      smtpSecure: body.smtpSecure !== undefined ? Boolean(body.smtpSecure) : Number(body.smtpPort) === 465,
+      fromEmail: (body.fromEmail || body.smtpUser || "").trim(),
+      fromName: (body.fromName || "Jinnah Hardware Store").trim(),
+      replyToEmail: (body.replyToEmail || body.fromEmail || "").trim(),
 
       imapEnabled: Boolean(body.imapEnabled),
-      imapHost: body.imapHost || "",
+      imapHost: (body.imapHost || "").trim(),
       imapPort: Number(body.imapPort) || 993,
-      imapUser: body.imapUser || "",
+      imapUser: (body.imapUser || "").trim(),
       imapPassword: imapPassToSave,
-      imapSecure: Boolean(body.imapSecure),
+      imapSecure: body.imapSecure !== undefined ? Boolean(body.imapSecure) : Number(body.imapPort) === 993,
       autoSyncIntervalMinutes: Number(body.autoSyncIntervalMinutes) || 15,
       lastSyncAt: existing?.lastSyncAt || null,
 
@@ -99,7 +89,7 @@ export async function POST(req: Request) {
       updatedAt: new Date().toISOString(),
     };
 
-    await adminDb.collection("email_settings").doc("main").set(payloadToSave, { merge: true });
+    await saveStoredEmailSettings(payloadToSave);
 
     return NextResponse.json({
       success: true,
@@ -110,3 +100,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: error.message || "Failed to save settings" }, { status: 500 });
   }
 }
+

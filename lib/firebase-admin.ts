@@ -178,8 +178,17 @@ function initializeFirebaseAdmin(): admin.app.App | null {
   }
 
   // 3. Read environment variables at RUNTIME
-  const projectId = process.env.FIREBASE_PROJECT_ID;
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL?.trim();
+  const cleanEnvStr = (val?: string) => {
+    if (!val) return "";
+    let s = val.trim();
+    if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+      s = s.slice(1, -1).trim();
+    }
+    return s;
+  };
+
+  const projectId = cleanEnvStr(process.env.FIREBASE_PROJECT_ID);
+  const clientEmail = cleanEnvStr(process.env.FIREBASE_CLIENT_EMAIL);
   const base64Key = process.env.FIREBASE_PRIVATE_KEY_BASE64;
   const rawFallbackKey = process.env.FIREBASE_PRIVATE_KEY;
 

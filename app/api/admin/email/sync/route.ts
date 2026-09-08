@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { getEmailSettings } from "@/lib/email/automation";
+import { getStoredEmailSettings } from "@/lib/email/db";
 import { syncImapInbox } from "@/lib/email/imap";
 
 export async function POST(req: Request) {
   try {
-    const settings = await getEmailSettings();
+    const settings = await getStoredEmailSettings();
 
     if (!settings) {
       return NextResponse.json(

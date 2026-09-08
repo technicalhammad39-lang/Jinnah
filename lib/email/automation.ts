@@ -1,24 +1,13 @@
-import { adminDb, getAdminApp } from "@/lib/firebase-admin";
 import { EmailSettings } from "./types";
 import { sendEmailViaSmtp } from "./smtp";
 import { DEFAULT_TEMPLATES, renderEmailTemplate } from "./templates";
+import { getStoredEmailSettings, saveEmailMessageDoc } from "./db";
 
 /**
- * Loads EmailSettings from Firestore.
+ * Loads EmailSettings from Firestore with automatic Admin/Client SDK fallback.
  */
 export async function getEmailSettings(): Promise<EmailSettings | null> {
-  const app = getAdminApp();
-  if (!app) return null;
-
-  try {
-    const docSnap = await adminDb.collection("email_settings").doc("main").get();
-    if (docSnap.exists) {
-      return docSnap.data() as EmailSettings;
-    }
-  } catch (error) {
-    console.error("[Get Email Settings Error]:", error);
-  }
-  return null;
+  return getStoredEmailSettings();
 }
 
 /**
@@ -33,17 +22,12 @@ export async function handleContactFormSubmission(data: {
   subject?: string;
   message: string;
 }) {
-  const app = getAdminApp();
-  if (!app) return;
-
   try {
     const convId = `contact-${Date.now()}`;
     const subject = data.subject || `Inquiry from ${data.name}`;
 
     // 1. Create message in Inbox
-    const docRef = adminDb.collection("emails").doc();
-    await docRef.set({
-      id: docRef.id,
+    await saveEmailMessageDoc({
       folder: "inbox",
       conversationId: convId,
       from: {

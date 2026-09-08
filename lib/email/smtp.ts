@@ -1,32 +1,73 @@
 import nodemailer, { SendMailOptions, TransportOptions } from "nodemailer";
 import { EmailSettings, EmailAttachment } from "./types";
 import { decryptCredential } from "./crypto";
-import { adminDb, getAdminApp } from "@/lib/firebase-admin";
+import { saveEmailMessageDoc, saveEmailLogDoc } from "./db";
 
 /**
  * Creates a Nodemailer transporter instance using saved or provided settings.
  */
 export function createSmtpTransporter(settings: EmailSettings) {
-  if (!settings.smtpHost || !settings.smtpUser) {
+  const host = (settings.smtpHost || "").trim();
+  const user = (settings.smtpUser || "").trim();
+  const port = Number(settings.smtpPort) || 465;
+  // If port is 465, default secure is true (SSL). If 587, secure is false (STARTTLS).
+  const secure = settings.smtpSecure !== undefined ? Boolean(settings.smtpSecure) : port === 465;
+
+  if (!host || !user) {
     throw new Error("SMTP Host and Username are required to initialize mailer.");
   }
 
-  const plainPassword = decryptCredential(settings.smtpPassword);
+  const plainPassword = decryptCredential(settings.smtpPassword).trim();
 
   const config: TransportOptions = {
-    host: settings.smtpHost,
-    port: Number(settings.smtpPort) || 465,
-    secure: Boolean(settings.smtpSecure), // true for 465, false for 587
+    host,
+    port,
+    secure,
     auth: {
-      user: settings.smtpUser,
+      user,
       pass: plainPassword,
     },
     tls: {
-      rejectUnauthorized: false, // Prevents self-signed cert handshake blocks on custom VPS
+      rejectUnauthorized: false, // Prevents self-signed cert handshake blocks on custom VPS/cPanel
+      ciphers: "SSLv3",
     },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
   } as any;
 
   return nodemailer.createTransport(config);
+}
+
+/**
+ * Formats user-friendly diagnostic messages for SMTP errors.
+ */
+function formatSmtpErrorMessage(error: any, settings: EmailSettings): string {
+  const msg = error.message || "";
+  const code = error.code || "";
+
+  if (msg.includes("535") || code === "EAUTH") {
+    if (settings.smtpHost?.includes("hostinger")) {
+      return (
+        "Hostinger Authentication Failed (535): Username or password rejected by smtp.hostinger.com. " +
+        "Please check: " +
+        "(1) In Hostinger hPanel > Emails > Manage, confirm the password for this specific email address. " +
+        "(2) Make sure to use your Email Account password (NOT your main Hostinger hosting login password). " +
+        "(3) Test logging in at https://mail.hostinger.com with this exact email and password."
+      );
+    }
+    return `Authentication failed (535): Incorrect username or password for ${settings.smtpHost}. Please verify credentials.`;
+  }
+
+  if (code === "ETIMEDOUT" || code === "ESOCKET" || msg.includes("timeout")) {
+    return `Connection timed out connecting to ${settings.smtpHost}:${settings.smtpPort}. Check if port is open or try port 587 (with SSL unchecked) instead.`;
+  }
+
+  if (code === "ECONNREFUSED") {
+    return `Connection refused by ${settings.smtpHost}:${settings.smtpPort}. Please check host address and port number.`;
+  }
+
+  return msg || "Failed to authenticate with SMTP server.";
 }
 
 /**
@@ -46,9 +87,10 @@ export async function verifySmtpConnection(settings: EmailSettings): Promise<{
     };
   } catch (error: any) {
     console.error("[SMTP Verify Error]:", error);
+    const friendlyMsg = formatSmtpErrorMessage(error, settings);
     return {
       success: false,
-      message: error.message || "Failed to authenticate with SMTP server.",
+      message: friendlyMsg,
       code: error.code || "SMTP_AUTH_FAILED",
     };
   }
@@ -126,14 +168,11 @@ export async function sendEmailViaSmtp(params: SendMailParams): Promise<{
     const messageId = info.messageId || `jh-msg-${Date.now()}@jinnahhardware`;
 
     // Persist to Firestore "emails" folder: "sent"
-    const app = getAdminApp();
-    if (app) {
-      const convId = conversationId || `conv-${Date.now()}`;
-      const toArray = (Array.isArray(to) ? to : [to]).map((email) => ({ email }));
+    const convId = conversationId || `conv-${Date.now()}`;
+    const toArray = (Array.isArray(to) ? to : [to]).map((email) => ({ email }));
 
-      const sentDocRef = adminDb.collection("emails").doc();
-      await sentDocRef.set({
-        id: sentDocRef.id,
+    try {
+      await saveEmailMessageDoc({
         folder: "sent",
         conversationId: convId,
         from: {
@@ -163,7 +202,7 @@ export async function sendEmailViaSmtp(params: SendMailParams): Promise<{
       });
 
       // Write transmission audit log
-      await adminDb.collection("email_logs").add({
+      await saveEmailLogDoc({
         type: "smtp_send",
         status: "success",
         to: Array.isArray(to) ? to.join(", ") : to,
@@ -172,6 +211,8 @@ export async function sendEmailViaSmtp(params: SendMailParams): Promise<{
         messageId,
         timestamp: new Date().toISOString(),
       });
+    } catch (saveErr) {
+      console.warn("[SMTP Send] Note: Dispatched successfully via SMTP, but audit log save had issue:", saveErr);
     }
 
     return { success: true, messageId };
@@ -180,17 +221,14 @@ export async function sendEmailViaSmtp(params: SendMailParams): Promise<{
 
     // Record failure in audit logs if possible
     try {
-      const app = getAdminApp();
-      if (app) {
-        await adminDb.collection("email_logs").add({
-          type: "smtp_send",
-          status: "error",
-          to: Array.isArray(to) ? to.join(", ") : to,
-          subject,
-          errorDetails: error.message || "Unknown SMTP dispatch error",
-          timestamp: new Date().toISOString(),
-        });
-      }
+      await saveEmailLogDoc({
+        type: "smtp_send",
+        status: "error",
+        to: Array.isArray(to) ? to.join(", ") : to,
+        subject,
+        errorDetails: error.message || "Unknown SMTP dispatch error",
+        timestamp: new Date().toISOString(),
+      });
     } catch (logErr) {
       console.error("[Log Error]:", logErr);
     }

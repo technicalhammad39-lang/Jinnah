@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { getEmailSettings } from "@/lib/email/automation";
+import { getStoredEmailSettings, saveEmailMessageDoc } from "@/lib/email/db";
 import { sendEmailViaSmtp } from "@/lib/email/smtp";
-import { adminDb, getAdminApp } from "@/lib/firebase-admin";
 
 export async function POST(req: Request) {
   try {
@@ -28,18 +27,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Email subject is required" }, { status: 400 });
     }
 
-    const app = getAdminApp();
-    if (!app) {
-      return NextResponse.json({ error: "Server database configuration error" }, { status: 500 });
-    }
-
     // 1. Handle Draft Save
     if (isDraft) {
-      const draftRef = adminDb.collection("emails").doc();
       const toArray = (Array.isArray(to) ? to : [to]).map((e: string) => ({ email: e }));
 
-      await draftRef.set({
-        id: draftRef.id,
+      const draftId = await saveEmailMessageDoc({
         folder: "drafts",
         conversationId: conversationId || `conv-draft-${Date.now()}`,
         from: { name: "Me (Draft)", email: "me" },
@@ -59,16 +51,14 @@ export async function POST(req: Request) {
         updatedAt: new Date().toISOString(),
       });
 
-      return NextResponse.json({ success: true, message: "Draft saved successfully." });
+      return NextResponse.json({ success: true, message: "Draft saved successfully.", id: draftId });
     }
 
     // 2. Handle Scheduled Send
     if (scheduledAt) {
-      const schedRef = adminDb.collection("emails").doc();
       const toArray = (Array.isArray(to) ? to : [to]).map((e: string) => ({ email: e }));
 
-      await schedRef.set({
-        id: schedRef.id,
+      const schedId = await saveEmailMessageDoc({
         folder: "scheduled",
         conversationId: conversationId || `conv-sched-${Date.now()}`,
         from: { name: "Me", email: "me" },
@@ -89,13 +79,13 @@ export async function POST(req: Request) {
         updatedAt: new Date().toISOString(),
       });
 
-      return NextResponse.json({ success: true, message: `Email scheduled for ${new Date(scheduledAt).toLocaleString()}.` });
+      return NextResponse.json({ success: true, message: `Email scheduled for ${new Date(scheduledAt).toLocaleString()}.`, id: schedId });
     }
 
     // 3. Immediate Send via SMTP
-    const settings = await getEmailSettings();
+    const settings = await getStoredEmailSettings();
     if (!settings) {
-      return NextResponse.json({ error: "Email settings not configured. Please set up SMTP first." }, { status: 400 });
+      return NextResponse.json({ error: "Email settings not configured. Please set up SMTP first in Settings." }, { status: 400 });
     }
 
     const result = await sendEmailViaSmtp({
@@ -125,3 +115,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: error.message || "Failed to send email" }, { status: 500 });
   }
 }
+

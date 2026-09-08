@@ -209,7 +209,7 @@ export default function EmailCenterClient() {
   ];
 
   return (
-    <div className="flex flex-col h-[calc(100vh-2rem)] rounded-3xl bg-white border border-black/5 shadow-md overflow-hidden">
+    <div className="flex flex-col min-h-[750px] lg:h-[calc(100vh-7.5rem)] rounded-3xl bg-white border border-black/5 shadow-md overflow-hidden">
       {/* Top Header & Tab Navigation */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-3.5 bg-[#11100e] text-white shrink-0 border-b border-white/10">
         <div className="flex items-center gap-3">
@@ -227,10 +227,10 @@ export default function EmailCenterClient() {
         </div>
 
         {/* Top Tabs */}
-        <div className="flex items-center gap-1 bg-white/10 p-1 rounded-xl text-xs">
+        <div className="flex items-center gap-1 bg-white/10 p-1 rounded-xl text-xs overflow-x-auto max-w-full">
           <button
             onClick={() => setActiveTab("mailbox")}
-            className={`px-3 py-1.5 rounded-lg transition-colors font-semibold ${
+            className={`px-3 py-1.5 rounded-lg transition-colors font-semibold shrink-0 ${
               activeTab === "mailbox" ? "bg-primary text-white" : "text-white/70 hover:text-white"
             }`}
           >
@@ -238,7 +238,7 @@ export default function EmailCenterClient() {
           </button>
           <button
             onClick={() => setActiveTab("settings")}
-            className={`px-3 py-1.5 rounded-lg transition-colors font-semibold ${
+            className={`px-3 py-1.5 rounded-lg transition-colors font-semibold shrink-0 ${
               activeTab === "settings" ? "bg-primary text-white" : "text-white/70 hover:text-white"
             }`}
           >
@@ -246,7 +246,7 @@ export default function EmailCenterClient() {
           </button>
           <button
             onClick={() => setActiveTab("templates")}
-            className={`px-3 py-1.5 rounded-lg transition-colors font-semibold ${
+            className={`px-3 py-1.5 rounded-lg transition-colors font-semibold shrink-0 ${
               activeTab === "templates" ? "bg-primary text-white" : "text-white/70 hover:text-white"
             }`}
           >
@@ -254,7 +254,7 @@ export default function EmailCenterClient() {
           </button>
           <button
             onClick={() => setActiveTab("newsletter")}
-            className={`px-3 py-1.5 rounded-lg transition-colors font-semibold ${
+            className={`px-3 py-1.5 rounded-lg transition-colors font-semibold shrink-0 ${
               activeTab === "newsletter" ? "bg-primary text-white" : "text-white/70 hover:text-white"
             }`}
           >
@@ -262,7 +262,7 @@ export default function EmailCenterClient() {
           </button>
           <button
             onClick={() => setActiveTab("logs")}
-            className={`px-3 py-1.5 rounded-lg transition-colors font-semibold ${
+            className={`px-3 py-1.5 rounded-lg transition-colors font-semibold shrink-0 ${
               activeTab === "logs" ? "bg-primary text-white" : "text-white/70 hover:text-white"
             }`}
           >
@@ -272,7 +272,7 @@ export default function EmailCenterClient() {
       </div>
 
       {/* Main Viewport Container */}
-      <div className="flex-1 overflow-hidden bg-[#faf9f6]">
+      <div className={`flex-1 bg-[#faf9f6] ${activeTab === "mailbox" ? "overflow-hidden" : "overflow-y-auto custom-scrollbar"}`}>
         {activeTab === "settings" && <EmailSettingsTab />}
         {activeTab === "templates" && <EmailTemplatesTab templates={templates} onRefresh={loadTemplates} />}
         {activeTab === "newsletter" && <EmailNewsletterTab />}

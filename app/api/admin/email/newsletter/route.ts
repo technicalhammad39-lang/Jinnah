@@ -1,29 +1,10 @@
 import { NextResponse } from "next/server";
-import { adminDb, getAdminApp } from "@/lib/firebase-admin";
-import { getEmailSettings } from "@/lib/email/automation";
+import { getStoredEmailSettings, getNewsletterData, saveSubscriberDoc, saveNewsletterCampaignDoc } from "@/lib/email/db";
 import { sendEmailViaSmtp } from "@/lib/email/smtp";
 
 export async function GET() {
   try {
-    const app = getAdminApp();
-    if (!app) {
-      return NextResponse.json({ error: "Server database configuration error" }, { status: 500 });
-    }
-
-    const [subscribersSnap, campaignsSnap] = await Promise.all([
-      adminDb.collection("email_subscribers").orderBy("subscribedAt", "desc").limit(200).get(),
-      adminDb.collection("email_newsletters").orderBy("createdAt", "desc").limit(50).get(),
-    ]);
-
-    const subscribers = subscribersSnap.docs.map((doc: any) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-
-    const campaigns = campaignsSnap.docs.map((doc: any) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const { subscribers, campaigns } = await getNewsletterData();
 
     return NextResponse.json({
       success: true,
@@ -39,11 +20,6 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const app = getAdminApp();
-    if (!app) {
-      return NextResponse.json({ error: "Server database configuration error" }, { status: 500 });
-    }
-
     const body = await req.json();
     const { action } = body;
 
@@ -54,8 +30,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Valid email address is required" }, { status: 400 });
       }
 
-      const docRef = adminDb.collection("email_subscribers").doc(email);
-      await docRef.set({
+      await saveSubscriberDoc({
         id: email,
         email,
         name: body.name || "",
@@ -75,15 +50,13 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Subscribers array is required" }, { status: 400 });
       }
 
-      const batch = adminDb.batch();
       let count = 0;
 
       for (const item of subscribers) {
         const email = (typeof item === "string" ? item : item.email || "").trim().toLowerCase();
         if (!email || !email.includes("@")) continue;
 
-        const docRef = adminDb.collection("email_subscribers").doc(email);
-        batch.set(docRef, {
+        await saveSubscriberDoc({
           id: email,
           email,
           name: typeof item === "object" ? item.name || "" : "",
@@ -95,7 +68,6 @@ export async function POST(req: Request) {
         count++;
       }
 
-      await batch.commit();
       return NextResponse.json({ success: true, message: `Successfully imported ${count} subscribers.` });
     }
 
@@ -106,29 +78,22 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Subject and Body HTML are required for campaign" }, { status: 400 });
       }
 
-      const settings = await getEmailSettings();
+      const settings = await getStoredEmailSettings();
       if (!settings || !settings.smtpEnabled) {
         return NextResponse.json({ error: "SMTP must be enabled in settings to dispatch campaigns" }, { status: 400 });
       }
 
-      // Fetch active subscribers
-      const subSnap = await adminDb
-        .collection("email_subscribers")
-        .where("status", "==", "subscribed")
-        .limit(500)
-        .get();
+      const { subscribers } = await getNewsletterData();
+      const activeEmails = subscribers.filter((s: any) => s.status === "subscribed").map((s: any) => s.email).filter(Boolean);
 
-      const emails = subSnap.docs.map((d: any) => d.data().email).filter(Boolean);
-
-      if (emails.length === 0) {
+      if (activeEmails.length === 0) {
         return NextResponse.json({ error: "No active subscribers found to send this campaign to." }, { status: 400 });
       }
 
-      // Send to recipients (batches or individual)
       let sentCount = 0;
       let failedCount = 0;
 
-      for (const recipient of emails) {
+      for (const recipient of activeEmails) {
         try {
           const res = await sendEmailViaSmtp({
             settings,
@@ -144,13 +109,11 @@ export async function POST(req: Request) {
       }
 
       // Record Campaign Record
-      const campRef = adminDb.collection("email_newsletters").doc();
-      await campRef.set({
-        id: campRef.id,
+      const campaignId = await saveNewsletterCampaignDoc({
         title: title || subject,
         subject,
         bodyHtml,
-        recipientsCount: emails.length,
+        recipientsCount: activeEmails.length,
         status: "sent",
         sentAt: new Date().toISOString(),
         stats: {
@@ -163,6 +126,7 @@ export async function POST(req: Request) {
       return NextResponse.json({
         success: true,
         message: `Campaign dispatched to ${sentCount} subscribers (${failedCount} failed).`,
+        id: campaignId,
       });
     }
 

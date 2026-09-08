@@ -1,34 +1,10 @@
 import { NextResponse } from "next/server";
-import { adminDb, getAdminApp } from "@/lib/firebase-admin";
-import { DEFAULT_TEMPLATES } from "@/lib/email/templates";
 import { EmailTemplate } from "@/lib/email/types";
+import { getEmailTemplatesList, saveEmailTemplateDoc, deleteEmailTemplateDoc } from "@/lib/email/db";
 
 export async function GET() {
   try {
-    const app = getAdminApp();
-    if (!app) {
-      return NextResponse.json({ error: "Server database configuration error" }, { status: 500 });
-    }
-
-    const snapshot = await adminDb.collection("email_templates").get();
-
-    if (snapshot.empty) {
-      // Seed default templates
-      const batch = adminDb.batch();
-      for (const tpl of DEFAULT_TEMPLATES) {
-        const docRef = adminDb.collection("email_templates").doc(tpl.id);
-        batch.set(docRef, tpl);
-      }
-      await batch.commit();
-
-      return NextResponse.json({ success: true, templates: DEFAULT_TEMPLATES });
-    }
-
-    const templates: EmailTemplate[] = snapshot.docs.map((doc: any) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-
+    const templates = await getEmailTemplatesList();
     return NextResponse.json({ success: true, templates });
   } catch (error: any) {
     console.error("[Email Templates GET Error]:", error);
@@ -38,14 +14,8 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const app = getAdminApp();
-    if (!app) {
-      return NextResponse.json({ error: "Server database configuration error" }, { status: 500 });
-    }
-
     const body = await req.json();
     const id = body.id || `tpl_${Date.now()}`;
-    const docRef = adminDb.collection("email_templates").doc(id);
 
     const payload: EmailTemplate = {
       id,
@@ -60,7 +30,7 @@ export async function POST(req: Request) {
       updatedAt: new Date().toISOString(),
     };
 
-    await docRef.set(payload, { merge: true });
+    await saveEmailTemplateDoc(payload);
 
     return NextResponse.json({ success: true, template: payload });
   } catch (error: any) {
@@ -71,17 +41,12 @@ export async function POST(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
-    const app = getAdminApp();
-    if (!app) {
-      return NextResponse.json({ error: "Server database configuration error" }, { status: 500 });
-    }
-
     const { id } = await req.json();
     if (!id) {
       return NextResponse.json({ error: "Template ID is required" }, { status: 400 });
     }
 
-    await adminDb.collection("email_templates").doc(id).delete();
+    await deleteEmailTemplateDoc(id);
     return NextResponse.json({ success: true, message: "Template deleted successfully" });
   } catch (error: any) {
     console.error("[Email Templates DELETE Error]:", error);
