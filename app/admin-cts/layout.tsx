@@ -25,14 +25,18 @@ import {
   Ticket,
   ChevronsLeft,
   ChevronsRight,
-  Presentation
+  Presentation,
+  Mail,
+  Boxes
 } from "lucide-react";
 import Image from "next/image";
 
 const sidebarLinks = [
   { name: "Dashboard", href: "/admin-cts", icon: LayoutDashboard },
   { name: "Orders", href: "/admin-cts/orders", icon: ShoppingCart },
+  { name: "Email Center", href: "/admin-cts/email-center", icon: Mail },
   { name: "Products", href: "/admin-cts/products", icon: Package },
+  { name: "Inventory", href: "/admin-cts/inventory", icon: Boxes },
   { name: "Brands", href: "/admin-cts/brands", icon: Tags },
   { name: "Categories", href: "/admin-cts/categories", icon: FolderTree },
   { name: "Blogs", href: "/admin-cts/blogs", icon: FileText },

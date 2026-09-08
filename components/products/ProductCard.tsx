@@ -25,6 +25,7 @@ import { Product } from "@/data/products";
 import { getPublicUploadUrl } from "@/lib/utils";
 import { calculateProductPrice } from "@/lib/discount-engine";
 import { useCartState } from "@/context/AppContext";
+import { getStockInfo } from "@/lib/inventory-engine";
 
 interface ProductCardProps {
   product: Product;
@@ -67,6 +68,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
 
   const isWishlisted = wishlist.includes(product.id);
   const pricing = calculateProductPrice(product.price, product.id, discounts);
+  const stockInfo = getStockInfo(product, undefined, selectedSize || undefined);
 
   const nextImage = (event: React.MouseEvent) => {
     event.stopPropagation();
@@ -83,7 +85,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
   const handleAddToCart = (event: React.MouseEvent) => {
     event.stopPropagation();
     event.preventDefault();
-    if (isSuccess || (product.stockQuantity !== undefined && product.stockQuantity <= 0)) return;
+    if (isSuccess || !stockInfo.isAvailable) return;
 
     if (addTimerRef.current !== null) window.clearTimeout(addTimerRef.current);
     if (successTimerRef.current !== null) window.clearTimeout(successTimerRef.current);
@@ -91,13 +93,13 @@ function ProductCardComponent({ product }: ProductCardProps) {
     setIsAdding(true);
     addTimerRef.current = window.setTimeout(() => {
       setIsAdding(false);
-      setIsSuccess(true);
-      addToCart(product, 1, product.colors?.[0] || "", selectedSize || undefined);
-      setCartOpen(true);
-
-      successTimerRef.current = window.setTimeout(() => {
-        setIsSuccess(false);
-      }, 2000);
+      const added = addToCart(product, 1, product.colors?.[0] || "", selectedSize || undefined);
+      if (added) {
+        setIsSuccess(true);
+        successTimerRef.current = window.setTimeout(() => {
+          setIsSuccess(false);
+        }, 2000);
+      }
     }, 600);
   };
 
@@ -110,9 +112,11 @@ function ProductCardComponent({ product }: ProductCardProps) {
   const handleBuyNow = (event: React.MouseEvent) => {
     event.stopPropagation();
     event.preventDefault();
-    if (product.stockQuantity !== undefined && product.stockQuantity <= 0) return;
-    addToCart(product, 1, product.colors?.[0] || "", selectedSize || undefined);
-    router.push('/checkout');
+    if (!stockInfo.isAvailable) return;
+    const added = addToCart(product, 1, product.colors?.[0] || "", selectedSize || undefined);
+    if (added) {
+      router.push('/checkout');
+    }
   };
 
   const handleCardClick = () => {
@@ -179,9 +183,14 @@ function ProductCardComponent({ product }: ProductCardProps) {
               {pricing.discountType === 'percentage' ? `-${pricing.discountValue}%` : `-Rs. ${pricing.discountAmount}`}
             </span>
           )}
-          {product.stockQuantity !== undefined && product.stockQuantity <= 0 && (
-            <span className="rounded bg-gray-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm">
+          {stockInfo.status === 'out_of_stock' && (
+            <span className="rounded bg-gray-800 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm">
               Out of Stock
+            </span>
+          )}
+          {stockInfo.status === 'low_stock' && (
+            <span className="rounded bg-amber-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm">
+              Only {stockInfo.stock} Left
             </span>
           )}
         </div>
@@ -233,15 +242,26 @@ function ProductCardComponent({ product }: ProductCardProps) {
             </h3>
           </Link>
 
-          <div className="mb-4 flex items-end gap-2 flex-wrap">
-            <span className="text-lg font-bold text-gray-900 leading-none">
-              Rs. {pricing.finalPrice.toLocaleString()}
-            </span>
-            {pricing.hasDiscount && (
-              <span className="text-sm text-gray-400 line-through leading-none mb-[1px]">
-                Rs. {pricing.originalPrice.toLocaleString()}
+          <div className="mb-4 flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-end gap-2 flex-wrap">
+              <span className="text-lg font-bold text-gray-900 leading-none">
+                Rs. {pricing.finalPrice.toLocaleString()}
               </span>
-            )}
+              {pricing.hasDiscount && (
+                <span className="text-sm text-gray-400 line-through leading-none mb-[1px]">
+                  Rs. {pricing.originalPrice.toLocaleString()}
+                </span>
+              )}
+            </div>
+            <span className={`text-[11px] font-semibold ${
+              stockInfo.status === 'in_stock'
+                ? 'text-emerald-700'
+                : stockInfo.status === 'low_stock'
+                ? 'text-amber-700'
+                : 'text-rose-700'
+            }`}>
+              {stockInfo.label}
+            </span>
           </div>
         </div>
 
@@ -253,13 +273,14 @@ function ProductCardComponent({ product }: ProductCardProps) {
               e.preventDefault();
               handleAddToCart(e);
             }}
-            disabled={isAdding || isSuccess || (product.stockQuantity !== undefined && product.stockQuantity <= 0)}
-            className={`flex w-10 shrink-0 items-center justify-center rounded-lg border border-primary/20 transition-colors ${
-              product.stockQuantity !== undefined && product.stockQuantity <= 0
+            disabled={isAdding || isSuccess || !stockInfo.isAvailable}
+            title={!stockInfo.isAvailable ? "Out of Stock" : "Add to Cart"}
+            className={`flex w-10 shrink-0 items-center justify-center rounded-lg border transition-colors ${
+              !stockInfo.isAvailable
                 ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
                 : isSuccess
                 ? "bg-green-50 text-green-600 border-green-200"
-                : "bg-primary/5 text-primary hover:bg-primary hover:text-white"
+                : "bg-primary/5 text-primary border-primary/20 hover:bg-primary hover:text-white"
             }`}
           >
             {isAdding ? <Loader2 className="h-4 w-4 animate-spin" /> : isSuccess ? <Check className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
@@ -267,14 +288,15 @@ function ProductCardComponent({ product }: ProductCardProps) {
           
           <button
             onClick={handleBuyNow}
-            disabled={product.stockQuantity !== undefined && product.stockQuantity <= 0}
+            disabled={!stockInfo.isAvailable}
+            title={!stockInfo.isAvailable ? "Out of Stock" : "Buy Now"}
             className={`flex flex-1 items-center justify-center rounded-lg py-2 text-xs font-bold transition-colors ${
-              product.stockQuantity !== undefined && product.stockQuantity <= 0
+              !stockInfo.isAvailable
                 ? "bg-gray-200 text-gray-400 cursor-not-allowed hidden sm:flex"
                 : "bg-primary text-white hover:bg-primary/90 shadow-sm"
             }`}
           >
-            Buy Now
+            {!stockInfo.isAvailable ? "Out of Stock" : "Buy Now"}
           </button>
         </div>
       </div>

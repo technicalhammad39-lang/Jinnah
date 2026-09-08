@@ -8,6 +8,7 @@ import { Plus, Search, Edit2, Trash2, Loader2, Image as ImageIcon } from "lucide
 import Image from "next/image";
 import { toast } from "sonner";
 import { getPublicUploadUrl } from "@/lib/utils";
+import { getStockInfo } from "@/lib/inventory-engine";
 
 export default function AdminProducts() {
   const [products, setProducts] = useState<any[]>([]);
@@ -133,11 +134,14 @@ export default function AdminProducts() {
                       {product.currency || 'PKR'} {product.price?.toLocaleString()}
                     </td>
                     <td className="px-6 py-4">
-                      {product.availability === 'in-stock' ? (
-                        <span className="bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-full text-xs font-semibold">In Stock</span>
-                      ) : (
-                        <span className="bg-red-500/10 text-red-400 px-2.5 py-1 rounded-full text-xs font-semibold">Out of Stock</span>
-                      )}
+                      {(() => {
+                        const stockInfo = getStockInfo(product);
+                        return (
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${stockInfo.badgeClass}`}>
+                            {stockInfo.label}
+                          </span>
+                        );
+                      })()}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">

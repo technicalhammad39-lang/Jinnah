@@ -19,17 +19,39 @@ export function ContactClient() {
     e.preventDefault();
     setLoading(true);
     try {
-      await addDoc(collection(db, "messages"), {
-        ...formData,
-        read: false,
-        createdAt: new Date().toISOString()
+      // Post to unified contact API for Email Center inbox + auto-reply + messages collection
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
       });
+
+      if (!res.ok) {
+        // Fallback directly to client firestore if API had an issue
+        await addDoc(collection(db, "messages"), {
+          ...formData,
+          read: false,
+          createdAt: new Date().toISOString()
+        });
+      }
+
       setIsSubmitted(true);
       setFormData({ name: "", email: "", phone: "", message: "" });
       setTimeout(() => setIsSubmitted(false), 5000);
     } catch (err) {
       console.error(err);
-      toast.error("Something went wrong. Please try again.");
+      try {
+        await addDoc(collection(db, "messages"), {
+          ...formData,
+          read: false,
+          createdAt: new Date().toISOString()
+        });
+        setIsSubmitted(true);
+        setFormData({ name: "", email: "", phone: "", message: "" });
+        setTimeout(() => setIsSubmitted(false), 5000);
+      } catch (fallbackErr) {
+        toast.error("Something went wrong. Please try again.");
+      }
     } finally {
       setLoading(false);
     }

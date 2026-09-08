@@ -18,6 +18,7 @@ import {
   useOverlayActions,
   useOverlayState,
 } from "@/context/AppContext";
+import { getStockInfo } from "@/lib/inventory-engine";
 
 export function CartDrawer() {
   const { cart, cartCount, cartSubtotal, cartDiscountTotal, cartFinalTotal, shippingSettings, shippingResult } = useCartState();
@@ -162,7 +163,11 @@ export function CartDrawer() {
                   </Link>
                 </div>
               ) : (
-                cart.map((item, index) => (
+                cart.map((item, index) => {
+                  const stockInfo = getStockInfo(item.product, item.selectedColor, item.selectedSize);
+                  const isMaxStock = item.quantity >= stockInfo.stock;
+
+                  return (
                   <motion.div
                     key={`${item.product.id}-${item.selectedColor}-${item.selectedSize}`}
                     initial={{ opacity: 0, y: 10 }}
@@ -216,36 +221,49 @@ export function CartDrawer() {
                       </div>
 
                       <div className="mt-3 flex items-center justify-between">
-                        <div className="flex items-center overflow-hidden rounded-lg border border-black/10 bg-white/50 backdrop-blur-sm">
-                          <button
-                            onClick={() =>
-                              updateCartQuantity(
-                                item.product.id,
-                                item.selectedColor,
-                                item.selectedSize,
-                                item.quantity - 1
-                              )
-                            }
-                            className="cursor-pointer p-1.5 transition-all hover:bg-black/5"
-                          >
-                            <Minus className="h-3 w-3" />
-                          </button>
-                          <span className="min-w-[20px] px-2.5 text-center text-xs font-bold select-none">
-                            {item.quantity}
-                          </span>
-                          <button
-                            onClick={() =>
-                              updateCartQuantity(
-                                item.product.id,
-                                item.selectedColor,
-                                item.selectedSize,
-                                item.quantity + 1
-                              )
-                            }
-                            className="cursor-pointer p-1.5 transition-all hover:bg-black/5"
-                          >
-                            <Plus className="h-3 w-3" />
-                          </button>
+                        <div>
+                          <div className="flex items-center overflow-hidden rounded-lg border border-black/10 bg-white/50 backdrop-blur-sm">
+                            <button
+                              onClick={() =>
+                                updateCartQuantity(
+                                  item.product.id,
+                                  item.selectedColor,
+                                  item.selectedSize,
+                                  item.quantity - 1
+                                )
+                              }
+                              className="cursor-pointer p-1.5 transition-all hover:bg-black/5"
+                            >
+                              <Minus className="h-3 w-3" />
+                            </button>
+                            <span className="min-w-[20px] px-2.5 text-center text-xs font-bold select-none">
+                              {item.quantity}
+                            </span>
+                            <button
+                              disabled={isMaxStock}
+                              onClick={() =>
+                                updateCartQuantity(
+                                  item.product.id,
+                                  item.selectedColor,
+                                  item.selectedSize,
+                                  item.quantity + 1
+                                )
+                              }
+                              className={`p-1.5 transition-all ${
+                                isMaxStock
+                                  ? "cursor-not-allowed opacity-30 text-muted-foreground"
+                                  : "cursor-pointer hover:bg-black/5"
+                              }`}
+                              title={isMaxStock ? `Max available (${stockInfo.stock}) reached` : "Increase quantity"}
+                            >
+                              <Plus className="h-3 w-3" />
+                            </button>
+                          </div>
+                          {isMaxStock && (
+                            <span className="block text-[10px] font-medium text-amber-600 mt-1">
+                              Max stock reached ({stockInfo.stock})
+                            </span>
+                          )}
                         </div>
                         <span className="text-sm font-bold text-foreground">
                           Rs. {(item.product.price * item.quantity).toLocaleString()}
@@ -253,7 +271,8 @@ export function CartDrawer() {
                       </div>
                     </div>
                   </motion.div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>

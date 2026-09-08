@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useCartActions } from "@/context/AppContext";
 import { Product, PRODUCTS } from "@/data/products";
+import { getStockInfo } from "@/lib/inventory-engine";
 
 const FEATURED_PRODUCT = PRODUCTS[0];
 const SECONDARY_PRODUCT = PRODUCTS[1];
@@ -250,21 +251,41 @@ export function ProductShowcase() {
 
             <div className="flex flex-col items-center gap-6 border-t border-black/5 pt-6 sm:flex-row">
               <div className="mr-auto flex flex-col text-left">
-                <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                  Direct Store Price
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                    Direct Store Price
+                  </span>
+                  {(() => {
+                    const showcaseStock = getStockInfo(activeProduct);
+                    return (
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold border ${showcaseStock.badgeClass}`}>
+                        {showcaseStock.label}
+                      </span>
+                    );
+                  })()}
+                </div>
                 <p className="text-3xl font-black text-foreground">
                   Rs. {activeProduct.price.toLocaleString()}
                 </p>
               </div>
 
-              <button
-                onClick={() => addToCart(activeProduct, 1)}
-                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-primary px-8 py-4 text-xs font-bold uppercase tracking-wider text-white shadow-lg transition-all hover:bg-primary/95 hover:shadow-primary/25 sm:w-auto"
-              >
-                <span>Add Featured To Order</span>
-                <ArrowRight className="h-4 w-4" />
-              </button>
+              {(() => {
+                const showcaseStock = getStockInfo(activeProduct);
+                return (
+                  <button
+                    onClick={() => addToCart(activeProduct, 1)}
+                    disabled={!showcaseStock.isAvailable}
+                    className={`flex w-full items-center justify-center gap-2 rounded-full px-8 py-4 text-xs font-bold uppercase tracking-wider transition-all sm:w-auto ${
+                      !showcaseStock.isAvailable
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed shadow-none"
+                        : "cursor-pointer bg-primary text-white shadow-lg hover:bg-primary/95 hover:shadow-primary/25"
+                    }`}
+                  >
+                    <span>{!showcaseStock.isAvailable ? "Out of Stock" : "Add Featured To Order"}</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                );
+              })()}
 
               <Link
                 href={`/shop?product=${activeProduct.id}`}

@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { getSettings } from "@/lib/data-fetcher";
 
 const quickLinks = [
+  { name: "Track Your Order", href: "/track-order" },
   { name: "About Heritage", href: "/about" },
   { name: "Visual Gallery", href: "/gallery" },
   { name: "Trusted Brands", href: "/brands" },
@@ -25,6 +26,7 @@ const quickLinks = [
 ];
 
 const policyLinks = [
+  { name: "Track Order Status", href: "/track-order" },
   { name: "Privacy Policy", href: "/privacy-policy" },
   { name: "Terms & Conditions", href: "/terms" },
   { name: "Shipping Policy", href: "/shipping-policy" },

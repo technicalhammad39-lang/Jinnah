@@ -1,10 +1,11 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { collection, getCountFromServer, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Package, FileText, MessageSquare, TrendingUp, ShoppingCart, Star, ChevronDown } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from "recharts";
+import EmailDashboardWidget from "@/components/admin/EmailDashboardWidget";
 
 type TrendMetric = "orders" | "revenue" | "products_sold" | "new_customers";
 type CatMetric = "products" | "orders" | "units_sold" | "revenue";
@@ -257,6 +258,9 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Enterprise Email Center Quick Hub */}
+      <EmailDashboardWidget />
     </div>
   );
 }

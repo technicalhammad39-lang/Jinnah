@@ -37,6 +37,7 @@ const TABS = [
   { title: "Shop All", href: "/shop", Component: ShopAll },
   { title: "Categories", href: "/categories", Component: Categories },
   { title: "Brands", href: "/brands", Component: BrandsMenu },
+  { title: "Track Order", href: "/track-order", Component: null },
   { title: "About", href: "/about", Component: null },
   { title: "Gallery", href: "/gallery", Component: null },
   { title: "Blogs", href: "/blogs", Component: null },

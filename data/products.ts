@@ -1,34 +1,72 @@
+export interface ProductVariant {
+  id: string; // e.g. "color-size" or unique id
+  name?: string; // e.g. "Matte Black / Large"
+  color?: string;
+  size?: string;
+  material?: string;
+  sku?: string;
+  price?: number; // Optional variant price override
+  stockQuantity: number;
+}
+
+export interface InventoryLog {
+  id: string;
+  productId: string;
+  productName: string;
+  variantId?: string | null;
+  variantName?: string | null;
+  type: 'sale' | 'cancellation_restock' | 'refund_restock' | 'admin_adjustment' | 'initial';
+  orderId?: string | null;
+  previousStock: number;
+  change: number;
+  newStock: number;
+  reason?: string;
+  performedBy?: string;
+  createdAt: any;
+}
+
 export interface Product {
   id: string;
   name: string;
   slug?: string;
   brand: string;
   category: string;
+  categoryId?: string;
   categorySlug: string;
   price: number; // The actual selling price
   originalPrice?: number; // The price before discount (optional)
   rating: number;
   reviewCount: number;
   images: string[];
-  colors?: string[]; // Optional if variants are skipped
-  sizes?: string[]; // Optional if variants are skipped
+  colors?: string[]; // Color options
+  sizes?: string[]; // Size options
+  materials?: string[]; // Material options
+  variants?: ProductVariant[]; // Specific inventory variants
   isNew?: boolean;
   isBestSeller?: boolean;
   featured?: boolean;
   discount?: number; // Calculated discount percentage
   freeShipping?: boolean;
   description: string;
+  shortDescription?: string;
   longDescription?: string;
   specifications?: Record<string, string>;
   features?: string[];
-  stockQuantity: number; // Replaces availability string
+  stockQuantity: number; // Real numeric stock
+  lowStockThreshold?: number; // Custom threshold (default 5)
+  availability?: 'in-stock' | 'low-stock' | 'out-of-stock' | string;
   allowedPaymentMethods?: string[]; // ['ALL'] or ['bank', 'cod']
   
-  // Shipping & Delivery
+  // Dimensions & Shipping
+  dimensions?: string;
+  weight?: string;
+  shippingClass?: string;
   shippingType?: 'free' | 'fixed' | 'default' | null;
   shippingFee?: number;
   deliveryEstimate?: string;
   shippingNote?: string;
+  createdAt?: any;
+  updatedAt?: any;
 }
 
 export interface Coupon {

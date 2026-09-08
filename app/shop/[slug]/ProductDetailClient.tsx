@@ -27,6 +27,7 @@ import {
   useCartState
 } from "@/context/AppContext";
 import { calculateProductPrice } from "@/lib/discount-engine";
+import { getStockInfo } from "@/lib/inventory-engine";
 import { Navbar } from "@/components/navigation/Navbar";
 import { Footer } from "@/components/navigation/Footer";
 import { ProductCard } from "@/components/products/ProductCard";
@@ -122,8 +123,21 @@ export default function ProductDetailClient({
     .filter(p => p.id !== initialProduct.id && (p.category === initialProduct.category || p.brand === initialProduct.brand))
     .slice(0, 4);
 
+  const stockInfo = getStockInfo(initialProduct, selectedColor, selectedSize);
+
+  useEffect(() => {
+    if (initialProduct) {
+      const currentStock = getStockInfo(initialProduct, selectedColor, selectedSize).stock;
+      if (currentStock > 0 && quantity > currentStock) {
+        setQuantity(currentStock);
+      } else if (currentStock === 0) {
+        setQuantity(1);
+      }
+    }
+  }, [selectedColor, selectedSize, initialProduct]);
+
   const handleQuantityChange = (type: 'increase' | 'decrease') => {
-    if (type === 'increase' && quantity < (initialProduct.stockQuantity || 1)) {
+    if (type === 'increase' && quantity < stockInfo.stock) {
       setQuantity(prev => prev + 1);
     } else if (type === 'decrease' && quantity > 1) {
       setQuantity(prev => prev - 1);
@@ -131,12 +145,15 @@ export default function ProductDetailClient({
   };
 
   const handleBuyNow = () => {
-    addToCart(initialProduct, quantity, selectedColor, selectedSize);
-    router.push('/checkout');
+    if (!stockInfo.isAvailable || stockInfo.stock <= 0) return;
+    const added = addToCart(initialProduct, quantity, selectedColor, selectedSize);
+    if (added) {
+      router.push('/checkout');
+    }
   };
 
   const handleAddToCart = () => {
-    if (isSuccess) return;
+    if (isSuccess || !stockInfo.isAvailable || stockInfo.stock <= 0) return;
 
     if (addTimerRef.current) window.clearTimeout(addTimerRef.current);
     if (successTimerRef.current) window.clearTimeout(successTimerRef.current);
@@ -144,14 +161,13 @@ export default function ProductDetailClient({
     setIsAdding(true);
     addTimerRef.current = window.setTimeout(() => {
       setIsAdding(false);
-      setIsSuccess(true);
-      addToCart(initialProduct, quantity, selectedColor, selectedSize);
-      
-      setCartOpen(true);
-
-      successTimerRef.current = window.setTimeout(() => {
-        setIsSuccess(false);
-      }, 2000);
+      const added = addToCart(initialProduct, quantity, selectedColor, selectedSize);
+      if (added) {
+        setIsSuccess(true);
+        successTimerRef.current = window.setTimeout(() => {
+          setIsSuccess(false);
+        }, 2000);
+      }
     }, 600);
   };
 
@@ -272,6 +288,19 @@ export default function ProductDetailClient({
                   Rs. {pricing.finalPrice.toLocaleString()}
                 </span>
               )}
+              {/* Real-time Inventory Status Badge */}
+              <div className="flex items-center gap-3 mt-2">
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${stockInfo.badgeClass}`}>
+                  <span className={`h-2 w-2 rounded-full ${
+                    stockInfo.status === 'in_stock'
+                      ? 'bg-emerald-500'
+                      : stockInfo.status === 'low_stock'
+                      ? 'bg-amber-500 animate-pulse'
+                      : 'bg-rose-500'
+                  }`} />
+                  {stockInfo.label}
+                </span>
+              </div>
             </div>
 
             <hr className="border-gray-200" />
@@ -327,23 +356,31 @@ export default function ProductDetailClient({
             <div className="flex flex-col gap-2 mt-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-bold text-gray-900">Quantity</span>
-                <span className="text-xs font-medium text-gray-500">{initialProduct.stockQuantity || 0} pieces available</span>
+                <span className="text-xs font-semibold">
+                  {stockInfo.stock > 0 ? (
+                    <span className={stockInfo.status === 'low_stock' ? "text-amber-600 font-bold" : "text-gray-500"}>
+                      {stockInfo.stock} {stockInfo.stock === 1 ? "piece" : "pieces"} available
+                    </span>
+                  ) : (
+                    <span className="text-rose-600 font-bold">Currently unavailable</span>
+                  )}
+                </span>
               </div>
               <div className="flex items-center w-max bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
                 <button
                   onClick={() => handleQuantityChange('decrease')}
-                  disabled={quantity <= 1}
-                  className="px-4 py-2 text-gray-500 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                  disabled={quantity <= 1 || stockInfo.stock <= 0}
+                  className="px-4 py-2 text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <Minus className="h-4 w-4" />
                 </button>
                 <div className="px-4 py-2 font-bold text-gray-900 text-sm border-x border-gray-100 min-w-[50px] text-center">
-                  {quantity}
+                  {stockInfo.stock > 0 ? quantity : 0}
                 </div>
                 <button
                   onClick={() => handleQuantityChange('increase')}
-                  disabled={quantity >= (initialProduct.stockQuantity || 1)}
-                  className="px-4 py-2 text-gray-500 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                  disabled={quantity >= stockInfo.stock || stockInfo.stock <= 0}
+                  className="px-4 py-2 text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <Plus className="h-4 w-4" />
                 </button>
@@ -355,19 +392,23 @@ export default function ProductDetailClient({
               {/* Top row: Buy Now full width */}
               <button
                 onClick={handleBuyNow}
-                disabled={initialProduct.stockQuantity <= 0}
-                className="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold shadow-md transition-all bg-primary text-white hover:bg-primary/90 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!stockInfo.isAvailable}
+                className={`w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold shadow-md transition-all ${
+                  !stockInfo.isAvailable
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300"
+                    : "bg-primary text-white hover:bg-primary/90 hover:shadow-lg"
+                }`}
               >
-                <Zap className="h-4 w-4" /> Buy Now
+                <Zap className="h-4 w-4" /> {!stockInfo.isAvailable ? "Out of Stock" : "Buy Now"}
               </button>
               
               {/* Bottom row: Add to Cart and Wishlist */}
               <div className="flex gap-3">
                 <button
                   onClick={handleAddToCart}
-                  disabled={isAdding || isSuccess || initialProduct.stockQuantity <= 0}
+                  disabled={isAdding || isSuccess || !stockInfo.isAvailable}
                   className={`flex-1 flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold shadow-sm transition-all border ${
-                    initialProduct.stockQuantity <= 0
+                    !stockInfo.isAvailable
                       ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
                       : isSuccess
                       ? "bg-green-50 text-green-600 border-green-200"
@@ -375,7 +416,7 @@ export default function ProductDetailClient({
                   }`}
                 >
                   {isAdding ? <Loader2 className="h-5 w-5 animate-spin" /> : isSuccess ? <Check className="h-5 w-5" /> : <ShoppingCart className="h-5 w-5" />}
-                  {initialProduct.stockQuantity <= 0 ? "Out of Stock" : isSuccess ? "Added to Cart" : "Add to Cart"}
+                  {!stockInfo.isAvailable ? "Out of Stock" : isSuccess ? "Added to Cart" : "Add to Cart"}
                 </button>
                 <button
                   onClick={() => toggleWishlist(initialProduct.id)}
@@ -608,20 +649,20 @@ export default function ProductDetailClient({
         <div className="flex items-center gap-2 w-full">
           <button
             onClick={handleBuyNow}
-            disabled={initialProduct.stockQuantity <= 0}
+            disabled={!stockInfo.isAvailable}
             className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-3 text-sm font-bold shadow-md transition-all ${
-              initialProduct.stockQuantity <= 0
+              !stockInfo.isAvailable
                 ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                 : "bg-primary text-white"
             }`}
           >
-            <Zap className="h-4 w-4" /> Buy Now
+            <Zap className="h-4 w-4" /> {!stockInfo.isAvailable ? "Out of Stock" : "Buy Now"}
           </button>
           <button
             onClick={handleAddToCart}
-            disabled={isAdding || isSuccess || initialProduct.stockQuantity <= 0}
+            disabled={isAdding || isSuccess || !stockInfo.isAvailable}
             className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg shadow-md transition-all border ${
-              initialProduct.stockQuantity <= 0
+              !stockInfo.isAvailable
                 ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
                 : isSuccess
                 ? "bg-green-50 text-green-600 border-green-200"

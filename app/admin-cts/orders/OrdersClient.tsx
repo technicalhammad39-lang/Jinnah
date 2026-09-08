@@ -10,11 +10,15 @@ import {
   Trash2, 
   CheckCircle2, 
   Clock, 
-  Truck,
-  PackageCheck,
-  Search,
-  Filter,
-  ArrowRight
+  Truck, 
+  PackageCheck, 
+  Search, 
+  Filter, 
+  ArrowRight,
+  ExternalLink,
+  Save,
+  Navigation,
+  RotateCcw
 } from "lucide-react";
 import { getPublicUploadUrl } from "@/lib/utils";
 import Image from "next/image";
@@ -47,7 +51,13 @@ type Order = {
   discount?: number;
   appliedCoupon?: string | null;
   total: number;
-  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+  status: "pending" | "processing" | "shipped" | "out_for_delivery" | "delivered" | "cancelled" | "refunded";
+  inventoryDeducted?: boolean;
+  inventoryRestored?: boolean;
+  courierName?: string | null;
+  trackingNumber?: string | null;
+  estimatedDelivery?: string | null;
+  publicTrackingNotes?: string | null;
   createdAt: string;
 };
 
@@ -61,6 +71,52 @@ export default function OrdersClient() {
   const [statusFilter, setStatusFilter] = useState("all");
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [pendingRefundOrder, setPendingRefundOrder] = useState<Order | null>(null);
+  const [returnToInventory, setReturnToInventory] = useState(true);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+
+  const [courierName, setCourierName] = useState("");
+  const [trackingNumber, setTrackingNumber] = useState("");
+  const [estimatedDelivery, setEstimatedDelivery] = useState("");
+  const [publicTrackingNotes, setPublicTrackingNotes] = useState("");
+  const [isSavingTracking, setIsSavingTracking] = useState(false);
+
+  useEffect(() => {
+    if (selectedOrder) {
+      setCourierName(selectedOrder.courierName || "");
+      setTrackingNumber(selectedOrder.trackingNumber || "");
+      setEstimatedDelivery(selectedOrder.estimatedDelivery || "");
+      setPublicTrackingNotes(selectedOrder.publicTrackingNotes || "");
+    }
+  }, [selectedOrder]);
+
+  const saveTrackingDetails = async () => {
+    if (!selectedOrder) return;
+    setIsSavingTracking(true);
+    try {
+      await updateDoc(doc(db, "orders", selectedOrder.dbKey), {
+        courierName: courierName.trim() || null,
+        trackingNumber: trackingNumber.trim() || null,
+        estimatedDelivery: estimatedDelivery.trim() || null,
+        publicTrackingNotes: publicTrackingNotes.trim() || null,
+      });
+
+      setSelectedOrder({
+        ...selectedOrder,
+        courierName: courierName.trim() || null,
+        trackingNumber: trackingNumber.trim() || null,
+        estimatedDelivery: estimatedDelivery.trim() || null,
+        publicTrackingNotes: publicTrackingNotes.trim() || null,
+      });
+
+      toast.success("Courier & tracking details updated.");
+    } catch (err) {
+      console.error("Failed to update tracking details:", err);
+      toast.error("Failed to update tracking details.");
+    } finally {
+      setIsSavingTracking(false);
+    }
+  };
 
   useEffect(() => {
     if (!loading && !user) {
@@ -109,16 +165,67 @@ export default function OrdersClient() {
     setFilteredOrders(result);
   }, [searchTerm, statusFilter, orders]);
 
-  const updateOrderStatus = async (dbKey: string, newStatus: string) => {
-    try {
-      await updateDoc(doc(db, "orders", dbKey), { status: newStatus });
-      if (selectedOrder?.dbKey === dbKey) {
-        setSelectedOrder({ ...selectedOrder, status: newStatus as any });
+  const updateOrderStatus = async (dbKey: string, newStatus: string, restoreInventoryOverride?: boolean) => {
+    // If setting to refunded without explicit confirmation, prompt dialog
+    if (newStatus === "refunded" && restoreInventoryOverride === undefined) {
+      const orderToRefund = selectedOrder?.dbKey === dbKey ? selectedOrder : orders.find(o => o.dbKey === dbKey);
+      if (orderToRefund) {
+        setPendingRefundOrder(orderToRefund);
+        setReturnToInventory(true);
+        return;
       }
-      toast.success("Order status updated successfully.");
-    } catch (error) {
+    }
+
+    setIsUpdatingStatus(true);
+    try {
+      const res = await fetch("/api/admin/orders/status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId: dbKey,
+          newStatus,
+          restoreInventory: restoreInventoryOverride ?? false,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to update order status");
+      }
+
+      const updatedOrder =
+        selectedOrder?.dbKey === dbKey
+          ? { ...selectedOrder, status: newStatus as any, inventoryRestored: data.inventoryRestored }
+          : orders.find((o) => o.dbKey === dbKey);
+
+      if (selectedOrder?.dbKey === dbKey) {
+        setSelectedOrder({
+          ...selectedOrder,
+          status: newStatus as any,
+          inventoryRestored: data.inventoryRestored,
+        });
+      }
+
+      if (data.inventoryRestored) {
+        toast.success(`Order marked as ${newStatus}. Inventory has been safely restored.`);
+      } else {
+        toast.success(`Order status updated to ${newStatus}.`);
+      }
+
+      // Dispatch automated transactional email via SMTP if configured
+      if (updatedOrder) {
+        fetch("/api/admin/email/order-event", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ order: updatedOrder, newStatus }),
+        }).catch((err) => console.error("Email automation trigger failed:", err));
+      }
+    } catch (error: any) {
       console.error("Error updating status:", error);
-      toast.error("Failed to update order status.");
+      toast.error(error.message || "Failed to update order status.");
+    } finally {
+      setIsUpdatingStatus(false);
+      setPendingRefundOrder(null);
     }
   };
 
@@ -153,10 +260,14 @@ export default function OrdersClient() {
         return <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800"><CheckCircle2 className="h-3 w-3" /> Processing</span>;
       case "shipped":
         return <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-semibold text-purple-800"><Truck className="h-3 w-3" /> Shipped</span>;
+      case "out_for_delivery":
+        return <span className="inline-flex items-center gap-1 rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-semibold text-indigo-800"><Navigation className="h-3 w-3" /> Out for Delivery</span>;
       case "delivered":
         return <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800"><PackageCheck className="h-3 w-3" /> Delivered</span>;
       case "cancelled":
         return <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-800"><Trash2 className="h-3 w-3" /> Cancelled</span>;
+      case "refunded":
+        return <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-semibold text-orange-800"><RotateCcw className="h-3 w-3" /> Refunded</span>;
       default:
         return <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-gray-800">{status}</span>;
     }
@@ -193,8 +304,10 @@ export default function OrdersClient() {
             <option value="pending">Pending</option>
             <option value="processing">Processing</option>
             <option value="shipped">Shipped</option>
+            <option value="out_for_delivery">Out for Delivery</option>
             <option value="delivered">Delivered</option>
             <option value="cancelled">Cancelled</option>
+            <option value="refunded">Refunded</option>
           </select>
         </div>
       </div>
@@ -259,14 +372,106 @@ export default function OrdersClient() {
                     <option value="pending">Pending</option>
                     <option value="processing">Processing</option>
                     <option value="shipped">Shipped</option>
+                    <option value="out_for_delivery">Out for Delivery</option>
                     <option value="delivered">Delivered</option>
                     <option value="cancelled">Cancelled</option>
+                    <option value="refunded">Refunded</option>
                   </select>
                   <button 
                     onClick={() => deleteOrder(selectedOrder.dbKey)}
                     className="text-xs font-semibold text-red-500 hover:underline"
                   >
                     Delete Order
+                  </button>
+                </div>
+              </div>
+
+              {/* Logistics & Courier Controls */}
+              <div className="mb-6 space-y-3 rounded-lg border border-primary/25 bg-primary/5 p-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-primary flex items-center gap-1.5">
+                    <Truck className="h-4 w-4" /> Logistics & Courier
+                  </h3>
+                  <a
+                    href={`/track-order/${selectedOrder.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline"
+                  >
+                    <span>View Portal</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+
+                <div className="space-y-2.5 pt-1">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                      Courier Company
+                    </label>
+                    <select
+                      value={courierName}
+                      onChange={(e) => setCourierName(e.target.value)}
+                      className="w-full rounded-md border border-black/10 bg-white py-1.5 px-2.5 text-xs font-medium outline-none focus:border-primary"
+                    >
+                      <option value="">Select Courier Partner</option>
+                      <option value="PostEx">PostEx Express</option>
+                      <option value="TCS">TCS Express</option>
+                      <option value="Leopards">Leopards Courier</option>
+                      <option value="Trax">Trax Logistics</option>
+                      <option value="Rider">Rider</option>
+                      <option value="Call Courier">Call Courier</option>
+                      <option value="M&P">M&P Logistics</option>
+                      <option value="Jinnah Express">Jinnah Express (In-House)</option>
+                      <option value="Other">Other Courier</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                      Consignment / Tracking # (CN)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. PX-98213891 or 127839219"
+                      value={trackingNumber}
+                      onChange={(e) => setTrackingNumber(e.target.value)}
+                      className="w-full rounded-md border border-black/10 bg-white py-1.5 px-2.5 text-xs font-mono outline-none focus:border-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                      Estimated Delivery
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 2-3 Working Days or Tomorrow by 5PM"
+                      value={estimatedDelivery}
+                      onChange={(e) => setEstimatedDelivery(e.target.value)}
+                      className="w-full rounded-md border border-black/10 bg-white py-1.5 px-2.5 text-xs outline-none focus:border-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                      Public Customer Note
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Dispatched via express van"
+                      value={publicTrackingNotes}
+                      onChange={(e) => setPublicTrackingNotes(e.target.value)}
+                      className="w-full rounded-md border border-black/10 bg-white py-1.5 px-2.5 text-xs outline-none focus:border-primary"
+                    />
+                  </div>
+
+                  <button
+                    onClick={saveTrackingDetails}
+                    disabled={isSavingTracking}
+                    className="mt-1 flex w-full items-center justify-center gap-1.5 rounded-md bg-primary py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-primary/95 disabled:opacity-60 cursor-pointer"
+                  >
+                    <Save className="h-3.5 w-3.5" />
+                    <span>{isSavingTracking ? "Saving..." : "Save Logistics Info"}</span>
                   </button>
                 </div>
               </div>
@@ -360,6 +565,63 @@ export default function OrdersClient() {
           )}
         </div>
       </div>
+
+      {/* Refund Confirmation Modal */}
+      {pendingRefundOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl space-y-5 border border-black/10">
+            <div className="flex items-center gap-3 border-b border-black/5 pb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10 text-[#FF6A2A]">
+                <RotateCcw className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-[#1a1917]">Refund Order #{pendingRefundOrder.id}</h3>
+                <p className="text-xs text-muted-foreground">Confirm order refund and inventory action</p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-sm text-[#1a1917]/80">
+                You are about to mark this order of <span className="font-bold">Rs. {pendingRefundOrder.total?.toLocaleString()}</span> as refunded.
+              </p>
+
+              <label className="flex items-start gap-3 p-3.5 rounded-xl border border-black/10 bg-[#faf9f6] cursor-pointer hover:bg-black/5 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={returnToInventory}
+                  onChange={(e) => setReturnToInventory(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded text-[#FF6A2A] focus:ring-[#FF6A2A]"
+                />
+                <div className="text-xs">
+                  <span className="font-bold text-[#1a1917] block">Return items to inventory</span>
+                  <span className="text-muted-foreground">
+                    Automatically restore the ordered quantities back to product stock.
+                  </span>
+                </div>
+              </label>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setPendingRefundOrder(null)}
+                disabled={isUpdatingStatus}
+                className="px-4 py-2 text-xs font-bold text-muted-foreground hover:bg-black/5 rounded-xl transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => updateOrderStatus(pendingRefundOrder.dbKey, "refunded", returnToInventory)}
+                disabled={isUpdatingStatus}
+                className="px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white bg-[#FF6A2A] hover:bg-[#e5591c] rounded-xl shadow-md transition-colors"
+              >
+                {isUpdatingStatus ? "Processing..." : "Confirm Refund"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

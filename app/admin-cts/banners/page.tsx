@@ -30,6 +30,7 @@ export default function AdminBanners() {
     { value: "home_top", label: "Home Page - Top" },
     { value: "home_bottom", label: "Home Page - Bottom" },
     { value: "category_bottom", label: "Category Page - Bottom" },
+    { value: "checkout_order_summary", label: "Checkout - Order Summary Banner" },
   ];
 
   const fetchBanners = async () => {

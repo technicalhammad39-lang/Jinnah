@@ -1,6 +1,7 @@
 import { getProductBySlug, getProducts } from "@/lib/data-fetcher";
 import ProductDetailClient from "./ProductDetailClient";
 import { Metadata } from "next";
+import { getStockInfo } from "@/lib/inventory-engine";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -47,6 +48,7 @@ export default async function ProductDetailServerPage({ params }: { params: Prom
   const allProducts = await getProducts(); // For related products
 
   const siteUrl = "https://jinnah-hardwarestore.com";
+  const stockInfo = product ? getStockInfo(product) : null;
 
   const jsonLd = product ? {
     "@context": "https://schema.org/",
@@ -74,7 +76,7 @@ export default async function ProductDetailServerPage({ params }: { params: Prom
       "price": product.price,
       "priceValidUntil": new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
       "itemCondition": "https://schema.org/NewCondition",
-      "availability": product.stockQuantity > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "availability": stockInfo?.isAvailable ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       "seller": {
         "@type": "Organization",
         "name": "Jinnah Hardware Store"

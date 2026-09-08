@@ -24,6 +24,7 @@ import {
   useWishlistState,
 } from "@/context/AppContext";
 import { getPublicUploadUrl } from "@/lib/utils";
+import { getStockInfo } from "@/lib/inventory-engine";
 
 export function QuickViewModal() {
   const router = useRouter();
@@ -86,15 +87,21 @@ export function QuickViewModal() {
 
   const isWishlisted = quickViewProduct ? wishlist.includes(quickViewProduct.id) : false;
 
+  const stockInfo = quickViewProduct
+    ? getStockInfo(quickViewProduct, selectedColor, selectedSize)
+    : { stock: 0, isAvailable: false, label: "Out of Stock", badgeClass: "bg-rose-50 text-rose-700 border-rose-200", status: "out_of_stock" as const };
+
   const handleBuyNow = () => {
-    if (!quickViewProduct) return;
-    addToCart(quickViewProduct, 1, selectedColor, selectedSize);
-    setQuickViewProduct(null);
-    router.push('/checkout');
+    if (!quickViewProduct || !stockInfo.isAvailable) return;
+    const added = addToCart(quickViewProduct, 1, selectedColor, selectedSize);
+    if (added) {
+      setQuickViewProduct(null);
+      router.push('/checkout');
+    }
   };
 
   const handleAddToCart = () => {
-    if (!quickViewProduct || isSuccess) {
+    if (!quickViewProduct || isSuccess || !stockInfo.isAvailable) {
       return;
     }
 
@@ -109,13 +116,14 @@ export function QuickViewModal() {
     setIsAdding(true);
     addTimerRef.current = window.setTimeout(() => {
       setIsAdding(false);
-      setIsSuccess(true);
-      addToCart(quickViewProduct, 1, selectedColor, selectedSize);
-
-      closeTimerRef.current = window.setTimeout(() => {
-        setIsSuccess(false);
-        setQuickViewProduct(null);
-      }, 1000);
+      const added = addToCart(quickViewProduct, 1, selectedColor, selectedSize);
+      if (added) {
+        setIsSuccess(true);
+        closeTimerRef.current = window.setTimeout(() => {
+          setIsSuccess(false);
+          setQuickViewProduct(null);
+        }, 1000);
+      }
     }, 600);
   };
 
@@ -219,15 +227,27 @@ export function QuickViewModal() {
                   </div>
                 </div>
 
-                <div className="flex items-baseline gap-2.5">
-                  <span className="text-xl font-black text-foreground md:text-2xl">
-                    Rs. {quickViewProduct.price.toLocaleString()}
-                  </span>
-                  {quickViewProduct.originalPrice !== undefined && quickViewProduct.originalPrice > quickViewProduct.price && (
-                    <span className="text-sm font-semibold text-muted-foreground line-through">
-                      Rs. {quickViewProduct.originalPrice.toLocaleString()}
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-baseline gap-2.5">
+                    <span className="text-xl font-black text-foreground md:text-2xl">
+                      Rs. {quickViewProduct.price.toLocaleString()}
                     </span>
-                  )}
+                    {quickViewProduct.originalPrice !== undefined && quickViewProduct.originalPrice > quickViewProduct.price && (
+                      <span className="text-sm font-semibold text-muted-foreground line-through">
+                        Rs. {quickViewProduct.originalPrice.toLocaleString()}
+                      </span>
+                    )}
+                  </div>
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${stockInfo.badgeClass}`}>
+                    <span className={`h-1.5 w-1.5 rounded-full ${
+                      stockInfo.status === 'in_stock'
+                        ? 'bg-emerald-500'
+                        : stockInfo.status === 'low_stock'
+                        ? 'bg-amber-500 animate-pulse'
+                        : 'bg-rose-500'
+                    }`} />
+                    {stockInfo.label}
+                  </span>
                 </div>
 
                 <p className="text-xs font-medium leading-relaxed text-muted-foreground md:text-sm">
@@ -285,11 +305,13 @@ export function QuickViewModal() {
               <div className="mt-8 flex items-center gap-3 border-t border-black/5 pt-4">
                 <button
                   onClick={handleAddToCart}
-                  disabled={isAdding || isSuccess}
-                  className={`flex flex-grow cursor-pointer items-center justify-center gap-2 rounded-full py-3.5 px-6 text-xs font-bold uppercase tracking-widest shadow-md transition-all duration-300 ${
-                    isSuccess
-                      ? "bg-emerald-600 text-white"
-                      : "bg-primary text-white hover:bg-primary/95 hover:shadow-primary/25"
+                  disabled={isAdding || isSuccess || !stockInfo.isAvailable}
+                  className={`flex flex-grow items-center justify-center gap-2 rounded-full py-3.5 px-6 text-xs font-bold uppercase tracking-widest shadow-md transition-all duration-300 ${
+                    !stockInfo.isAvailable
+                      ? "bg-gray-200 text-gray-400 cursor-not-allowed shadow-none"
+                      : isSuccess
+                      ? "bg-emerald-600 text-white cursor-pointer"
+                      : "bg-primary text-white hover:bg-primary/95 hover:shadow-primary/25 cursor-pointer"
                   }`}
                 >
                   {isAdding ? (
@@ -305,17 +327,22 @@ export function QuickViewModal() {
                   ) : (
                     <>
                       <ShoppingCart className="h-4.5 w-4.5" />
-                      <span>Add to Cart</span>
+                      <span>{!stockInfo.isAvailable ? "Out of Stock" : "Add to Cart"}</span>
                     </>
                   )}
                 </button>
 
                 <button
                   onClick={handleBuyNow}
-                  className="flex flex-grow cursor-pointer items-center justify-center gap-2 rounded-full bg-primary py-3.5 px-6 text-xs font-bold uppercase tracking-widest text-white shadow-md transition-all duration-300 hover:bg-primary/90 hover:shadow-primary/25"
+                  disabled={!stockInfo.isAvailable}
+                  className={`flex flex-grow items-center justify-center gap-2 rounded-full py-3.5 px-6 text-xs font-bold uppercase tracking-widest text-white shadow-md transition-all duration-300 ${
+                    !stockInfo.isAvailable
+                      ? "bg-gray-200 text-gray-400 cursor-not-allowed shadow-none"
+                      : "bg-primary hover:bg-primary/90 hover:shadow-primary/25 cursor-pointer"
+                  }`}
                 >
                   <Zap className="h-4.5 w-4.5" />
-                  <span>Buy Now</span>
+                  <span>{!stockInfo.isAvailable ? "Out of Stock" : "Buy Now"}</span>
                 </button>
 
                 <button

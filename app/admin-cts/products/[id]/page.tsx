@@ -4,11 +4,12 @@ import { useState, useEffect, use } from "react";
 import { doc, getDoc, setDoc, addDoc, collection, serverTimestamp, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save, Loader2, UploadCloud, X } from "lucide-react";
+import { ArrowLeft, Save, Loader2, UploadCloud, X, Plus, Trash2, Layers } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
 import { getPublicUploadUrl } from "@/lib/utils";
+import { ProductVariant } from "@/data/products";
 
 export default function ProductEditor({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -36,6 +37,8 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
     featured: false,
     bestSeller: false,
     stockQuantity: 10,
+    lowStockThreshold: 5,
+    variants: [] as ProductVariant[],
     dimensions: "",
     weight: "",
     shippingClass: "",
@@ -77,7 +80,9 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
             ...formData,
             ...data,
             price: data.price || 0,
-            stockQuantity: data.stockQuantity !== undefined ? data.stockQuantity : (data.availability === "in-stock" ? 50 : 0),
+            stockQuantity: data.stockQuantity !== undefined ? Number(data.stockQuantity) : (data.availability === "in-stock" ? 50 : 0),
+            lowStockThreshold: typeof data.lowStockThreshold === 'number' ? data.lowStockThreshold : 5,
+            variants: Array.isArray(data.variants) ? data.variants : [],
             features: Array.isArray(data.features) ? data.features.join("\n") : (data.features || ""),
             allowedPaymentMethods: data.allowedPaymentMethods || ["ALL"]
           } as any);
@@ -159,17 +164,64 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
     });
   };
 
+  const handleAddVariant = () => {
+    setFormData(prev => {
+      const newVariants = [
+        ...(prev.variants || []),
+        {
+          id: `var-${Date.now()}`,
+          name: "",
+          color: "",
+          size: "",
+          material: "",
+          sku: "",
+          stockQuantity: 10
+        }
+      ];
+      const total = newVariants.reduce((sum, v) => sum + (Number(v.stockQuantity) || 0), 0);
+      return { ...prev, variants: newVariants, stockQuantity: total };
+    });
+  };
+
+  const handleUpdateVariant = (index: number, field: string, value: any) => {
+    setFormData(prev => {
+      const updated = [...(prev.variants || [])];
+      updated[index] = { ...updated[index], [field]: value };
+      const total = updated.reduce((sum, v) => sum + (Number(v.stockQuantity) || 0), 0);
+      return { ...prev, variants: updated, stockQuantity: total };
+    });
+  };
+
+  const handleRemoveVariant = (index: number) => {
+    setFormData(prev => {
+      const updated = (prev.variants || []).filter((_, i) => i !== index);
+      const total = updated.length > 0 ? updated.reduce((sum, v) => sum + (Number(v.stockQuantity) || 0), 0) : prev.stockQuantity;
+      return { ...prev, variants: updated, stockQuantity: total };
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
 
     try {
       const featuresArray = formData.features.split("\n").filter(f => f.trim() !== "");
-      
+      const threshold = Number(formData.lowStockThreshold) || 5;
+
+      let totalStock = Number(formData.stockQuantity) || 0;
+      if (formData.variants && formData.variants.length > 0) {
+        totalStock = formData.variants.reduce((sum, v) => sum + (Number(v.stockQuantity) || 0), 0);
+      }
+
+      const availability = totalStock > threshold ? "in-stock" : (totalStock > 0 ? "low-stock" : "out-of-stock");
+
       const dataToSave = {
         ...formData,
         price: Number(formData.price),
-        stockQuantity: Number(formData.stockQuantity),
+        stockQuantity: totalStock,
+        lowStockThreshold: threshold,
+        availability,
+        variants: formData.variants || [],
         shippingFee: Number(formData.shippingFee),
         features: featuresArray,
         updatedAt: serverTimestamp()
@@ -283,8 +335,12 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
 
           {/* PRICING & INVENTORY */}
           <div>
-            <h2 className="text-lg font-bold mb-4 border-b pb-2">Pricing & Inventory</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="flex items-center justify-between border-b pb-2 mb-4">
+              <h2 className="text-lg font-bold text-[#1a1917]">Pricing & Inventory</h2>
+              <span className="text-xs font-bold text-[#FF6A2A]">Real-Time Stock Control</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Base Price (Rs.)</label>
                 <input 
@@ -297,15 +353,142 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Stock Quantity</label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Total Stock Quantity</label>
+                  {formData.variants && formData.variants.length > 0 && (
+                    <span className="text-[10px] text-primary font-bold">Summed from variants</span>
+                  )}
+                </div>
                 <input 
                   type="number" 
                   required
+                  min="0"
+                  readOnly={Boolean(formData.variants && formData.variants.length > 0)}
                   value={formData.stockQuantity}
-                  onChange={e => setFormData({...formData, stockQuantity: Number(e.target.value)})}
-                  className="w-full bg-white border border-[#1a1917]/10 rounded-xl py-3 px-4 text-[#1a1917] focus:outline-none focus:border-[#FF6A2A] transition-colors"
+                  onChange={e => setFormData({...formData, stockQuantity: Math.max(0, Number(e.target.value))})}
+                  className={`w-full border rounded-xl py-3 px-4 text-[#1a1917] font-bold focus:outline-none transition-colors ${
+                    formData.variants && formData.variants.length > 0
+                      ? "bg-black/5 border-black/10 text-muted-foreground cursor-not-allowed"
+                      : "bg-white border-[#1a1917]/10 focus:border-[#FF6A2A]"
+                  }`}
                 />
               </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[#1a1917]/50 uppercase tracking-wider pl-1">Low Stock Threshold</label>
+                <input 
+                  type="number" 
+                  min="1"
+                  max="100"
+                  value={formData.lowStockThreshold}
+                  onChange={e => setFormData({...formData, lowStockThreshold: Math.max(1, Number(e.target.value))})}
+                  className="w-full bg-white border border-amber-200 focus:border-amber-500 ring-1 ring-amber-100 rounded-xl py-3 px-4 text-amber-800 font-bold focus:outline-none transition-colors"
+                />
+                <p className="text-[10px] text-muted-foreground pl-1">Displays "Low Stock" warning badge when stock &le; this number.</p>
+              </div>
+            </div>
+
+            {/* VARIANT INVENTORY MANAGER */}
+            <div className="border border-black/10 rounded-2xl p-5 bg-[#faf9f6]/75 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-[#FF6A2A]" />
+                  <h3 className="text-sm font-bold text-[#1a1917]">Variant Inventory</h3>
+                  <span className="text-xs text-muted-foreground">({formData.variants?.length || 0} variants configured)</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddVariant}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1a1917] text-white hover:bg-[#FF6A2A] rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Variant</span>
+                </button>
+              </div>
+
+              {formData.variants && formData.variants.length > 0 ? (
+                <div className="space-y-3">
+                  <p className="text-xs text-muted-foreground">
+                    Each variant maintains its own independent stock. Customers can choose specific combinations on the product page.
+                  </p>
+                  <div className="divide-y divide-black/5 bg-white border border-black/10 rounded-xl overflow-hidden">
+                    {formData.variants.map((variant, idx) => (
+                      <div key={variant.id || idx} className="p-3.5 flex flex-wrap md:flex-nowrap items-center gap-3">
+                        <div className="w-full md:w-32">
+                          <label className="text-[10px] font-bold text-muted-foreground uppercase">Color</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. Black"
+                            value={variant.color || ""}
+                            onChange={(e) => handleUpdateVariant(idx, "color", e.target.value)}
+                            className="w-full bg-[#faf9f6] border border-black/10 rounded-lg px-2.5 py-1.5 text-xs font-medium outline-none focus:border-[#FF6A2A]"
+                          />
+                        </div>
+
+                        <div className="w-full md:w-32">
+                          <label className="text-[10px] font-bold text-muted-foreground uppercase">Size / Option</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. 10 inch"
+                            value={variant.size || ""}
+                            onChange={(e) => handleUpdateVariant(idx, "size", e.target.value)}
+                            className="w-full bg-[#faf9f6] border border-black/10 rounded-lg px-2.5 py-1.5 text-xs font-medium outline-none focus:border-[#FF6A2A]"
+                          />
+                        </div>
+
+                        <div className="w-full md:w-28">
+                          <label className="text-[10px] font-bold text-muted-foreground uppercase">Material</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. Brass"
+                            value={variant.material || ""}
+                            onChange={(e) => handleUpdateVariant(idx, "material", e.target.value)}
+                            className="w-full bg-[#faf9f6] border border-black/10 rounded-lg px-2.5 py-1.5 text-xs font-medium outline-none focus:border-[#FF6A2A]"
+                          />
+                        </div>
+
+                        <div className="w-full md:w-28">
+                          <label className="text-[10px] font-bold text-muted-foreground uppercase">SKU</label>
+                          <input
+                            type="text"
+                            placeholder="SKU code"
+                            value={variant.sku || ""}
+                            onChange={(e) => handleUpdateVariant(idx, "sku", e.target.value)}
+                            className="w-full bg-[#faf9f6] border border-black/10 rounded-lg px-2.5 py-1.5 text-xs font-medium outline-none focus:border-[#FF6A2A]"
+                          />
+                        </div>
+
+                        <div className="w-full md:w-24">
+                          <label className="text-[10px] font-bold text-emerald-700 uppercase">Stock Qty</label>
+                          <input
+                            type="number"
+                            min="0"
+                            required
+                            value={variant.stockQuantity}
+                            onChange={(e) => handleUpdateVariant(idx, "stockQuantity", Math.max(0, Number(e.target.value) || 0))}
+                            className="w-full bg-emerald-50 border border-emerald-200 rounded-lg px-2.5 py-1.5 text-xs font-bold text-emerald-800 outline-none focus:border-emerald-500"
+                          />
+                        </div>
+
+                        <div className="md:self-end pt-2 md:pt-0">
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveVariant(idx)}
+                            className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                            title="Remove variant"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground italic">
+                  No variants added. This product uses single inventory tracking using Total Stock Quantity above. Click "+ Add Variant" if this item comes in different colors, sizes, or materials with separate stock.
+                </p>
+              )}
             </div>
           </div>
 

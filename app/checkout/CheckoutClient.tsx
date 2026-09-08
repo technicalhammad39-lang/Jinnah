@@ -5,7 +5,25 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
-import { ArrowLeft, ArrowRight, CheckCircle2, ChevronRight, Loader2, ShieldCheck, ShoppingBag } from "lucide-react";
+import ConfettiCelebration from "@/components/animations/ConfettiCelebration";
+import { 
+  ArrowLeft, 
+  ArrowRight, 
+  CheckCircle2, 
+  ChevronRight, 
+  Loader2, 
+  ShieldCheck, 
+  ShoppingBag, 
+  Copy, 
+  Check, 
+  Truck, 
+  Package, 
+  Clock, 
+  Printer, 
+  MessageCircle, 
+  Sparkles,
+  MapPin
+} from "lucide-react";
 import { useCartState, useCartActions } from "@/context/AppContext";
 import { useAuth } from "@/lib/auth-context";
 import { getPublicUploadUrl } from "@/lib/utils";
@@ -14,6 +32,7 @@ import { toast } from "sonner";
 import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { calculateProductPrice } from "@/lib/discount-engine";
+import { getStockInfo } from "@/lib/inventory-engine";
 
 export default function CheckoutClient() {
   const router = useRouter();
@@ -24,6 +43,8 @@ export default function CheckoutClient() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [orderId, setOrderId] = useState("");
+  const [copiedOrderId, setCopiedOrderId] = useState(false);
+  const [placedOrderSummary, setPlacedOrderSummary] = useState<any>(null);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -56,31 +77,284 @@ export default function CheckoutClient() {
     });
   }, []);
 
+  const handleCopyOrderId = () => {
+    if (!orderId) return;
+    navigator.clipboard.writeText(orderId);
+    setCopiedOrderId(true);
+    toast.success("Order & Tracking ID copied to clipboard!");
+    setTimeout(() => setCopiedOrderId(false), 2500);
+  };
+
   if (orderSuccess) {
+    const customer = placedOrderSummary?.customerInfo || formData;
+    const items = placedOrderSummary?.items || [];
+    const total = placedOrderSummary?.total ?? cartFinalTotal;
+    const subtotal = placedOrderSummary?.subtotal ?? cartSubtotal;
+
     return (
-      <div className="min-h-screen bg-[#faf9f6] pt-32 pb-20">
-        <div className="mx-auto max-w-2xl px-4 md:px-6">
+      <div className="relative min-h-screen bg-[#faf9f6] pt-24 pb-24 md:pt-28">
+        <ConfettiCelebration duration={5500} particleCount={130} />
+
+        <div className="mx-auto max-w-4xl px-4 md:px-6">
+          {/* Main Success Container */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center rounded-3xl border border-black/5 bg-white p-10 text-center shadow-sm"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="space-y-8"
           >
-            <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-emerald-50 text-emerald-500">
-              <CheckCircle2 className="h-12 w-12" />
+            {/* Top Celebration Card */}
+            <div className="relative overflow-hidden rounded-3xl border border-black/5 bg-white p-8 text-center shadow-xl shadow-black/5 md:p-12">
+              <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
+              <div className="absolute -left-16 -bottom-16 h-56 w-56 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+
+              {/* Animated Celebration Icon */}
+              <div className="relative mx-auto mb-6 flex h-24 w-24 items-center justify-center">
+                <div className="absolute inset-0 animate-ping rounded-full bg-emerald-100 opacity-40" />
+                <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/30">
+                  <CheckCircle2 className="h-10 w-10" />
+                </div>
+                <div className="absolute -top-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-amber-400 text-amber-950 shadow-md">
+                  <Sparkles className="h-4 w-4 fill-amber-950" />
+                </div>
+              </div>
+
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200/60 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-emerald-700">
+                <Sparkles className="h-3.5 w-3.5 text-emerald-600" /> Order Placed Successfully
+              </span>
+
+              <h1 className="mt-4 mb-2 text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">
+                Shukriya, {customer.firstName || "Customer"}!
+              </h1>
+              <p className="mx-auto max-w-xl text-sm md:text-base text-muted-foreground">
+                Aapka order receive ho chuka hai. Hum jald hi order verify karke packaging aur courier dispatch process shuru kar rahe hain.
+              </p>
+
+              {/* Highlighted Order & Tracking ID Box */}
+              <div className="mt-8 mx-auto max-w-lg rounded-2xl border-2 border-dashed border-primary/30 bg-primary/5 p-5 md:p-6 text-left">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-primary">
+                      Official Tracking / Order ID
+                    </p>
+                    <p className="mt-1 font-mono text-2xl font-extrabold text-foreground tracking-tight">
+                      #{orderId}
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      Use this ID anytime to track your package live.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleCopyOrderId}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-black/10 bg-white px-3.5 py-2.5 text-xs font-bold text-foreground shadow-sm transition-all hover:bg-black/5 hover:border-black/20 active:scale-95"
+                    >
+                      {copiedOrderId ? (
+                        <>
+                          <Check className="h-4 w-4 text-emerald-600" />
+                          <span className="text-emerald-600 font-bold">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-4 w-4 text-muted-foreground" />
+                          <span>Copy ID</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-5 pt-4 border-t border-primary/15 flex flex-col sm:flex-row gap-3">
+                  <Link
+                    href={`/track-order/${orderId}`}
+                    className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/95 hover:shadow-primary/35 active:scale-98"
+                  >
+                    <Truck className="h-4 w-4" />
+                    <span>Track Your Order Live</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+
+                  <a
+                    href={`https://wa.me/923000421772?text=${encodeURIComponent(
+                      `Salam Jinnah Hardware Store! Maine abhi website par order place kia hai. Mera Order ID hai: #${orderId}. Please update me on delivery.`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs md:text-sm font-bold text-emerald-800 transition-all hover:bg-emerald-100/80 active:scale-98"
+                  >
+                    <MessageCircle className="h-4 w-4 text-emerald-600" />
+                    <span>WhatsApp Support</span>
+                  </a>
+                </div>
+              </div>
             </div>
-            <h1 className="mb-3 text-3xl font-extrabold text-foreground">Order Confirmed!</h1>
-            <p className="mb-2 text-muted-foreground">
-              Thank you for choosing Jinnah Hardware Store. Your order has been successfully placed.
-            </p>
-            <div className="mb-8 rounded-lg bg-black/5 px-6 py-3 font-mono text-sm font-semibold">
-              Order ID: #{orderId}
+
+            {/* 3-Step Journey Timeline */}
+            <div className="rounded-3xl border border-black/5 bg-white p-6 md:p-8 shadow-sm">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-6">
+                What Happens Next? (Delivery Milestones)
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="relative rounded-2xl bg-[#faf9f6] p-5 border border-black/5">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500 text-white text-xs font-bold">1</span>
+                    <h4 className="text-sm font-bold text-foreground">Order Verification</h4>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Our sales team will confirm your order details and check item inventory.
+                  </p>
+                </div>
+
+                <div className="relative rounded-2xl bg-[#faf9f6] p-5 border border-black/5">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-white text-xs font-bold">2</span>
+                    <h4 className="text-sm font-bold text-foreground">Warehouse Dispatch</h4>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Packaged securely and handed over to TCS / PostEx courier with live tracking.
+                  </p>
+                </div>
+
+                <div className="relative rounded-2xl bg-[#faf9f6] p-5 border border-black/5">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-black/10 text-foreground text-xs font-bold">3</span>
+                    <h4 className="text-sm font-bold text-foreground">Doorstep Delivery</h4>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Arrives at your door in 2-4 working days. Inspect and pay via Cash on Delivery.
+                  </p>
+                </div>
+              </div>
             </div>
-            <Link
-              href="/shop"
-              className="rounded-full bg-primary px-8 py-3.5 text-sm font-bold uppercase tracking-wider text-white shadow-lg transition-all hover:bg-primary/95 hover:shadow-primary/25"
-            >
-              Continue Shopping
-            </Link>
+
+            {/* Details Grid: Shipping & Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Shipping Details */}
+              <div className="rounded-3xl border border-black/5 bg-white p-6 shadow-sm">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-primary" /> Delivery Destination
+                </h3>
+                <div className="space-y-2 text-sm">
+                  <p className="font-bold text-foreground text-base">
+                    {customer.firstName} {customer.lastName}
+                  </p>
+                  <p className="text-muted-foreground">{customer.address}</p>
+                  <p className="text-muted-foreground">{customer.city}, {customer.postalCode}</p>
+                  <p className="font-mono text-xs text-muted-foreground pt-1">
+                    Phone: <span className="text-foreground font-semibold">{customer.phone}</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Email: <span className="text-foreground font-semibold">{customer.email}</span>
+                  </p>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-black/5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Payment Method:</span>
+                    <span className="font-bold uppercase tracking-wide text-foreground bg-black/5 px-2.5 py-1 rounded-md">
+                      {paymentMethod === "cod" ? "Cash on Delivery (COD)" : paymentMethod}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Order Summary & Financials */}
+              <div className="rounded-3xl border border-black/5 bg-white p-6 shadow-sm flex flex-col justify-between">
+                <div>
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
+                    <Package className="h-4 w-4 text-primary" /> Order Snapshot
+                  </h3>
+
+                  {items.length > 0 ? (
+                    <div className="max-h-48 overflow-y-auto space-y-3 pr-1">
+                      {items.map((item: any, idx: number) => {
+                        const p = item.product || item;
+                        return (
+                          <div key={idx} className="flex items-center justify-between text-xs border-b border-black/5 pb-2">
+                            <div className="truncate pr-2">
+                              <p className="font-semibold text-foreground truncate">{p.name}</p>
+                              <p className="text-muted-foreground">
+                                Qty: {item.quantity} {item.selectedSize ? `• ${item.selectedSize}` : ""}
+                              </p>
+                            </div>
+                            <span className="font-mono font-bold text-foreground shrink-0">
+                              Rs. {((p.price || 0) * item.quantity).toLocaleString()}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground italic">Items stored in fulfillment order.</p>
+                  )}
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-black/10 space-y-2">
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>Shipping</span>
+                    <span className="font-semibold text-emerald-600">Free Delivery</span>
+                  </div>
+                  <div className="flex justify-between text-base font-extrabold text-foreground pt-1 border-t border-black/5">
+                    <span>Total Payable</span>
+                    <span className="text-primary font-mono">Rs. {total.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Trust Badges */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
+              <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-white border border-black/5 shadow-sm">
+                <ShieldCheck className="h-6 w-6 text-primary mb-2" />
+                <h5 className="text-xs font-bold text-foreground">100% Genuine</h5>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Authentic hardware</p>
+              </div>
+
+              <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-white border border-black/5 shadow-sm">
+                <Truck className="h-6 w-6 text-primary mb-2" />
+                <h5 className="text-xs font-bold text-foreground">Safe Packing</h5>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Dispatched securely</p>
+              </div>
+
+              <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-white border border-black/5 shadow-sm">
+                <Clock className="h-6 w-6 text-primary mb-2" />
+                <h5 className="text-xs font-bold text-foreground">Fast Delivery</h5>
+                <p className="text-[10px] text-muted-foreground mt-0.5">2-4 working days</p>
+              </div>
+
+              <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-white border border-black/5 shadow-sm">
+                <MessageCircle className="h-6 w-6 text-primary mb-2" />
+                <h5 className="text-xs font-bold text-foreground">Support 24/7</h5>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Active helpline</p>
+              </div>
+            </div>
+
+            {/* Bottom Navigation CTAs */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+              <Link
+                href={`/track-order/${orderId}`}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-3.5 text-xs md:text-sm font-bold uppercase tracking-wider text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary/95"
+              >
+                <Truck className="h-4 w-4" />
+                <span>Go to Tracking Portal</span>
+              </Link>
+
+              <button
+                onClick={() => window.print()}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full border border-black/10 bg-white px-7 py-3.5 text-xs md:text-sm font-bold text-foreground shadow-sm transition-all hover:bg-black/5"
+              >
+                <Printer className="h-4 w-4" />
+                <span>Print Receipt</span>
+              </button>
+
+              <Link
+                href="/shop"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full border border-black/10 bg-white px-7 py-3.5 text-xs md:text-sm font-bold text-foreground shadow-sm transition-all hover:bg-black/5"
+              >
+                <span>Continue Shopping</span>
+              </Link>
+            </div>
           </motion.div>
         </div>
       </div>
@@ -145,6 +419,24 @@ export default function CheckoutClient() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateStep1() || !validateStep2()) return;
+
+    if (cart.length === 0) {
+      toast.error("Your cart is empty.");
+      return;
+    }
+
+    // Pre-flight client-side inventory check
+    for (const item of cart) {
+      const stockInfo = getStockInfo(item.product, item.selectedColor, item.selectedSize);
+      if (!stockInfo.isAvailable || stockInfo.stock <= 0) {
+        toast.error(`"${item.product.name}" is currently out of stock. Please remove it from your cart to proceed.`);
+        return;
+      }
+      if (item.quantity > stockInfo.stock) {
+        toast.error(`"${item.product.name}" only has ${stockInfo.stock} units in stock. Please adjust your cart.`);
+        return;
+      }
+    }
     
     setIsSubmitting(true);
 
@@ -168,6 +460,15 @@ export default function CheckoutClient() {
         throw new Error(data.error || "Failed to process checkout");
       }
 
+      setPlacedOrderSummary({
+        id: data.orderId,
+        customerInfo: { ...formData },
+        paymentMethod,
+        items: [...cart],
+        subtotal: cartSubtotal,
+        discount: cartDiscountTotal,
+        total: cartFinalTotal,
+      });
       setOrderId(data.orderId);
       setOrderSuccess(true);
       clearCart();

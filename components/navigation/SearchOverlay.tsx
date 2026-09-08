@@ -8,6 +8,7 @@ import { ArrowRight, CornerDownLeft, Search, X, Loader2 } from "lucide-react";
 import { useOverlayActions, useOverlayState } from "@/context/AppContext";
 import { getPublicUploadUrl } from "@/lib/utils";
 import { useIsScrolling } from "@/hooks/useIsScrolling";
+import { getStockInfo } from "@/lib/inventory-engine";
 
 const POPULAR_SEARCHES = ["Smart Lock", "Brass Lever", "T-Bar Pull", "Brushless", "Glass Switch"];
 const QUICK_CATEGORIES = [
@@ -214,7 +215,9 @@ export function SearchOverlay() {
                 </h4>
 
                 <div className="space-y-4">
-                  {visibleProducts.map((product) => (
+                  {visibleProducts.map((product) => {
+                    const stockInfo = getStockInfo(product);
+                    return (
                     <motion.div
                       key={product.id}
                       initial={{ opacity: 0, y: 8 }}
@@ -245,8 +248,8 @@ export function SearchOverlay() {
                           <span className="text-xs font-bold text-[#1a1917]">
                             Rs. {product.price.toLocaleString()}
                           </span>
-                          <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600">
-                            {product.availability}
+                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold border ${stockInfo.badgeClass}`}>
+                            {stockInfo.label}
                           </span>
                         </div>
                       </div>
@@ -260,7 +263,8 @@ export function SearchOverlay() {
                         </Link>
                       </div>
                     </motion.div>
-                  ))}
+                    );
+                  })}
 
                   {normalizedQuery && results.length === 0 && (
                     <div className="space-y-3 py-12 text-center">

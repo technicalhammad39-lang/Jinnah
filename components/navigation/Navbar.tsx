@@ -11,6 +11,7 @@ import {
   ShoppingCart,
   User,
   X,
+  Truck,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -23,6 +24,7 @@ const NAV_LINKS = [
   { name: "Shop All", href: "/shop" },
   { name: "Categories", href: "/categories" },
   { name: "Brands", href: "/brands" },
+  { name: "Track Order", href: "/track-order" },
   { name: "About", href: "/about" },
   { name: "Gallery", href: "/gallery" },
   { name: "Blogs", href: "/blogs" },
@@ -163,7 +165,13 @@ export function Navbar() {
               )}
             </button>
 
-
+            <Link
+              href="/track-order"
+              className="relative cursor-pointer rounded-full p-2 text-[#1a1917] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:bg-black/[0.045] hover:text-primary"
+              title="Track Your Order"
+            >
+              <Truck className="h-4.5 w-4.5 md:h-5 md:w-5" />
+            </Link>
 
             <a
               href="tel:03000421772"

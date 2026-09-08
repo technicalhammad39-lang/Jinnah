@@ -16,8 +16,23 @@ export default function PaymentMethodsAdmin() {
   const [loading, setLoading] = useState(true);
   
   const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({ id: "", title: "", description: "", logo: "", active: true, order: 0 });
+  const [editForm, setEditForm] = useState({
+    id: "",
+    title: "",
+    description: "",
+    logo: "",
+    active: true,
+    order: 0,
+    accountTitle: "",
+    accountNumber: "",
+    bankName: "",
+    iban: "",
+    instructions: "",
+    qrCode: "",
+    requireProof: false,
+  });
   const [uploading, setUploading] = useState(false);
+  const [uploadingQr, setUploadingQr] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) router.push("/admin-cts/login");
@@ -42,23 +57,26 @@ export default function PaymentMethodsAdmin() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const payload = {
+        title: editForm.title,
+        description: editForm.description,
+        logo: editForm.logo || "",
+        active: editForm.active,
+        order: Number(editForm.order) || 0,
+        accountTitle: editForm.accountTitle || "",
+        accountNumber: editForm.accountNumber || "",
+        bankName: editForm.bankName || "",
+        iban: editForm.iban || "",
+        instructions: editForm.instructions || "",
+        qrCode: editForm.qrCode || "",
+        requireProof: Boolean(editForm.requireProof),
+      };
+
       if (editForm.id) {
-        await updateDoc(doc(db, "payment-methods", editForm.id), {
-          title: editForm.title,
-          description: editForm.description,
-          logo: editForm.logo || "",
-          active: editForm.active,
-          order: Number(editForm.order)
-        });
+        await updateDoc(doc(db, "payment-methods", editForm.id), payload);
         toast.success("Payment method updated");
       } else {
-        await addDoc(collection(db, "payment-methods"), {
-          title: editForm.title,
-          description: editForm.description,
-          logo: editForm.logo || "",
-          active: editForm.active,
-          order: Number(editForm.order)
-        });
+        await addDoc(collection(db, "payment-methods"), payload);
         toast.success("Payment method created");
       }
       setIsEditing(false);
@@ -120,6 +138,32 @@ export default function PaymentMethodsAdmin() {
     }
   };
 
+  const handleQrUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    setUploadingQr(true);
+    try {
+      const file = e.target.files[0];
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "payments");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      setEditForm(prev => ({ ...prev, qrCode: data.url }));
+      toast.success("QR Code uploaded");
+    } catch (error) {
+      console.error("Error uploading QR code:", error);
+      toast.error("Failed to upload QR code");
+    } finally {
+      setUploadingQr(false);
+    }
+  };
+
   if (authLoading || loading) return <div className="p-10 flex justify-center"><Loader2 className="animate-spin w-8 h-8 text-[#FF6A2A]" /></div>;
 
   return (
@@ -127,10 +171,27 @@ export default function PaymentMethodsAdmin() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold">Payment Methods</h1>
-          <p className="text-sm text-muted-foreground">Manage checkout payment options</p>
+          <p className="text-sm text-muted-foreground">Manage checkout payment options, bank details, and proof rules</p>
         </div>
         <button 
-          onClick={() => { setEditForm({ id: "", title: "", description: "", logo: "", active: true, order: methods.length }); setIsEditing(true); }}
+          onClick={() => { 
+            setEditForm({ 
+              id: "", 
+              title: "", 
+              description: "", 
+              logo: "", 
+              active: true, 
+              order: methods.length,
+              accountTitle: "",
+              accountNumber: "",
+              bankName: "",
+              iban: "",
+              instructions: "",
+              qrCode: "",
+              requireProof: false
+            }); 
+            setIsEditing(true); 
+          }}
           className="bg-[#FF6A2A] hover:bg-[#e5591c] text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 text-sm"
         >
           <Plus className="w-4 h-4" /> Add Method
@@ -138,53 +199,117 @@ export default function PaymentMethodsAdmin() {
       </div>
 
       {isEditing ? (
-        <form onSubmit={handleSave} className="bg-white p-6 rounded-xl border border-black/5 shadow-sm space-y-4 max-w-xl">
+        <form onSubmit={handleSave} className="bg-white p-6 rounded-xl border border-black/5 shadow-sm space-y-4 max-w-2xl">
           <h2 className="text-lg font-bold">{editForm.id ? "Edit Method" : "New Method"}</h2>
-          <div>
-            <label className="text-xs font-bold text-muted-foreground uppercase">Title (e.g. Cash on Delivery)</label>
-            <input required type="text" value={editForm.title} onChange={e => setEditForm({...editForm, title: e.target.value})} className="w-full mt-1 border rounded-lg p-2" />
-          </div>
-          <div>
-            <label className="text-xs font-bold text-muted-foreground uppercase">Logo URL / Image</label>
-            <div className="flex gap-4 items-center mt-1">
-              {editForm.logo ? (
-                <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-black/10 bg-white group flex-shrink-0">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={editForm.logo.startsWith('http') ? editForm.logo : `/uploads/${editForm.logo}`} alt="Logo" className="w-full h-full object-contain p-1" />
-                  <button 
-                    type="button"
-                    onClick={() => setEditForm({...editForm, logo: ""})}
-                    className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <Trash2 className="w-5 h-5 text-red-400" />
-                  </button>
-                </div>
-              ) : (
-                <label className="w-16 h-16 rounded-xl border-2 border-dashed border-black/20 flex flex-col items-center justify-center cursor-pointer hover:border-[#FF6A2A] transition-colors flex-shrink-0">
-                  {uploading ? <Loader2 className="w-5 h-5 animate-spin text-[#FF6A2A]" /> : <div className="text-[10px] text-muted-foreground font-bold uppercase text-center leading-tight">Upload<br/>Logo</div>}
-                  <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
-                </label>
-              )}
-              <input type="text" value={editForm.logo} onChange={e => setEditForm({...editForm, logo: e.target.value})} className="w-full border rounded-lg p-2 text-sm" placeholder="Or paste image URL" />
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-bold text-muted-foreground uppercase">Title (e.g. JazzCash, EasyPaisa, Bank Transfer)</label>
+              <input required type="text" value={editForm.title} onChange={e => setEditForm({...editForm, title: e.target.value})} className="w-full mt-1 border rounded-lg p-2 text-sm" />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-muted-foreground uppercase">Bank / Wallet Name</label>
+              <input type="text" placeholder="e.g. Meezan Bank, JazzCash, EasyPaisa" value={editForm.bankName} onChange={e => setEditForm({...editForm, bankName: e.target.value})} className="w-full mt-1 border rounded-lg p-2 text-sm" />
             </div>
           </div>
+
           <div>
             <label className="text-xs font-bold text-muted-foreground uppercase">Description</label>
-            <input required type="text" value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} className="w-full mt-1 border rounded-lg p-2" />
+            <input required type="text" value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} className="w-full mt-1 border rounded-lg p-2 text-sm" />
           </div>
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <label className="text-xs font-bold text-muted-foreground uppercase">Order Priority</label>
-              <input required type="number" value={editForm.order} onChange={e => setEditForm({...editForm, order: Number(e.target.value)})} className="w-full mt-1 border rounded-lg p-2" />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-bold text-muted-foreground uppercase">Account Title</label>
+              <input type="text" placeholder="e.g. Muhammad Jinnah / Jinnah Hardware" value={editForm.accountTitle} onChange={e => setEditForm({...editForm, accountTitle: e.target.value})} className="w-full mt-1 border rounded-lg p-2 text-sm" />
             </div>
-            <div className="flex-1 flex items-center gap-2 mt-6">
-              <input type="checkbox" checked={editForm.active} onChange={e => setEditForm({...editForm, active: e.target.checked})} className="w-4 h-4 accent-primary" />
-              <span className="text-sm font-bold">Active at Checkout</span>
+            <div>
+              <label className="text-xs font-bold text-muted-foreground uppercase">Account / Mobile Number</label>
+              <input type="text" placeholder="e.g. 0300 0421772 or Account #" value={editForm.accountNumber} onChange={e => setEditForm({...editForm, accountNumber: e.target.value})} className="w-full mt-1 border rounded-lg p-2 text-sm font-mono" />
             </div>
           </div>
-          <div className="flex gap-2 pt-4">
-            <button type="button" onClick={() => setIsEditing(false)} className="px-4 py-2 border rounded-lg font-bold text-sm">Cancel</button>
-            <button type="submit" className="px-4 py-2 bg-[#FF6A2A] hover:bg-[#e5591c] text-white rounded-lg font-bold text-sm">Save Method</button>
+
+          <div>
+            <label className="text-xs font-bold text-muted-foreground uppercase">IBAN Number (Optional)</label>
+            <input type="text" placeholder="e.g. PK36MEZN0000000000000000" value={editForm.iban} onChange={e => setEditForm({...editForm, iban: e.target.value})} className="w-full mt-1 border rounded-lg p-2 text-sm font-mono" />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-muted-foreground uppercase">Payment Instructions / Notes for Customer</label>
+            <textarea rows={3} placeholder="e.g. Transfer via JazzCash app and enter Transaction ID + upload screenshot below." value={editForm.instructions} onChange={e => setEditForm({...editForm, instructions: e.target.value})} className="w-full mt-1 border rounded-lg p-2 text-sm resize-none" />
+          </div>
+
+          {/* Logo and QR Code uploaders */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+            <div>
+              <label className="text-xs font-bold text-muted-foreground uppercase">Method Logo</label>
+              <div className="flex gap-3 items-center mt-1">
+                {editForm.logo ? (
+                  <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-black/10 bg-white group flex-shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={editForm.logo.startsWith('http') ? editForm.logo : `/uploads/${editForm.logo}`} alt="Logo" className="w-full h-full object-contain p-1" />
+                    <button 
+                      type="button"
+                      onClick={() => setEditForm({...editForm, logo: ""})}
+                      className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-400" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="w-14 h-14 rounded-xl border-2 border-dashed border-black/20 flex flex-col items-center justify-center cursor-pointer hover:border-[#FF6A2A] transition-colors flex-shrink-0">
+                    {uploading ? <Loader2 className="w-4 h-4 animate-spin text-[#FF6A2A]" /> : <div className="text-[9px] text-muted-foreground font-bold uppercase text-center">Upload<br/>Logo</div>}
+                    <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
+                  </label>
+                )}
+                <input type="text" value={editForm.logo} onChange={e => setEditForm({...editForm, logo: e.target.value})} className="w-full border rounded-lg p-2 text-xs" placeholder="Logo image path" />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-muted-foreground uppercase">Payment QR Code (Optional)</label>
+              <div className="flex gap-3 items-center mt-1">
+                {editForm.qrCode ? (
+                  <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-black/10 bg-white group flex-shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={editForm.qrCode.startsWith('http') ? editForm.qrCode : `/uploads/${editForm.qrCode}`} alt="QR" className="w-full h-full object-contain p-1" />
+                    <button 
+                      type="button"
+                      onClick={() => setEditForm({...editForm, qrCode: ""})}
+                      className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-400" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="w-14 h-14 rounded-xl border-2 border-dashed border-black/20 flex flex-col items-center justify-center cursor-pointer hover:border-[#FF6A2A] transition-colors flex-shrink-0">
+                    {uploadingQr ? <Loader2 className="w-4 h-4 animate-spin text-[#FF6A2A]" /> : <div className="text-[9px] text-muted-foreground font-bold uppercase text-center">Upload<br/>QR</div>}
+                    <input type="file" className="hidden" accept="image/*" onChange={handleQrUpload} disabled={uploadingQr} />
+                  </label>
+                )}
+                <input type="text" value={editForm.qrCode} onChange={e => setEditForm({...editForm, qrCode: e.target.value})} className="w-full border rounded-lg p-2 text-xs" placeholder="QR Code path" />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t">
+            <div>
+              <label className="text-xs font-bold text-muted-foreground uppercase">Display Order</label>
+              <input required type="number" value={editForm.order} onChange={e => setEditForm({...editForm, order: Number(e.target.value)})} className="w-full mt-1 border rounded-lg p-2 text-sm" />
+            </div>
+            <div className="flex items-center gap-2 mt-6">
+              <input type="checkbox" id="activeCheckout" checked={editForm.active} onChange={e => setEditForm({...editForm, active: e.target.checked})} className="w-4 h-4 accent-primary" />
+              <label htmlFor="activeCheckout" className="text-xs font-bold cursor-pointer">Active at Checkout</label>
+            </div>
+            <div className="flex items-center gap-2 mt-6">
+              <input type="checkbox" id="requireProof" checked={editForm.requireProof} onChange={e => setEditForm({...editForm, requireProof: e.target.checked})} className="w-4 h-4 accent-primary" />
+              <label htmlFor="requireProof" className="text-xs font-bold cursor-pointer text-amber-700">Require Screenshot & TID</label>
+            </div>
+          </div>
+
+          <div className="flex gap-2 pt-4 border-t">
+            <button type="button" onClick={() => setIsEditing(false)} className="px-5 py-2.5 border rounded-lg font-bold text-sm">Cancel</button>
+            <button type="submit" className="px-5 py-2.5 bg-[#FF6A2A] hover:bg-[#e5591c] text-white rounded-lg font-bold text-sm">Save Payment Method</button>
           </div>
         </form>
       ) : (
@@ -209,9 +334,23 @@ export default function PaymentMethodsAdmin() {
                         <img src={method.logo.startsWith('http') ? method.logo : `/uploads/${method.logo}`} alt="" className="w-full h-full object-contain" />
                       </div>
                     )}
-                    {method.title}
+                    <div>
+                      <div>{method.title}</div>
+                      {method.accountNumber && (
+                        <div className="text-xs text-muted-foreground font-mono font-normal">
+                          {method.bankName ? `${method.bankName}: ` : ""}{method.accountNumber}
+                        </div>
+                      )}
+                    </div>
                   </td>
-                  <td className="p-4 text-sm text-muted-foreground">{method.description}</td>
+                  <td className="p-4 text-sm text-muted-foreground">
+                    <div>{method.description}</div>
+                    {method.requireProof && (
+                      <span className="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">
+                        Requires Proof
+                      </span>
+                    )}
+                  </td>
                   <td className="p-4 text-sm font-mono">{method.order}</td>
                   <td className="p-4">
                     <button onClick={() => toggleActive(method.id, method.active)} className={`flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full ${method.active ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>

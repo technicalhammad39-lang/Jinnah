@@ -17,6 +17,8 @@ import {
   GlobalShippingSettings, 
   ShippingCalculationResult 
 } from "@/lib/shipping-engine";
+import { getStockInfo } from "@/lib/inventory-engine";
+import { toast } from "sonner";
 
 export interface CartItem {
   product: Product;
@@ -37,7 +39,7 @@ interface CartStateContextType {
 }
 
 interface CartActionsContextType {
-  addToCart: (product: Product, quantity?: number, color?: string, size?: string) => void;
+  addToCart: (product: Product, quantity?: number, color?: string, size?: string) => boolean;
   removeFromCart: (productId: string, color: string, size: string) => void;
   updateCartQuantity: (productId: string, color: string, size: string, quantity: number) => void;
   clearCart: () => void;
@@ -218,22 +220,38 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       }
 
       setCart((prev) =>
-        prev.map((item) =>
-          item.product.id === productId &&
-          item.selectedColor === color &&
-          item.selectedSize === size
-            ? { ...item, quantity }
-            : item
-        )
+        prev.map((item) => {
+          if (
+            item.product.id === productId &&
+            item.selectedColor === color &&
+            item.selectedSize === size
+          ) {
+            const stockInfo = getStockInfo(item.product, color, size);
+            if (quantity > stockInfo.stock) {
+              toast.warning(`Only ${stockInfo.stock} items are available in stock.`);
+              return { ...item, quantity: Math.max(1, stockInfo.stock) };
+            }
+            return { ...item, quantity };
+          }
+          return item;
+        })
       );
     },
     [removeFromCart]
   );
 
   const addToCart = useCallback(
-    (product: Product, quantity = 1, color?: string, size?: string) => {
+    (product: Product, quantity = 1, color?: string, size?: string): boolean => {
       const finalColor = color || (product.colors && product.colors.length > 0 ? product.colors[0] : "Default");
       const finalSize = size || (product.sizes && product.sizes.length > 0 ? product.sizes[0] : "Standard");
+
+      const stockInfo = getStockInfo(product, finalColor, finalSize);
+      if (!stockInfo.isAvailable || stockInfo.stock <= 0) {
+        toast.error("This product is currently out of stock.");
+        return false;
+      }
+
+      let success = true;
 
       setCart((prev) => {
         const existingIndex = prev.findIndex(
@@ -244,18 +262,38 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         );
 
         if (existingIndex > -1) {
+          const currentInCart = prev[existingIndex].quantity;
+          if (currentInCart >= stockInfo.stock) {
+            toast.warning(`Only ${stockInfo.stock} items are available in stock.`);
+            success = false;
+            return prev;
+          }
+
+          const allowableAdd = Math.min(quantity, stockInfo.stock - currentInCart);
+          if (quantity > allowableAdd) {
+            toast.warning(`Only ${stockInfo.stock} items are available. Added ${allowableAdd} more to cart.`);
+          }
+
           const updated = [...prev];
           updated[existingIndex] = {
             ...updated[existingIndex],
-            quantity: updated[existingIndex].quantity + quantity,
+            quantity: currentInCart + allowableAdd,
           };
           return updated;
         }
 
-        return [...prev, { product, quantity, selectedColor: finalColor, selectedSize: finalSize }];
+        const initialAdd = Math.min(quantity, stockInfo.stock);
+        if (quantity > stockInfo.stock) {
+          toast.warning(`Only ${stockInfo.stock} items are available.`);
+        }
+
+        return [...prev, { product, quantity: initialAdd, selectedColor: finalColor, selectedSize: finalSize }];
       });
 
-      setCartOpen(true);
+      if (success) {
+        setCartOpen(true);
+      }
+      return success;
     },
     [setCartOpen]
   );
