@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { 
   ArrowLeft, 
   Star, 
@@ -21,20 +21,115 @@ import {
   Check, 
   MoreVertical,
   ShieldCheck,
-  User
+  User,
+  ExternalLink
 } from "lucide-react";
 import { EmailMessage } from "@/lib/email/types";
 import { toast } from "sonner";
 
 interface EmailDetailViewProps {
   email: EmailMessage;
+  currentFolderName?: string;
   onBack: () => void;
   onUpdate: () => void;
   onComposeReply: (email: EmailMessage, type: "reply" | "reply_all" | "forward") => void;
 }
 
+// Sandboxed & Responsive Email HTML Renderer
+function EmailBodyIframe({ html }: { html: string }) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [height, setHeight] = useState<number>(450);
+
+  const updateHeight = useCallback(() => {
+    try {
+      if (iframeRef.current && iframeRef.current.contentDocument) {
+        const doc = iframeRef.current.contentDocument;
+        const scrollH = Math.max(
+          doc.body?.scrollHeight || 0,
+          doc.documentElement?.scrollHeight || 0,
+          doc.body?.offsetHeight || 0,
+          doc.documentElement?.offsetHeight || 0
+        );
+        if (scrollH > 50) {
+          setHeight(scrollH + 32);
+        }
+      }
+    } catch {
+      // ignore cross-origin or sandbox limits
+    }
+  }, []);
+
+  useEffect(() => {
+    updateHeight();
+    const t1 = setTimeout(updateHeight, 250);
+    const t2 = setTimeout(updateHeight, 750);
+    const t3 = setTimeout(updateHeight, 1800);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [html, updateHeight]);
+
+  const docHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base target="_blank">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #1a1917;
+      background: #ffffff;
+      word-wrap: break-word;
+    }
+    img {
+      max-width: 100% !important;
+      height: auto !important;
+    }
+    table {
+      max-width: 100% !important;
+    }
+    a {
+      color: #FF6A2A;
+    }
+    blockquote {
+      border-left: 3px solid #e5e7eb;
+      margin-left: 0;
+      padding-left: 12px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  ${html}
+</body>
+</html>`;
+
+  return (
+    <div className="w-full overflow-x-auto rounded-2xl border border-black/10 bg-white shadow-xs">
+      <iframe
+        ref={iframeRef}
+        srcDoc={docHtml}
+        onLoad={updateHeight}
+        sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+        className="w-full border-0 transition-all rounded-2xl block"
+        style={{ height: `${height}px`, minHeight: "350px" }}
+        title="Email Body View"
+      />
+    </div>
+  );
+}
+
 export default function EmailDetailView({
   email,
+  currentFolderName = "inbox",
   onBack,
   onUpdate,
   onComposeReply,
@@ -42,6 +137,14 @@ export default function EmailDetailView({
   const [quickReplyText, setQuickReplyText] = useState("");
   const [isSendingReply, setIsSendingReply] = useState(false);
   const [previewAttachment, setPreviewAttachment] = useState<any | null>(null);
+  const [viewMode, setViewMode] = useState<"html" | "text">("html");
+
+  const openInNewTab = () => {
+    if (!email.bodyHtml) return;
+    const blob = new Blob([email.bodyHtml], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank");
+  };
 
   // Actions
   const handleAction = async (action: string, targetFolder?: string) => {
@@ -105,15 +208,16 @@ export default function EmailDetailView({
     <div className="flex flex-col h-full bg-white overflow-hidden">
       {/* Top Action Bar */}
       <div className="flex items-center justify-between border-b border-black/5 px-4 py-3 bg-[#faf9f6] shrink-0">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={onBack}
-            className="p-1.5 rounded-lg border border-black/10 bg-white text-muted-foreground hover:text-foreground hover:bg-black/5"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-black/10 bg-white text-xs font-bold text-foreground hover:bg-black/5 transition-all shadow-xs"
             title="Back to list"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4 text-primary" />
+            <span>Back to {currentFolderName ? currentFolderName.charAt(0).toUpperCase() + currentFolderName.slice(1) : "Inbox"}</span>
           </button>
-          <span className="h-4 w-px bg-black/10 mx-1" />
+          <span className="h-5 w-px bg-black/10 mx-1 hidden sm:inline-block" />
           <button
             onClick={() => handleAction(email.isStarred ? "unstar" : "star")}
             className={`p-1.5 rounded-lg border transition-colors ${
@@ -131,6 +235,16 @@ export default function EmailDetailView({
             title="Move to Trash"
           >
             <Trash2 className="h-4 w-4" />
+          </button>
+          <button
+            onClick={async () => {
+              await handleAction("mark_unread");
+              onBack();
+            }}
+            className="p-1.5 rounded-lg border border-black/10 bg-white text-muted-foreground hover:text-foreground"
+            title="Mark as Unread"
+          >
+            <Mail className="h-4 w-4" />
           </button>
           <button
             onClick={() => handleAction("move", "archive")}
@@ -229,15 +343,49 @@ export default function EmailDetailView({
           </div>
         </div>
 
-        {/* Email Body HTML Viewer (Sandboxed container) */}
-        <div className="prose prose-sm max-w-none text-foreground leading-relaxed py-2">
-          {email.bodyHtml ? (
-            <div
-              className="email-body-content overflow-x-auto"
-              dangerouslySetInnerHTML={{ __html: email.bodyHtml }}
-            />
+        {/* Email Body Viewer */}
+        <div className="space-y-3 py-1">
+          {email.bodyHtml && (
+            <div className="flex items-center justify-between text-xs text-muted-foreground pb-1">
+              <div className="flex items-center gap-1 bg-black/5 p-1 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("html")}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
+                    viewMode === "html" ? "bg-white text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Formatted HTML
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("text")}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
+                    viewMode === "text" ? "bg-white text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Plain Text
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={openInNewTab}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-black/10 bg-white hover:bg-black/5 text-foreground transition-all text-xs font-bold shadow-xs"
+                title="Open in new window"
+              >
+                <ExternalLink className="h-3.5 w-3.5 text-primary" />
+                <span>Open in Full Window</span>
+              </button>
+            </div>
+          )}
+
+          {viewMode === "html" && email.bodyHtml ? (
+            <EmailBodyIframe html={email.bodyHtml} />
           ) : (
-            <p className="whitespace-pre-wrap font-sans">{email.bodyText}</p>
+            <div className="p-6 rounded-2xl border border-black/10 bg-[#faf9f6] text-foreground leading-relaxed whitespace-pre-wrap font-sans text-sm shadow-xs">
+              {email.bodyText || "(No plain text content available)"}
+            </div>
           )}
         </div>
 

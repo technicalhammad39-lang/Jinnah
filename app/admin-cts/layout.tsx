@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AuthProvider, useAuth } from "@/lib/auth-context";
@@ -55,7 +55,14 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
+  const isEmailCenter = pathname.startsWith("/admin-cts/email-center");
   const { logout, user } = useAuth();
+
+  useEffect(() => {
+    if (isEmailCenter) {
+      setIsCollapsed(true);
+    }
+  }, [isEmailCenter]);
 
   // If this is the login page, don't show the dashboard shell
   if (pathname === "/admin-cts/login") {
@@ -148,32 +155,34 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Navbar */}
-        <header className="h-20 bg-white/80 backdrop-blur-md border-b border-[#1a1917]/5 flex items-center justify-between px-6 sticky top-0 z-30 shrink-0">
-          <div className="flex items-center gap-4">
-            <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-[#1a1917]/70 hover:text-[#1a1917]">
-              <Menu className="h-6 w-6" />
-            </button>
-            <h1 className="text-xl font-bold hidden sm:block">
-              {sidebarLinks.find(l => l.href === pathname)?.name || "Admin Portal"}
-            </h1>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <Link 
-              href="/" 
-              target="_blank"
-              className="flex items-center gap-2 text-sm text-[#1a1917]/50 hover:text-[#1a1917] transition-colors bg-[#1a1917]/5 hover:bg-[#1a1917]/10 px-4 py-2 rounded-full"
-            >
-              <Store className="h-4 w-4" />
-              <span className="hidden sm:inline">View Live Site</span>
-            </Link>
-          </div>
-        </header>
+        {/* Top Navbar (hidden on Email Center to maximize full-screen space) */}
+        {!isEmailCenter && (
+          <header className="h-20 bg-white/80 backdrop-blur-md border-b border-[#1a1917]/5 flex items-center justify-between px-6 sticky top-0 z-30 shrink-0">
+            <div className="flex items-center gap-4">
+              <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-[#1a1917]/70 hover:text-[#1a1917]">
+                <Menu className="h-6 w-6" />
+              </button>
+              <h1 className="text-xl font-bold hidden sm:block">
+                {sidebarLinks.find(l => l.href === pathname)?.name || "Admin Portal"}
+              </h1>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <Link 
+                href="/" 
+                target="_blank"
+                className="flex items-center gap-2 text-sm text-[#1a1917]/50 hover:text-[#1a1917] transition-colors bg-[#1a1917]/5 hover:bg-[#1a1917]/10 px-4 py-2 rounded-full"
+              >
+                <Store className="h-4 w-4" />
+                <span className="hidden sm:inline">View Live Site</span>
+              </Link>
+            </div>
+          </header>
+        )}
 
         {/* Page Content */}
-        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto custom-scrollbar">
-          <div className="max-w-[1920px] mx-auto w-full">
+        <main className={`flex-1 overflow-hidden ${isEmailCenter ? "p-2 lg:p-3 h-full flex flex-col" : "p-4 md:p-6 lg:p-8 overflow-y-auto custom-scrollbar"}`}>
+          <div className={`w-full ${isEmailCenter ? "h-full flex-1 flex flex-col" : "max-w-[1920px] mx-auto"}`}>
             {children}
           </div>
         </main>

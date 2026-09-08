@@ -240,7 +240,7 @@ export default function EmailCenterClient() {
   ];
 
   return (
-    <div className="flex flex-col min-h-[750px] lg:h-[calc(100vh-7.5rem)] rounded-3xl bg-white border border-black/5 shadow-md overflow-hidden">
+    <div className="flex flex-col h-full w-full rounded-2xl bg-white border border-black/5 shadow-sm overflow-hidden">
       {/* Top Header & Tab Navigation */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-3.5 bg-[#11100e] text-white shrink-0 border-b border-white/10">
         <div className="flex items-center gap-3">
@@ -309,11 +309,11 @@ export default function EmailCenterClient() {
         {activeTab === "newsletter" && <EmailNewsletterTab />}
         {activeTab === "logs" && <EmailLogsTab />}
 
-        {/* Gmail/Outlook Tri-Panel Mailbox */}
+        {/* Gmail / Hostinger Webmail 2-View Mailbox */}
         {activeTab === "mailbox" && (
           <div className="flex h-full overflow-hidden">
-            {/* 1. Left Folder Sidebar (w-60) */}
-            <div className="w-56 lg:w-64 border-r border-black/5 bg-white p-3 flex flex-col justify-between shrink-0 hidden md:flex">
+            {/* 1. Left Folder Sidebar */}
+            <div className="w-56 lg:w-60 border-r border-black/5 bg-white p-3 flex flex-col justify-between shrink-0 hidden md:flex">
               <div className="space-y-4">
                 {/* Compose Button */}
                 <button
@@ -384,198 +384,280 @@ export default function EmailCenterClient() {
               </div>
             </div>
 
-            {/* 2. Middle Panel: Messages List */}
-            <div
-              className={`flex flex-col border-r border-black/5 bg-white transition-all overflow-hidden ${
-                selectedMessage ? "hidden lg:flex lg:w-96 shrink-0" : "flex-1"
-              }`}
-            >
-              {/* Search and Filter Bar */}
-              <div className="p-3 border-b border-black/5 space-y-2.5 bg-[#faf9f6]">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                  <input
-                    type="text"
-                    placeholder="Search sender, subject, keywords..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full rounded-xl border border-black/10 bg-white py-2 pl-9 pr-3 text-xs outline-none focus:border-primary"
-                  />
-                </div>
-
-                {/* Multi-Select Toolbar */}
-                <div className="flex items-center justify-between text-xs px-1">
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={handleToggleSelectAll}
-                      className="p-1 rounded hover:bg-black/5 text-muted-foreground"
-                      title="Select all"
-                    >
-                      {selectedIds.length === messages.length && messages.length > 0 ? (
-                        <CheckSquare className="h-4 w-4 text-primary" />
-                      ) : (
-                        <Square className="h-4 w-4" />
-                      )}
-                    </button>
-
-                    {selectedIds.length > 0 && (
-                      <span className="text-[11px] font-bold text-primary">
-                        {selectedIds.length} selected
-                      </span>
-                    )}
-                  </div>
-
-                  {selectedIds.length > 0 && (
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => handleBatchAction("mark_read")}
-                        className="p-1.5 rounded hover:bg-black/5 text-xs text-muted-foreground hover:text-foreground"
-                        title="Mark as Read"
-                      >
-                        Read
-                      </button>
-                      <button
-                        onClick={() => handleBatchAction("trash")}
-                        className="p-1.5 rounded hover:bg-rose-50 text-xs text-rose-600"
-                        title="Delete"
-                      >
-                        Trash
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Message List Items */}
-              <div className="flex-1 overflow-y-auto divide-y divide-black/5">
-                {isLoadingMessages ? (
-                  <div className="flex h-48 items-center justify-center">
-                    <RefreshCw className="h-5 w-5 animate-spin text-primary" />
-                  </div>
-                ) : messages.length === 0 ? (
-                  <div className="p-8 text-center text-xs text-muted-foreground">
-                    No emails in {currentFolder} folder.
-                  </div>
-                ) : (
-                  messages.map((msg) => {
-                    const msgId = msg.id || msg.dbKey || "";
-                    const isSelected = selectedIds.includes(msgId);
-                    const isActive = selectedMessage?.id === msg.id || selectedMessage?.dbKey === msg.dbKey;
-
-                    return (
-                      <div
-                        key={msgId}
-                        onClick={() => {
-                          setSelectedMessage(msg);
-                          if (!msg.isRead && msgId) {
-                            handleBatchAction("mark_read", undefined, [msgId]);
-                            setMessages((prev) =>
-                              prev.map((m) =>
-                                (m.id === msgId || m.dbKey === msgId) ? { ...m, isRead: true } : m
-                              )
-                            );
-                          }
-                        }}
-                        className={`group flex items-start gap-3 p-3.5 cursor-pointer transition-colors ${
-                          isActive
-                            ? "bg-primary/5 border-l-4 border-l-primary"
-                            : !msg.isRead
-                            ? "bg-amber-50/40 font-bold hover:bg-black/5"
-                            : "bg-white hover:bg-black/5"
-                        }`}
-                      >
-                        {/* Checkbox */}
-                        <div
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedIds((prev) =>
-                              prev.includes(msgId) ? prev.filter((id) => id !== msgId) : [...prev, msgId]
-                            );
-                          }}
-                          className="mt-1 shrink-0"
-                        >
-                          {isSelected ? (
-                            <CheckSquare className="h-4 w-4 text-primary" />
-                          ) : (
-                            <Square className="h-4 w-4 text-muted-foreground/50 hover:text-foreground" />
-                          )}
-                        </div>
-
-                        {/* Email Details */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between gap-2">
-                            <span
-                              className={`truncate text-xs ${
-                                !msg.isRead ? "font-extrabold text-foreground" : "font-medium text-foreground"
-                              }`}
-                            >
-                              {msg.from?.name || msg.from?.email || "Unknown"}
-                            </span>
-                            <span className="text-[10px] text-muted-foreground shrink-0">
-                              {new Date(msg.createdAt).toLocaleDateString("en-PK", {
-                                month: "short",
-                                day: "numeric",
-                              })}
-                            </span>
-                          </div>
-
-                          <p
-                            className={`text-xs truncate mt-0.5 ${
-                              !msg.isRead ? "font-bold text-foreground" : "text-foreground/90"
-                            }`}
-                          >
-                            {msg.subject || "(No Subject)"}
-                          </p>
-
-                          <p className="text-[11px] text-muted-foreground truncate mt-0.5">
-                            {msg.snippet}
-                          </p>
-                        </div>
-
-                        {/* Badges / Attachment Icon */}
-                        <div className="flex flex-col items-end gap-1 shrink-0 mt-1">
-                          {msg.hasAttachments && (
-                            <Paperclip className="h-3 w-3 text-muted-foreground" />
-                          )}
-                          {!msg.isRead && (
-                            <span className="h-2 w-2 rounded-full bg-primary" />
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-
-            {/* 3. Right Panel: Email Detail Viewer */}
-            <div
-              className={`flex-1 bg-white overflow-hidden ${
-                !selectedMessage ? "hidden lg:flex" : "flex"
-              }`}
-            >
+            {/* 2. Main Viewport: Swaps between Message List & Email Detail View (takes 100% width) */}
+            <div className="flex-1 min-w-0 bg-white flex flex-col h-full overflow-hidden">
               {selectedMessage ? (
                 <EmailDetailView
                   email={selectedMessage}
+                  currentFolderName={currentFolder}
                   onBack={() => setSelectedMessage(null)}
                   onUpdate={() => {
                     fetchMessages();
                     if (selectedMessage) {
-                      // refresh detail
                       setSelectedMessage({ ...selectedMessage, isRead: true });
                     }
                   }}
                   onComposeReply={handleComposeReply}
                 />
               ) : (
-                <div className="flex h-full w-full flex-col items-center justify-center p-8 text-center text-muted-foreground">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#faf9f6] border border-black/5 mb-3">
-                    <Mail className="h-8 w-8 opacity-30 text-primary" />
+                <div className="flex flex-col h-full overflow-hidden">
+                  {/* Mobile Folder Selector (visible only on small screens) */}
+                  <div className="flex md:hidden items-center gap-1 overflow-x-auto p-2 bg-[#faf9f6] border-b border-black/5 shrink-0">
+                    <button
+                      onClick={() => {
+                        setComposeInitialData(undefined);
+                        setIsComposeOpen(true);
+                      }}
+                      className="flex items-center gap-1 rounded-lg bg-primary px-3 py-1 text-xs font-bold text-white shrink-0"
+                    >
+                      <Plus className="h-3.5 w-3.5" /> Compose
+                    </button>
+                    {folderList.map((f) => {
+                      const isActive = currentFolder === f.id;
+                      return (
+                        <button
+                          key={f.id}
+                          onClick={() => {
+                            setCurrentFolder(f.id as EmailFolder);
+                            setSelectedMessage(null);
+                          }}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-semibold shrink-0 transition-colors ${
+                            isActive
+                              ? "bg-primary/15 text-primary font-bold"
+                              : "text-muted-foreground hover:bg-black/5"
+                          }`}
+                        >
+                          {f.label} {f.count ? `(${f.count})` : ""}
+                        </button>
+                      );
+                    })}
                   </div>
-                  <h3 className="font-bold text-sm text-foreground">Select an Email</h3>
-                  <p className="text-xs max-w-xs mt-1">
-                    Choose an email conversation from the list to view the full thread, attachments, and reply.
-                  </p>
+
+                  {/* Message List Top Bar (Toolbar + Search) */}
+                  <div className="px-4 py-2.5 border-b border-black/5 bg-[#faf9f6] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+                    {/* Actions Left */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <button
+                        onClick={handleToggleSelectAll}
+                        className="p-1.5 rounded-lg border border-black/10 bg-white hover:bg-black/5 text-muted-foreground hover:text-foreground transition-colors"
+                        title="Select all"
+                      >
+                        {selectedIds.length === messages.length && messages.length > 0 ? (
+                          <CheckSquare className="h-4 w-4 text-primary" />
+                        ) : (
+                          <Square className="h-4 w-4" />
+                        )}
+                      </button>
+
+                      <button
+                        onClick={() => fetchMessages(true)}
+                        disabled={isLoadingMessages}
+                        className="p-1.5 rounded-lg border border-black/10 bg-white hover:bg-black/5 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+                        title="Refresh messages"
+                      >
+                        <RefreshCw className={`h-4 w-4 ${isLoadingMessages ? "animate-spin text-primary" : ""}`} />
+                      </button>
+
+                      <div className="flex items-center gap-2 ml-1">
+                        <span className="text-sm font-extrabold capitalize text-foreground">
+                          {currentFolder}
+                        </span>
+                        <span className="text-xs text-muted-foreground font-medium">
+                          ({messages.length} email{messages.length === 1 ? "" : "s"})
+                        </span>
+                      </div>
+
+                      {selectedIds.length > 0 && (
+                        <div className="flex items-center gap-1.5 ml-2 pl-2 border-l border-black/10">
+                          <span className="text-xs font-bold text-primary mr-1">
+                            {selectedIds.length} selected
+                          </span>
+                          <button
+                            onClick={() => handleBatchAction("mark_read")}
+                            className="px-2.5 py-1 rounded-lg border border-black/10 bg-white text-xs font-semibold text-foreground hover:bg-black/5 transition-colors"
+                          >
+                            Mark Read
+                          </button>
+                          <button
+                            onClick={() => handleBatchAction("mark_unread")}
+                            className="px-2.5 py-1 rounded-lg border border-black/10 bg-white text-xs font-semibold text-foreground hover:bg-black/5 transition-colors"
+                          >
+                            Mark Unread
+                          </button>
+                          <button
+                            onClick={() => handleBatchAction("trash")}
+                            className="px-2.5 py-1 rounded-lg border border-rose-200 bg-rose-50 text-xs font-semibold text-rose-600 hover:bg-rose-100 transition-colors"
+                          >
+                            Trash
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Search Right */}
+                    <div className="relative w-full sm:w-72 md:w-80">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                      <input
+                        type="text"
+                        placeholder="Search sender, subject, keywords..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full rounded-xl border border-black/10 bg-white py-1.5 pl-9 pr-3 text-xs outline-none focus:border-primary transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Message List Items (Full width Gmail style) */}
+                  <div className="flex-1 overflow-y-auto divide-y divide-black/5 custom-scrollbar">
+                    {isLoadingMessages ? (
+                      <div className="flex h-48 items-center justify-center">
+                        <RefreshCw className="h-5 w-5 animate-spin text-primary" />
+                      </div>
+                    ) : messages.length === 0 ? (
+                      <div className="p-12 text-center text-xs text-muted-foreground">
+                        <Mail className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
+                        <p className="font-semibold text-foreground">No emails in {currentFolder}</p>
+                        <p className="text-muted-foreground mt-0.5">Your {currentFolder} folder is completely empty.</p>
+                      </div>
+                    ) : (
+                      messages.map((msg) => {
+                        const msgId = msg.id || msg.dbKey || "";
+                        const isSelected = selectedIds.includes(msgId);
+
+                        return (
+                          <div
+                            key={msgId}
+                            onClick={() => {
+                              setSelectedMessage(msg);
+                              if (!msg.isRead && msgId) {
+                                handleBatchAction("mark_read", undefined, [msgId]);
+                                setMessages((prev) =>
+                                  prev.map((m) =>
+                                    (m.id === msgId || m.dbKey === msgId) ? { ...m, isRead: true } : m
+                                  )
+                                );
+                              }
+                            }}
+                            className={`group flex items-center gap-3 px-4 py-3.5 cursor-pointer transition-all border-l-4 ${
+                              !msg.isRead
+                                ? "bg-amber-50/40 border-l-primary font-semibold hover:bg-amber-50/70"
+                                : "bg-white border-l-transparent hover:bg-black/[0.02]"
+                            }`}
+                          >
+                            {/* Checkbox */}
+                            <div
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedIds((prev) =>
+                                  prev.includes(msgId) ? prev.filter((id) => id !== msgId) : [...prev, msgId]
+                                );
+                              }}
+                              className="shrink-0 text-muted-foreground/60 hover:text-foreground"
+                            >
+                              {isSelected ? (
+                                <CheckSquare className="h-4 w-4 text-primary" />
+                              ) : (
+                                <Square className="h-4 w-4" />
+                              )}
+                            </div>
+
+                            {/* Star Icon */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleBatchAction(msg.isStarred ? "unstar" : "star", undefined, [msgId]);
+                                setMessages((prev) =>
+                                  prev.map((m) =>
+                                    (m.id === msgId || m.dbKey === msgId) ? { ...m, isStarred: !m.isStarred } : m
+                                  )
+                                );
+                              }}
+                              className="shrink-0 p-1 text-muted-foreground/40 hover:text-amber-500 transition-colors"
+                              title={msg.isStarred ? "Starred" : "Not starred"}
+                            >
+                              <Star className={`h-4 w-4 ${msg.isStarred ? "fill-amber-400 text-amber-400" : ""}`} />
+                            </button>
+
+                            {/* Sender Name */}
+                            <div className="w-36 sm:w-48 lg:w-56 shrink-0 truncate">
+                              <span
+                                className={`text-xs truncate block ${
+                                  !msg.isRead ? "font-extrabold text-foreground" : "font-medium text-foreground/85"
+                                }`}
+                              >
+                                {msg.from?.name || msg.from?.email || "Unknown"}
+                              </span>
+                            </div>
+
+                            {/* Subject & Snippet (Gmail style inline preview) */}
+                            <div className="flex-1 min-w-0 flex items-baseline gap-2 overflow-hidden">
+                              <span
+                                className={`text-xs truncate ${
+                                  !msg.isRead ? "font-extrabold text-foreground" : "font-semibold text-foreground/90"
+                                }`}
+                              >
+                                {msg.subject || "(No Subject)"}
+                              </span>
+                              <span className="text-xs text-muted-foreground/40 hidden sm:inline">-</span>
+                              <span className="text-xs text-muted-foreground truncate hidden sm:inline">
+                                {msg.snippet}
+                              </span>
+                            </div>
+
+                            {/* Badges / Attachment Icon */}
+                            <div className="shrink-0 flex items-center gap-2">
+                              {msg.hasAttachments && (
+                                <Paperclip className="h-3.5 w-3.5 text-muted-foreground/70" />
+                              )}
+                              {!msg.isRead && (
+                                <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
+                              )}
+                            </div>
+
+                            {/* Date / Time */}
+                            <div className="shrink-0 text-[11px] text-muted-foreground font-medium whitespace-nowrap pl-2">
+                              {new Date(msg.createdAt).toLocaleDateString("en-PK", {
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </div>
+
+                            {/* Quick Actions on Hover */}
+                            <div className="hidden group-hover:flex items-center gap-1 shrink-0 ml-1">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleBatchAction(!msg.isRead ? "mark_read" : "mark_unread", undefined, [msgId]);
+                                  setMessages((prev) =>
+                                    prev.map((m) =>
+                                      (m.id === msgId || m.dbKey === msgId) ? { ...m, isRead: !msg.isRead } : m
+                                    )
+                                  );
+                                }}
+                                className="p-1.5 rounded-lg hover:bg-black/5 text-muted-foreground hover:text-foreground transition-colors"
+                                title={!msg.isRead ? "Mark as Read" : "Mark as Unread"}
+                              >
+                                <Mail className="h-3.5 w-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleBatchAction("trash", undefined, [msgId]);
+                                }}
+                                className="p-1.5 rounded-lg hover:bg-rose-50 text-muted-foreground hover:text-rose-600 transition-colors"
+                                title="Move to Trash"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
                 </div>
               )}
             </div>
