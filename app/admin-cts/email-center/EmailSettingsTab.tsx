@@ -335,8 +335,8 @@ export default function EmailSettingsTab() {
   return (
     <form onSubmit={handleSave} className="space-y-6 max-w-4xl mx-auto p-4 md:p-6 pb-24">
       {/* Top Banner & Sticky Save Trigger */}
-      <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sticky top-0 z-20 backdrop-blur-md shadow-xs">
-        <div>
+      <div className="rounded-2xl border border-primary/20 bg-primary/5 p-3 sm:p-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 sticky top-0 z-10 backdrop-blur-md shadow-xs">
+        <div className="hidden sm:block">
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-primary" />
             <h2 className="text-base font-extrabold text-foreground">
@@ -351,7 +351,7 @@ export default function EmailSettingsTab() {
         <button
           type="submit"
           disabled={isSaving}
-          className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-primary/20 hover:bg-primary/95 transition-all disabled:opacity-60 shrink-0"
+          className="inline-flex w-full sm:w-auto cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-primary/20 hover:bg-primary/95 transition-all disabled:opacity-60 shrink-0"
         >
           {isSaving ? (
             <>

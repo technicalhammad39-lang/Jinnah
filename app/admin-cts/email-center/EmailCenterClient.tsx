@@ -404,7 +404,7 @@ export default function EmailCenterClient() {
   return (
     <div className="flex flex-col h-full w-full rounded-2xl bg-white border border-black/5 shadow-sm overflow-hidden relative">
       {/* Top Header & Tab Navigation */}
-      <div className="flex items-center justify-between gap-3 px-3.5 sm:px-6 py-3 bg-[#11100e] text-white shrink-0 border-b border-white/10 relative z-20">
+      <div className="flex items-center justify-between gap-3 px-3.5 sm:px-6 py-3 bg-[#11100e] text-white shrink-0 border-b border-white/10 relative z-40">
         {/* Left: Jinnah Logo Favicon + Title (No SMTP+IMAP badge) */}
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-white/10 p-1.5 border border-white/15 shadow-sm shrink-0">

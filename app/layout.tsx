@@ -27,16 +27,71 @@ const serifFont = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "Jinnah Hardware Store - Premium Modern Hardware & Fittings",
-  description: "An elite architectural and industrial hardware experience. Premium door hardware, security, smart locks, cabinet fittings, and professional power tools.",
-  keywords: ["architectural hardware", "smart locks", "door fittings", "power tools", "Jinnah Hardware Store", "premium hardware Pakistan"],
+  metadataBase: new URL("https://jinnah-hardwarestore.com"),
+  title: {
+    default: "Jinnah Hardware Store - Premium Modern Hardware & Architectural Fittings",
+    template: "%s | Jinnah Hardware Store",
+  },
+  description: "Pakistan's premium architectural hardware, biometric smart locks, luxury door fittings, cabinet hardware, and industrial tools. Fast nationwide delivery.",
+  keywords: [
+    "Jinnah Hardware Store",
+    "Jinnah Hardware",
+    "Hardware Store Pakistan",
+    "Architectural Hardware",
+    "Biometric Smart Locks",
+    "Digital Door Locks",
+    "Luxury Door Handles",
+    "Cabinet Handles & Fittings",
+    "Mortise Locksets",
+    "Kitchen Accessories Pakistan",
+    "Power Tools Online",
+    "Hardware Store Hasilpur",
+    "Hardware Store Bahawalpur",
+    "Solid Brass Hardware",
+  ],
+  authors: [{ name: "Jinnah Hardware Store", url: "https://jinnah-hardwarestore.com" }],
+  creator: "Jinnah Hardware Store",
+  publisher: "Jinnah Hardware Store",
+  formatDetection: {
+    email: false,
+    address: true,
+    telephone: true,
+  },
+  alternates: {
+    canonical: "https://jinnah-hardwarestore.com",
+  },
   openGraph: {
-    title: "Jinnah Hardware Store",
-    description: "Premium Modern Hardware & Architectural Fittings.",
+    title: "Jinnah Hardware Store - Premium Modern Hardware & Fittings",
+    description: "Pakistan's leading showroom for architectural door hardware, biometric locks, luxury cabinet fittings, and professional power tools.",
     url: "https://jinnah-hardwarestore.com/",
     siteName: "Jinnah Hardware Store",
     locale: "en_PK",
     type: "website",
+    images: [
+      {
+        url: "/jinnah-bottom.png",
+        width: 1200,
+        height: 630,
+        alt: "Jinnah Hardware Store - Architectural Fittings & Smart Locks",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Jinnah Hardware Store - Premium Modern Hardware & Fittings",
+    description: "Pakistan's leading showroom for architectural door hardware, biometric smart locks, and luxury cabinet fittings.",
+    images: ["/jinnah-bottom.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
   icons: {
     icon: [

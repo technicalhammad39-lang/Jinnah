@@ -244,17 +244,17 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
       <Navbar />
 
       {/* Main Track Order Content */}
-      <main className="flex-1 w-full pt-28 sm:pt-32 md:pt-36 pb-20 sm:pb-28">
+      <main className="flex-1 w-full pt-36 sm:pt-40 md:pt-44 pb-20 sm:pb-28">
         <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20">
           
           {/* Navigation Breadcrumb */}
           <div className="mb-6 sm:mb-8 flex items-center justify-start">
             <Link
-              href="/shop"
+              href="/"
               className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors group"
             >
               <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-              <span>Back to Store</span>
+              <span>Back to Home</span>
             </Link>
           </div>
 
@@ -268,7 +268,7 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                 <Truck className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-primary shrink-0" />
                 <span className="whitespace-nowrap">Jinnah Express Tracking Portal</span>
               </div>
-              <h1 className="text-[22px] min-[360px]:text-2xl min-[420px]:text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-white mb-4 sm:mb-6 leading-tight whitespace-nowrap">
+              <h1 className="text-3xl min-[390px]:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-white mb-3 sm:mb-6 leading-tight">
                 Track Your Order
               </h1>
               <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/80 mb-8 sm:mb-12 max-w-3xl mx-auto font-normal leading-relaxed">
@@ -406,41 +406,24 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                   </div>
 
                   {/* Status Pill Badge & Estimated Delivery */}
-                  <div className="flex flex-col sm:items-end gap-2">
-                    <div className="flex items-center gap-2">
-                      {isCancelled ? (
-                        <span className="inline-flex items-center gap-2 rounded-full bg-rose-100 px-5 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm md:text-base font-black uppercase tracking-wider text-rose-800 border border-rose-200 shadow-sm">
-                          <AlertCircle className="h-5 w-5" /> Order Cancelled
+                  <div className="w-full md:w-auto flex flex-col md:items-end gap-2">
+                    {isCancelled && (
+                      <span className="inline-flex items-center gap-2 rounded-full bg-rose-100 px-5 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm md:text-base font-black uppercase tracking-wider text-rose-800 border border-rose-200 shadow-sm mb-1">
+                        <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5" /> Order Cancelled
+                      </span>
+                    )}
+                    {/* Estimated Delivery Highlight Banner (Orange & Black styling, full width on mobile) */}
+                    <div className="w-full md:w-auto inline-flex items-center justify-between md:justify-end gap-3 px-4 sm:px-6 py-3 sm:py-3.5 rounded-2xl bg-[#11100e] border-2 border-primary text-white shadow-lg">
+                      <div className="flex items-center gap-2.5">
+                        <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0 animate-pulse" />
+                        <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-white/80">
+                          Estimated Delivery:
                         </span>
-                      ) : (
-                        <span
-                          className={`inline-flex items-center gap-2.5 rounded-full px-5 sm:px-7 py-2.5 sm:py-3 text-xs sm:text-sm md:text-base font-black uppercase tracking-wider shadow-sm ${
-                            activeOrder.status === "delivered"
-                              ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                              : activeOrder.status === "shipped" || activeOrder.status === "out_for_delivery"
-                              ? "bg-primary/10 text-primary border border-primary/20"
-                              : "bg-blue-100 text-blue-800 border border-blue-200"
-                          }`}
-                        >
-                          <span className="h-2.5 w-2.5 rounded-full bg-current animate-pulse" />
-                          {activeOrder.status === "delivered"
-                            ? "Delivered Successfully"
-                            : activeOrder.status === "shipped"
-                            ? "In Transit (Shipped)"
-                            : activeOrder.status === "out_for_delivery"
-                            ? "Out for Delivery"
-                            : activeOrder.status === "processing"
-                            ? "In Warehouse / Packing"
-                            : "Order Placed & Pending"}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs sm:text-sm md:text-base text-muted-foreground">
-                      Estimated Delivery:{" "}
-                      <span className="font-black text-foreground text-sm sm:text-base md:text-lg">
+                      </div>
+                      <span className="text-base sm:text-lg md:text-xl font-black text-primary font-mono tracking-wide">
                         {activeOrder.estimatedDelivery || "2-4 Business Days"}
                       </span>
-                    </p>
+                    </div>
                   </div>
                 </div>
 
@@ -456,30 +439,25 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                   /* Multi-Stage Visual Stepper - Enlarged & Mobile Responsive */
                   <div className="mt-8">
                     {/* Mobile Instant Active Status Spotlight Card */}
-                    <div className="sm:hidden mb-4 p-4 rounded-2xl bg-white border border-primary/20 shadow-sm flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 shadow-sm">
-                          <activeStep.icon className="h-5 w-5 animate-pulse" />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] font-extrabold uppercase tracking-wider text-primary">Current Status</span>
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
-                          </div>
-                          <p className="text-sm font-black text-gray-900 leading-tight truncate">{activeStep.label}</p>
-                          <p className="text-[11px] text-gray-500 leading-tight truncate">{activeStep.desc}</p>
-                        </div>
+                    <div className="sm:hidden mb-4 p-4 rounded-2xl bg-gradient-to-r from-primary/[0.05] via-white to-primary/[0.02] border border-primary/20 shadow-xs flex items-center gap-3.5">
+                      <div className="h-11 w-11 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 shadow-xs">
+                        <activeStep.icon className="h-5 w-5 animate-pulse" />
                       </div>
-                      <span className="text-[10px] font-black text-primary bg-primary/10 px-2.5 py-1 rounded-full shrink-0 border border-primary/20">
-                        Step {currentStepIndex + 1}/{steps.length}
-                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-primary">Current Status</span>
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
+                        </div>
+                        <p className="text-sm font-black text-gray-900 leading-tight truncate">{activeStep.label}</p>
+                        <p className="text-[11px] text-gray-500 leading-tight truncate">{activeStep.desc}</p>
+                      </div>
                     </div>
 
                     <div 
                       ref={stepperContainerRef}
-                      className="py-8 sm:py-12 md:py-16 px-4 sm:px-8 bg-[#faf9f6] rounded-2xl sm:rounded-3xl border border-black/5 overflow-x-auto custom-scrollbar scroll-smooth snap-x snap-mandatory"
+                      className="py-6 sm:py-12 md:py-16 px-1 sm:px-8 bg-transparent sm:bg-[#faf9f6] rounded-none sm:rounded-3xl border-0 sm:border sm:border-black/5 overflow-x-auto custom-scrollbar scroll-smooth snap-x snap-mandatory touch-pan-x"
                     >
-                      <div className="min-w-[580px] sm:min-w-0 px-8 sm:px-0">
+                      <div className="min-w-[580px] sm:min-w-0 px-6 sm:px-0 py-3">
                         <div className="relative">
                           {/* Background Track Line & Dynamic Auto-Animated Progress Fill */}
                           {/* Placed at top-7 (28px on mobile), sm:top-9 (36px), md:top-11 (44px) to be EQUAL CENTER in the icon circles */}
@@ -487,7 +465,7 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                             <div className="relative w-full h-2 sm:h-2.5 md:h-3 rounded-full bg-black/10 overflow-hidden shadow-inner">
                               {/* Dynamic animated active progress beam */}
                               <div
-                                className="h-full rounded-full bg-gradient-to-r from-primary via-amber-500 to-emerald-500 transition-all duration-1000 ease-out relative shadow-sm"
+                                className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-primary to-primary transition-all duration-1000 ease-out relative shadow-sm"
                                 style={{
                                   width: `${Math.max(
                                     0,
@@ -504,8 +482,9 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                           {/* Step milestones */}
                           <div className="relative flex justify-between z-10">
                             {steps.map((step, idx) => {
-                              const isCompleted = idx <= currentStepIndex;
+                              const isPast = idx < currentStepIndex;
                               const isCurrent = idx === currentStepIndex;
+                              const isFuture = idx > currentStepIndex;
                               const Icon = step.icon;
 
                               return (
@@ -513,37 +492,47 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                                   key={step.id}
                                   ref={isCurrent ? activeStepRef : null}
                                   className={`flex flex-col items-center text-center max-w-[120px] sm:max-w-[150px] snap-center shrink-0 sm:shrink transition-all duration-300 ${
-                                    isCurrent ? "scale-105" : "opacity-80 hover:opacity-100"
+                                    isCurrent ? "scale-105" : isPast ? "opacity-95" : "opacity-60"
                                   }`}
                                 >
-                                  {/* Icon circle */}
-                                  <div
-                                    className={`relative flex h-14 w-14 sm:h-18 sm:w-18 md:h-22 md:w-22 items-center justify-center rounded-full border-4 sm:border-[6px] border-white transition-all duration-500 shadow-xl ${
-                                      isCurrent
-                                        ? "bg-primary text-white shadow-primary/40 ring-4 ring-primary/20 scale-105"
-                                        : isCompleted
-                                        ? "bg-primary text-white"
-                                        : "bg-black/10 text-muted-foreground"
-                                    }`}
-                                  >
-                                    <Icon className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10" />
+                                  {/* Icon circle wrapper */}
+                                  <div className="relative flex items-center justify-center">
+                                    {/* Active step: rotating loader spinner rings */}
                                     {isCurrent && (
-                                      <span className="absolute -inset-1.5 rounded-full border-2 sm:border-3 border-primary animate-ping opacity-60 pointer-events-none" />
+                                      <>
+                                        <span className="absolute -inset-2 sm:-inset-3 rounded-full border-2 sm:border-3 border-dashed border-primary animate-[spin_4s_linear_infinite] pointer-events-none" />
+                                        <span className="absolute -inset-3.5 sm:-inset-4.5 rounded-full border border-primary/25 animate-pulse pointer-events-none" />
+                                      </>
                                     )}
-                                  </div>
 
-                                  {/* Active Step Badge for mobile & desktop */}
-                                  {isCurrent && (
-                                    <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-primary/10 border border-primary/25 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-primary">
-                                      <span className="h-1.5 w-1.5 rounded-full bg-primary animate-ping" />
-                                      Active Now
-                                    </span>
-                                  )}
+                                    <div
+                                      className={`relative flex h-14 w-14 sm:h-18 sm:w-18 md:h-22 md:w-22 items-center justify-center rounded-full border-4 sm:border-[6px] border-white transition-all duration-500 shadow-xl ${
+                                        isCurrent
+                                          ? "bg-primary text-white shadow-primary/50 ring-4 ring-primary/20 scale-105"
+                                          : isPast
+                                          ? "bg-emerald-500 text-white shadow-emerald-500/30"
+                                          : "bg-black/10 text-muted-foreground"
+                                      }`}
+                                    >
+                                      <Icon className={`h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 ${isCurrent ? "animate-pulse" : ""}`} />
+
+                                      {/* Completed step: green checkmark tick */}
+                                      {isPast && (
+                                        <span className="absolute -top-1 -right-1 sm:-top-1.5 sm:-right-1.5 flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-emerald-600 text-white shadow-md ring-2 ring-white z-20">
+                                          <Check className="h-3 w-3 sm:h-3.5 sm:w-3.5 stroke-[3]" />
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
 
                                   <p
                                     className={`text-xs sm:text-sm md:text-base font-black uppercase tracking-wider leading-tight ${
-                                      isCurrent ? "mt-1.5 sm:mt-2 text-primary" : "mt-3.5 sm:mt-4 text-foreground"
-                                    } ${!isCompleted ? "text-muted-foreground" : ""}`}
+                                      isCurrent
+                                        ? "mt-3 sm:mt-4 text-primary"
+                                        : isPast
+                                        ? "mt-3.5 sm:mt-4 text-foreground"
+                                        : "mt-3.5 sm:mt-4 text-muted-foreground"
+                                    }`}
                                   >
                                     {step.label}
                                   </p>
@@ -555,6 +544,11 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                             })}
                           </div>
                         </div>
+                      </div>
+
+                      {/* Subtle slide hint on mobile */}
+                      <div className="sm:hidden flex items-center justify-center gap-1 text-[11px] font-bold text-muted-foreground/80 mt-1">
+                        <span className="text-primary/70 animate-pulse">← Swipe milestones to view all →</span>
                       </div>
                     </div>
                   </div>
@@ -591,29 +585,30 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                             </span>
                           </div>
                           
-                          <div className="mt-1 flex items-center gap-2 sm:gap-3 flex-wrap">
-                            <p className="text-sm sm:text-base md:text-lg font-mono font-black text-gray-900 tracking-tight break-all">
-                              CN #{activeOrder.trackingNumber || "Assigned"}
-                            </p>
-                            {activeOrder.trackingNumber && (
-                              <button
-                                type="button"
-                                onClick={() => handleCopy(activeOrder.trackingNumber!, "courier")}
-                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-black/10 text-gray-700 hover:text-primary hover:border-primary/40 text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
-                              >
-                                {copiedCourierCn ? (
-                                  <>
-                                    <Check className="h-3.5 w-3.5 text-emerald-600" />
-                                    <span className="text-emerald-600">Copied</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Copy className="h-3.5 w-3.5" />
-                                    <span>Copy CN</span>
-                                  </>
-                                )}
-                              </button>
-                            )}
+                          {/* CN Number & Compact Copy Icon in Highlighted Box */}
+                          <div className="mt-2 flex items-center gap-2 flex-wrap">
+                            <div className="inline-flex items-center gap-2 sm:gap-2.5 px-3.5 py-1.5 rounded-xl bg-white border-2 border-primary/30 shadow-xs hover:border-primary/60 transition-all">
+                              <span className="text-[11px] font-black uppercase text-muted-foreground tracking-wider">
+                                CN
+                              </span>
+                              <span className="text-base sm:text-lg md:text-xl font-mono font-black text-gray-950 tracking-tight select-all">
+                                #{activeOrder.trackingNumber || "Assigned"}
+                              </span>
+                              {activeOrder.trackingNumber && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleCopy(activeOrder.trackingNumber!, "courier")}
+                                  title="Copy CN"
+                                  className="ml-1 p-1 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-all cursor-pointer shrink-0"
+                                >
+                                  {copiedCourierCn ? (
+                                    <Check className="h-4 w-4 text-emerald-600 stroke-[2.5]" />
+                                  ) : (
+                                    <Copy className="h-4 w-4 stroke-[2.5]" />
+                                  )}
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>

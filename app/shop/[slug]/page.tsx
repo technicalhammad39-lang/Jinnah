@@ -2,42 +2,55 @@ import { getProductBySlug, getProducts } from "@/lib/data-fetcher";
 import ProductDetailClient from "./ProductDetailClient";
 import { Metadata } from "next";
 import { getStockInfo } from "@/lib/inventory-engine";
+import { getPublicUploadUrl } from "@/lib/utils";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
-  if (!product) return { title: "Product Not Found" };
+  if (!product) return { title: "Product Not Found | Jinnah Hardware Store" };
 
   const siteUrl = "https://jinnah-hardwarestore.com";
   const canonicalUrl = `${siteUrl}/shop/${slug}`;
-  const imageUrl = product.images?.[0] ? `${siteUrl}/node/uploads/${product.images[0]}` : undefined;
+  const rawImg = product.images?.[0];
+  const resolvedPath = rawImg ? getPublicUploadUrl(rawImg) : null;
+  const imageUrl = resolvedPath
+    ? (resolvedPath.startsWith("http") ? resolvedPath : `${siteUrl}${resolvedPath}`)
+    : `${siteUrl}/jinnah-bottom.png`;
 
   return {
-    title: `${product.name} | Jinnah Hardware Store`,
-    description: product.description || "View details for this premium hardware product at Jinnah Hardware Store.",
+    title: `${product.name} - Buy Online in Pakistan | Jinnah Hardware Store`,
+    description: product.shortDescription || product.description || `Buy ${product.name} at best price in Pakistan. Premium quality architectural fittings with nationwide delivery.`,
+    keywords: [
+      product.name,
+      product.brand,
+      product.category,
+      "Hardware Store Pakistan",
+      "Buy Online Pakistan",
+      "Architectural Fittings",
+    ].filter(Boolean) as string[],
     alternates: {
       canonical: canonicalUrl,
     },
     openGraph: {
-      title: product.name,
-      description: product.description || "View details for this premium hardware product at Jinnah Hardware Store.",
+      title: `${product.name} | Jinnah Hardware Store`,
+      description: product.shortDescription || product.description || `Buy ${product.name} at best price in Pakistan.`,
       url: canonicalUrl,
       siteName: "Jinnah Hardware Store",
-      images: imageUrl ? [
+      images: [
         {
           url: imageUrl,
           width: 800,
-          height: 1000,
+          height: 800,
           alt: product.name,
         }
-      ] : [],
+      ],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title: product.name,
-      description: product.description || "View details for this premium hardware product at Jinnah Hardware Store.",
-      images: imageUrl ? [imageUrl] : [],
+      title: `${product.name} | Jinnah Hardware Store`,
+      description: product.shortDescription || product.description || `Buy ${product.name} at best price in Pakistan.`,
+      images: [imageUrl],
     },
   };
 }
@@ -50,14 +63,20 @@ export default async function ProductDetailServerPage({ params }: { params: Prom
   const siteUrl = "https://jinnah-hardwarestore.com";
   const stockInfo = product ? getStockInfo(product) : null;
 
+  const productImages = product?.images?.map((img: string) => {
+    const p = getPublicUploadUrl(img);
+    return p.startsWith("http") ? p : `${siteUrl}${p}`;
+  }) || [`${siteUrl}/jinnah-bottom.png`];
+
   const jsonLd = product ? {
     "@context": "https://schema.org/",
     "@type": "Product",
     "name": product.name,
-    "image": product.images?.map((img: string) => `${siteUrl}/node/uploads/${img}`) || [],
-    "description": product.description || product.name,
+    "image": productImages,
+    "description": product.shortDescription || product.description || product.name,
     "sku": product.id,
     "mpn": product.id,
+    "category": product.category || "Architectural Hardware",
     "brand": {
       "@type": "Brand",
       "name": product.brand || "Jinnah Hardware"
@@ -66,7 +85,7 @@ export default async function ProductDetailServerPage({ params }: { params: Prom
       "aggregateRating": {
         "@type": "AggregateRating",
         "ratingValue": product.rating,
-        "reviewCount": product.reviewCount || 0
+        "reviewCount": product.reviewCount || 1
       }
     } : {}),
     "offers": {
@@ -80,6 +99,35 @@ export default async function ProductDetailServerPage({ params }: { params: Prom
       "seller": {
         "@type": "Organization",
         "name": "Jinnah Hardware Store"
+      },
+      "hasMerchantReturnPolicy": {
+        "@type": "MerchantReturnPolicy",
+        "applicableCountry": "PK",
+        "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+        "merchantReturnDays": 7,
+        "returnMethod": "https://schema.org/ReturnByMail",
+        "returnFees": "https://schema.org/FreeReturn"
+      },
+      "shippingDetails": {
+        "@type": "OfferShippingDetails",
+        "shippingRate": {
+          "@type": "MonetaryAmount",
+          "value": "200",
+          "currency": "PKR"
+        },
+        "shippingDestination": {
+          "@type": "DefinedRegion",
+          "addressCountry": "PK"
+        },
+        "deliveryTime": {
+          "@type": "ShippingDeliveryTime",
+          "transitTime": {
+            "@type": "QuantitativeValue",
+            "minValue": 2,
+            "maxValue": 5,
+            "unitCode": "DAY"
+          }
+        }
       }
     }
   } : null;
@@ -97,7 +145,7 @@ export default async function ProductDetailServerPage({ params }: { params: Prom
       {
         "@type": "ListItem",
         "position": 2,
-        "name": "Shop",
+        "name": "Shop Products",
         "item": `${siteUrl}/shop`
       },
       {

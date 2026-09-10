@@ -4,8 +4,18 @@ import BlogsClient from "./BlogsClient";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Blogs & News | Jinnah Hardware Store",
-  description: "Read our latest articles, guides, and news about hardware and architecture.",
+  title: "Blogs & Hardware Guides | Jinnah Hardware Store",
+  description: "Read expert articles, installation guides, and modern architectural hardware trends from Jinnah Hardware Store Pakistan.",
+  alternates: {
+    canonical: "https://jinnah-hardwarestore.com/blogs",
+  },
+  openGraph: {
+    title: "Blogs & Hardware Guides | Jinnah Hardware Store",
+    description: "Read expert articles, installation guides, and modern architectural hardware trends.",
+    url: "https://jinnah-hardwarestore.com/blogs",
+    siteName: "Jinnah Hardware Store",
+    images: [{ url: "/jinnah-bottom.png", width: 1200, height: 630, alt: "Jinnah Hardware Blogs" }],
+  },
 };
 
 export default async function BlogsServerPage() {

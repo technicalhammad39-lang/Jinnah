@@ -256,8 +256,8 @@ export default function EmailTemplatesTab({ templates, onRefresh }: EmailTemplat
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-4 text-xs">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block font-semibold text-muted-foreground mb-1">Template Name</label>
                   <input

@@ -458,19 +458,19 @@ export default function ProductDetailClient({
 
             <hr className="border-gray-200" />
 
-            {/* Pricing Section */}
-            <div className="flex flex-col gap-1">
+            {/* Pricing Section (Inline with Stock Status on all devices) */}
+            <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
               {pricing.hasDiscount ? (
                 <>
-                  <div className="flex items-end gap-3">
+                  <div className="flex items-baseline gap-2.5 sm:gap-3">
                     <span className="text-3xl sm:text-4xl font-black text-primary">
                       Rs. {pricing.finalPrice.toLocaleString()}
                     </span>
-                    <span className="text-lg font-bold text-gray-400 line-through mb-1">
+                    <span className="text-base sm:text-lg font-bold text-gray-400 line-through">
                       Rs. {pricing.originalPrice.toLocaleString()}
                     </span>
                   </div>
-                  <span className="text-sm font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-sm w-max mt-1">
+                  <span className="text-xs sm:text-sm font-bold text-green-600 bg-green-50 border border-green-200 px-2.5 py-0.5 rounded-full">
                     -{pricing.discountType === 'percentage' 
                         ? `${pricing.discountValue}%` 
                         : `Rs. ${pricing.discountValue}`}
@@ -481,19 +481,18 @@ export default function ProductDetailClient({
                   Rs. {pricing.finalPrice.toLocaleString()}
                 </span>
               )}
-              {/* Real-time Inventory Status Badge */}
-              <div className="flex items-center gap-3 mt-2">
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${stockInfo.badgeClass}`}>
-                  <span className={`h-2 w-2 rounded-full ${
-                    stockInfo.status === 'in_stock'
-                      ? 'bg-emerald-500'
-                      : stockInfo.status === 'low_stock'
-                      ? 'bg-amber-500 animate-pulse'
-                      : 'bg-rose-500'
-                  }`} />
-                  {stockInfo.label}
-                </span>
-              </div>
+
+              {/* Real-time Inventory Status Badge - Positioned inline next to price */}
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${stockInfo.badgeClass}`}>
+                <span className={`h-2 w-2 rounded-full ${
+                  stockInfo.status === 'in_stock'
+                    ? 'bg-emerald-500'
+                    : stockInfo.status === 'low_stock'
+                    ? 'bg-amber-500 animate-pulse'
+                    : 'bg-rose-500'
+                }`} />
+                {stockInfo.label}
+              </span>
             </div>
 
             <hr className="border-gray-200" />
