@@ -171,6 +171,45 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
     });
   };
 
+  const [variantUploadingIndex, setVariantUploadingIndex] = useState<number | null>(null);
+
+  const handleVariantImageUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    setVariantUploadingIndex(index);
+
+    try {
+      const file = e.target.files[0];
+      const formDataUpload = new FormData();
+      formDataUpload.append("file", file);
+      formDataUpload.append("folder", "products");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formDataUpload,
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Upload failed");
+      }
+      const data = await res.json();
+
+      handleUpdateVariant(index, "image", data.url);
+      setFormData(prev => {
+        if (!prev.images.includes(data.url)) {
+          return { ...prev, images: [...prev.images, data.url] };
+        }
+        return prev;
+      });
+      toast.success("Color image uploaded");
+    } catch (error) {
+      console.error("Error uploading variant image:", error);
+      toast.error("Failed to upload variant image");
+    } finally {
+      setVariantUploadingIndex(null);
+    }
+  };
+
   const handleAddVariant = () => {
     setFormData(prev => {
       const newVariants = [
@@ -179,9 +218,11 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
           id: `var-${Date.now()}`,
           name: "",
           color: "",
+          image: "",
           size: "",
           material: "",
           sku: "",
+          price: undefined,
           stockQuantity: 10
         }
       ];
@@ -230,6 +271,14 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
       const sizes = Array.from(new Set((formData.variants || []).map(v => v.size?.trim()).filter((s): s is string => Boolean(s))));
       const materials = Array.from(new Set((formData.variants || []).map(v => v.material?.trim()).filter((m): m is string => Boolean(m))));
 
+      // Map color name to its image URL
+      const colorImages: Record<string, string> = {};
+      (formData.variants || []).forEach(v => {
+        if (v.color?.trim() && v.image?.trim()) {
+          colorImages[v.color.trim()] = v.image.trim();
+        }
+      });
+
       // Compile clean specifications dictionary without empty values
       const compiledSpecifications: Record<string, string> = {};
       if (formData.dimensions?.trim()) compiledSpecifications["Dimensions"] = formData.dimensions.trim();
@@ -249,6 +298,7 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
         availability,
         variants: formData.variants || [],
         colors,
+        colorImages,
         sizes,
         materials,
         dimensions: formData.dimensions?.trim() || "",
@@ -450,30 +500,70 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
                   </p>
                   <div className="divide-y divide-black/5 bg-white border border-black/10 rounded-xl overflow-hidden">
                     {formData.variants.map((variant, idx) => (
-                      <div key={variant.id || idx} className="p-3.5 flex flex-wrap md:flex-nowrap items-center gap-3">
-                        <div className="w-full md:w-32">
+                      <div key={variant.id || idx} className="p-3.5 flex flex-wrap lg:flex-nowrap items-center gap-3">
+                        {/* Color Image Upload / Preview */}
+                        <div className="flex flex-col items-center">
+                          <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Image</label>
+                          <div className="relative w-12 h-12 rounded-lg border border-black/10 bg-[#faf9f6] flex items-center justify-center overflow-hidden shrink-0 group">
+                            {variant.image ? (
+                              <>
+                                <Image
+                                  src={getPublicUploadUrl(variant.image)}
+                                  alt={variant.color || "Variant"}
+                                  fill
+                                  className="object-cover"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleUpdateVariant(idx, "image", "")}
+                                  className="absolute inset-0 bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                  title="Remove image"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              </>
+                            ) : (
+                              <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer hover:bg-black/5 transition-colors">
+                                {variantUploadingIndex === idx ? (
+                                  <Loader2 className="w-4 h-4 animate-spin text-[#FF6A2A]" />
+                                ) : (
+                                  <UploadCloud className="w-4 h-4 text-black/40 hover:text-[#FF6A2A]" />
+                                )}
+                                <input
+                                  type="file"
+                                  className="hidden"
+                                  accept="image/*"
+                                  onChange={(e) => handleVariantImageUpload(idx, e)}
+                                  disabled={variantUploadingIndex !== null}
+                                />
+                              </label>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="w-full sm:w-32">
                           <label className="text-[10px] font-bold text-muted-foreground uppercase">Color</label>
                           <input
                             type="text"
-                            placeholder="e.g. Black"
+                            placeholder="e.g. Golden"
                             value={variant.color || ""}
                             onChange={(e) => handleUpdateVariant(idx, "color", e.target.value)}
                             className="w-full bg-[#faf9f6] border border-black/10 rounded-lg px-2.5 py-1.5 text-xs font-medium outline-none focus:border-[#FF6A2A]"
                           />
                         </div>
 
-                        <div className="w-full md:w-32">
+                        <div className="w-full sm:w-28">
                           <label className="text-[10px] font-bold text-muted-foreground uppercase">Size / Option</label>
                           <input
                             type="text"
-                            placeholder="e.g. 10 inch"
+                            placeholder="e.g. Standard"
                             value={variant.size || ""}
                             onChange={(e) => handleUpdateVariant(idx, "size", e.target.value)}
                             className="w-full bg-[#faf9f6] border border-black/10 rounded-lg px-2.5 py-1.5 text-xs font-medium outline-none focus:border-[#FF6A2A]"
                           />
                         </div>
 
-                        <div className="w-full md:w-28">
+                        <div className="w-full sm:w-24">
                           <label className="text-[10px] font-bold text-muted-foreground uppercase">Material</label>
                           <input
                             type="text"
@@ -484,7 +574,7 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
                           />
                         </div>
 
-                        <div className="w-full md:w-28">
+                        <div className="w-full sm:w-24">
                           <label className="text-[10px] font-bold text-muted-foreground uppercase">SKU</label>
                           <input
                             type="text"
@@ -495,7 +585,19 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
                           />
                         </div>
 
-                        <div className="w-full md:w-24">
+                        <div className="w-full sm:w-24">
+                          <label className="text-[10px] font-bold text-muted-foreground uppercase">Price (PKR)</label>
+                          <input
+                            type="number"
+                            min="0"
+                            placeholder="Default"
+                            value={variant.price !== undefined ? variant.price : ""}
+                            onChange={(e) => handleUpdateVariant(idx, "price", e.target.value ? Number(e.target.value) : undefined)}
+                            className="w-full bg-[#faf9f6] border border-black/10 rounded-lg px-2.5 py-1.5 text-xs font-medium outline-none focus:border-[#FF6A2A]"
+                          />
+                        </div>
+
+                        <div className="w-full sm:w-20">
                           <label className="text-[10px] font-bold text-emerald-700 uppercase">Stock Qty</label>
                           <input
                             type="number"
@@ -507,7 +609,7 @@ export default function ProductEditor({ params }: { params: Promise<{ id: string
                           />
                         </div>
 
-                        <div className="md:self-end pt-2 md:pt-0">
+                        <div className="sm:self-end pt-2 sm:pt-0">
                           <button
                             type="button"
                             onClick={() => handleRemoveVariant(idx)}

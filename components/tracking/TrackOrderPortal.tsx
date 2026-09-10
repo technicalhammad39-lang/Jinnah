@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -153,6 +153,17 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
     return null;
   };
 
+  // Get external courier logo helper
+  const getCourierLogo = (courier?: string | null): string | null => {
+    if (!courier) return null;
+    const lower = courier.toLowerCase().trim();
+    if (lower.includes("postex")) return "/postex.png";
+    if (lower.includes("tcs")) return "/tcs.png";
+    if (lower.includes("leopard")) return "/leopards.png";
+    if (lower.includes("m&p") || lower.includes("m and p") || lower.includes("mnp") || lower.includes("m & p")) return "/m&p.png";
+    return null;
+  };
+
   // Logistics steps definition
   const steps = [
     { 
@@ -200,6 +211,32 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
 
   const currentStepIndex = activeOrder ? getStepIndex(activeOrder.status) : 0;
   const isCancelled = activeOrder?.status === "cancelled";
+  const activeStep = steps[Math.max(0, Math.min(steps.length - 1, currentStepIndex))];
+
+  const stepperContainerRef = useRef<HTMLDivElement | null>(null);
+  const activeStepRef = useRef<HTMLDivElement | null>(null);
+
+  // Auto-center active milestone on mobile when order is loaded
+  useEffect(() => {
+    if (activeOrder && activeStepRef.current && stepperContainerRef.current) {
+      const timer = setTimeout(() => {
+        if (!activeStepRef.current || !stepperContainerRef.current) return;
+        const container = stepperContainerRef.current;
+        const activeEl = activeStepRef.current;
+        const containerWidth = container.clientWidth;
+        const elLeft = activeEl.offsetLeft;
+        const elWidth = activeEl.clientWidth;
+
+        const scrollTarget = elLeft - containerWidth / 2 + elWidth / 2;
+        container.scrollTo({
+          left: Math.max(0, scrollTarget),
+          behavior: "smooth",
+        });
+      }, 200);
+
+      return () => clearTimeout(timer);
+    }
+  }, [activeOrder, currentStepIndex]);
 
   return (
     <div className="relative min-h-screen bg-[#faf9f6] flex flex-col justify-between overflow-x-hidden">
@@ -222,17 +259,17 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
           </div>
 
           {/* Hero Section & Search Bar - Full-Width Edge to Edge */}
-          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl lg:rounded-[36px] bg-[#11100e] text-white p-6 sm:p-10 md:p-14 lg:p-16 xl:p-20 shadow-2xl mb-10 sm:mb-14">
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl lg:rounded-[36px] bg-[#11100e] text-white p-4 min-[380px]:p-6 sm:p-10 md:p-14 lg:p-16 xl:p-20 shadow-2xl mb-10 sm:mb-14">
             <div className="absolute -right-24 -bottom-24 h-96 w-96 rounded-full bg-primary/25 blur-3xl pointer-events-none" />
             <div className="absolute -left-24 -top-24 h-96 w-96 rounded-full bg-amber-500/15 blur-3xl pointer-events-none" />
 
             <div className="relative max-w-4xl mx-auto text-center">
-              <div className="inline-flex items-center gap-2.5 rounded-full bg-white/10 px-5 py-2 text-xs sm:text-sm font-extrabold uppercase tracking-wider text-white/90 backdrop-blur-md mb-5 sm:mb-6 border border-white/10 shadow-sm">
-                <Truck className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                <span>Jinnah Express Tracking Portal</span>
+              <div className="inline-flex items-center justify-center gap-2 sm:gap-2.5 rounded-full bg-white/10 px-3 sm:px-5 py-1.5 sm:py-2 text-[11px] sm:text-sm font-extrabold uppercase tracking-wider text-white/90 backdrop-blur-md mb-4 sm:mb-6 border border-white/10 shadow-sm whitespace-nowrap max-w-full">
+                <Truck className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-primary shrink-0" />
+                <span className="whitespace-nowrap">Jinnah Express Tracking Portal</span>
               </div>
-              <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-white mb-4 sm:mb-6 leading-tight">
-                Track Your Shipment
+              <h1 className="text-[22px] min-[360px]:text-2xl min-[420px]:text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-white mb-4 sm:mb-6 leading-tight whitespace-nowrap">
+                Track Your Order
               </h1>
               <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/80 mb-8 sm:mb-12 max-w-3xl mx-auto font-normal leading-relaxed">
                 Real-time consignment status, warehouse processing, and courier milestones across Pakistan.
@@ -417,61 +454,106 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                   </div>
                 ) : (
                   /* Multi-Stage Visual Stepper - Enlarged & Mobile Responsive */
-                  <div className="py-8 sm:py-12 md:py-16 px-4 sm:px-8 bg-[#faf9f6] rounded-2xl sm:rounded-3xl border border-black/5 mt-8 overflow-x-auto custom-scrollbar">
-                    <div className="min-w-[650px] sm:min-w-0">
-                      <div className="relative">
-                        {/* Background track line */}
-                        <div className="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-2 sm:h-3 rounded-full bg-black/10 md:left-12 md:right-12" />
+                  <div className="mt-8">
+                    {/* Mobile Instant Active Status Spotlight Card */}
+                    <div className="sm:hidden mb-4 p-4 rounded-2xl bg-white border border-primary/20 shadow-sm flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 shadow-sm">
+                          <activeStep.icon className="h-5 w-5 animate-pulse" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-extrabold uppercase tracking-wider text-primary">Current Status</span>
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
+                          </div>
+                          <p className="text-sm font-black text-gray-900 leading-tight truncate">{activeStep.label}</p>
+                          <p className="text-[11px] text-gray-500 leading-tight truncate">{activeStep.desc}</p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-black text-primary bg-primary/10 px-2.5 py-1 rounded-full shrink-0 border border-primary/20">
+                        Step {currentStepIndex + 1}/{steps.length}
+                      </span>
+                    </div>
 
-                        {/* Active progress fill line */}
-                        <div
-                          className="absolute left-6 top-1/2 -translate-y-1/2 h-2 sm:h-3 rounded-full bg-gradient-to-r from-primary via-amber-500 to-emerald-500 transition-all duration-700 md:left-12"
-                          style={{
-                            width: `${Math.max(
-                              0,
-                              Math.min(100, (currentStepIndex / (steps.length - 1)) * 100)
-                            )}%`,
-                          }}
-                        />
-
-                        {/* Step milestones */}
-                        <div className="relative flex justify-between">
-                          {steps.map((step, idx) => {
-                            const isCompleted = idx <= currentStepIndex;
-                            const isCurrent = idx === currentStepIndex;
-                            const Icon = step.icon;
-
-                            return (
+                    <div 
+                      ref={stepperContainerRef}
+                      className="py-8 sm:py-12 md:py-16 px-4 sm:px-8 bg-[#faf9f6] rounded-2xl sm:rounded-3xl border border-black/5 overflow-x-auto custom-scrollbar scroll-smooth snap-x snap-mandatory"
+                    >
+                      <div className="min-w-[580px] sm:min-w-0 px-8 sm:px-0">
+                        <div className="relative">
+                          {/* Background Track Line & Dynamic Auto-Animated Progress Fill */}
+                          {/* Placed at top-7 (28px on mobile), sm:top-9 (36px), md:top-11 (44px) to be EQUAL CENTER in the icon circles */}
+                          <div className="absolute left-0 right-0 top-7 sm:top-9 md:top-11 -translate-y-1/2 px-7 sm:px-9 md:px-11 z-0 pointer-events-none">
+                            <div className="relative w-full h-2 sm:h-2.5 md:h-3 rounded-full bg-black/10 overflow-hidden shadow-inner">
+                              {/* Dynamic animated active progress beam */}
                               <div
-                                key={step.id}
-                                className="flex flex-col items-center text-center max-w-[120px] sm:max-w-[150px]"
+                                className="h-full rounded-full bg-gradient-to-r from-primary via-amber-500 to-emerald-500 transition-all duration-1000 ease-out relative shadow-sm"
+                                style={{
+                                  width: `${Math.max(
+                                    0,
+                                    Math.min(100, (currentStepIndex / (steps.length - 1)) * 100)
+                                  )}%`,
+                                }}
                               >
-                                <div
-                                  className={`relative flex h-14 w-14 sm:h-18 sm:w-18 md:h-22 md:w-22 items-center justify-center rounded-full border-4 sm:border-[6px] border-white transition-all duration-500 shadow-xl ${
-                                    isCompleted
-                                      ? "bg-primary text-white scale-105"
-                                      : "bg-black/10 text-muted-foreground"
-                                  }`}
-                                >
-                                  <Icon className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10" />
-                                  {isCurrent && (
-                                    <span className="absolute -inset-1.5 rounded-full border-2 sm:border-3 border-primary animate-ping opacity-60 pointer-events-none" />
-                                  )}
-                                </div>
-
-                                <p
-                                  className={`mt-4 text-xs sm:text-sm md:text-base font-black uppercase tracking-wider leading-tight ${
-                                    isCompleted ? "text-foreground" : "text-muted-foreground"
-                                  }`}
-                                >
-                                  {step.label}
-                                </p>
-                                <p className="mt-1 text-[11px] sm:text-xs text-muted-foreground leading-tight">
-                                  {step.desc}
-                                </p>
+                                {/* Auto-running dynamic light pulse sweep */}
+                                <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.7)_50%,transparent_100%)] animate-pulse w-full" />
                               </div>
-                            );
-                          })}
+                            </div>
+                          </div>
+
+                          {/* Step milestones */}
+                          <div className="relative flex justify-between z-10">
+                            {steps.map((step, idx) => {
+                              const isCompleted = idx <= currentStepIndex;
+                              const isCurrent = idx === currentStepIndex;
+                              const Icon = step.icon;
+
+                              return (
+                                <div
+                                  key={step.id}
+                                  ref={isCurrent ? activeStepRef : null}
+                                  className={`flex flex-col items-center text-center max-w-[120px] sm:max-w-[150px] snap-center shrink-0 sm:shrink transition-all duration-300 ${
+                                    isCurrent ? "scale-105" : "opacity-80 hover:opacity-100"
+                                  }`}
+                                >
+                                  {/* Icon circle */}
+                                  <div
+                                    className={`relative flex h-14 w-14 sm:h-18 sm:w-18 md:h-22 md:w-22 items-center justify-center rounded-full border-4 sm:border-[6px] border-white transition-all duration-500 shadow-xl ${
+                                      isCurrent
+                                        ? "bg-primary text-white shadow-primary/40 ring-4 ring-primary/20 scale-105"
+                                        : isCompleted
+                                        ? "bg-primary text-white"
+                                        : "bg-black/10 text-muted-foreground"
+                                    }`}
+                                  >
+                                    <Icon className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10" />
+                                    {isCurrent && (
+                                      <span className="absolute -inset-1.5 rounded-full border-2 sm:border-3 border-primary animate-ping opacity-60 pointer-events-none" />
+                                    )}
+                                  </div>
+
+                                  {/* Active Step Badge for mobile & desktop */}
+                                  {isCurrent && (
+                                    <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-primary/10 border border-primary/25 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-primary">
+                                      <span className="h-1.5 w-1.5 rounded-full bg-primary animate-ping" />
+                                      Active Now
+                                    </span>
+                                  )}
+
+                                  <p
+                                    className={`text-xs sm:text-sm md:text-base font-black uppercase tracking-wider leading-tight ${
+                                      isCurrent ? "mt-1.5 sm:mt-2 text-primary" : "mt-3.5 sm:mt-4 text-foreground"
+                                    } ${!isCompleted ? "text-muted-foreground" : ""}`}
+                                  >
+                                    {step.label}
+                                  </p>
+                                  <p className="mt-1 text-[11px] sm:text-xs text-muted-foreground leading-tight">
+                                    {step.desc}
+                                  </p>
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -480,36 +562,56 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
 
                 {/* Courier Partner & Consignment Box (If Dispatched) */}
                 {(activeOrder.courierName || activeOrder.trackingNumber) && (
-                  <div className="mt-8 rounded-2xl sm:rounded-3xl border-2 border-primary/25 bg-gradient-to-r from-primary/5 via-primary/[0.02] to-amber-500/5 p-6 sm:p-8">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                      <div className="flex items-center gap-5">
-                        <div className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl bg-white shadow-md border border-primary/20 text-primary shrink-0">
-                          <Truck className="h-8 w-8 sm:h-10 sm:w-10" />
+                  <div className="mt-8 rounded-2xl sm:rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/[0.04] via-white to-amber-500/[0.03] p-4 sm:p-7 shadow-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
+                      <div className="flex items-center gap-3.5 sm:gap-5 min-w-0">
+                        {/* Courier Logo Box */}
+                        <div className="flex h-16 w-20 sm:h-20 sm:w-28 items-center justify-center rounded-2xl bg-white shadow-xs border border-black/10 p-2.5 shrink-0 overflow-hidden">
+                          {getCourierLogo(activeOrder.courierName) ? (
+                            <Image
+                              src={getCourierLogo(activeOrder.courierName)!}
+                              alt={activeOrder.courierName || "Courier Logo"}
+                              width={90}
+                              height={60}
+                              className="max-h-full max-w-full object-contain"
+                            />
+                          ) : (
+                            <Truck className="h-8 w-8 text-primary shrink-0" />
+                          )}
                         </div>
-                        <div>
-                          <div className="flex items-center gap-2.5">
-                            <span className="text-xs sm:text-sm font-black uppercase tracking-widest text-primary">
-                              Logistics Courier Partner
+
+                        {/* Courier Details */}
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-primary">
+                              Logistics Partner
                             </span>
-                            <span className="rounded-md bg-primary/20 px-2.5 py-0.5 text-xs font-black uppercase text-primary">
+                            <span className="rounded-md bg-primary/10 text-primary border border-primary/20 px-2.5 py-0.5 text-[11px] sm:text-xs font-black uppercase">
                               {activeOrder.courierName || "Express Courier"}
                             </span>
                           </div>
-                          <div className="mt-1.5 flex items-center gap-3">
-                            <p className="text-base sm:text-lg md:text-xl font-mono font-black text-foreground">
+                          
+                          <div className="mt-1 flex items-center gap-2 sm:gap-3 flex-wrap">
+                            <p className="text-sm sm:text-base md:text-lg font-mono font-black text-gray-900 tracking-tight break-all">
                               CN #{activeOrder.trackingNumber || "Assigned"}
                             </p>
                             {activeOrder.trackingNumber && (
                               <button
+                                type="button"
                                 onClick={() => handleCopy(activeOrder.trackingNumber!, "courier")}
-                                className="text-xs font-bold text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 bg-white px-2.5 py-1 rounded-md border border-black/10 shadow-xs"
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-black/10 text-gray-700 hover:text-primary hover:border-primary/40 text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
                               >
                                 {copiedCourierCn ? (
-                                  <Check className="h-4 w-4 text-emerald-600" />
+                                  <>
+                                    <Check className="h-3.5 w-3.5 text-emerald-600" />
+                                    <span className="text-emerald-600">Copied</span>
+                                  </>
                                 ) : (
-                                  <Copy className="h-4 w-4" />
+                                  <>
+                                    <Copy className="h-3.5 w-3.5" />
+                                    <span>Copy CN</span>
+                                  </>
                                 )}
-                                <span>Copy CN</span>
                               </button>
                             )}
                           </div>
@@ -526,18 +628,24 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                             )!}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center gap-2.5 rounded-2xl bg-white border border-black/10 px-6 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm md:text-base font-black text-foreground shadow-md hover:border-primary hover:text-primary transition-all"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-white border border-black/10 px-5 sm:px-7 py-3 text-xs sm:text-sm font-black text-gray-900 shadow-sm hover:border-primary hover:text-primary hover:shadow-md transition-all shrink-0 cursor-pointer"
                           >
                             <span>Track on {activeOrder.courierName} Portal</span>
-                            <ExternalLink className="h-4 w-4" />
+                            <ExternalLink className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                           </a>
                         )}
                     </div>
 
+                    {/* Special Delivery Note Callout */}
                     {activeOrder.adminNotes && (
-                      <div className="mt-5 pt-4 border-t border-primary/15 text-xs sm:text-sm text-foreground/85">
-                        <span className="font-bold text-foreground">Special Delivery Note: </span>
-                        {activeOrder.adminNotes}
+                      <div className="mt-4 pt-3.5 border-t border-primary/15 flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2.5 text-xs sm:text-sm bg-white/70 p-3 rounded-xl border border-black/5">
+                        <span className="font-extrabold text-[#1a1917] shrink-0 flex items-center gap-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                          Special Delivery Note:
+                        </span>
+                        <span className="text-gray-700 leading-relaxed font-medium">
+                          {activeOrder.adminNotes}
+                        </span>
                       </div>
                     )}
                   </div>

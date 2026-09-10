@@ -2,6 +2,7 @@ export interface ProductVariant {
   id: string; // e.g. "color-size" or unique id
   name?: string; // e.g. "Matte Black / Large"
   color?: string;
+  image?: string; // Color variant image URL
   size?: string;
   material?: string;
   sku?: string;
@@ -40,6 +41,7 @@ export interface Product {
   averageRating?: number;
   images: string[];
   colors?: string[]; // Color options
+  colorImages?: Record<string, string>; // Map of color name -> image URL
   sizes?: string[]; // Size options
   materials?: string[]; // Material options
   variants?: ProductVariant[]; // Specific inventory variants

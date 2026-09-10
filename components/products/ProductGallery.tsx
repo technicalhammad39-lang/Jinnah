@@ -9,10 +9,39 @@ interface ProductGalleryProps {
   images: string[];
   productName: string;
   isNew?: boolean;
+  selectedImage?: string | null;
 }
 
-export function ProductGallery({ images, productName, isNew }: ProductGalleryProps) {
+export function ProductGallery({ images, productName, isNew, selectedImage }: ProductGalleryProps) {
+  // Ensure selectedImage is in the gallery images without duplicating
+  const effectiveImages = React.useMemo(() => {
+    if (!images || images.length === 0) {
+      return selectedImage ? [selectedImage] : [];
+    }
+    if (!selectedImage) return images;
+    const cleanSelected = selectedImage.trim();
+    const exists = images.some(
+      (img) => img.trim() === cleanSelected || getPublicUploadUrl(img) === getPublicUploadUrl(cleanSelected)
+    );
+    if (!exists) {
+      return [cleanSelected, ...images];
+    }
+    return images;
+  }, [images, selectedImage]);
+
   const [activeIndex, setActiveIndex] = useState(0);
+
+  // When selectedImage changes from color selection, switch gallery to it immediately
+  useEffect(() => {
+    if (!selectedImage) return;
+    const cleanSelected = selectedImage.trim();
+    const index = effectiveImages.findIndex(
+      (img) => img.trim() === cleanSelected || getPublicUploadUrl(img) === getPublicUploadUrl(cleanSelected)
+    );
+    if (index !== -1) {
+      setActiveIndex(index);
+    }
+  }, [selectedImage, effectiveImages]);
   
   // Zoom State
   const [isZooming, setIsZooming] = useState(false);
@@ -35,7 +64,7 @@ export function ProductGallery({ images, productName, isNew }: ProductGalleryPro
     };
   }, [isLightboxOpen]);
 
-  const activeImage = images && images.length > 0 ? images[activeIndex] : null;
+  const activeImage = effectiveImages && effectiveImages.length > 0 ? effectiveImages[activeIndex] : null;
 
   if (!activeImage) {
     return (
@@ -84,12 +113,12 @@ export function ProductGallery({ images, productName, isNew }: ProductGalleryPro
 
   const handleNext = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setActiveIndex((prev) => (prev + 1) % images.length);
+    setActiveIndex((prev) => (prev + 1) % effectiveImages.length);
   };
 
   const handlePrev = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setActiveIndex((prev) => (prev - 1 + images.length) % images.length);
+    setActiveIndex((prev) => (prev - 1 + effectiveImages.length) % effectiveImages.length);
   };
 
   return (
@@ -154,9 +183,9 @@ export function ProductGallery({ images, productName, isNew }: ProductGalleryPro
       )}
 
       {/* Thumbnails */}
-      {images && images.length > 1 && (
+      {effectiveImages && effectiveImages.length > 1 && (
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-          {images.map((img, idx) => (
+          {effectiveImages.map((img, idx) => (
             <button
               key={idx}
               onClick={() => setActiveIndex(idx)}
@@ -181,7 +210,7 @@ export function ProductGallery({ images, productName, isNew }: ProductGalleryPro
       {isLightboxOpen && (
         <div className="fixed inset-0 z-[200] bg-black flex flex-col">
           <div className="flex justify-between items-center p-4 text-white z-10">
-            <span className="text-sm font-medium">{activeIndex + 1} / {images.length}</span>
+            <span className="text-sm font-medium">{activeIndex + 1} / {effectiveImages.length}</span>
             <button onClick={() => setIsLightboxOpen(false)} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors">
               <X className="w-6 h-6" />
             </button>
@@ -197,7 +226,7 @@ export function ProductGallery({ images, productName, isNew }: ProductGalleryPro
             />
           </div>
 
-          {images.length > 1 && (
+          {effectiveImages.length > 1 && (
             <div className="absolute inset-y-0 w-full flex items-center justify-between px-4 pointer-events-none">
               <button onClick={handlePrev} className="p-3 bg-black/50 text-white rounded-full pointer-events-auto backdrop-blur-md">
                 <ChevronLeft className="w-6 h-6" />
@@ -209,9 +238,9 @@ export function ProductGallery({ images, productName, isNew }: ProductGalleryPro
           )}
           
           {/* Lightbox Thumbnails */}
-          {images.length > 1 && (
+          {effectiveImages.length > 1 && (
             <div className="p-4 flex gap-2 overflow-x-auto justify-center bg-black/50 backdrop-blur-md pb-8">
-              {images.map((img, idx) => (
+              {effectiveImages.map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => setActiveIndex(idx)}

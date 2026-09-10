@@ -30,23 +30,35 @@ export function findMatchingVariant(
   const cleanColor = selectedColor?.trim().toLowerCase();
   const cleanSize = selectedSize?.trim().toLowerCase();
 
-  return (
-    product.variants.find((v) => {
+  // 1. Exact match on both color and size
+  if (cleanColor && cleanSize) {
+    const exact = product.variants.find((v) => {
       const vColor = v.color?.trim().toLowerCase();
       const vSize = v.size?.trim().toLowerCase();
+      return vColor === cleanColor && vSize === cleanSize;
+    });
+    if (exact) return exact;
+  }
 
-      if (cleanColor && cleanSize) {
-        return vColor === cleanColor && vSize === cleanSize;
-      }
-      if (cleanColor && !cleanSize) {
-        return vColor === cleanColor;
-      }
-      if (!cleanColor && cleanSize) {
-        return vSize === cleanSize;
-      }
-      return false;
-    }) || null
-  );
+  // 2. If no exact match or only color provided, match on color
+  if (cleanColor) {
+    const colorMatch = product.variants.find((v) => {
+      const vColor = v.color?.trim().toLowerCase();
+      return vColor === cleanColor;
+    });
+    if (colorMatch) return colorMatch;
+  }
+
+  // 3. If only size provided, match on size
+  if (cleanSize) {
+    const sizeMatch = product.variants.find((v) => {
+      const vSize = v.size?.trim().toLowerCase();
+      return vSize === cleanSize;
+    });
+    if (sizeMatch) return sizeMatch;
+  }
+
+  return null;
 }
 
 /**
@@ -73,7 +85,7 @@ export function getStockInfo(
     return {
       stock: 0,
       status: "out_of_stock",
-      label: "Out of Stock",
+      label: "OUT OF STOCK",
       badgeClass: "bg-red-500/10 text-red-600 border border-red-200",
       isAvailable: false,
       threshold: DEFAULT_LOW_STOCK_THRESHOLD,
@@ -112,7 +124,7 @@ export function getStockInfo(
     return {
       stock: 0,
       status: "out_of_stock",
-      label: "Out of Stock",
+      label: "OUT OF STOCK",
       badgeClass: "bg-red-500/10 text-red-600 border border-red-200",
       isAvailable: false,
       threshold,
@@ -125,7 +137,7 @@ export function getStockInfo(
     return {
       stock,
       status: "low_stock",
-      label: `Only ${stock} Left`,
+      label: "LOW STOCK",
       badgeClass: "bg-amber-500/10 text-amber-600 border border-amber-200",
       isAvailable: true,
       threshold,
@@ -137,7 +149,7 @@ export function getStockInfo(
   return {
     stock,
     status: "in_stock",
-    label: `In Stock (${stock})`,
+    label: "IN STOCK",
     badgeClass: "bg-emerald-500/10 text-emerald-600 border border-emerald-200",
     isAvailable: true,
     threshold,

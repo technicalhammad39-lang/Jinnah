@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export function SellerCard() {
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm flex flex-col gap-5">
+    <div className="hidden lg:flex bg-white rounded-2xl border border-gray-200 p-6 shadow-sm flex-col gap-5">
       <div className="flex items-start justify-between">
         <div>
           <span className="text-xs text-gray-500 font-medium uppercase tracking-wider">Sold by</span>

@@ -25,6 +25,9 @@ export interface CartItem {
   quantity: number;
   selectedColor: string;
   selectedSize: string;
+  selectedVariantId?: string;
+  selectedImage?: string;
+  unitPrice?: number;
 }
 
 interface CartStateContextType {
@@ -39,7 +42,7 @@ interface CartStateContextType {
 }
 
 interface CartActionsContextType {
-  addToCart: (product: Product, quantity?: number, color?: string, size?: string) => boolean;
+  addToCart: (product: Product, quantity?: number, color?: string, size?: string, openCart?: boolean) => boolean;
   removeFromCart: (productId: string, color: string, size: string) => void;
   updateCartQuantity: (productId: string, color: string, size: string, quantity: number) => void;
   clearCart: () => void;
@@ -241,7 +244,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   );
 
   const addToCart = useCallback(
-    (product: Product, quantity = 1, color?: string, size?: string): boolean => {
+    (product: Product, quantity = 1, color?: string, size?: string, openCart = false): boolean => {
       const finalColor = color || (product.colors && product.colors.length > 0 ? product.colors[0] : "Default");
       const finalSize = size || (product.sizes && product.sizes.length > 0 ? product.sizes[0] : "Standard");
 
@@ -250,6 +253,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         toast.error("This product is currently out of stock.");
         return false;
       }
+
+      const matchedVariant = stockInfo.matchedVariant;
+      const selectedVariantId = matchedVariant?.id;
+      const selectedImage = matchedVariant?.image || (finalColor && product.colorImages?.[finalColor]) || product.images?.[0];
+      const unitPrice = (matchedVariant?.price && matchedVariant.price > 0) ? matchedVariant.price : product.price;
 
       let success = true;
 
@@ -264,7 +272,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         if (existingIndex > -1) {
           const currentInCart = prev[existingIndex].quantity;
           if (currentInCart >= stockInfo.stock) {
-            toast.warning(`Only ${stockInfo.stock} items are available in stock.`);
+            toast.warning(`Maximum available stock reached.`);
             success = false;
             return prev;
           }
@@ -278,6 +286,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           updated[existingIndex] = {
             ...updated[existingIndex],
             quantity: currentInCart + allowableAdd,
+            selectedImage: selectedImage || updated[existingIndex].selectedImage,
+            selectedVariantId: selectedVariantId || updated[existingIndex].selectedVariantId,
+            unitPrice: unitPrice || updated[existingIndex].unitPrice,
           };
           return updated;
         }
@@ -287,10 +298,21 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           toast.warning(`Only ${stockInfo.stock} items are available.`);
         }
 
-        return [...prev, { product, quantity: initialAdd, selectedColor: finalColor, selectedSize: finalSize }];
+        return [
+          ...prev,
+          {
+            product,
+            quantity: initialAdd,
+            selectedColor: finalColor,
+            selectedSize: finalSize,
+            selectedVariantId,
+            selectedImage,
+            unitPrice,
+          },
+        ];
       });
 
-      if (success) {
+      if (success && openCart) {
         setCartOpen(true);
       }
       return success;

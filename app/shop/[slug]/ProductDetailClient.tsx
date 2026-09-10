@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   ShoppingCart,
@@ -16,7 +17,8 @@ import {
   Zap,
   Minus,
   Plus,
-  Clock
+  Clock,
+  AlertCircle
 } from "lucide-react";
 import {
   useCartActions,
@@ -27,6 +29,8 @@ import {
 } from "@/context/AppContext";
 import { calculateProductPrice } from "@/lib/discount-engine";
 import { getStockInfo } from "@/lib/inventory-engine";
+import { getPublicUploadUrl } from "@/lib/utils";
+import { toast } from "sonner";
 import { Navbar } from "@/components/navigation/Navbar";
 import { Footer } from "@/components/navigation/Footer";
 import { ProductCard } from "@/components/products/ProductCard";
@@ -37,6 +41,12 @@ import dynamic from "next/dynamic";
 const ReviewsTab = dynamic(() => import("@/components/products/ReviewsTab"), {
   loading: () => <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
 });
+
+interface ColorOption {
+  name: string;
+  image?: string;
+  variant?: any;
+}
 
 export default function ProductDetailClient({ 
   initialProduct, 
@@ -53,7 +63,9 @@ export default function ProductDetailClient({
   const { discounts, shippingSettings, shippingResult } = useCartState();
   
   const [selectedColor, setSelectedColor] = useState("");
+  const [selectedColorImage, setSelectedColorImage] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState("");
+  const [validationError, setValidationError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -108,12 +120,47 @@ export default function ProductDetailClient({
     );
   }, [initialProduct]);
 
+  // Image-based color options resolving variant image, colorImages map, or fallback
+  const colorOptions: ColorOption[] = useMemo(() => {
+    return availableColors.map((colorName: string): ColorOption => {
+      const clean = colorName.trim();
+      const variant = initialProduct?.variants?.find(
+        (v: any) => v.color?.trim().toLowerCase() === clean.toLowerCase() && v.image
+      );
+      const mappedImage = initialProduct?.colorImages?.[clean] || initialProduct?.colorImages?.[colorName];
+      const image = variant?.image || mappedImage || undefined;
+      return {
+        name: clean,
+        image,
+        variant,
+      };
+    });
+  }, [availableColors, initialProduct]);
+
   useEffect(() => {
     if (initialProduct) {
-      setSelectedColor(availableColors[0] || "");
+      if (availableColors.length > 0) {
+        const firstColor = availableColors[0];
+        setSelectedColor(firstColor);
+        const opt = colorOptions.find((o: ColorOption) => o.name.toLowerCase() === firstColor.toLowerCase());
+        setSelectedColorImage(opt?.image || null);
+      } else {
+        setSelectedColor("");
+        setSelectedColorImage(null);
+      }
       setSelectedSize(availableSizes[0] || "");
     }
-  }, [initialProduct, availableColors, availableSizes]);
+  }, [initialProduct, availableColors, availableSizes, colorOptions]);
+
+  const handleColorSelect = (colorName: string, colorImg?: string) => {
+    setSelectedColor(colorName);
+    setValidationError(null);
+    const opt = colorOptions.find((o: ColorOption) => o.name.toLowerCase() === colorName.toLowerCase());
+    const imgToUse = colorImg || opt?.image;
+    if (imgToUse) {
+      setSelectedColorImage(imgToUse);
+    }
+  };
 
   useEffect(() => {
     return () => {
@@ -169,15 +216,45 @@ export default function ProductDetailClient({
   };
 
   const handleBuyNow = () => {
-    if (!stockInfo.isAvailable || stockInfo.stock <= 0) return;
-    const added = addToCart(initialProduct, quantity, selectedColor, selectedSize);
+    if (availableColors.length > 0 && !selectedColor) {
+      setValidationError("Please select a color option.");
+      toast.error("Please select a color option.");
+      return;
+    }
+    if (availableSizes.length > 0 && !selectedSize) {
+      setValidationError("Please select a size / option.");
+      toast.error("Please select a size/option.");
+      return;
+    }
+    setValidationError(null);
+    if (!stockInfo.isAvailable || stockInfo.stock <= 0) {
+      toast.error("This item is currently out of stock.");
+      return;
+    }
+    const added = addToCart(initialProduct, quantity, selectedColor, selectedSize, false);
     if (added) {
       router.push('/checkout');
     }
   };
 
   const handleAddToCart = () => {
-    if (isSuccess || !stockInfo.isAvailable || stockInfo.stock <= 0) return;
+    if (availableColors.length > 0 && !selectedColor) {
+      setValidationError("Please select a color option.");
+      toast.error("Please select a color option.");
+      return;
+    }
+    if (availableSizes.length > 0 && !selectedSize) {
+      setValidationError("Please select a size / option.");
+      toast.error("Please select a size/option.");
+      return;
+    }
+    setValidationError(null);
+    if (isSuccess || !stockInfo.isAvailable || stockInfo.stock <= 0) {
+      if (!stockInfo.isAvailable || stockInfo.stock <= 0) {
+        toast.error("This item is currently out of stock.");
+      }
+      return;
+    }
 
     if (addTimerRef.current) window.clearTimeout(addTimerRef.current);
     if (successTimerRef.current) window.clearTimeout(successTimerRef.current);
@@ -185,14 +262,15 @@ export default function ProductDetailClient({
     setIsAdding(true);
     addTimerRef.current = window.setTimeout(() => {
       setIsAdding(false);
-      const added = addToCart(initialProduct, quantity, selectedColor, selectedSize);
+      const added = addToCart(initialProduct, quantity, selectedColor, selectedSize, false);
       if (added) {
         setIsSuccess(true);
+        toast.success("Added to cart");
         successTimerRef.current = window.setTimeout(() => {
           setIsSuccess(false);
         }, 2000);
       }
-    }, 600);
+    }, 400);
   };
 
   // Dynamic specifications resolver: combines top-level attributes and custom specifications
@@ -285,8 +363,13 @@ export default function ProductDetailClient({
     return html;
   };
 
+  // Effective base price considering variant pricing if available
+  const currentBasePrice = (stockInfo.matchedVariant?.price && stockInfo.matchedVariant.price > 0)
+    ? stockInfo.matchedVariant.price
+    : initialProduct.price;
+
   // Price calculations using discount engine
-  const pricing = calculateProductPrice(initialProduct.price, initialProduct.id, discounts || []);
+  const pricing = calculateProductPrice(currentBasePrice, initialProduct.id, discounts || []);
 
   const hasReviews = actualReviewCount > 0;
   const rating = actualRating ? Number(actualRating).toFixed(1) : "0.0";
@@ -313,26 +396,27 @@ export default function ProductDetailClient({
         </div>
 
         {/* TOP SECTION: 3 COLUMNS */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 mb-16 min-w-0 w-full">
           
           {/* LEFT COLUMN: Images Section (4/12) */}
-          <div className="lg:col-span-4">
+          <div className="lg:col-span-4 min-w-0 w-full">
             <ProductGallery 
               images={initialProduct.images || []}
               productName={initialProduct.name}
               isNew={initialProduct.isNew}
+              selectedImage={selectedColorImage}
             />
           </div>
 
           {/* CENTER COLUMN: Details, Variants, Action Buttons (5/12) */}
-          <div className="lg:col-span-5 flex flex-col gap-6">
+          <div className="lg:col-span-5 min-w-0 w-full flex flex-col gap-6">
             
             {/* Title, Brand, Rating */}
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 min-w-0 w-full">
               <span className="text-[10px] font-extrabold uppercase tracking-widest text-primary bg-primary/10 px-2 py-1 rounded-sm w-max">
                 {initialProduct.category}
               </span>
-              <h1 className="text-2xl sm:text-3xl font-black text-gray-900 leading-tight">
+              <h1 className="text-2xl sm:text-3xl font-black text-gray-900 leading-tight break-words [overflow-wrap:anywhere]">
                 {initialProduct.name}
               </h1>
               
@@ -367,9 +451,9 @@ export default function ProductDetailClient({
 
             {/* Short Description */}
             {initialProduct.shortDescription && (
-              <p className="text-sm text-gray-600 leading-relaxed -mt-1">
+              <div className="text-sm text-gray-600 leading-relaxed -mt-1 break-words [overflow-wrap:anywhere] whitespace-pre-line min-w-0 w-full">
                 {initialProduct.shortDescription}
-              </p>
+              </div>
             )}
 
             <hr className="border-gray-200" />
@@ -415,46 +499,88 @@ export default function ProductDetailClient({
             <hr className="border-gray-200" />
 
             {/* Variants */}
-            {(availableColors.length > 0 || availableSizes.length > 0) && (
+            {(colorOptions.length > 0 || availableSizes.length > 0) && (
               <div className="flex flex-col gap-5">
-                {availableColors.length > 0 && (
-                  <div className="flex flex-col gap-2">
-                    <span className="text-sm font-bold text-gray-900">Color Family</span>
-                    <div className="flex flex-wrap gap-2">
-                      {availableColors.map((color: string) => (
-                        <button
-                          key={color}
-                          onClick={() => setSelectedColor(color)}
-                          className={`px-4 py-2 text-sm font-bold rounded-lg border-2 transition-all ${
-                            selectedColor === color
-                              ? "border-primary text-primary bg-primary/5"
-                              : "border-gray-200 text-gray-600 hover:border-gray-300"
-                          }`}
-                        >
-                          {color}
-                        </button>
-                      ))}
+                {colorOptions.length > 0 && (
+                  <div className="flex flex-col gap-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-gray-900">Color Family</span>
+                      {selectedColor && (
+                        <span className="text-xs font-semibold text-gray-600 capitalize">
+                          Selected: <span className="text-gray-900 font-bold">{selectedColor}</span>
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-2.5">
+                      {colorOptions.map((opt: ColorOption) => {
+                        const isSelected = selectedColor?.toLowerCase() === opt.name.toLowerCase();
+                        return (
+                          <button
+                            key={opt.name}
+                            type="button"
+                            onClick={() => handleColorSelect(opt.name, opt.image)}
+                            className={`group relative flex items-center gap-2.5 px-3 py-2 rounded-xl border-2 transition-all text-left ${
+                              isSelected
+                                ? "border-[#1a1917] bg-[#1a1917]/5 text-[#1a1917] shadow-sm ring-1 ring-[#1a1917]"
+                                : "border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50/80"
+                            }`}
+                          >
+                            {opt.image ? (
+                              <div className="relative h-9 w-9 rounded-lg overflow-hidden border border-gray-200 shrink-0 bg-gray-100">
+                                <Image
+                                  src={getPublicUploadUrl(opt.image)}
+                                  alt={opt.name}
+                                  fill
+                                  sizes="36px"
+                                  className="object-cover"
+                                />
+                              </div>
+                            ) : (
+                              <div className="h-7 w-7 rounded-full border border-gray-200 shrink-0 flex items-center justify-center bg-gray-100 text-[10px] font-bold text-gray-500 uppercase">
+                                {opt.name.slice(0, 2)}
+                              </div>
+                            )}
+                            <span className="text-xs sm:text-sm font-bold capitalize whitespace-nowrap">
+                              {opt.name}
+                            </span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
                 
                 {availableSizes.length > 0 && (
-                  <div className="flex flex-col gap-2">
-                    <span className="text-sm font-bold text-gray-900">Size / Option</span>
+                  <div className="flex flex-col gap-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-gray-900">Size / Option</span>
+                      {selectedSize && (
+                        <span className="text-xs font-semibold text-gray-600">
+                          Selected: <span className="text-gray-900 font-bold">{selectedSize}</span>
+                        </span>
+                      )}
+                    </div>
                     <div className="flex flex-wrap gap-2">
-                      {availableSizes.map((size: string) => (
-                        <button
-                          key={size}
-                          onClick={() => setSelectedSize(size)}
-                          className={`px-4 py-2 text-sm font-bold rounded-lg border-2 transition-all ${
-                            selectedSize === size
-                              ? "border-primary text-primary bg-primary/5"
-                              : "border-gray-200 text-gray-600 hover:border-gray-300"
-                          }`}
-                        >
-                          {size}
-                        </button>
-                      ))}
+                      {availableSizes.map((size: string) => {
+                        const isSelected = selectedSize === size;
+                        return (
+                          <button
+                            key={size}
+                            type="button"
+                            onClick={() => {
+                              setSelectedSize(size);
+                              setValidationError(null);
+                            }}
+                            className={`px-4 py-2 text-sm font-bold rounded-lg border-2 transition-all ${
+                              isSelected
+                                ? "border-[#1a1917] bg-[#1a1917] text-white shadow-sm"
+                                : "border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50"
+                            }`}
+                          >
+                            {size}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -467,8 +593,8 @@ export default function ProductDetailClient({
                 <span className="text-sm font-bold text-gray-900">Quantity</span>
                 <span className="text-xs font-semibold">
                   {stockInfo.stock > 0 ? (
-                    <span className={stockInfo.status === 'low_stock' ? "text-amber-600 font-bold" : "text-gray-500"}>
-                      {stockInfo.stock} {stockInfo.stock === 1 ? "piece" : "pieces"} available
+                    <span className={stockInfo.status === 'low_stock' ? "text-amber-600 font-bold" : "text-emerald-600 font-medium"}>
+                      {stockInfo.status === 'low_stock' ? "Low stock - order soon" : "In stock"}
                     </span>
                   ) : (
                     <span className="text-rose-600 font-bold">Currently unavailable</span>
@@ -496,8 +622,16 @@ export default function ProductDetailClient({
               </div>
             </div>
 
+            {/* Validation Error Message */}
+            {validationError && (
+              <div className="flex items-center gap-2 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs sm:text-sm font-bold animate-in fade-in duration-200">
+                <AlertCircle className="h-4 w-4 shrink-0 text-rose-500" />
+                <span>{validationError}</span>
+              </div>
+            )}
+
             {/* Actions (Add to Cart / Buy Now / Wishlist) */}
-            <div ref={mainActionsRef} className="flex flex-col gap-3 mt-4">
+            <div ref={mainActionsRef} className="flex flex-col gap-3 mt-2">
               {/* Top row: Buy Now full width */}
               <button
                 onClick={handleBuyNow}
@@ -575,7 +709,7 @@ export default function ProductDetailClient({
           </div>
 
           {/* RIGHT COLUMN: Trust Box & Delivery Info & Seller (3/12) */}
-          <div className="lg:col-span-3 flex flex-col gap-6">
+          <div className="lg:col-span-3 min-w-0 w-full flex flex-col gap-6">
             
             {/* Delivery & Policies */}
             <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm flex flex-col gap-5">
@@ -654,9 +788,9 @@ export default function ProductDetailClient({
 
           <div className="min-h-[300px]">
             {activeTab === 'description' && (
-              <div className="prose prose-base max-w-4xl text-gray-600 animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <div className="prose prose-base max-w-4xl text-gray-600 animate-in fade-in slide-in-from-bottom-2 duration-500 min-w-0 w-full">
                 <div 
-                  className="leading-relaxed [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-5 [&_li]:mb-2 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-gray-900 [&_h2]:mb-3 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:text-gray-900 [&_h3]:mb-2"
+                  className="leading-relaxed break-words [overflow-wrap:anywhere] [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-5 [&_li]:mb-2 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-gray-900 [&_h2]:mb-3 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:text-gray-900 [&_h3]:mb-2"
                   dangerouslySetInnerHTML={{ 
                     __html: formatHTML(initialProduct.longDescription || initialProduct.description) 
                   }} 

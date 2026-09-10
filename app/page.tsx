@@ -63,44 +63,39 @@ export default async function Home() {
 
       {/* 4. Featured Products Grid */}
       <section id="featured-products-section" className="relative z-10 bg-transparent pt-8 pb-16 md:pt-12 md:pb-24 overflow-hidden">
+        {/* Background Accent & Decorative Side Shapes */}
         <div className="absolute top-[30%] left-[5%] h-[35vw] w-[35vw] rounded-full glow-blob-orange opacity-[0.4] pointer-events-none" />
+        <div className="hidden md:block absolute top-[2%] -left-[5%] w-[350px] h-[350px] opacity-[0.6] -rotate-6 pointer-events-none">
+          <Image src="/hero-shape.svg" alt="decorative shape" fill className="object-contain" />
+        </div>
+        <div className="hidden md:block absolute top-[4%] -right-[5%] w-[300px] h-[300px] opacity-[0.6] rotate-12 scale-x-[-1] pointer-events-none">
+          <Image src="/hero-shape.svg" alt="decorative shape" fill className="object-contain" />
+        </div>
 
-
-        <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           {/* Header */}
-          <div className="mb-8 flex flex-col md:flex-row items-start md:items-end justify-between gap-6 md:gap-4 md:mb-12">
-            <div className="max-w-2xl space-y-4 text-left">
-              <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
-                <span>Modern Masterpieces</span>
-              </div>
-              <h2 className="text-3xl font-extrabold leading-[0.95] tracking-tighter text-[#1a1917] md:text-5xl">
-                Featured <span className="text-primary">Hardware</span>
-              </h2>
-              <p className="max-w-sm text-left text-sm font-medium leading-relaxed text-muted-foreground">
-                Explore our most coveted precision locks, hand-finished brass lever handles, and heavy industrial drills.
-              </p>
+          <div className="mx-auto max-w-3xl text-center space-y-4 mb-8 md:mb-12">
+            <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-black/[0.02] px-3.5 py-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground justify-center">
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
+              <span>Modern Masterpieces</span>
             </div>
-
-            <div className="hidden md:flex items-center gap-4 w-auto mt-0">
-              <Link
-                href="/shop"
-                className="group inline-flex justify-center cursor-pointer items-center gap-2 rounded-full bg-[#1a1917] px-7 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-md transition-all duration-300 hover:bg-primary hover:shadow-[0_0_15px_rgba(255,90,31,0.4)]"
-              >
-                <span>View Products</span>
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1.5" />
-              </Link>
-            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-[1.05] sm:leading-[0.95] tracking-tighter text-[#1a1917]">
+              Featured <span className="text-primary">Hardware</span>
+            </h2>
+            <p className="max-w-2xl mx-auto text-center text-sm md:text-base font-medium leading-relaxed text-muted-foreground">
+              Explore our most coveted precision locks, hand-finished brass lever handles, and heavy industrial drills.
+            </p>
           </div>
 
           <FeaturedProductsCarousel products={featuredProducts} />
 
-          <div className="mt-8 flex md:hidden items-center justify-center w-full">
+          {/* View Products CTA at the end of products */}
+          <div className="mt-8 md:mt-12 flex items-center justify-center w-full">
             <Link
               href="/shop"
-              className="group inline-flex w-full justify-center cursor-pointer items-center gap-2 rounded-full bg-[#1a1917] px-7 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-md transition-all duration-300 hover:bg-primary hover:shadow-[0_0_15px_rgba(255,90,31,0.4)]"
+              className="group inline-flex w-full sm:w-auto justify-center cursor-pointer items-center gap-2 rounded-full bg-[#1a1917] px-8 py-3.5 md:py-4 text-xs font-bold uppercase tracking-widest text-white shadow-md transition-all duration-300 hover:bg-primary hover:shadow-[0_0_15px_rgba(255,90,31,0.4)]"
             >
-              <span>View All Products</span>
+              <span>View Products</span>
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1.5" />
             </Link>
           </div>

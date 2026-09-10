@@ -312,9 +312,9 @@ export default function OrdersClient() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Order List */}
-        <div className="lg:col-span-2 space-y-4">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 items-start">
+        {/* Order List (5/12) */}
+        <div className="lg:col-span-5 xl:col-span-5 space-y-3.5">
           {filteredOrders.length === 0 ? (
             <div className="rounded-xl border border-black/5 bg-white p-8 text-center text-muted-foreground">
               No orders found matching your criteria.
@@ -328,25 +328,29 @@ export default function OrdersClient() {
                   selectedOrder?.dbKey === order.dbKey ? "border-primary bg-primary/5 shadow-md" : "border-black/5 bg-white"
                 }`}
               >
-                <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <div className="flex items-center gap-3">
-                      <h3 className="font-bold text-foreground">Order #{order.id}</h3>
-                      {getStatusBadge(order.status)}
+                <div className="flex flex-col gap-3 p-4 sm:p-5">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-bold text-foreground text-sm sm:text-base">Order #{order.id}</h3>
+                        {getStatusBadge(order.status)}
+                      </div>
+                      <p className="mt-1 text-xs sm:text-sm font-medium text-gray-800 truncate">
+                        {order.customerInfo.firstName} {order.customerInfo.lastName}
+                      </p>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
+                        {new Date(order.createdAt).toLocaleString()} • {order.items?.length || 0} items
+                      </p>
                     </div>
-                    <p className="mt-1 text-sm font-medium">
-                      {order.customerInfo.firstName} {order.customerInfo.lastName}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(order.createdAt).toLocaleString()} • {order.items?.length || 0} items
-                    </p>
-                  </div>
-                  
-                  <div className="flex items-center justify-between sm:flex-col sm:items-end sm:gap-2">
-                    <span className="font-bold text-lg">Rs. {order.total?.toLocaleString() || 0}</span>
-                    <button className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
-                      View Details <ArrowRight className="h-3 w-3" />
-                    </button>
+                    
+                    <div className="text-right shrink-0">
+                      <span className="font-extrabold text-base sm:text-lg block text-gray-900">
+                        Rs. {order.total?.toLocaleString() || 0}
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline mt-1">
+                        View Details <ArrowRight className="h-3 w-3" />
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -354,13 +358,13 @@ export default function OrdersClient() {
           )}
         </div>
 
-        {/* Order Details Panel */}
-        <div className="lg:col-span-1">
+        {/* Order Details Panel (7/12) */}
+        <div className="lg:col-span-7 xl:col-span-7">
           {selectedOrder ? (
-            <div className="sticky top-28 rounded-xl border border-black/5 bg-white p-6 shadow-sm">
+            <div className="rounded-xl border border-black/5 bg-white p-6 sm:p-7 shadow-sm">
               <div className="mb-6 flex items-start justify-between">
                 <div>
-                  <h2 className="text-xl font-bold">Order #{selectedOrder.id}</h2>
+                  <h2 className="text-xl sm:text-2xl font-bold">Order #{selectedOrder.id}</h2>
                   <p className="text-xs text-muted-foreground">{new Date(selectedOrder.createdAt).toLocaleString()}</p>
                 </div>
                 <div className="flex flex-col items-end gap-2">
@@ -503,7 +507,7 @@ export default function OrdersClient() {
 
               <div>
                 <h3 className="mb-4 font-bold text-sm uppercase tracking-wider text-muted-foreground">Order Items</h3>
-                <div className="max-h-[300px] space-y-4 overflow-y-auto pr-2">
+                <div className="space-y-3.5">
                   {selectedOrder.items?.map((item: any, idx: number) => {
                     const itemName = item.product?.name || item.name;
                     const itemImage = item.product?.images?.[0] || item.image;
