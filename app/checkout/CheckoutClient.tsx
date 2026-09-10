@@ -38,8 +38,10 @@ import {
   BadgeCheck,
   Percent,
   CheckCircle,
-  Info,
-  QrCode
+  QrCode,
+  Upload,
+  Trash2,
+  Smartphone
 } from "lucide-react";
 import { useCartState, useCartActions, useOverlayActions } from "@/context/AppContext";
 import { useAuth } from "@/lib/auth-context";
@@ -101,6 +103,65 @@ export default function CheckoutClient() {
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [availablePaymentMethods, setAvailablePaymentMethods] = useState<any[]>([]);
   const [isLoadingPaymentMethods, setIsLoadingPaymentMethods] = useState(true);
+  const [paymentProofUrl, setPaymentProofUrl] = useState("");
+  const [transactionId, setTransactionId] = useState("");
+  const [isUploadingProof, setIsUploadingProof] = useState(false);
+
+  // Distinguish COD vs Online/Transfer without confusing JazzCash/EasyPaisa
+  const isCodMethod = (m: any) => {
+    if (!m) return false;
+    const id = (m.id || "").toLowerCase();
+    const type = (m.type || "").toLowerCase();
+    const title = (m.title || "").toLowerCase().trim();
+    return id === "cod" || type === "cod" || title === "cod" || title === "cash on delivery" || title.includes("cash on delivery");
+  };
+
+  const isWalletMethod = (m: any) => {
+    if (!m) return false;
+    const type = (m.type || "").toLowerCase();
+    const title = (m.title || "").toLowerCase();
+    return type === "wallet" || title.includes("jazzcash") || title.includes("easypaisa") || title.includes("sadapay") || title.includes("nayapay") || title.includes("wallet");
+  };
+
+  const selectedPaymentMethodObj = useMemo(() => {
+    return availablePaymentMethods.find((m) => m.id === paymentMethod);
+  }, [availablePaymentMethods, paymentMethod]);
+
+  const handlePaymentProofUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File size must be under 10MB");
+      return;
+    }
+
+    setIsUploadingProof(true);
+    try {
+      const uploadFormData = new FormData();
+      uploadFormData.append("file", file);
+      uploadFormData.append("folder", "payment-proofs");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: uploadFormData,
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to upload screenshot");
+      }
+
+      const data = await res.json();
+      setPaymentProofUrl(data.url);
+      toast.success("Payment screenshot attached successfully!");
+    } catch (err: any) {
+      console.error("Proof upload error:", err);
+      toast.error(err.message || "Failed to upload receipt. You can also send it via WhatsApp.");
+    } finally {
+      setIsUploadingProof(false);
+    }
+  };
 
   // 1. Fetch Dynamic Payment Methods from Admin
   useEffect(() => {
@@ -319,6 +380,8 @@ export default function CheckoutClient() {
         customerInfo: customerPayload,
         customerType: user ? "account" : "guest",
         paymentMethod,
+        paymentProof: paymentProofUrl || null,
+        transactionId: transactionId.trim() || null,
         items: cart,
       };
 
@@ -360,6 +423,8 @@ export default function CheckoutClient() {
         id: data.orderId,
         customerInfo: customerPayload,
         paymentMethodTitle: selectedPaymentMethodObj?.title || paymentMethod,
+        paymentProof: paymentProofUrl || null,
+        transactionId: transactionId.trim() || null,
         items: [...cart],
         subtotal: cartSubtotal,
         discount: cartDiscountTotal,
@@ -964,60 +1029,7 @@ export default function CheckoutClient() {
                   </div>
                 </section>
 
-                {/* 3. DELIVERY METHOD */}
-                <section className="rounded-2xl md:rounded-3xl border border-black/10 bg-white p-5 sm:p-7 shadow-xs">
-                  <div className="flex items-center gap-2.5 pb-4 border-b border-black/5 mb-4">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                      <Truck className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <h2 className="text-base font-extrabold text-foreground tracking-tight">
-                        Delivery Method
-                      </h2>
-                      <p className="text-[11px] text-muted-foreground">
-                        Configured courier service and estimated transit schedule.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="rounded-2xl border-2 border-primary/25 bg-primary/[0.03] p-4.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="flex items-start gap-3">
-                      <div className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white shrink-0">
-                        <Check className="h-3 w-3" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-sm font-extrabold text-foreground">
-                            Standard Courier Delivery
-                          </h3>
-                          <span className="rounded-full bg-black/5 px-2 py-0.5 text-[10px] font-bold text-foreground">
-                            TCS / PostEx
-                          </span>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          Estimated Delivery: <strong className="text-foreground">{deliveryEstimate}</strong>
-                        </p>
-                        <p className="text-[11px] text-muted-foreground mt-1">
-                          Fragile items packed with high-grade multi-layer shock absorption.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="text-left sm:text-right shrink-0">
-                      {shippingResult?.isFreeShipping || shippingResult?.finalShippingFee === 0 ? (
-                        <span className="inline-block font-extrabold text-xs text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
-                          FREE DELIVERY
-                        </span>
-                      ) : (
-                        <span className="font-mono font-extrabold text-sm text-foreground">
-                          Rs. {shippingResult?.finalShippingFee.toLocaleString()}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </section>
-
-                {/* 4. PAYMENT METHOD */}
+                {/* 3. PAYMENT METHOD */}
                 <section className="rounded-2xl md:rounded-3xl border border-black/10 bg-white p-5 sm:p-7 shadow-xs">
                   <div className="flex items-center gap-2.5 pb-4 border-b border-black/5 mb-5">
                     <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -1039,19 +1051,23 @@ export default function CheckoutClient() {
                       <span className="text-xs">Loading available payment options...</span>
                     </div>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="space-y-3.5">
                       {availablePaymentMethods.map((method) => {
                         const isSelected = paymentMethod === method.id;
+                        const isCod = isCodMethod(method);
+                        const isWallet = isWalletMethod(method);
+
                         return (
                           <div
                             key={method.id}
                             onClick={() => setPaymentMethod(method.id)}
-                            className={`rounded-2xl border-2 transition-all p-4 cursor-pointer ${
+                            className={`rounded-2xl border-2 transition-all p-4 sm:p-5 cursor-pointer ${
                               isSelected
-                                ? "border-primary bg-primary/[0.02] shadow-xs"
+                                ? "border-primary bg-primary/[0.015] shadow-xs"
                                 : "border-black/10 hover:border-black/20 bg-white"
                             }`}
                           >
+                            {/* Top row: Radio, Logo, Title, Badge */}
                             <div className="flex items-center justify-between gap-3">
                               <div className="flex items-center gap-3 min-w-0">
                                 <input
@@ -1065,7 +1081,7 @@ export default function CheckoutClient() {
                                 />
 
                                 {method.logo && (
-                                  <div className="relative h-8 w-10 shrink-0 bg-white rounded-lg border border-black/10 overflow-hidden flex items-center justify-center p-1">
+                                  <div className="relative h-8 w-11 shrink-0 bg-white rounded-xl border border-black/10 overflow-hidden flex items-center justify-center p-1 shadow-2xs">
                                     <Image
                                       src={method.logo.startsWith("http") ? method.logo : getPublicUploadUrl(method.logo)}
                                       alt={method.title}
@@ -1078,7 +1094,7 @@ export default function CheckoutClient() {
                                 <div className="min-w-0">
                                   <label
                                     htmlFor={`pm-${method.id}`}
-                                    className="text-sm font-bold text-foreground cursor-pointer block truncate"
+                                    className="text-sm sm:text-base font-bold text-foreground cursor-pointer block truncate"
                                   >
                                     {method.title}
                                   </label>
@@ -1091,101 +1107,106 @@ export default function CheckoutClient() {
                               </div>
 
                               <div className="shrink-0">
-                                {method.id === "cod" || method.title?.toLowerCase().includes("cash") ? (
-                                  <span className="flex items-center gap-1 text-[11px] font-bold text-muted-foreground bg-black/5 px-2.5 py-1 rounded-md">
-                                    <Banknote className="h-3.5 w-3.5" />
+                                {isCod ? (
+                                  <span className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/60 px-2.5 py-1 rounded-lg">
+                                    <Banknote className="h-3.5 w-3.5 text-emerald-600" />
                                     <span>Cash</span>
                                   </span>
+                                ) : isWallet ? (
+                                  <span className="flex items-center gap-1.5 text-[11px] font-bold text-purple-800 bg-purple-50 border border-purple-200/60 px-2.5 py-1 rounded-lg">
+                                    <Smartphone className="h-3.5 w-3.5 text-purple-600" />
+                                    <span>Wallet</span>
+                                  </span>
                                 ) : (
-                                  <span className="flex items-center gap-1 text-[11px] font-bold text-muted-foreground bg-black/5 px-2.5 py-1 rounded-md">
-                                    <Building2 className="h-3.5 w-3.5" />
+                                  <span className="flex items-center gap-1.5 text-[11px] font-bold text-blue-800 bg-blue-50 border border-blue-200/60 px-2.5 py-1 rounded-lg">
+                                    <Building2 className="h-3.5 w-3.5 text-blue-600" />
                                     <span>Transfer</span>
                                   </span>
                                 )}
                               </div>
                             </div>
 
-                            {/* Collapsible Details & Instructions for Selected Method */}
+                            {/* Clean Expanded Content (NO NESTED BOXES - Just clean typography and divider lines) */}
                             {isSelected && (
-                              <div className="mt-4 pt-3.5 border-t border-black/5 text-xs animate-in fade-in duration-200">
-                                {/* If method is COD */}
-                                {(method.id === "cod" || method.title?.toLowerCase().includes("cash")) ? (
-                                  <div className="rounded-xl bg-[#faf9f6] p-3.5 border border-black/5 text-muted-foreground space-y-1">
-                                    <p className="font-semibold text-foreground flex items-center gap-1.5">
-                                      <CheckCircle className="h-3.5 w-3.5 text-emerald-600" />
-                                      <span>Pay when your order is delivered</span>
-                                    </p>
-                                    <p className="text-[11px] leading-relaxed">
-                                      You can inspect your package upon delivery and hand over the cash to the courier agent. Please keep the exact amount ready if possible.
-                                    </p>
+                              <div className="mt-4 pt-4 border-t border-black/10 text-xs animate-in fade-in duration-200 space-y-4">
+                                {isCod ? (
+                                  /* Clean COD info */
+                                  <div className="flex items-start gap-3 text-stone-700 py-1">
+                                    <CheckCircle className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+                                    <div className="space-y-1">
+                                      <p className="font-bold text-gray-900 text-xs sm:text-sm">Pay Cash on Delivery</p>
+                                      <p className="text-xs text-stone-500 leading-relaxed">
+                                        Pay safely with cash when your package arrives at your doorstep. Please keep the exact payable amount (<strong>Rs. {cartFinalTotal.toLocaleString()}</strong>) ready for the courier rider.
+                                      </p>
+                                    </div>
                                   </div>
                                 ) : (
-                                  /* Bank Transfer / Manual Details */
-                                  <div className="space-y-3">
+                                  /* Bank Transfer / Mobile Wallet info (Clean typography with divider lines, NO nested boxes) */
+                                  <div className="space-y-4">
+                                    {/* Account Details */}
                                     {(method.bankName || method.accountTitle || method.accountNumber || method.iban) && (
-                                      <div className="rounded-xl bg-[#faf9f6] p-3.5 border border-black/5 space-y-2">
-                                        <p className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground">
-                                          Official Account Details
-                                        </p>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                      <div className="space-y-3">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                           {method.bankName && (
                                             <div>
-                                              <span className="text-muted-foreground">Bank Name:</span>{" "}
-                                              <strong className="text-foreground">{method.bankName}</strong>
+                                              <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 block">Bank / Provider</span>
+                                              <span className="font-bold text-gray-900 text-sm sm:text-base">{method.bankName}</span>
                                             </div>
                                           )}
                                           {method.accountTitle && (
                                             <div>
-                                              <span className="text-muted-foreground">Account Title:</span>{" "}
-                                              <strong className="text-foreground">{method.accountTitle}</strong>
-                                            </div>
-                                          )}
-                                          {method.accountNumber && (
-                                            <div className="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-black/10">
-                                              <div>
-                                                <span className="text-muted-foreground text-[11px]">Account #:</span>{" "}
-                                                <span className="font-mono font-bold text-foreground">{method.accountNumber}</span>
-                                              </div>
-                                              <button
-                                                type="button"
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  handleCopyText(method.accountNumber, `acc-${method.id}`);
-                                                }}
-                                                className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer"
-                                              >
-                                                {copiedField === `acc-${method.id}` ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
-                                                <span>{copiedField === `acc-${method.id}` ? "Copied" : "Copy"}</span>
-                                              </button>
-                                            </div>
-                                          )}
-                                          {method.iban && (
-                                            <div className="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-black/10 sm:col-span-2">
-                                              <div className="truncate pr-2">
-                                                <span className="text-muted-foreground text-[11px]">IBAN:</span>{" "}
-                                                <span className="font-mono font-bold text-foreground text-[11px] truncate">{method.iban}</span>
-                                              </div>
-                                              <button
-                                                type="button"
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  handleCopyText(method.iban, `iban-${method.id}`);
-                                                }}
-                                                className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer shrink-0"
-                                              >
-                                                {copiedField === `iban-${method.id}` ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
-                                                <span>{copiedField === `iban-${method.id}` ? "Copied" : "Copy"}</span>
-                                              </button>
+                                              <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 block">Account Title</span>
+                                              <span className="font-bold text-gray-900 text-sm sm:text-base">{method.accountTitle}</span>
                                             </div>
                                           )}
                                         </div>
+
+                                        {method.accountNumber && (
+                                          <div className="flex items-center justify-between py-2 border-t border-b border-black/10">
+                                            <div>
+                                              <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block">Account / Mobile Number</span>
+                                              <span className="font-mono font-black text-gray-900 text-base sm:text-lg tracking-wider">{method.accountNumber}</span>
+                                            </div>
+                                            <button
+                                              type="button"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleCopyText(method.accountNumber, `acc-${method.id}`);
+                                              }}
+                                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-black/15 bg-white text-xs font-bold text-primary hover:bg-primary/5 transition-all shadow-2xs cursor-pointer active:scale-95"
+                                            >
+                                              {copiedField === `acc-${method.id}` ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4" />}
+                                              <span>{copiedField === `acc-${method.id}` ? "Copied" : "Copy"}</span>
+                                            </button>
+                                          </div>
+                                        )}
+
+                                        {method.iban && (
+                                          <div className="flex items-center justify-between py-2 border-b border-black/10">
+                                            <div className="min-w-0 pr-2">
+                                              <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block">IBAN / Raast ID</span>
+                                              <span className="font-mono font-bold text-gray-900 text-xs sm:text-sm truncate block">{method.iban}</span>
+                                            </div>
+                                            <button
+                                              type="button"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleCopyText(method.iban, `iban-${method.id}`);
+                                              }}
+                                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-black/15 bg-white text-xs font-bold text-primary hover:bg-primary/5 transition-all shadow-2xs shrink-0 cursor-pointer active:scale-95"
+                                            >
+                                              {copiedField === `iban-${method.id}` ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4" />}
+                                              <span>{copiedField === `iban-${method.id}` ? "Copied" : "Copy"}</span>
+                                            </button>
+                                          </div>
+                                        )}
                                       </div>
                                     )}
 
-                                    {/* QR Code */}
+                                    {/* QR Code if provided */}
                                     {method.qrCode && (
-                                      <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-black/10">
-                                        <div className="relative h-16 w-16 shrink-0 bg-white border border-black/10 rounded-lg overflow-hidden">
+                                      <div className="flex items-center gap-4 py-2 border-t border-black/10">
+                                        <div className="relative h-20 w-20 shrink-0 rounded-xl overflow-hidden border border-black/15 bg-white shadow-2xs">
                                           <Image
                                             src={method.qrCode.startsWith("http") ? method.qrCode : getPublicUploadUrl(method.qrCode)}
                                             alt="Payment QR Code"
@@ -1193,10 +1214,10 @@ export default function CheckoutClient() {
                                             className="object-contain p-1"
                                           />
                                         </div>
-                                        <div className="text-xs">
-                                          <p className="font-bold text-foreground">Scan QR Code to Pay</p>
-                                          <p className="text-[11px] text-muted-foreground">
-                                            Scan via your mobile banking app (Raast / Banking QR).
+                                        <div>
+                                          <p className="font-bold text-gray-900 text-sm">Scan QR Code to Pay</p>
+                                          <p className="text-xs text-stone-500 mt-0.5 leading-relaxed">
+                                            Scan using your mobile banking or wallet app (Meezan, Raast, JazzCash, EasyPaisa, SadaPay, NayaPay).
                                           </p>
                                         </div>
                                       </div>
@@ -1204,10 +1225,101 @@ export default function CheckoutClient() {
 
                                     {/* Instructions */}
                                     {method.instructions && (
-                                      <p className="text-[11px] text-muted-foreground leading-relaxed bg-[#faf9f6] p-3 rounded-xl border border-black/5">
-                                        <strong>Instructions:</strong> {method.instructions}
-                                      </p>
+                                      <div className="py-2 border-t border-black/10">
+                                        <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 block mb-1">Instructions</span>
+                                        <p className="text-xs text-stone-700 leading-relaxed">
+                                          {method.instructions}
+                                        </p>
+                                      </div>
                                     )}
+
+                                    {/* Payment Screenshot Upload Zone */}
+                                    <div className="pt-3 border-t border-black/10 space-y-3">
+                                      <div>
+                                        <div className="flex items-center justify-between mb-1">
+                                          <label className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                                            Attach Payment Screenshot / Proof {method.requireProof && <span className="text-rose-500">*</span>}
+                                          </label>
+                                          {method.requireProof && (
+                                            <span className="text-[10px] font-semibold text-rose-500 bg-rose-50 px-2 py-0.5 rounded">
+                                              Required
+                                            </span>
+                                          )}
+                                        </div>
+                                        <p className="text-xs text-stone-500 mb-2.5">
+                                          Transfer the payable amount (<strong>Rs. {cartFinalTotal.toLocaleString()}</strong>), take a screenshot of your successful transaction receipt, and attach it below:
+                                        </p>
+
+                                        {paymentProofUrl ? (
+                                          <div className="flex items-center gap-3 p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl">
+                                            <div className="relative h-14 w-14 rounded-lg overflow-hidden border border-emerald-300 bg-white shrink-0">
+                                              <Image src={paymentProofUrl} alt="Payment Proof" fill className="object-cover" />
+                                            </div>
+                                            <div className="min-w-0 flex-1 text-xs">
+                                              <p className="font-bold text-emerald-800 flex items-center gap-1">
+                                                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                                                <span>Receipt Screenshot Attached</span>
+                                              </p>
+                                              <a href={paymentProofUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline font-semibold mt-0.5 block truncate">
+                                                Click to view uploaded receipt
+                                              </a>
+                                            </div>
+                                            <button
+                                              type="button"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setPaymentProofUrl("");
+                                              }}
+                                              className="p-2 rounded-lg text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                                              title="Remove screenshot"
+                                            >
+                                              <Trash2 className="h-4 w-4" />
+                                            </button>
+                                          </div>
+                                        ) : (
+                                          <label 
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="flex flex-col sm:flex-row items-center justify-center gap-3 p-4 border-2 border-dashed border-black/20 hover:border-primary rounded-xl cursor-pointer bg-stone-50/50 hover:bg-stone-50 transition-all text-center sm:text-left"
+                                          >
+                                            {isUploadingProof ? (
+                                              <>
+                                                <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                                                <span className="text-xs font-bold text-stone-700">Uploading receipt screenshot...</span>
+                                              </>
+                                            ) : (
+                                              <>
+                                                <Upload className="h-5 w-5 text-primary shrink-0" />
+                                                <div>
+                                                  <span className="text-xs font-bold text-gray-900">Click to upload payment screenshot</span>
+                                                  <span className="text-[11px] text-stone-400 block sm:inline sm:ml-2">(PNG, JPG, WEBP max 10MB)</span>
+                                                </div>
+                                              </>
+                                            )}
+                                            <input
+                                              type="file"
+                                              accept="image/*"
+                                              className="hidden"
+                                              disabled={isUploadingProof}
+                                              onChange={handlePaymentProofUpload}
+                                            />
+                                          </label>
+                                        )}
+                                      </div>
+
+                                      {/* Transaction ID */}
+                                      <div onClick={(e) => e.stopPropagation()}>
+                                        <label className="text-[11px] font-bold text-stone-500 uppercase tracking-wider block mb-1">
+                                          Transaction ID / Reference # <span className="text-stone-400 font-normal lowercase">(optional)</span>
+                                        </label>
+                                        <input
+                                          type="text"
+                                          value={transactionId}
+                                          onChange={(e) => setTransactionId(e.target.value)}
+                                          placeholder="e.g. TID-9821389 or bank SMS reference"
+                                          className="w-full rounded-xl border border-black/15 bg-white px-3.5 py-2.5 text-xs font-mono outline-none focus:border-primary"
+                                        />
+                                      </div>
+                                    </div>
                                   </div>
                                 )}
                               </div>
@@ -1217,98 +1329,6 @@ export default function CheckoutClient() {
                       })}
                     </div>
                   )}
-                </section>
-
-                {/* 5. YOUR ORDER / CART DETAILS */}
-                <section className="rounded-2xl md:rounded-3xl border border-black/10 bg-white p-5 sm:p-7 shadow-xs">
-                  <div className="flex items-center justify-between pb-4 border-b border-black/5 mb-4">
-                    <div className="flex items-center gap-2.5">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                        <ShoppingBag className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <h2 className="text-base font-extrabold text-foreground tracking-tight">
-                          Your Order
-                        </h2>
-                        <p className="text-[11px] text-muted-foreground">
-                          {cartCount} {cartCount === 1 ? "item" : "items"} in cart
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Edit Cart Button */}
-                    <button
-                      type="button"
-                      onClick={() => setCartOpen(true)}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline bg-primary/5 hover:bg-primary/10 px-3 py-1.5 rounded-xl transition-all cursor-pointer"
-                    >
-                      <Edit3 className="h-3.5 w-3.5" />
-                      <span>Edit Cart</span>
-                    </button>
-                  </div>
-
-                  <div className="divide-y divide-black/5">
-                    {cart.map((item, idx) => {
-                      const pricing = calculateProductPrice(item.product.price, item.product.id, discounts);
-                      const itemSubtotal = pricing.finalPrice * item.quantity;
-                      const imageSrc = item.selectedImage || item.product.images?.[0];
-
-                      return (
-                        <div key={`${item.product.id}-${item.selectedColor}-${item.selectedSize}-${idx}`} className="py-3.5 first:pt-0 last:pb-0 flex items-center gap-3.5">
-                          {/* Image */}
-                          <div className="relative h-16 w-16 sm:h-18 sm:w-18 shrink-0 overflow-hidden rounded-xl bg-[#efece6] border border-black/5">
-                            <Image
-                              src={imageSrc ? getPublicUploadUrl(imageSrc) : "/placeholder.jpg"}
-                              alt={item.product.name}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-
-                          {/* Product Details */}
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-xs sm:text-sm font-bold text-foreground leading-snug break-words">
-                              {item.product.name}
-                            </h3>
-
-                            {/* Variants Badges */}
-                            <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
-                              {item.selectedColor && (
-                                <span className="bg-black/5 px-2 py-0.5 rounded-md font-medium">
-                                  Color: <strong className="text-foreground">{item.selectedColor}</strong>
-                                </span>
-                              )}
-                              {item.selectedSize && (
-                                <span className="bg-black/5 px-2 py-0.5 rounded-md font-medium">
-                                  Size: <strong className="text-foreground">{item.selectedSize}</strong>
-                                </span>
-                              )}
-                              <span className="font-bold text-foreground bg-primary/10 text-primary px-2 py-0.5 rounded-md">
-                                Qty: {item.quantity}
-                              </span>
-                            </div>
-
-                            {/* Unit Price */}
-                            <p className="mt-1 text-[11px] text-muted-foreground">
-                              Unit Price: Rs. {pricing.finalPrice.toLocaleString()}
-                              {pricing.hasDiscount && (
-                                <span className="ml-1.5 line-through text-[10px] text-muted-foreground">
-                                  Rs. {pricing.originalPrice.toLocaleString()}
-                                </span>
-                              )}
-                            </p>
-                          </div>
-
-                          {/* Item Subtotal */}
-                          <div className="text-right shrink-0">
-                            <p className="font-mono text-xs sm:text-sm font-extrabold text-foreground">
-                              Rs. {itemSubtotal.toLocaleString()}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
                 </section>
               </div>
 
@@ -1369,9 +1389,76 @@ export default function CheckoutClient() {
 
                 {/* Main Order Summary Card */}
                 <div className="rounded-2xl md:rounded-3xl border border-black/10 bg-white p-5 sm:p-7 shadow-sm space-y-5">
-                  <h2 className="text-base font-extrabold text-foreground tracking-tight border-b border-black/5 pb-3">
-                    Order Summary
-                  </h2>
+                  <div className="flex items-center justify-between border-b border-black/5 pb-3">
+                    <div>
+                      <h2 className="text-base font-extrabold text-foreground tracking-tight">
+                        Order Summary
+                      </h2>
+                      <p className="text-[11px] text-muted-foreground">
+                        {cartCount} {cartCount === 1 ? "item" : "items"} in cart
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCartOpen(true)}
+                      className="text-xs font-bold text-primary hover:underline cursor-pointer"
+                    >
+                      Edit Cart
+                    </button>
+                  </div>
+
+                  {/* Cart Items List */}
+                  <div className="space-y-3 max-h-72 overflow-y-auto pr-1 divide-y divide-black/5">
+                    {cart.map((item) => {
+                      const { finalPrice } = calculateProductPrice(item.product, discounts);
+                      return (
+                        <div
+                          key={`${item.product.id}-${item.selectedColor}-${item.selectedSize}`}
+                          className="pt-3 first:pt-0 flex gap-3 items-center"
+                        >
+                          <div className="relative h-14 w-14 rounded-xl border border-black/10 bg-stone-50 overflow-hidden shrink-0">
+                            <Image
+                              src={item.product.images?.[0] || "/placeholder.jpg"}
+                              alt={item.product.name}
+                              fill
+                              sizes="56px"
+                              className="object-cover"
+                            />
+                            <span className="absolute bottom-0 right-0 bg-black/80 text-white font-mono text-[9px] px-1 rounded-tl font-bold">
+                              x{item.quantity}
+                            </span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-xs font-bold text-foreground truncate">
+                              {item.product.name}
+                            </h4>
+                            <div className="flex flex-wrap items-center gap-1.5 mt-0.5 text-[10px] text-muted-foreground">
+                              {item.selectedColor && (
+                                <span className="flex items-center gap-1">
+                                  <span>Color:</span>
+                                  <strong className="text-foreground capitalize">{item.selectedColor}</strong>
+                                </span>
+                              )}
+                              {item.selectedColor && item.selectedSize && <span>•</span>}
+                              {item.selectedSize && (
+                                <span>
+                                  Size: <strong className="text-foreground uppercase">{item.selectedSize}</strong>
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center justify-between mt-1">
+                              <span className="text-[10px] text-muted-foreground font-mono">
+                                Unit: Rs. {finalPrice.toLocaleString()}
+                              </span>
+                              <span className="text-xs font-mono font-bold text-foreground">
+                                Rs. {(finalPrice * item.quantity).toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
 
                   {/* Financial Rows */}
                   <div className="space-y-3 text-xs sm:text-sm">

@@ -500,8 +500,44 @@ export default function OrdersClient() {
                     <p className="text-sm">{selectedOrder.customerInfo.notes}</p>
                   </div>
                 )}
-                <div className="pt-2 border-t border-black/10">
-                  <p className="text-sm font-semibold text-muted-foreground">Payment Method: <span className="uppercase text-black">{selectedOrder.paymentMethod}</span></p>
+                <div className="pt-2.5 border-t border-black/10 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-semibold text-muted-foreground">
+                      Payment Method: <span className="uppercase font-bold text-black">{selectedOrder.paymentMethod}</span>
+                    </p>
+                    {selectedOrder.transactionId && (
+                      <p className="text-xs font-mono font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">
+                        TID: {selectedOrder.transactionId}
+                      </p>
+                    )}
+                  </div>
+
+                  {selectedOrder.paymentProof && (
+                    <div className="p-3 rounded-xl bg-white border border-black/10 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-emerald-800 flex items-center gap-1">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                          Payment Receipt Attached
+                        </span>
+                        <a
+                          href={selectedOrder.paymentProof}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-primary font-bold hover:underline"
+                        >
+                          View Full Image
+                        </a>
+                      </div>
+                      <div className="relative h-48 w-full rounded-lg overflow-hidden border border-black/10 bg-black/5">
+                        <Image
+                          src={selectedOrder.paymentProof}
+                          alt="Payment Receipt"
+                          fill
+                          className="object-contain p-1"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
