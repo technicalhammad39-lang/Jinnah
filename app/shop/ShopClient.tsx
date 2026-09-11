@@ -58,7 +58,7 @@ export function ShopClient({ initialProducts = [], initialBrands = [] }: { initi
   const [sortBy, setSortBy] = useState("featured"); // "featured", "price-asc", "price-desc", "rating"
 
   // Load More Pagination limit
-  const [visibleCount, setVisibleCount] = useState(6);
+  const [visibleCount, setVisibleCount] = useState(12);
 
   // Sync URL search parameters
   useEffect(() => {
@@ -66,6 +66,11 @@ export function ShopClient({ initialProducts = [], initialBrands = [] }: { initi
     const brandParam = searchParams.get("brand");
     const tabParam = searchParams.get("tab");
     const prodParam = searchParams.get("product");
+    const qParam = searchParams.get("q") || searchParams.get("search");
+
+    if (qParam) {
+      setSearchQuery(qParam);
+    }
 
     if (catParam) {
       const foundCategory = CATEGORIES.find((category) => category.slug === catParam || category.id === catParam);

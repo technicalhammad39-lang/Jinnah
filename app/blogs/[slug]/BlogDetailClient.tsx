@@ -109,11 +109,42 @@ export default function BlogDetailClient({ initialBlog }: { initialBlog: any }) 
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
             className="prose prose-lg prose-slate max-w-none prose-headings:font-black prose-headings:tracking-tight prose-headings:text-[#1a1917] prose-a:text-primary hover:prose-a:text-primary/80 prose-img:rounded-2xl prose-img:shadow-lg prose-p:text-muted-foreground prose-p:leading-relaxed prose-strong:text-[#1a1917]"
-            dangerouslySetInnerHTML={{ __html: (blog.content || "").replace(/src="([^"]+)"/g, (match: string, p1: string) => `src="${getPublicUploadUrl(p1)}"`) }}
+            dangerouslySetInnerHTML={{ 
+              __html: (blog.content || "")
+                .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+                .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+                .replace(/on\w+\s*=\s*(["'])[\s\S]*?\1/gi, '')
+                .replace(/javascript:/gi, '')
+                .replace(/src="([^"]+)"/g, (match: string, p1: string) => `src="${getPublicUploadUrl(p1)}"`) 
+            }}
           />
 
+          {/* Related Hardware Links */}
+          <div className="mt-12 p-6 rounded-2xl bg-primary/5 border border-primary/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <h4 className="text-sm font-extrabold uppercase tracking-tight text-[#1a1917]">Looking for matching hardware?</h4>
+              <p className="text-xs text-muted-foreground mt-0.5">Explore our curated selection of door fittings, locks, and architectural hardware.</p>
+            </div>
+            <div className="flex items-center gap-3 shrink-0 flex-wrap">
+              {blog.category && (
+                <Link
+                  href={`/shop?category=${encodeURIComponent(blog.category.toLowerCase())}`}
+                  className="text-xs font-bold uppercase tracking-wider text-primary bg-white border border-primary/20 hover:border-primary px-4 py-2 rounded-full transition-colors"
+                >
+                  {blog.category}
+                </Link>
+              )}
+              <Link
+                href="/shop"
+                className="text-xs font-bold uppercase tracking-wider text-white bg-primary hover:bg-primary/90 px-4 py-2 rounded-full transition-colors shadow-sm"
+              >
+                Browse Shop
+              </Link>
+            </div>
+          </div>
+
           {/* SHARE FOOTER */}
-          <div className="mt-16 pt-8 border-t border-black/5 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="mt-12 pt-8 border-t border-black/5 flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-4">
               <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Share this article:</span>
               <div className="flex gap-2">

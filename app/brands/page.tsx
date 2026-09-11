@@ -14,13 +14,47 @@ export const metadata: Metadata = {
     description: "Explore our curated collection of architectural and industrial hardware brands.",
     url: "https://jinnah-hardwarestore.com/brands",
     siteName: "Jinnah Hardware Store",
-    images: [{ url: "/jinnah-bottom.png", width: 1200, height: 630, alt: "Trusted Hardware Brands" }],
+    images: [{ url: "/jinnah-bottom.png", width: 1200, height: 630, alt: "Hardware Brands - Jinnah Hardware Store" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Hardware Brands | Jinnah Hardware Store",
+    description: "Explore our curated collection of architectural and industrial hardware brands.",
+    images: ["/jinnah-bottom.png"],
   },
 };
 
 export default async function BrandsServerPage() {
   const brands = await getBrands();
+  const siteUrl = "https://jinnah-hardwarestore.com";
 
-  return <BrandsClient initialBrands={brands} />;
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": siteUrl,
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Brands",
+        "item": `${siteUrl}/brands`,
+      },
+    ],
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
+      <BrandsClient initialBrands={brands} />
+    </>
+  );
 }
 

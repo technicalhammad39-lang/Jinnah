@@ -9,18 +9,27 @@ import Link from "next/link";
 import { getPublicUploadUrl } from "@/lib/utils";
 
 export function AboutClient({ leadership }: { leadership: any[] }) {
-  const stats = [
-    { label: "Years of Trust", value: "15+" },
-    { label: "Premium Brands", value: "24" },
-    { label: "Projects Supplied", value: "500+" },
-    { label: "Expert Consultants", value: "12" },
-  ];
-
-  const timeline = [
-    { year: "2010", title: "The Foundation", desc: "Jinnah Hardware started as a specialized local vendor in Lahore's historic market, initially focusing on providing highly durable architectural fittings for robust local construction projects." },
-    { year: "2015", title: "Luxury Expansion", desc: "Expanded the catalog to include premium Italian and German brands, exclusively catering to luxury homes and establishing partnerships with top-tier international manufacturers." },
-    { year: "2020", title: "Smart Integration", desc: "Introduced advanced smart security solutions and digital access control systems, becoming a certified and trusted dealer for major global biometric lock brands." },
-    { year: "2026", title: "Industry Leader", desc: "Recognized as a premier, uncompromising supplier for Pakistan's elite architectural and commercial projects, trusted by the nation's most discerning contractors." }
+  const values = [
+    {
+      number: "01",
+      title: "QUALITY FIRST",
+      desc: "Carefully selected hardware made for durability, reliability, and everyday performance.",
+    },
+    {
+      number: "02",
+      title: "COMPETITIVE PRICES",
+      desc: "Quality hardware at competitive prices, giving you better value for every project.",
+    },
+    {
+      number: "03",
+      title: "RIGHT SELECTION",
+      desc: "From door locks and handles to architectural fittings, we bring essential hardware together in one place.",
+    },
+    {
+      number: "04",
+      title: "CUSTOMER FOCUSED",
+      desc: "Helpful guidance, clear product information, and reliable support from selection to delivery.",
+    },
   ];
 
   return (
@@ -170,14 +179,14 @@ export function AboutClient({ leadership }: { leadership: any[] }) {
           </div>
         </section>
 
-        {/* TIMELINE SECTION */}
+        {/* VALUE PROPOSITION SECTION */}
         <section className="py-24 px-6 max-w-[1920px] mx-auto">
           <div className="text-center mb-16 space-y-4">
-            <h2 className="text-3xl md:text-5xl font-extrabold uppercase tracking-tighter text-[#1a1917]">Our Journey</h2>
-            <p className="text-sm text-muted-foreground max-w-xl mx-auto font-medium">A legacy of precision and growth over the decades.</p>
+            <h2 className="text-3xl md:text-5xl font-extrabold uppercase tracking-tighter text-[#1a1917]">WHY JINNAH HARDWARE?</h2>
+            <p className="text-sm text-muted-foreground max-w-xl mx-auto font-medium">Quality products, competitive prices, and dependable service for every project.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 lg:gap-8">
-            {timeline.map((item, i) => (
+            {values.map((item, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
@@ -187,7 +196,7 @@ export function AboutClient({ leadership }: { leadership: any[] }) {
                 className="relative pl-6 lg:pl-0 lg:pt-8 border-l-2 lg:border-l-0 lg:border-t-2 border-primary/20 hover:border-primary transition-colors duration-300"
               >
                 <div className="absolute left-[-9px] lg:left-0 lg:top-[-9px] w-4 h-4 rounded-full bg-primary ring-4 ring-[#faf9f6]" />
-                <h3 className="font-black text-3xl mb-1 text-primary">{item.year}</h3>
+                <h3 className="font-black text-3xl mb-1 text-primary">{item.number}</h3>
                 <h4 className="font-extrabold text-lg uppercase tracking-tight text-[#1a1917] mb-3">{item.title}</h4>
                 <p className="text-sm text-muted-foreground leading-relaxed font-medium">{item.desc}</p>
               </motion.div>

@@ -367,7 +367,11 @@ export default function ProductDetailClient({
     if (!/<[a-z][\s\S]*>/i.test(html)) {
       return html.replace(/\n/g, '<br />');
     }
-    return html;
+    return html
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+      .replace(/on\w+\s*=\s*(["'])[\s\S]*?\1/gi, '')
+      .replace(/javascript:/gi, '');
   };
 
   // Effective base price considering variant pricing if available
@@ -394,11 +398,19 @@ export default function ProductDetailClient({
       
       <main className="flex-grow max-w-[1440px] mx-auto w-full px-6 py-8 pb-32 sm:pb-16">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-muted-foreground mb-8">
+        <div className="flex items-center gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-muted-foreground mb-8 flex-wrap">
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-          <ChevronRight className="h-3 w-3" />
+          <ChevronRight className="h-3 w-3 shrink-0" />
           <Link href="/shop" className="hover:text-primary transition-colors">Shop</Link>
-          <ChevronRight className="h-3 w-3" />
+          {initialProduct.category && (
+            <>
+              <ChevronRight className="h-3 w-3 shrink-0" />
+              <Link href={`/shop?category=${encodeURIComponent(initialProduct.category.toLowerCase())}`} className="hover:text-primary transition-colors">
+                {initialProduct.category}
+              </Link>
+            </>
+          )}
+          <ChevronRight className="h-3 w-3 shrink-0" />
           <span className="text-[#1a1917] truncate max-w-[150px] sm:max-w-[200px]">{initialProduct.name}</span>
         </div>
 
@@ -420,9 +432,14 @@ export default function ProductDetailClient({
             
             {/* Title, Brand, Rating */}
             <div className="flex flex-col gap-3 min-w-0 w-full">
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-primary bg-primary/10 px-2 py-1 rounded-sm w-max">
-                {initialProduct.category}
-              </span>
+              {initialProduct.category && (
+                <Link
+                  href={`/shop?category=${encodeURIComponent(initialProduct.category.toLowerCase())}`}
+                  className="text-[10px] font-extrabold uppercase tracking-widest text-primary bg-primary/10 hover:bg-primary/20 px-2 py-1 rounded-sm w-max transition-colors"
+                >
+                  {initialProduct.category}
+                </Link>
+              )}
               <h1 className="text-2xl sm:text-3xl font-black text-gray-900 leading-tight break-words [overflow-wrap:anywhere]">
                 {initialProduct.name}
               </h1>
@@ -450,7 +467,7 @@ export default function ProductDetailClient({
                 {initialProduct.brand && (
                   <>
                     <div className="w-1 h-1 rounded-full bg-gray-300"></div>
-                    <span className="text-sm text-gray-500 font-medium">Brand: <span className="text-gray-900 font-bold">{initialProduct.brand}</span></span>
+                    <span className="text-sm text-gray-500 font-medium">Brand: <Link href={`/shop?brand=${encodeURIComponent(initialProduct.brand.toLowerCase())}`} className="text-gray-900 font-bold hover:text-primary transition-colors">{initialProduct.brand}</Link></span>
                   </>
                 )}
               </div>

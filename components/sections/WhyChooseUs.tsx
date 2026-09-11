@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
@@ -113,8 +113,8 @@ export function WhyChooseUs() {
       icon: Medal,
     },
     {
-      title: "Trusted Global Brands",
-      desc: "Authorized dealer of Veritas Steel, Aurum Brass, and Krypter Biometrics, ensuring genuine warranties.",
+      title: "Curated Brand Selection",
+      desc: "Carefully sourced architectural hardware from reputable manufacturers, ensuring dependable quality, genuine durability, and peace of mind.",
       icon: Layers,
     },
     {

@@ -3,7 +3,11 @@ import TrackOrderClient from "./TrackOrderClient";
 
 export const metadata: Metadata = {
   title: "Track Your Order | Jinnah Hardware Store",
-  description: "Check the status of your premium hardware order.",
+  description: "Check the status of your hardware order.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 type PageProps = {

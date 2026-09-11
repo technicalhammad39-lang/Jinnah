@@ -17,7 +17,7 @@ import { getSettings } from "@/lib/data-fetcher";
 
 const quickLinks = [
   { name: "Track Your Order", href: "/track-order" },
-  { name: "About Heritage", href: "/about" },
+  { name: "About Us", href: "/about" },
   { name: "Visual Gallery", href: "/gallery" },
   { name: "Trusted Brands", href: "/brands" },
   { name: "Categories", href: "/categories" },

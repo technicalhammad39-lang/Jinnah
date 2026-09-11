@@ -136,7 +136,7 @@ export function ProductGallery({ images, productName, isNew, selectedImage }: Pr
       >
         <Image
           src={imageUrl}
-          alt={productName}
+          alt={`${productName} - Jinnah Hardware Store`}
           fill
           sizes="(min-width: 1024px) 40vw, 100vw"
           className="object-contain p-4 mix-blend-multiply"
@@ -196,7 +196,7 @@ export function ProductGallery({ images, productName, isNew, selectedImage }: Pr
             >
               <Image
                 src={getPublicUploadUrl(img)}
-                alt={`${productName} thumbnail ${idx + 1}`}
+                alt={`${productName} - View ${idx + 1} - Jinnah Hardware Store`}
                 fill
                 sizes="80px"
                 className="object-contain p-2 mix-blend-multiply"
@@ -219,7 +219,7 @@ export function ProductGallery({ images, productName, isNew, selectedImage }: Pr
           <div className="flex-1 relative flex items-center justify-center">
             <Image
               src={imageUrl}
-              alt={productName}
+              alt={`${productName} - View ${activeIndex + 1} - Jinnah Hardware Store`}
               fill
               className="object-contain"
               priority

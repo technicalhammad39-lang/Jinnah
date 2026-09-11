@@ -1,12 +1,19 @@
 import { getBlogBySlug } from "@/lib/data-fetcher";
 import BlogDetailClient from "./BlogDetailClient";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { getPublicUploadUrl } from "@/lib/utils";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const blog = await getBlogBySlug(slug);
-  if (!blog) return { title: "Blog Not Found | Jinnah Hardware Store" };
+  if (!blog) {
+    return {
+      title: "Article Not Found | Jinnah Hardware Store",
+      description: "The requested article is not available.",
+      robots: { index: false, follow: false },
+    };
+  }
 
   const siteUrl = "https://jinnah-hardwarestore.com";
   const canonicalUrl = `${siteUrl}/blogs/${slug}`;
@@ -56,6 +63,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function BlogDetailServerPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const blog = await getBlogBySlug(slug);
+
+  if (!blog) {
+    notFound();
+  }
 
   const siteUrl = "https://jinnah-hardwarestore.com";
   const rawImg = blog?.image || blog?.coverImage;

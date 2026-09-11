@@ -33,6 +33,35 @@ const nextConfig: NextConfig = {
   },
   ...(process.platform === "win32" ? {} : { output: "standalone" as const }),
   transpilePackages: ["motion"],
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "X-Frame-Options",
+            value: "SAMEORIGIN",
+          },
+          {
+            key: "X-XSS-Protection",
+            value: "1; mode=block",
+          },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
+        ],
+      },
+    ];
+  },
   webpack: (config, { dev }) => {
     // HMR can be disabled via the DISABLE_HMR environment variable.
     // Do not modify; file watching is disabled to prevent flickering during agent edits.

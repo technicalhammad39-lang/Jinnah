@@ -18,12 +18,26 @@ export default function NotFound() {
         <p className="max-w-md text-sm md:text-base font-medium text-muted-foreground mb-10 leading-relaxed">
           The architectural hardware you are looking for does not exist in our current catalog or has been moved.
         </p>
-        <Link
-          href="/"
-          className="group inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#1a1917] px-8 py-4 text-xs font-bold uppercase tracking-widest text-white shadow-xl transition-all duration-300 hover:bg-primary"
-        >
-          <span>Return To Showroom</span>
-        </Link>
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          <Link
+            href="/"
+            className="group inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#1a1917] px-7 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-xl transition-all duration-300 hover:bg-primary"
+          >
+            <span>Home</span>
+          </Link>
+          <Link
+            href="/shop"
+            className="group inline-flex cursor-pointer items-center gap-2 rounded-full border border-black/10 bg-white px-7 py-3.5 text-xs font-bold uppercase tracking-widest text-[#1a1917] shadow-sm transition-all duration-300 hover:border-primary hover:text-primary"
+          >
+            <span>Shop</span>
+          </Link>
+          <Link
+            href="/categories"
+            className="group inline-flex cursor-pointer items-center gap-2 rounded-full border border-black/10 bg-white px-7 py-3.5 text-xs font-bold uppercase tracking-widest text-[#1a1917] shadow-sm transition-all duration-300 hover:border-primary hover:text-primary"
+          >
+            <span>Categories</span>
+          </Link>
+        </div>
       </main>
       <Footer />
     </div>

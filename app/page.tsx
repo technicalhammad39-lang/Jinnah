@@ -20,15 +20,32 @@ import Image from "next/image";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Jinnah Hardware Store | Pakistan's Premier Architectural Hardware",
-  description: "Pakistan's premier purveyor of luxury architectural hardware, bridging the gap between world-class engineering and exceptional local design.",
+  title: "Jinnah Hardware Store | Architectural Hardware, Door Locks & Fittings in Pakistan",
+  description: "Explore premium door locks, door handles, architectural hardware, and security solutions at Jinnah Hardware Store. Order online with reliable delivery across Pakistan.",
+  alternates: {
+    canonical: "https://jinnah-hardwarestore.com",
+  },
   openGraph: {
-    title: "Jinnah Hardware Store - Modern Architectural Hardware",
-    description: "Pakistan's premier purveyor of luxury architectural hardware.",
+    title: "Jinnah Hardware Store | Architectural Hardware & Door Locks in Pakistan",
+    description: "Explore premium door locks, door handles, architectural hardware, and security solutions at Jinnah Hardware Store. Order online with nationwide delivery.",
     url: "https://jinnah-hardwarestore.com/",
     siteName: "Jinnah Hardware Store",
     locale: "en_PK",
     type: "website",
+    images: [
+      {
+        url: "/jinnah-bottom.png",
+        width: 1200,
+        height: 630,
+        alt: "Jinnah Hardware Store Pakistan",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Jinnah Hardware Store | Architectural Hardware & Door Locks in Pakistan",
+    description: "Explore premium door locks, door handles, architectural hardware, and security solutions at Jinnah Hardware Store.",
+    images: ["/jinnah-bottom.png"],
   },
 };
 
