@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "motion/react";
 import ConfettiCelebration from "@/components/animations/ConfettiCelebration";
 import { Navbar } from "@/components/navigation/Navbar";
 import { Footer } from "@/components/navigation/Footer";
+import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 import {
   ShoppingBag,
   CheckCircle2,
@@ -578,11 +579,23 @@ export default function CheckoutClient() {
     const paymentTitle = placedOrderSummary?.paymentMethodTitle || (selectedPaymentMethodObj?.title || paymentMethod);
 
     return (
-      <div className="min-h-screen bg-[#faf9f6] text-[#1a1917] flex flex-col justify-between">
+      <div className="min-h-screen bg-[#faf9f6] text-[#1a1917] flex flex-col justify-between relative overflow-hidden">
+        {/* Soft Ambient Background Glows & Brush SVG */}
+        <div className="absolute top-[10%] -left-[10%] w-[45vw] h-[45vw] rounded-full bg-emerald-500/[0.07] blur-3xl pointer-events-none" />
+        <div className="absolute top-[25%] -right-[10%] w-[45vw] h-[45vw] rounded-full bg-primary/[0.08] blur-3xl pointer-events-none" />
+        
+        {/* Faded Brush Style SVG on sides */}
+        <div className="hidden lg:block absolute top-[10%] -left-[6%] w-[320px] h-[320px] opacity-[0.25] -rotate-6 pointer-events-none">
+          <Image src="/hero-shape.svg" alt="decorative shape" fill className="object-contain" />
+        </div>
+        <div className="hidden lg:block absolute top-[16%] -right-[6%] w-[300px] h-[300px] opacity-[0.25] rotate-12 scale-x-[-1] pointer-events-none">
+          <Image src="/hero-shape.svg" alt="decorative shape" fill className="object-contain" />
+        </div>
+
         <Navbar />
         <ConfettiCelebration duration={5500} particleCount={140} />
 
-        <main className="flex-grow pt-28 pb-24 md:pt-36">
+        <main className="flex-grow pt-28 pb-24 md:pt-36 relative z-10">
           <div className="mx-auto max-w-4xl px-4 md:px-6">
             <motion.div
               initial={{ opacity: 0, y: 16 }}
@@ -592,13 +605,10 @@ export default function CheckoutClient() {
             >
               {/* Top Celebration Card */}
               <div className="relative overflow-hidden rounded-3xl border border-black/10 bg-white p-6 md:p-10 text-center shadow-lg shadow-black/5">
-                <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
-                <div className="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
-
                 {/* Animated SVG Checkmark: outer outline draws first, then center checkmark draws in */}
-                <div className="relative mx-auto mb-5 flex h-24 w-24 items-center justify-center">
+                <div className="relative mx-auto mb-4 flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
                   <svg
-                    className="h-20 w-20 text-emerald-600"
+                    className="h-18 w-18 sm:h-20 sm:w-20 text-emerald-600"
                     viewBox="0 0 52 52"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -627,9 +637,14 @@ export default function CheckoutClient() {
                   </svg>
                 </div>
 
-                <h1 className="mt-2 mb-2 text-2xl md:text-3xl font-extrabold tracking-tight text-foreground">
-                  Thank You for Your Order{customer.firstName ? `, ${customer.firstName}` : customer.fullName ? `, ${customer.fullName}` : ""}!
-                </h1>
+                <div className="mt-1 mb-3 text-center">
+                  <span className="font-calligraphy text-primary text-5xl sm:text-6xl md:text-7xl block leading-tight font-normal tracking-wide drop-shadow-xs">
+                    Thank You
+                  </span>
+                  <h1 className="mt-1 text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-foreground">
+                    for Your Order{customer.firstName ? `, ${customer.firstName}` : customer.fullName ? `, ${customer.fullName}` : ""}!
+                  </h1>
+                </div>
                 <p className="mx-auto max-w-xl text-xs md:text-sm text-muted-foreground leading-relaxed">
                   Your order has been received and verified. Our fulfillment team is preparing your package for courier dispatch.
                 </p>
@@ -686,9 +701,9 @@ export default function CheckoutClient() {
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-xs md:text-sm font-bold text-emerald-900 transition-all hover:bg-emerald-100 active:scale-98"
+                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-xs md:text-sm font-bold text-emerald-900 transition-all hover:bg-emerald-100 active:scale-98 shadow-xs"
                     >
-                      <MessageCircle className="h-4 w-4 text-emerald-600" />
+                      <WhatsAppIcon className="h-4 w-4 fill-[#25D366]" />
                       <span>WhatsApp Support</span>
                     </a>
                   </div>
@@ -1305,12 +1320,6 @@ export default function CheckoutClient() {
                         </div>
                       ) : (
                         <div className="space-y-3.5">
-                          {hasRestrictedPaymentMethods && (
-                            <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-neutral-100 border border-black/10 text-[11px] font-medium text-neutral-600">
-                              <span className="h-1.5 w-1.5 rounded-full bg-neutral-900 shrink-0" />
-                              <span>Payment options restricted based on items in your cart.</span>
-                            </div>
-                          )}
                           {filteredPaymentMethods.map((method) => {
                             const isSelected = paymentMethod === method.id;
                             const isCod = isCodMethod(method);
@@ -2080,9 +2089,9 @@ export default function CheckoutClient() {
                       href="https://wa.me/923000421772"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition-colors"
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition-colors shadow-2xs"
                     >
-                      <MessageCircle className="h-3.5 w-3.5 text-emerald-600" />
+                      <WhatsAppIcon className="h-4 w-4 fill-[#25D366]" />
                       <span>WhatsApp</span>
                     </a>
                   </div>

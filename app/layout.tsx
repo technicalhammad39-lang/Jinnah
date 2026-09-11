@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Poppins, Cormorant_Garamond } from "next/font/google";
+import { Poppins, Cormorant_Garamond, Great_Vibes } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/context/AppContext";
 import { AppChrome } from "@/components/providers/AppChrome";
@@ -22,6 +22,14 @@ const serifFont = Cormorant_Garamond({
   weight: ["400", "500"],
   style: ["italic"],
   variable: "--font-serif",
+  display: "swap",
+  preload: false,
+});
+
+const calligraphyFont = Great_Vibes({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-calligraphy",
   display: "swap",
   preload: false,
 });
@@ -108,7 +116,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${sansFont.variable} ${serifFont.variable} font-sans`}>
+    <html lang="en" className={`${sansFont.variable} ${serifFont.variable} ${calligraphyFont.variable} font-sans`}>
       <head>
         <JsonLd />
       </head>
