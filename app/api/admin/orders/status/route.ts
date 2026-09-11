@@ -2,8 +2,14 @@ import { NextResponse } from 'next/server';
 import { adminDb, getAdminApp } from '@/lib/firebase-admin';
 import * as admin from 'firebase-admin';
 import { handleOrderStatusEmail } from '@/lib/email/automation';
+import { verifyAdminRequest, adminUnauthorizedResponse } from '@/lib/admin-auth-guard';
 
 export async function POST(req: Request) {
+  const authResult = await verifyAdminRequest(req);
+  if (!authResult.success) {
+    return adminUnauthorizedResponse(authResult);
+  }
+
   try {
     const app = getAdminApp();
     if (!app) {

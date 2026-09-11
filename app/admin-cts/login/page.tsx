@@ -1,29 +1,57 @@
 "use client";
 
 import { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithCustomToken } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Loader2, Lock, Mail } from "lucide-react";
+import { Loader2, Lock, Mail, ShieldAlert } from "lucide-react";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [retryAfter, setRetryAfter] = useState<number | null>(null);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setRetryAfter(null);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const res = await fetch("/api/admin/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        if (res.status === 429) {
+          setRetryAfter(data.retryAfter || 300);
+          setError(data.error || "Too many failed login attempts. Access temporarily restricted.");
+        } else {
+          setError(data.error || "Invalid admin credentials");
+        }
+        return;
+      }
+
+      // Synchronize client-side Firebase Auth with the issued custom token
+      if (data.customToken) {
+        try {
+          await signInWithCustomToken(auth, data.customToken);
+        } catch (syncErr) {
+          console.warn("[AdminLogin] Client token sync notice:", syncErr);
+        }
+      }
+
       router.push("/admin-cts");
     } catch (err: any) {
-      setError("Invalid admin credentials");
+      setError("Unable to complete login. Please check your network and try again.");
     } finally {
       setLoading(false);
     }

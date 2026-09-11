@@ -58,6 +58,8 @@ type Order = {
   trackingNumber?: string | null;
   estimatedDelivery?: string | null;
   publicTrackingNotes?: string | null;
+  transactionId?: string | null;
+  paymentProof?: string | null;
   createdAt: string;
 };
 

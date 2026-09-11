@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import { getEmailLogsList } from "@/lib/email/db";
+import { verifyAdminRequest, adminUnauthorizedResponse } from "@/lib/admin-auth-guard";
 
 export async function GET(req: Request) {
+  const authResult = await verifyAdminRequest(req);
+  if (!authResult.success) {
+    return adminUnauthorizedResponse(authResult);
+  }
+
   try {
     const { searchParams } = new URL(req.url);
     const limit = Math.min(150, Math.max(1, Number(searchParams.get("limit")) || 60));

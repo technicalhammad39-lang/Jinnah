@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
 import { EmailTemplate } from "@/lib/email/types";
 import { getEmailTemplatesList, saveEmailTemplateDoc, deleteEmailTemplateDoc } from "@/lib/email/db";
+import { verifyAdminRequest, adminUnauthorizedResponse } from "@/lib/admin-auth-guard";
 
-export async function GET() {
+export async function GET(req: Request) {
+  const authResult = await verifyAdminRequest(req);
+  if (!authResult.success) {
+    return adminUnauthorizedResponse(authResult);
+  }
+
   try {
     const templates = await getEmailTemplatesList();
     return NextResponse.json({ success: true, templates });
@@ -13,6 +19,11 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const authResult = await verifyAdminRequest(req);
+  if (!authResult.success) {
+    return adminUnauthorizedResponse(authResult);
+  }
+
   try {
     const body = await req.json();
     const id = body.id || `tpl_${Date.now()}`;
@@ -40,6 +51,11 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  const authResult = await verifyAdminRequest(req);
+  if (!authResult.success) {
+    return adminUnauthorizedResponse(authResult);
+  }
+
   try {
     const { id } = await req.json();
     if (!id) {
@@ -53,3 +69,4 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: error.message || "Failed to delete template" }, { status: 500 });
   }
 }
+

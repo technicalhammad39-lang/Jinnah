@@ -1,0 +1,133 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if the user is an authenticated admin
+    function isAdmin() {
+      return request.auth != null && 
+        exists(/databases/$(database)/documents/adminUsers/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/adminUsers/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // ==========================================
+    // SECURITY COLLECTIONS (STRICT HARDENING)
+    // ==========================================
+    // All security writes MUST be performed exclusively server-side via Firebase Admin SDK.
+    // Client SDKs are NEVER permitted to create, update, or delete security records.
+    match /security_admin_sessions/{sessionId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /security_login_history/{historyId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /security_alerts/{alertId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /security_rate_limits/{limitId} {
+      allow read, write: if false; // strictly internal server-side
+    }
+
+    // ==========================================
+    // ADMIN USERS & RBAC
+    // ==========================================
+    match /adminUsers/{userId} {
+      // Admins can read all admin users; an authenticated user can read their own record to verify role
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      // Admin privileges cannot be self-assigned or created from client-side
+      allow write: if false;
+    }
+
+    // ==========================================
+    // ENTERPRISE EMAIL CENTER COLLECTIONS
+    // ==========================================
+    match /email_messages/{messageId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /email_templates/{templateId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /email_settings/{settingId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /email_logs/{logId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /email_campaigns/{campaignId} {
+      allow read, write: if isAdmin();
+    }
+
+    // ==========================================
+    // E-COMMERCE & PUBLIC STORE COLLECTIONS
+    // ==========================================
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /brands/{brandId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /banners/{bannerId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /blogs/{blogId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    match /orders/{orderId} {
+      allow read: if isAdmin() || (request.auth != null && resource.data.userId == request.auth.uid);
+      allow create: if true; // Public checkout flow
+      allow update, delete: if isAdmin();
+    }
+
+    match /discounts/{discountId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /messages/{messageId} {
+      allow create: if true; // Public contact form
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /inventory_adjustments/{adjustmentId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /payment_methods/{methodId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

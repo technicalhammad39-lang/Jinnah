@@ -123,10 +123,6 @@ export default function CheckoutClient() {
     return type === "wallet" || title.includes("jazzcash") || title.includes("easypaisa") || title.includes("sadapay") || title.includes("nayapay") || title.includes("wallet");
   };
 
-  const selectedPaymentMethodObj = useMemo(() => {
-    return availablePaymentMethods.find((m) => m.id === paymentMethod);
-  }, [availablePaymentMethods, paymentMethod]);
-
   const handlePaymentProofUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -1410,7 +1406,7 @@ export default function CheckoutClient() {
                   {/* Cart Items List */}
                   <div className="space-y-3 max-h-72 overflow-y-auto pr-1 divide-y divide-black/5">
                     {cart.map((item) => {
-                      const { finalPrice } = calculateProductPrice(item.product, discounts);
+                      const { finalPrice } = calculateProductPrice(item.product.price, item.product.id, discounts);
                       return (
                         <div
                           key={`${item.product.id}-${item.selectedColor}-${item.selectedSize}`}

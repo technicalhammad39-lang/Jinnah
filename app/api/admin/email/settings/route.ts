@@ -2,8 +2,14 @@ import { NextResponse } from "next/server";
 import { EmailSettings } from "@/lib/email/types";
 import { encryptCredential, maskSensitive } from "@/lib/email/crypto";
 import { getStoredEmailSettings, saveStoredEmailSettings } from "@/lib/email/db";
+import { verifyAdminRequest, adminUnauthorizedResponse } from "@/lib/admin-auth-guard";
 
-export async function GET() {
+export async function GET(req: Request) {
+  const authResult = await verifyAdminRequest(req);
+  if (!authResult.success) {
+    return adminUnauthorizedResponse(authResult);
+  }
+
   try {
     const existing = await getStoredEmailSettings();
 
@@ -49,6 +55,11 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const authResult = await verifyAdminRequest(req);
+  if (!authResult.success) {
+    return adminUnauthorizedResponse(authResult);
+  }
+
   try {
     const body = await req.json();
     const existing = await getStoredEmailSettings();

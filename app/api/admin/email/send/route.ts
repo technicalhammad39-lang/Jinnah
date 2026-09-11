@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
 import { getStoredEmailSettings, saveEmailMessageDoc } from "@/lib/email/db";
 import { sendEmailViaSmtp } from "@/lib/email/smtp";
+import { verifyAdminRequest, adminUnauthorizedResponse } from "@/lib/admin-auth-guard";
 
 export async function POST(req: Request) {
+  const authResult = await verifyAdminRequest(req);
+  if (!authResult.success) {
+    return adminUnauthorizedResponse(authResult);
+  }
+
   try {
     const body = await req.json();
     const {

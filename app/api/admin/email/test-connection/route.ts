@@ -3,8 +3,14 @@ import { verifySmtpConnection } from "@/lib/email/smtp";
 import { verifyImapConnection } from "@/lib/email/imap";
 import { EmailSettings } from "@/lib/email/types";
 import { getStoredEmailSettings } from "@/lib/email/db";
+import { verifyAdminRequest, adminUnauthorizedResponse } from "@/lib/admin-auth-guard";
 
 export async function POST(req: Request) {
+  const authResult = await verifyAdminRequest(req);
+  if (!authResult.success) {
+    return adminUnauthorizedResponse(authResult);
+  }
+
   try {
     const { type, config } = await req.json();
 

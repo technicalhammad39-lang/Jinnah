@@ -60,6 +60,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [pathname, router]);
 
   const logout = async () => {
+    try {
+      await fetch("/api/admin/auth/logout", { method: "POST" });
+    } catch (error) {
+      console.error("Error logging out on server:", error);
+    }
     await signOut(auth);
     router.push("/admin-cts/login");
   };

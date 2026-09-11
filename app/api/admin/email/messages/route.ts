@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
 import { EmailFolder } from "@/lib/email/types";
 import { getEmailMessages, updateEmailMessagesBatch, deleteEmailMessagesBatch } from "@/lib/email/db";
+import { verifyAdminRequest, adminUnauthorizedResponse } from "@/lib/admin-auth-guard";
 
 export async function GET(req: Request) {
+  const authResult = await verifyAdminRequest(req);
+  if (!authResult.success) {
+    return adminUnauthorizedResponse(authResult);
+  }
+
   try {
     const { searchParams } = new URL(req.url);
     const folder = (searchParams.get("folder") || "inbox") as EmailFolder;
@@ -31,6 +37,11 @@ export async function GET(req: Request) {
 }
 
 export async function PATCH(req: Request) {
+  const authResult = await verifyAdminRequest(req);
+  if (!authResult.success) {
+    return adminUnauthorizedResponse(authResult);
+  }
+
   try {
     const { ids, action, targetFolder } = await req.json();
 
@@ -82,6 +93,11 @@ export async function PATCH(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  const authResult = await verifyAdminRequest(req);
+  if (!authResult.success) {
+    return adminUnauthorizedResponse(authResult);
+  }
+
   try {
     const { ids } = await req.json();
 
@@ -97,3 +113,4 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: error.message || "Failed to delete emails" }, { status: 500 });
   }
 }
+
