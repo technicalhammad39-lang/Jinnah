@@ -447,10 +447,16 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                       ref={stepperContainerRef}
                       className="py-6 sm:py-12 md:py-16 px-1 sm:px-8 bg-transparent sm:bg-[#faf9f6] rounded-none sm:rounded-3xl border-0 sm:border sm:border-black/5 overflow-x-auto custom-scrollbar scroll-smooth snap-x snap-mandatory touch-pan-x [mask-image:linear-gradient(to_right,transparent,black_28px,black_calc(100%-28px),transparent)] [-webkit-mask-image:linear-gradient(to_right,transparent,black_28px,black_calc(100%-28px),transparent)] sm:[mask-image:none] sm:[-webkit-mask-image:none]"
                     >
-                      <div className="min-w-[580px] sm:min-w-0 px-6 sm:px-0 py-3">
+                      <div className="min-w-[620px] sm:min-w-0 px-2 sm:px-0 py-3">
                         <div className="relative">
-                          {/* Background Track Line & Dynamic Auto-Animated Progress Fill */}
-                          <div className="absolute left-0 right-0 top-7 sm:top-9 md:top-11 -translate-y-1/2 px-7 sm:px-9 md:px-11 z-0 pointer-events-none">
+                          {/* Background Track Line & Dynamic Auto-Animated Progress Fill (Starts at center of first icon, ends at center of last icon) */}
+                          <div
+                            className="absolute top-7 sm:top-9 md:top-11 -translate-y-1/2 z-0 pointer-events-none"
+                            style={{
+                              left: `${50 / steps.length}%`,
+                              right: `${50 / steps.length}%`,
+                            }}
+                          >
                             <div className="relative w-full h-2 sm:h-2.5 md:h-3 rounded-full bg-black/10 overflow-hidden shadow-inner">
                               {/* Dynamic animated active progress beam */}
                               <div
@@ -469,7 +475,7 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                           </div>
 
                           {/* Step milestones */}
-                          <div className="relative flex justify-between z-10">
+                          <div className="relative flex w-full z-10">
                             {steps.map((step, idx) => {
                               const isPast = idx < currentStepIndex;
                               const isCurrent = idx === currentStepIndex;
@@ -480,7 +486,7 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                                 <div
                                   key={step.id}
                                   ref={isCurrent ? activeStepRef : null}
-                                  className={`flex flex-col items-center text-center max-w-[125px] sm:max-w-[155px] snap-center shrink-0 sm:shrink py-2 transition-all duration-300 ${
+                                  className={`flex-1 flex flex-col items-center text-center px-1 sm:px-2 snap-center shrink-0 sm:shrink pt-0 pb-2 transition-all duration-300 ${
                                     isCurrent ? "scale-105" : isPast ? "opacity-95" : "opacity-60"
                                   }`}
                                 >
@@ -546,11 +552,11 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                           </div>
                         </div>
                       </div>
+                    </div>
 
-                      {/* Subtle swipe hint on mobile */}
-                      <div className="sm:hidden flex items-center justify-center gap-1 text-[11px] font-bold text-muted-foreground/80 mt-2">
-                        <span className="text-primary/70">← Swipe milestones to view all →</span>
-                      </div>
+                    {/* Subtle swipe hint on mobile: Static and centered outside the scrollable viewport */}
+                    <div className="sm:hidden flex items-center justify-center gap-1 text-[11px] font-bold text-muted-foreground/80 mt-3 text-center pointer-events-none">
+                      <span className="text-primary/75">← Swipe milestones to view all →</span>
                     </div>
                   </div>
                 )}
