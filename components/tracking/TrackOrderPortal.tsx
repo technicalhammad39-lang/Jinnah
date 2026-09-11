@@ -567,14 +567,17 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                     {/* Top Row: Left Logo, Right Logistics Partner Name */}
                     <div className="flex items-center justify-between gap-4 pb-4 border-b border-black/5">
                       {/* Top Left: Logo */}
-                      <div className="flex h-14 w-20 sm:h-16 sm:w-28 items-center justify-center rounded-xl sm:rounded-2xl bg-gray-50 border border-black/10 p-2 shrink-0 overflow-hidden shadow-xs">
+                      <div className="relative flex h-14 w-24 sm:h-16 sm:w-28 items-center justify-center rounded-xl sm:rounded-2xl bg-white border border-black/10 shrink-0 overflow-hidden shadow-xs">
                         {getCourierLogo(activeOrder.courierName) ? (
                           <Image
                             src={getCourierLogo(activeOrder.courierName)!}
                             alt={activeOrder.courierName || "Courier Logo"}
-                            width={90}
-                            height={60}
-                            className="max-h-full max-w-full object-contain"
+                            fill
+                            className={
+                              (activeOrder.courierName || "").toLowerCase().includes("leopard")
+                                ? "object-cover"
+                                : "object-contain p-2"
+                            }
                           />
                         ) : (
                           <Truck className="h-7 w-7 text-primary shrink-0" />
