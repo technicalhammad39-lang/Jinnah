@@ -97,9 +97,10 @@ export async function handleOrderStatusEmail(order: any, newStatus: string) {
 
   try {
     const customerName = `${order.customerInfo?.firstName || ""} ${order.customerInfo?.lastName || ""}`.trim() || order.customer?.name || "Customer";
-    const orderNumber = order.id || "JH-ORDER";
+    const trackingId = order.trackingId || order.id || "JH-ORDER";
+    const orderNumber = trackingId;
     const baseUrl = (process.env.APP_URL || "https://jinnah-hardwarestore.com").replace(/\/$/, "");
-    const trackingUrl = `${baseUrl}/track-order/${orderNumber}`;
+    const trackingUrl = `${baseUrl}/track-order/${trackingId}`;
     const orderTotal = (order.total || 0).toLocaleString();
 
     let templateSlug = "";

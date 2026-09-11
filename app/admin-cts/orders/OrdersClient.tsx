@@ -34,6 +34,7 @@ type OrderItem = {
 type Order = {
   dbKey: string;
   id: string;
+  trackingId?: string;
   customerInfo: {
     firstName: string;
     lastName: string;
@@ -335,6 +336,11 @@ export default function OrdersClient() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-bold text-foreground text-sm sm:text-base">Order #{order.id}</h3>
+                        {order.trackingId && (
+                          <span className="font-mono text-[11px] font-extrabold text-primary bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">
+                            {order.trackingId}
+                          </span>
+                        )}
                         {getStatusBadge(order.status)}
                       </div>
                       <p className="mt-1 text-xs sm:text-sm font-medium text-gray-800 truncate">
@@ -399,7 +405,7 @@ export default function OrdersClient() {
                     <Truck className="h-4 w-4" /> Logistics & Courier
                   </h3>
                   <a
-                    href={`/track-order/${selectedOrder.id}`}
+                    href={`/track-order/${selectedOrder.trackingId || selectedOrder.id}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline"

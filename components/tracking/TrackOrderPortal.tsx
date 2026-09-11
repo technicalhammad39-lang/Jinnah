@@ -74,11 +74,9 @@ interface TrackOrderPortalProps {
 export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPortalProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const idParam = searchParams.get("id") || searchParams.get("query") || initialReference || "";
-  const phoneParam = searchParams.get("phone") || "";
+  const idParam = searchParams.get("id") || searchParams.get("query") || searchParams.get("trackingId") || initialReference || "";
 
   const [orderIdInput, setOrderIdInput] = useState(idParam);
-  const [phoneInput, setPhoneInput] = useState(phoneParam);
   const [activeOrder, setActiveOrder] = useState<OrderTrackingData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -86,16 +84,11 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
   const [copiedCourierCn, setCopiedCourierCn] = useState(false);
 
   // Fetch order tracking from API
-  const fetchTracking = async (idToFetch?: string, phoneToFetch?: string) => {
+  const fetchTracking = async (idToFetch?: string) => {
     const id = (idToFetch ?? orderIdInput).trim();
-    const phone = (phoneToFetch ?? phoneInput).trim();
 
     if (!id) {
-      toast.error("Please enter your Order ID (#JH-XXXX-XXXX)");
-      return;
-    }
-    if (!phone) {
-      toast.error("Please enter the contact phone number used during checkout");
+      toast.error("Please enter your Tracking ID (e.g. JH7K4M92)");
       return;
     }
     setIsLoading(true);
@@ -103,50 +96,44 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
 
     try {
       const res = await fetch(
-        `/api/orders/track?id=${encodeURIComponent(id)}&phone=${encodeURIComponent(phone)}`
+        `/api/orders/track?id=${encodeURIComponent(id)}`
       );
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Order not found or verification details did not match.");
+        throw new Error(data.error || "No matching order found for the provided Tracking ID.");
       }
 
       setActiveOrder(data.order);
       setErrorMessage("");
     } catch (err: any) {
       setActiveOrder(null);
-      setErrorMessage(err.message || "Unable to retrieve order details. Please verify your Order ID and phone number.");
+      setErrorMessage(err.message || "Unable to retrieve order details. Please verify your Tracking ID.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Initial fetch if both parameters exist in URL query params
+  // Initial fetch if ID exists in URL query params or reference prop
   useEffect(() => {
-    if (idParam) setOrderIdInput(idParam);
-    if (phoneParam) setPhoneInput(phoneParam);
-    if (idParam && phoneParam) {
-      fetchTracking(idParam, phoneParam);
+    if (idParam) {
+      setOrderIdInput(idParam);
+      fetchTracking(idParam);
     }
-  }, [idParam, phoneParam]);
+  }, [idParam]);
 
   // Handle Search Submission
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanId = orderIdInput.trim();
-    const cleanPhone = phoneInput.trim();
 
     if (!cleanId) {
-      toast.error("Please enter your Order ID (#JH-XXXX-XXXX)");
-      return;
-    }
-    if (!cleanPhone) {
-      toast.error("Please enter the contact phone number used during checkout");
+      toast.error("Please enter your Tracking ID (e.g. JH7K4M92)");
       return;
     }
 
-    router.push(`/track-order?id=${encodeURIComponent(cleanId)}&phone=${encodeURIComponent(cleanPhone)}`);
-    fetchTracking(cleanId, cleanPhone);
+    router.push(`/track-order?id=${encodeURIComponent(cleanId)}`);
+    fetchTracking(cleanId);
   };
 
   // Copy tracking helper
@@ -299,31 +286,20 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                 Real-time consignment status, warehouse processing, and courier milestones across Pakistan.
               </p>
 
-              {/* Dual-Factor Order Verification Form */}
-              <form onSubmit={handleSearchSubmit} className="relative mx-auto max-w-3xl w-full">
-                <div className="flex flex-col sm:flex-row items-stretch rounded-2xl sm:rounded-3xl bg-white p-2 sm:p-2.5 shadow-2xl shadow-black/60 gap-2 sm:gap-2">
-                  {/* Order ID Input */}
+              {/* Single Tracking ID Verification Form */}
+              <form onSubmit={handleSearchSubmit} className="relative mx-auto max-w-2xl w-full">
+                <div className="flex flex-col sm:flex-row items-stretch rounded-2xl sm:rounded-3xl bg-white p-2 sm:p-2.5 shadow-2xl shadow-black/60 gap-2">
+                  {/* Tracking ID Input */}
                   <div className="flex-1 flex items-center bg-gray-50/90 rounded-xl sm:rounded-2xl px-3 py-1 border border-black/5 focus-within:border-primary focus-within:bg-white transition-all">
                     <Search className="h-5 w-5 text-muted-foreground ml-1 shrink-0" />
                     <input
                       type="text"
-                      placeholder="Order ID (#JH-XXXX-XXXX)"
+                      placeholder="Tracking ID (e.g. JH7K4M92)"
                       value={orderIdInput}
-                      onChange={(e) => setOrderIdInput(e.target.value)}
-                      className="w-full bg-transparent px-3 py-3 text-sm sm:text-base font-bold text-[#11100e] outline-none placeholder:text-muted-foreground/60 placeholder:font-normal font-mono"
-                      required
-                    />
-                  </div>
-
-                  {/* Phone Verification Input */}
-                  <div className="flex-1 flex items-center bg-gray-50/90 rounded-xl sm:rounded-2xl px-3 py-1 border border-black/5 focus-within:border-primary focus-within:bg-white transition-all">
-                    <Phone className="h-5 w-5 text-muted-foreground ml-1 shrink-0" />
-                    <input
-                      type="tel"
-                      placeholder="Billing Phone (03001234567)"
-                      value={phoneInput}
-                      onChange={(e) => setPhoneInput(e.target.value)}
-                      className="w-full bg-transparent px-3 py-3 text-sm sm:text-base font-bold text-[#11100e] outline-none placeholder:text-muted-foreground/60 placeholder:font-normal font-mono"
+                      onChange={(e) => setOrderIdInput(e.target.value.toUpperCase().trim())}
+                      className="w-full bg-transparent px-3 py-3 text-sm sm:text-base font-bold text-[#11100e] outline-none placeholder:text-muted-foreground/60 placeholder:font-normal font-mono uppercase"
+                      maxLength={40}
+                      autoCapitalize="characters"
                       required
                     />
                   </div>
@@ -337,7 +313,7 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                     {isLoading ? (
                       <span className="inline-flex items-center gap-2">
                         <span className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                        Verifying...
+                        Tracking...
                       </span>
                     ) : (
                       <span>Track Order</span>
@@ -346,14 +322,14 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                 </div>
               </form>
 
-              {/* Security & Privacy Callout */}
+              {/* Security & Verification Callout */}
               <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm text-white/80">
                 <div className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1 text-xs font-semibold text-white/90 backdrop-blur-sm border border-white/15">
-                  <ShieldCheck className="h-3.5 w-3.5 text-amber-400" />
-                  <span>Secure Dual Verification</span>
+                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+                  <span>Instant Status Verification</span>
                 </div>
                 <span className="text-white/40 hidden sm:inline">•</span>
-                <span className="text-white/70 text-xs">Requires Order ID and Phone used at checkout to protect customer privacy.</span>
+                <span className="text-white/70 text-xs">Enter your 8-character public Tracking ID to view real-time delivery status.</span>
               </div>
             </div>
           </div>
@@ -406,11 +382,11 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                   <div>
                     <div className="flex items-center gap-3">
                       <span className="text-xs sm:text-sm font-black uppercase tracking-widest text-muted-foreground">
-                        Consignment Order
+                        Tracking ID
                       </span>
                       <button
                         onClick={() => handleCopy(activeOrder.id, "order")}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 text-xs sm:text-sm font-bold transition-all"
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 text-xs sm:text-sm font-bold transition-all cursor-pointer"
                       >
                         {copiedTrackingId ? (
                           <>
@@ -418,13 +394,13 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                           </>
                         ) : (
                           <>
-                            <Copy className="h-4 w-4" /> Copy ID
+                            <Copy className="h-4 w-4" /> Copy Tracking ID
                           </>
                         )}
                       </button>
                     </div>
                     <h2 className="mt-2 font-mono text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-foreground tracking-tight">
-                      #{activeOrder.id}
+                      {activeOrder.id.startsWith("JH-") ? `#${activeOrder.id}` : activeOrder.id}
                     </h2>
                     <p className="mt-2 text-xs sm:text-sm md:text-base text-muted-foreground font-medium">
                       Placed on:{" "}

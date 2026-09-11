@@ -2,12 +2,18 @@ import { NextResponse } from "next/server";
 import { adminDb, getAdminApp } from "@/lib/firebase-admin";
 import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
+import * as admin from "firebase-admin";
 import { extractClientIp } from "@/lib/security/request-context";
 import { 
   checkTrackRateLimit, 
   recordFailedTrackAttempt, 
   resetTrackRateLimit 
 } from "@/lib/security/track-rate-limiter";
+import { 
+  isValidOrderIdentifier, 
+  isValidPublicTrackingId, 
+  generateUniqueTrackingId 
+} from "@/lib/security/tracking-id";
 
 /**
  * Masks phone numbers for public privacy: 03001234567 -> 0300-****567
@@ -20,42 +26,7 @@ function maskPhoneNumber(phone?: string): string {
     const end = cleaned.slice(-3);
     return `${start}-****${end}`;
   }
-  return phone;
-}
-
-/**
- * Normalizes phone numbers to comparable subscriber digits.
- * Strips leading 0 or 92 country code to handle formatting variations smoothly.
- */
-function normalizePhone(phone?: string | null): string {
-  if (!phone) return "";
-  const digits = phone.replace(/\D/g, "");
-  if (digits.startsWith("92") && digits.length >= 12) {
-    return digits.slice(2);
-  }
-  if (digits.startsWith("0") && digits.length >= 11) {
-    return digits.slice(1);
-  }
-  return digits;
-}
-
-/**
- * Verifies that the client-supplied phone matches the phone stored on the order.
- */
-function isPhoneMatch(orderPhone?: string | null, suppliedPhone?: string | null): boolean {
-  if (!orderPhone || !suppliedPhone) return false;
-  const normOrder = normalizePhone(orderPhone);
-  const normSupplied = normalizePhone(suppliedPhone);
-
-  if (!normOrder || !normSupplied) return false;
-  if (normOrder === normSupplied) return true;
-
-  // Check last 7 to 10 subscriber digits
-  if (normOrder.length >= 7 && normSupplied.length >= 7) {
-    return normOrder.endsWith(normSupplied) || normSupplied.endsWith(normOrder);
-  }
-
-  return false;
+  return phone.length > 4 ? `${phone.slice(0, 3)}****` : "****";
 }
 
 /**
@@ -77,38 +48,37 @@ export async function GET(req: Request) {
     const clientIp = extractClientIp(req);
     const { searchParams } = new URL(req.url);
 
-    const rawId = (searchParams.get("id") || searchParams.get("query") || searchParams.get("orderId") || "").trim();
-    const rawPhone = (searchParams.get("phone") || "").trim();
+    const rawId = (
+      searchParams.get("id") || 
+      searchParams.get("query") || 
+      searchParams.get("orderId") || 
+      searchParams.get("trackingId") || 
+      ""
+    ).trim();
 
-    // 1. Mandatory Dual-Factor Requirement: Order ID + Phone Number
-    if (!rawId || !rawPhone) {
+    // 1. Mandatory Identifier Requirement (Single-Factor Tracking)
+    if (!rawId) {
       return NextResponse.json(
         { 
-          error: "Both Order ID (#JH-XXXX-XXXX) and the phone number used during checkout are required to track an order." 
+          error: "Tracking ID is required. Please enter your 8-character Tracking ID (e.g. JH7K4M92)." 
         },
         { status: 400 }
       );
     }
 
     // 2. Input Format Validation
-    // Order ID format: Must be clean alphanumeric + hyphen/hash (e.g. #JH-XXXX-XXXX or JH-XXXX-XXXX or courier CN)
+    // Supports exact 8-char tracking ID (JH + 6 chars), legacy #JH-XXXX-XXXX, and courier CN
     const cleanId = rawId.toUpperCase().replace(/^#/, "");
-    if (!/^[A-Z0-9_-]{4,40}$/i.test(cleanId)) {
+    if (!isValidOrderIdentifier(cleanId)) {
       return NextResponse.json(
-        { error: "Invalid Order ID format. Expected format: #JH-XXXX-XXXX" },
+        { 
+          error: "Invalid Tracking ID format. Expected format: JH followed by 6 characters (e.g. JH7K4M92)." 
+        },
         { status: 400 }
       );
     }
 
-    const cleanPhoneDigits = rawPhone.replace(/\D/g, "");
-    if (cleanPhoneDigits.length < 7 || cleanPhoneDigits.length > 15) {
-      return NextResponse.json(
-        { error: "Invalid phone number format. Please enter a valid contact number." },
-        { status: 400 }
-      );
-    }
-
-    // 3. Rate Limit Evaluation (Protects IP and targeted Order ID from enumeration)
+    // 3. Rate Limit Evaluation (Protects IP and targeted Tracking ID from enumeration attacks)
     const rateLimit = await checkTrackRateLimit(clientIp, cleanId);
     if (!rateLimit.allowed) {
       return NextResponse.json(
@@ -123,14 +93,27 @@ export async function GET(req: Request) {
 
     if (adminApp) {
       try {
-        // Direct document lookup by doc ID (orders/${cleanId})
-        const docRef = adminDb.collection("orders").doc(cleanId);
-        const docSnap = await docRef.get();
-        if (docSnap.exists) {
-          foundOrder = { dbKey: docSnap.id, ...docSnap.data() };
+        // Priority A: Query by new public 'trackingId' field (e.g. JH7K4M92)
+        const qTracking = await adminDb
+          .collection("orders")
+          .where("trackingId", "==", cleanId)
+          .limit(1)
+          .get();
+        if (!qTracking.empty) {
+          const first = qTracking.docs[0];
+          foundOrder = { dbKey: first.id, ...first.data() };
         }
 
-        // Query by 'id' field if not matched by doc id
+        // Priority B: Direct document lookup by doc ID (orders/${cleanId})
+        if (!foundOrder) {
+          const docRef = adminDb.collection("orders").doc(cleanId);
+          const docSnap = await docRef.get();
+          if (docSnap.exists) {
+            foundOrder = { dbKey: docSnap.id, ...docSnap.data() };
+          }
+        }
+
+        // Priority C: Query by legacy 'id' field if not matched by doc ID
         if (!foundOrder) {
           const qSnap = await adminDb
             .collection("orders")
@@ -143,7 +126,7 @@ export async function GET(req: Request) {
           }
         }
 
-        // Query with 'JH-' prefix if user omitted it
+        // Priority D: Query with 'JH-' prefix if user omitted it
         if (!foundOrder && !cleanId.startsWith("JH-")) {
           const withJH = `JH-${cleanId}`;
           const qSnap = await adminDb
@@ -157,7 +140,7 @@ export async function GET(req: Request) {
           }
         }
 
-        // Query by Courier tracking number / Consignment Number
+        // Priority E: Query by Courier tracking number / Consignment Number
         if (!foundOrder) {
           const qSnap = await adminDb
             .collection("orders")
@@ -174,24 +157,34 @@ export async function GET(req: Request) {
       }
     }
 
-    // Fallback to client Firestore SDK if needed
+    // Fallback to client Firestore SDK if adminApp is unavailable
     if (!foundOrder) {
       try {
-        const singleSnap = await getDoc(doc(db, "orders", cleanId));
-        if (singleSnap.exists()) {
-          foundOrder = { dbKey: singleSnap.id, ...singleSnap.data() };
+        // Fallback A: trackingId query
+        const qTrack = query(collection(db, "orders"), where("trackingId", "==", cleanId));
+        const snapTrack = await getDocs(qTrack);
+        if (!snapTrack.empty) {
+          const first = snapTrack.docs[0];
+          foundOrder = { dbKey: first.id, ...first.data() };
         } else {
-          const q = query(collection(db, "orders"), where("id", "==", cleanId));
-          const snap = await getDocs(q);
-          if (!snap.empty) {
-            const first = snap.docs[0];
-            foundOrder = { dbKey: first.id, ...first.data() };
-          } else if (!cleanId.startsWith("JH-")) {
-            const qJH = query(collection(db, "orders"), where("id", "==", `JH-${cleanId}`));
-            const snapJH = await getDocs(qJH);
-            if (!snapJH.empty) {
-              const first = snapJH.docs[0];
+          // Fallback B: direct doc ID
+          const singleSnap = await getDoc(doc(db, "orders", cleanId));
+          if (singleSnap.exists()) {
+            foundOrder = { dbKey: singleSnap.id, ...singleSnap.data() };
+          } else {
+            // Fallback C: id field
+            const q = query(collection(db, "orders"), where("id", "==", cleanId));
+            const snap = await getDocs(q);
+            if (!snap.empty) {
+              const first = snap.docs[0];
               foundOrder = { dbKey: first.id, ...first.data() };
+            } else if (!cleanId.startsWith("JH-")) {
+              const qJH = query(collection(db, "orders"), where("id", "==", `JH-${cleanId}`));
+              const snapJH = await getDocs(qJH);
+              if (!snapJH.empty) {
+                const first = snapJH.docs[0];
+                foundOrder = { dbKey: first.id, ...first.data() };
+              }
             }
           }
         }
@@ -200,39 +193,46 @@ export async function GET(req: Request) {
       }
     }
 
-    // Generic error message for both non-existent order and phone mismatch
-    // (Prevents Order ID enumeration attacks)
+    // 5. Anti-Enumeration Protection: Generic not-found message
     const genericNotFoundMessage =
-      "No matching order found for the provided Order ID and phone number. Please check your details and try again.";
+      "No matching order found for the provided Tracking ID. Please check your details and try again.";
 
-    // 5. Verify Order Exists AND Verify Phone Ownership
     if (!foundOrder) {
       await recordFailedTrackAttempt(clientIp, cleanId);
       return NextResponse.json({ error: genericNotFoundMessage }, { status: 404 });
     }
 
-    const orderPhone = foundOrder.customerInfo?.phone;
-    const isAuthorized = isPhoneMatch(orderPhone, rawPhone);
-
-    if (!isAuthorized) {
-      // Record failed verification attempt against this Order ID and IP
-      await recordFailedTrackAttempt(clientIp, cleanId);
-      return NextResponse.json({ error: genericNotFoundMessage }, { status: 404 });
-    }
-
-    // 6. Verification Succeeded — Reset failed attempt counter for this Order
+    // 6. Reset Rate Limit Counter on Successful Match
     await resetTrackRateLimit(cleanId);
 
-    // 7. Format Dates Safely
+    // 7. Backward Compatibility: Safely generate and persist trackingId for existing orders if missing
+    if (!foundOrder.trackingId && adminApp) {
+      try {
+        const newTrackingId = await generateUniqueTrackingId(adminDb);
+        foundOrder.trackingId = newTrackingId;
+        const targetDocId = foundOrder.dbKey || foundOrder.id;
+        adminDb.collection("orders").doc(targetDocId).update({
+          trackingId: newTrackingId,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        }).catch((err: any) => console.warn("[Tracking API] Auto-persisting trackingId failed:", err));
+      } catch (migErr) {
+        console.warn("[Tracking API] Auto-migration of trackingId failed:", migErr);
+      }
+    }
+
+    // 8. Format Dates Safely
     const createdAtIso = foundOrder.createdAt?.toDate
       ? foundOrder.createdAt.toDate().toISOString()
       : typeof foundOrder.createdAt === "string"
       ? foundOrder.createdAt
       : new Date().toISOString();
 
-    // 8. Sanitize Response (Data Minimization: Masked PII, no payment proofs, no private notes)
+    // 9. Sanitize Response (Strict Data Minimization: Masked PII, ZERO payment proofs, ZERO transaction IDs, ZERO admin notes)
+    const publicTrackingId = foundOrder.trackingId || cleanId;
+
     const sanitizedOrder = {
-      id: foundOrder.id || cleanId,
+      id: publicTrackingId,
+      trackingId: publicTrackingId,
       status: foundOrder.status || "pending",
       courierName: foundOrder.courierName || null,
       trackingNumber: foundOrder.trackingNumber || null,

@@ -87,6 +87,7 @@ export default function CheckoutClient() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [orderId, setOrderId] = useState("");
+  const [trackingId, setTrackingId] = useState("");
   const [copiedOrderId, setCopiedOrderId] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [placedOrderSummary, setPlacedOrderSummary] = useState<any>(null);
@@ -255,10 +256,11 @@ export default function CheckoutClient() {
   };
 
   const handleCopyOrderId = () => {
-    if (!orderId) return;
-    navigator.clipboard.writeText(orderId);
+    const idToCopy = trackingId || orderId;
+    if (!idToCopy) return;
+    navigator.clipboard.writeText(idToCopy);
     setCopiedOrderId(true);
-    toast.success("Order & Tracking ID copied to clipboard!");
+    toast.success("Tracking ID copied to clipboard!");
     setTimeout(() => setCopiedOrderId(false), 2500);
   };
 
@@ -434,6 +436,7 @@ export default function CheckoutClient() {
       });
 
       setOrderId(data.orderId);
+      setTrackingId(data.trackingId || data.orderId);
       setOrderSuccess(true);
       clearCart();
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -504,13 +507,13 @@ export default function CheckoutClient() {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                       <p className="text-[10px] font-extrabold uppercase tracking-widest text-primary">
-                        Official Order & Tracking ID
+                        Official Tracking ID
                       </p>
                       <p className="mt-1 font-mono text-xl md:text-2xl font-black text-foreground tracking-tight">
-                        #{orderId}
+                        {trackingId || orderId}
                       </p>
                       <p className="mt-0.5 text-xs text-muted-foreground">
-                        Save this ID to check your live order & shipment status anytime.
+                        Save this Tracking ID to track your live order status anytime without needing a phone number.
                       </p>
                     </div>
 
@@ -528,7 +531,7 @@ export default function CheckoutClient() {
                         ) : (
                           <>
                             <Copy className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span>Copy ID</span>
+                            <span>Copy Tracking ID</span>
                           </>
                         )}
                       </button>
@@ -537,7 +540,7 @@ export default function CheckoutClient() {
 
                   <div className="mt-5 pt-4 border-t border-primary/15 flex flex-col sm:flex-row gap-3">
                     <Link
-                      href={`/track-order/${orderId}`}
+                      href={`/track-order/${trackingId || orderId}`}
                       className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/95 active:scale-98"
                     >
                       <Truck className="h-4 w-4" />
@@ -547,7 +550,7 @@ export default function CheckoutClient() {
 
                     <a
                       href={`https://wa.me/923000421772?text=${encodeURIComponent(
-                        `Salam Jinnah Hardware Store! Maine abhi website par order place kia hai. Mera Order ID hai: #${orderId}. Kindly confirm.`
+                        `Salam Jinnah Hardware Store! Maine abhi website par order place kia hai. Mera Tracking ID hai: ${trackingId || orderId}. Kindly confirm.`
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -694,7 +697,7 @@ export default function CheckoutClient() {
               {/* Bottom Actions */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
                 <Link
-                  href={`/track-order/${orderId}`}
+                  href={`/track-order/${trackingId || orderId}`}
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-7 py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/95"
                 >
                   <Truck className="h-4 w-4" />

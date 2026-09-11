@@ -4,6 +4,7 @@ import * as admin from 'firebase-admin';
 import { calculateProductPrice, Discount } from '@/lib/discount-engine';
 import { calculateOrderShipping, GlobalShippingSettings } from '@/lib/shipping-engine';
 import { handleOrderStatusEmail } from '@/lib/email/automation';
+import { generateUniqueTrackingId } from '@/lib/security/tracking-id';
 
 export async function POST(req: Request) {
   try {
@@ -54,16 +55,11 @@ export async function POST(req: Request) {
       ...doc.data()
     } as Discount));
 
-    // Generate unique Order ID
-    const generateOrderId = () => {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      let result = 'JH-';
-      for (let i = 0; i < 4; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
-      result += '-';
-      for (let i = 0; i < 4; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
-      return result;
-    };
-    const orderId = generateOrderId();
+    // Generate unique public Tracking ID (format: JH + 6 alphanumeric characters, e.g. JH7K4M92)
+    // using cryptographically secure random generator (CSPRNG) with collision check
+    const trackingId = await generateUniqueTrackingId(adminDb);
+    // Internal Order ID for database records
+    const orderId = `JH-ORD-${trackingId.slice(2)}`;
 
     // Prepare container for processed order details
     let orderResultData: any = null;
@@ -257,6 +253,7 @@ export async function POST(req: Request) {
       const orderRef = adminDb.collection('orders').doc(orderId);
       const orderData = {
         id: orderId,
+        trackingId,
         customerInfo,
         customerType,
         paymentMethod,
@@ -278,6 +275,7 @@ export async function POST(req: Request) {
 
       orderResultData = {
         id: orderId,
+        trackingId,
         customerInfo,
         items: processedItems,
         total,
@@ -293,7 +291,7 @@ export async function POST(req: Request) {
       });
     }
 
-    return NextResponse.json({ success: true, orderId });
+    return NextResponse.json({ success: true, orderId, trackingId });
   } catch (error: any) {
     console.error("Checkout API Error:", error.message);
     const isOutOfStock = error.message?.includes("out of stock") || error.message?.includes("remain for");
