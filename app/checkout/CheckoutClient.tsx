@@ -275,10 +275,71 @@ export default function CheckoutClient() {
     return shippingSettings?.defaultDeliveryEstimate || "3-5 business days";
   }, [cart, shippingSettings]);
 
+  // Check if a payment method is allowed by a specific product
+  const isMethodAllowedForProduct = (method: any, product: any): boolean => {
+    if (!product) return true;
+    const allowed = product.allowedPaymentMethods;
+    if (!allowed || !Array.isArray(allowed) || allowed.length === 0) return true;
+
+    // Check for "ALL"
+    if (allowed.some((a: any) => String(a).trim().toUpperCase() === "ALL" || String(a).trim() === "*")) {
+      return true;
+    }
+
+    const methodId = String(method.id || "").toLowerCase().trim();
+    const methodType = String(method.type || "").toLowerCase().trim();
+    const methodTitle = String(method.title || "").toLowerCase().trim();
+    const isCod = methodId === "cod" || methodType === "cod" || methodTitle.includes("cash on delivery") || methodTitle === "cod";
+    const isBank = methodId === "bank" || methodType === "bank" || methodTitle.includes("bank") || methodTitle.includes("transfer");
+    const isWallet = methodType === "wallet" || methodTitle.includes("jazzcash") || methodTitle.includes("easypaisa") || methodTitle.includes("wallet");
+
+    return allowed.some((a: any) => {
+      const cleanA = String(a).toLowerCase().trim();
+      if (cleanA === "all" || cleanA === "*") return true;
+      if (cleanA === methodId) return true;
+      if (methodType && cleanA === methodType) return true;
+      if (methodTitle && cleanA === methodTitle) return true;
+      if (isCod && (cleanA === "cod" || cleanA.includes("cash") || cleanA.includes("delivery"))) return true;
+      if (isBank && (cleanA === "bank" || cleanA.includes("bank") || cleanA.includes("transfer"))) return true;
+      if (isWallet && (cleanA === "wallet" || cleanA.includes("wallet") || cleanA.includes("jazzcash") || cleanA.includes("easypaisa"))) return true;
+      return false;
+    });
+  };
+
+  // Filter payment methods based on cart items' allowed payment methods
+  const filteredPaymentMethods = useMemo(() => {
+    if (!availablePaymentMethods || availablePaymentMethods.length === 0) return [];
+    if (!cart || cart.length === 0) return availablePaymentMethods;
+
+    // A payment method is available ONLY if ALL products in the cart allow it
+    const filtered = availablePaymentMethods.filter((method) => {
+      return cart.every((cartItem) => isMethodAllowedForProduct(method, cartItem.product));
+    });
+
+    return filtered;
+  }, [availablePaymentMethods, cart]);
+
+  // Check if any product in cart has restricted payment methods
+  const hasRestrictedPaymentMethods = useMemo(() => {
+    return cart.some((item) => {
+      const allowed = item.product?.allowedPaymentMethods;
+      return Array.isArray(allowed) && allowed.length > 0 && !allowed.some((a: any) => String(a).trim().toUpperCase() === "ALL" || String(a).trim() === "*");
+    });
+  }, [cart]);
+
   // Selected Payment Method Object
   const selectedPaymentMethodObj = useMemo(() => {
-    return availablePaymentMethods.find((m) => m.id === paymentMethod) || null;
-  }, [availablePaymentMethods, paymentMethod]);
+    return filteredPaymentMethods.find((m) => m.id === paymentMethod) || null;
+  }, [filteredPaymentMethods, paymentMethod]);
+
+  // Reset paymentMethod if selected method is not among filtered payment methods
+  useEffect(() => {
+    if (paymentMethod && filteredPaymentMethods.length > 0) {
+      if (!filteredPaymentMethods.some((m) => m.id === paymentMethod)) {
+        setPaymentMethod("");
+      }
+    }
+  }, [filteredPaymentMethods, paymentMethod]);
 
   // Comprehensive Form Validation
   const validateForm = () => {
@@ -427,6 +488,9 @@ export default function CheckoutClient() {
         customerInfo: customerPayload,
         customerType: user ? "account" : "guest",
         paymentMethod,
+        paymentMethodId: selectedPaymentMethodObj?.id || paymentMethod,
+        paymentMethodType: selectedPaymentMethodObj?.type || "",
+        paymentMethodTitle: selectedPaymentMethodObj?.title || "",
         paymentProof: paymentProofUrl || null,
         transactionId: transactionId.trim() || null,
         items: cart,
@@ -1227,9 +1291,27 @@ export default function CheckoutClient() {
                           <Loader2 className="h-5 w-5 animate-spin text-primary" />
                           <span className="text-xs">Loading available payment options...</span>
                         </div>
+                      ) : filteredPaymentMethods.length === 0 ? (
+                        <div className="rounded-2xl border border-amber-200/80 bg-amber-50/70 p-6 text-center space-y-2.5">
+                          <div className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-800 mb-1">
+                            <CreditCard className="h-5 w-5" />
+                          </div>
+                          <h3 className="text-sm font-bold text-amber-900">
+                            No Payment Methods Available for Your Cart Items
+                          </h3>
+                          <p className="text-xs text-amber-800/80 max-w-md mx-auto leading-relaxed">
+                            The item(s) in your cart have restricted payment requirements set by administration. Please contact customer support on WhatsApp to complete your order.
+                          </p>
+                        </div>
                       ) : (
                         <div className="space-y-3.5">
-                          {availablePaymentMethods.map((method) => {
+                          {hasRestrictedPaymentMethods && (
+                            <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-neutral-100 border border-black/10 text-[11px] font-medium text-neutral-600">
+                              <span className="h-1.5 w-1.5 rounded-full bg-neutral-900 shrink-0" />
+                              <span>Payment options restricted based on items in your cart.</span>
+                            </div>
+                          )}
+                          {filteredPaymentMethods.map((method) => {
                             const isSelected = paymentMethod === method.id;
                             const isCod = isCodMethod(method);
                             const isWallet = isWalletMethod(method);

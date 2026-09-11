@@ -89,9 +89,34 @@ export async function POST(req: Request) {
         const currentStock = typeof p.stockQuantity === 'number' ? p.stockQuantity : Number(p.stockQuantity || 0);
 
         // Check payment method constraints
-        if (p.allowedPaymentMethods && p.allowedPaymentMethods.length > 0 && !p.allowedPaymentMethods.includes("ALL")) {
-          if (!p.allowedPaymentMethods.includes(paymentMethod)) {
-            throw new Error(`Product "${p.name}" cannot be purchased with the selected payment method.`);
+        if (p.allowedPaymentMethods && p.allowedPaymentMethods.length > 0) {
+          const isAllowedAll = p.allowedPaymentMethods.some(
+            (a: any) => String(a).trim().toUpperCase() === "ALL" || String(a).trim() === "*"
+          );
+
+          if (!isAllowedAll) {
+            const reqMethod = String(paymentMethod || body.paymentMethodId || "").toLowerCase().trim();
+            const reqType = String(body.paymentMethodType || "").toLowerCase().trim();
+            const reqTitle = String(body.paymentMethodTitle || "").toLowerCase().trim();
+            const isCod = reqMethod === "cod" || reqType === "cod" || reqTitle.includes("cash on delivery") || reqTitle === "cod";
+            const isBank = reqMethod === "bank" || reqType === "bank" || reqTitle.includes("bank") || reqTitle.includes("transfer");
+            const isWallet = reqType === "wallet" || reqTitle.includes("jazzcash") || reqTitle.includes("easypaisa") || reqTitle.includes("wallet");
+
+            const isAllowed = p.allowedPaymentMethods.some((a: any) => {
+              const cleanA = String(a).toLowerCase().trim();
+              if (cleanA === "all" || cleanA === "*") return true;
+              if (cleanA === reqMethod) return true;
+              if (reqType && cleanA === reqType) return true;
+              if (reqTitle && cleanA === reqTitle) return true;
+              if (isCod && (cleanA === "cod" || cleanA.includes("cash") || cleanA.includes("delivery"))) return true;
+              if (isBank && (cleanA === "bank" || cleanA.includes("bank") || cleanA.includes("transfer"))) return true;
+              if (isWallet && (cleanA === "wallet" || cleanA.includes("wallet") || cleanA.includes("jazzcash") || cleanA.includes("easypaisa"))) return true;
+              return false;
+            });
+
+            if (!isAllowed) {
+              throw new Error(`Product "${p.name}" cannot be purchased with the selected payment method.`);
+            }
           }
         }
 
