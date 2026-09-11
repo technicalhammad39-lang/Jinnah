@@ -41,7 +41,11 @@ import {
   QrCode,
   Upload,
   Trash2,
-  Smartphone
+  Smartphone,
+  PartyPopper,
+  PackageCheck,
+  Plus,
+  Minus
 } from "lucide-react";
 import { useCartState, useCartActions, useOverlayActions } from "@/context/AppContext";
 import { useAuth } from "@/lib/auth-context";
@@ -77,7 +81,7 @@ export default function CheckoutClient() {
     shippingSettings,
     shippingResult
   } = useCartState();
-  const { clearCart } = useCartActions();
+  const { clearCart, updateCartQuantity, removeFromCart } = useCartActions();
   const { setCartOpen } = useOverlayActions();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -813,7 +817,7 @@ export default function CheckoutClient() {
 
           {/* Form & Order Summary 2-Column Grid */}
           <form onSubmit={handleSubmitOrder} noValidate>
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
               {/* LEFT / MAIN COLUMN (approx 65%) */}
               <div className="lg:col-span-7 xl:col-span-8 space-y-6 md:space-y-8">
                 {/* 1. CUSTOMER INFORMATION */}
@@ -1329,247 +1333,316 @@ export default function CheckoutClient() {
               </div>
 
               {/* RIGHT COLUMN (approx 35%, Sticky on Desktop) */}
-              <div className="lg:col-span-5 xl:col-span-4 lg:sticky lg:top-28 space-y-5">
-                {/* Free Shipping / Threshold Promotion Hype Card */}
-                {shippingSettings?.thresholdEnabled && shippingSettings.thresholdAmount > 0 && (
-                  <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/[0.06] to-amber-500/[0.03] p-4.5 shadow-xs">
-                    {shippingResult?.thresholdReached ? (
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500 text-white shrink-0">
-                          <CheckCircle2 className="h-4 w-4" />
-                        </div>
-                        <div>
-                          <p className="text-xs font-extrabold text-emerald-700 uppercase tracking-wide">
-                            Promotion Unlocked!
-                          </p>
-                          <p className="text-xs font-bold text-foreground">
-                            {shippingSettings.benefitType === "free_shipping"
-                              ? "You unlocked FREE SHIPPING!"
-                              : "You unlocked your extra threshold discount!"}
-                          </p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-bold text-foreground flex items-center gap-1.5">
-                            <Sparkles className="h-3.5 w-3.5 text-primary" />
-                            <span>
-                              {shippingSettings.benefitType === "free_shipping"
-                                ? "Free Shipping Offer"
-                                : "Special Offer"}
-                            </span>
-                          </span>
-                          <span className="font-mono font-bold text-primary text-[11px]">
-                            Rs. {cartSubtotal.toLocaleString()} / {shippingSettings.thresholdAmount.toLocaleString()}
-                          </span>
-                        </div>
-
-                        {/* Progress Bar */}
-                        <div className="h-2 w-full rounded-full bg-black/10 overflow-hidden">
-                          <div
-                            className="h-full bg-primary transition-all duration-300 rounded-full"
-                            style={{
-                              width: `${Math.min(100, Math.max(0, (cartSubtotal / shippingSettings.thresholdAmount) * 100))}%`,
-                            }}
-                          />
-                        </div>
-
-                        <p className="text-[11px] text-muted-foreground leading-tight">
-                          Add <strong className="text-primary font-mono">Rs. {shippingResult?.thresholdRemaining.toLocaleString()}</strong> more to unlock {shippingSettings.benefitType === "free_shipping" ? "Free Delivery" : "extra discount"}.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Main Order Summary Card */}
-                <div className="rounded-2xl md:rounded-3xl border border-black/10 bg-white p-5 sm:p-7 shadow-sm space-y-5">
-                  <div className="flex items-center justify-between border-b border-black/5 pb-3">
-                    <div>
-                      <h2 className="text-base font-extrabold text-foreground tracking-tight">
-                        Order Summary
-                      </h2>
-                      <p className="text-[11px] text-muted-foreground">
-                        {cartCount} {cartCount === 1 ? "item" : "items"} in cart
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setCartOpen(true)}
-                      className="text-xs font-bold text-primary hover:underline cursor-pointer"
-                    >
-                      Edit Cart
-                    </button>
-                  </div>
-
-                  {/* Cart Items List */}
-                  <div className="space-y-3 max-h-72 overflow-y-auto pr-1 divide-y divide-black/5">
-                    {cart.map((item) => {
-                      const { finalPrice } = calculateProductPrice(item.product.price, item.product.id, discounts);
-                      return (
-                        <div
-                          key={`${item.product.id}-${item.selectedColor}-${item.selectedSize}`}
-                          className="pt-3 first:pt-0 flex gap-3 items-center"
-                        >
-                          <div className="relative h-14 w-14 rounded-xl border border-black/10 bg-stone-50 overflow-hidden shrink-0">
-                            <Image
-                              src={item.product.images?.[0] || "/placeholder.jpg"}
-                              alt={item.product.name}
-                              fill
-                              sizes="56px"
-                              className="object-cover"
-                            />
-                            <span className="absolute bottom-0 right-0 bg-black/80 text-white font-mono text-[9px] px-1 rounded-tl font-bold">
-                              x{item.quantity}
-                            </span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-xs font-bold text-foreground truncate">
-                              {item.product.name}
-                            </h4>
-                            <div className="flex flex-wrap items-center gap-1.5 mt-0.5 text-[10px] text-muted-foreground">
-                              {item.selectedColor && (
-                                <span className="flex items-center gap-1">
-                                  <span>Color:</span>
-                                  <strong className="text-foreground capitalize">{item.selectedColor}</strong>
-                                </span>
-                              )}
-                              {item.selectedColor && item.selectedSize && <span>•</span>}
-                              {item.selectedSize && (
-                                <span>
-                                  Size: <strong className="text-foreground uppercase">{item.selectedSize}</strong>
-                                </span>
-                              )}
-                            </div>
-                            <div className="flex items-center justify-between mt-1">
-                              <span className="text-[10px] text-muted-foreground font-mono">
-                                Unit: Rs. {finalPrice.toLocaleString()}
-                              </span>
-                              <span className="text-xs font-mono font-bold text-foreground">
-                                Rs. {(finalPrice * item.quantity).toLocaleString()}
-                              </span>
+              <div className="lg:col-span-5 xl:col-span-4">
+                <div className="lg:sticky lg:top-28 space-y-5">
+                  {/* Free Shipping / Threshold Promotion Hype Card */}
+                  {shippingSettings?.thresholdEnabled && shippingSettings.thresholdAmount > 0 && (
+                    <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/[0.06] to-amber-500/[0.03] p-4.5 shadow-xs">
+                      {shippingResult?.thresholdReached ? (
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <CheckCircle2 className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600 shrink-0 stroke-[2.3]" />
+                            <div className="min-w-0">
+                              <p className="text-xs font-extrabold text-emerald-700 uppercase tracking-wide">
+                                Promotion Unlocked!
+                              </p>
+                              <p className="text-xs font-bold text-foreground truncate sm:text-clip">
+                                {shippingSettings.benefitType === "free_shipping"
+                                  ? "You unlocked FREE SHIPPING!"
+                                  : "You unlocked your extra threshold discount!"}
+                              </p>
                             </div>
                           </div>
+                          <div className="flex items-center justify-center shrink-0 text-amber-500 pr-0.5">
+                            <PartyPopper className="h-5 w-5 sm:h-6 sm:w-6 text-amber-500 drop-shadow-xs" />
+                          </div>
                         </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Financial Rows */}
-                  <div className="space-y-3 text-xs sm:text-sm">
-                    {/* Subtotal */}
-                    <div className="flex justify-between text-muted-foreground">
-                      <span>Subtotal</span>
-                      <span className="font-mono font-semibold text-foreground">
-                        Rs. {cartSubtotal.toLocaleString()}
-                      </span>
-                    </div>
-
-                    {/* Automatic Product Discounts */}
-                    {cartDiscountTotal > 0 && (
-                      <div className="flex justify-between text-rose-600 font-medium">
-                        <span className="flex items-center gap-1">
-                          <Percent className="h-3.5 w-3.5" />
-                          <span>Product Discount</span>
-                        </span>
-                        <span className="font-mono font-bold">
-                          -Rs. {cartDiscountTotal.toLocaleString()}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Threshold Benefit if discount */}
-                    {shippingResult?.appliedBenefit && shippingResult.appliedBenefit.type !== "free_shipping" && (
-                      <div className="flex justify-between text-emerald-600 font-medium">
-                        <span>Threshold Discount</span>
-                        <span className="font-mono font-bold">
-                          -Rs. {shippingResult.appliedBenefit.value.toLocaleString()}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Shipping Fee */}
-                    <div className="flex justify-between items-center text-muted-foreground">
-                      <span>Shipping Fee</span>
-                      {shippingResult?.isFreeShipping || shippingResult?.finalShippingFee === 0 ? (
-                        <span className="font-extrabold text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
-                          Free Delivery
-                        </span>
                       ) : (
-                        <span className="font-mono font-semibold text-foreground">
-                          Rs. {shippingResult?.finalShippingFee.toLocaleString()}
-                        </span>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-bold text-foreground flex items-center gap-1.5">
+                              <Sparkles className="h-3.5 w-3.5 text-primary" />
+                              <span>
+                                {shippingSettings.benefitType === "free_shipping"
+                                  ? "Free Shipping Offer"
+                                  : "Special Offer"}
+                              </span>
+                            </span>
+                            <span className="font-mono font-bold text-primary text-[11px]">
+                              Rs. {cartSubtotal.toLocaleString()} / {shippingSettings.thresholdAmount.toLocaleString()}
+                            </span>
+                          </div>
+
+                          {/* Progress Bar */}
+                          <div className="h-2 w-full rounded-full bg-black/10 overflow-hidden">
+                            <div
+                              className="h-full bg-primary transition-all duration-300 rounded-full"
+                              style={{
+                                width: `${Math.min(100, Math.max(0, (cartSubtotal / shippingSettings.thresholdAmount) * 100))}%`,
+                              }}
+                            />
+                          </div>
+
+                          <p className="text-[11px] text-muted-foreground leading-tight">
+                            Add <strong className="text-primary font-mono">Rs. {shippingResult?.thresholdRemaining.toLocaleString()}</strong> more to unlock {shippingSettings.benefitType === "free_shipping" ? "Free Delivery" : "extra discount"}.
+                          </p>
+                        </div>
                       )}
                     </div>
+                  )}
 
-                    {/* Divider */}
-                    <div className="h-px bg-black/10 my-2" />
-
-                    {/* Final Total */}
-                    <div className="flex justify-between items-baseline pt-1">
+                  {/* Main Order Summary Card */}
+                  <div className="rounded-2xl md:rounded-3xl border border-black/10 bg-white p-5 sm:p-7 shadow-sm space-y-5">
+                    <div className="flex items-center justify-between border-b border-black/5 pb-3">
                       <div>
-                        <span className="text-sm font-extrabold text-foreground block">Total Payable</span>
-                        <span className="text-[10px] text-muted-foreground">Inclusive of all applicable taxes</span>
+                        <h2 className="text-base font-extrabold text-foreground tracking-tight">
+                          Order Summary
+                        </h2>
+                        <p className="text-[11px] text-muted-foreground">
+                          {cartCount} {cartCount === 1 ? "item" : "items"} in cart
+                        </p>
                       </div>
-                      <span className="font-mono text-xl sm:text-2xl font-black text-primary">
-                        Rs. {cartFinalTotal.toLocaleString()}
-                      </span>
+                    </div>
+
+                    {/* Cart Items List */}
+                    <div className="space-y-3.5 max-h-80 overflow-y-auto pr-1 divide-y divide-black/5">
+                      {cart.map((item) => {
+                        const { finalPrice } = calculateProductPrice(item.product.price, item.product.id, discounts);
+                        const stockInfo = getStockInfo(item.product, item.selectedColor || "", item.selectedSize || "");
+                        const isMaxStock = stockInfo.stock > 0 && item.quantity >= stockInfo.stock;
+
+                        return (
+                          <div
+                            key={`${item.product.id}-${item.selectedColor}-${item.selectedSize}`}
+                            className="pt-3.5 first:pt-0 flex gap-3 items-start"
+                          >
+                            {/* Product Thumbnail */}
+                            <div className="relative h-16 w-16 rounded-xl border border-black/10 bg-stone-50 overflow-hidden shrink-0">
+                              <Image
+                                src={item.product.images?.[0] || "/placeholder.jpg"}
+                                alt={item.product.name}
+                                fill
+                                sizes="64px"
+                                className="object-cover"
+                              />
+                            </div>
+
+                            {/* Product Details & Actions */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-1.5">
+                                <h4 className="text-xs font-bold text-foreground leading-snug line-clamp-1">
+                                  {item.product.name}
+                                </h4>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    removeFromCart(
+                                      item.product.id,
+                                      item.selectedColor || "",
+                                      item.selectedSize || ""
+                                    )
+                                  }
+                                  className="p-1 rounded text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors shrink-0 cursor-pointer"
+                                  title="Remove item"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+
+                              {/* Color & Size Variant Chips */}
+                              <div className="flex flex-wrap items-center gap-1.5 mt-0.5 text-[10px] text-muted-foreground">
+                                {item.selectedColor && (
+                                  <span className="flex items-center gap-1">
+                                    <span>Color:</span>
+                                    <strong className="text-foreground capitalize">{item.selectedColor}</strong>
+                                  </span>
+                                )}
+                                {item.selectedColor && item.selectedSize && <span>•</span>}
+                                {item.selectedSize && (
+                                  <span>
+                                    Size: <strong className="text-foreground uppercase">{item.selectedSize}</strong>
+                                  </span>
+                                )}
+                                {(item.selectedColor || item.selectedSize) && <span>•</span>}
+                                <span className="font-mono">
+                                  Unit: Rs. {finalPrice.toLocaleString()}
+                                </span>
+                              </div>
+
+                              {/* Bottom Row: Quantity Stepper + Item Total Price */}
+                              <div className="flex items-center justify-between gap-2 mt-2">
+                                <div className="flex items-center rounded-lg border border-black/10 bg-stone-50/80 overflow-hidden">
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      updateCartQuantity(
+                                        item.product.id,
+                                        item.selectedColor || "",
+                                        item.selectedSize || "",
+                                        item.quantity - 1
+                                      )
+                                    }
+                                    className="cursor-pointer p-1 sm:p-1.5 text-stone-600 hover:bg-black/5 hover:text-foreground transition-colors"
+                                    title="Decrease quantity"
+                                  >
+                                    <Minus className="h-3 w-3" />
+                                  </button>
+                                  <span className="min-w-[24px] px-1 text-center text-xs font-bold select-none text-foreground font-mono">
+                                    {item.quantity}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    disabled={isMaxStock}
+                                    onClick={() =>
+                                      updateCartQuantity(
+                                        item.product.id,
+                                        item.selectedColor || "",
+                                        item.selectedSize || "",
+                                        item.quantity + 1
+                                      )
+                                    }
+                                    className={`p-1 sm:p-1.5 transition-colors ${
+                                      isMaxStock
+                                        ? "cursor-not-allowed opacity-30 text-muted-foreground"
+                                        : "cursor-pointer text-stone-600 hover:bg-black/5 hover:text-foreground"
+                                    }`}
+                                    title={isMaxStock ? `Max stock (${stockInfo.stock}) reached` : "Increase quantity"}
+                                  >
+                                    <Plus className="h-3 w-3" />
+                                  </button>
+                                </div>
+
+                                <span className="text-xs font-mono font-bold text-foreground">
+                                  Rs. {(finalPrice * item.quantity).toLocaleString()}
+                                </span>
+                              </div>
+
+                              {isMaxStock && (
+                                <span className="block text-[10px] font-medium text-amber-600 mt-1">
+                                  Max stock reached ({stockInfo.stock})
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Financial Rows */}
+                    <div className="space-y-3 text-xs sm:text-sm">
+                      {/* Subtotal */}
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>Subtotal</span>
+                        <span className="font-mono font-semibold text-foreground">
+                          Rs. {cartSubtotal.toLocaleString()}
+                        </span>
+                      </div>
+
+                      {/* Automatic Product Discounts */}
+                      {cartDiscountTotal > 0 && (
+                        <div className="flex justify-between text-rose-600 font-medium">
+                          <span className="flex items-center gap-1">
+                            <Percent className="h-3.5 w-3.5" />
+                            <span>Product Discount</span>
+                          </span>
+                          <span className="font-mono font-bold">
+                            -Rs. {cartDiscountTotal.toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Threshold Benefit if discount */}
+                      {shippingResult?.appliedBenefit && shippingResult.appliedBenefit.type !== "free_shipping" && (
+                        <div className="flex justify-between text-emerald-600 font-medium">
+                          <span>Threshold Discount</span>
+                          <span className="font-mono font-bold">
+                            -Rs. {shippingResult.appliedBenefit.value.toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Shipping Fee */}
+                      <div className="flex justify-between items-center text-muted-foreground">
+                        <span>Shipping Fee</span>
+                        {shippingResult?.isFreeShipping || shippingResult?.finalShippingFee === 0 ? (
+                          <span className="font-bold text-xs sm:text-sm text-emerald-600">
+                            Free Delivery
+                          </span>
+                        ) : (
+                          <span className="font-mono font-semibold text-foreground">
+                            Rs. {shippingResult?.finalShippingFee.toLocaleString()}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Divider */}
+                      <div className="h-px bg-black/10 my-2" />
+
+                      {/* Final Total */}
+                      <div className="flex justify-between items-baseline pt-1">
+                        <div>
+                          <span className="text-sm font-extrabold text-foreground block">Total Payable</span>
+                          <span className="text-[10px] text-muted-foreground">Inclusive of all applicable taxes</span>
+                        </div>
+                        <span className="font-mono text-xl sm:text-2xl font-black text-primary">
+                          Rs. {cartFinalTotal.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Primary Submit Button */}
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider text-white shadow-lg shadow-primary/25 hover:bg-primary/95 transition-all active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <span>Placing Order...</span>
+                        </>
+                      ) : (
+                        <>
+                          <PackageCheck className="h-4.5 w-4.5" />
+                          <span>Place Order</span>
+                          <ArrowRight className="h-4 w-4" />
+                        </>
+                      )}
+                    </button>
+
+                    {/* Trust Guarantees */}
+                    <div className="pt-2 border-t border-black/5 space-y-2.5 text-[11px] text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+                        <span>100% Genuine Architectural Hardware Guaranteed</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Truck className="h-4 w-4 text-primary shrink-0" />
+                        <span>Safe Multi-Layer Shockproof Delivery Packaging</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Lock className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <span>Encrypted SSL Secure Checkout Transmission</span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Primary Submit Button */}
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider text-white shadow-lg shadow-primary/25 hover:bg-primary/95 transition-all active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        <span>Placing Order...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Lock className="h-4 w-4" />
-                        <span>Place Order • Rs. {cartFinalTotal.toLocaleString()}</span>
-                        <ArrowRight className="h-4 w-4" />
-                      </>
-                    )}
-                  </button>
-
-                  {/* Trust Guarantees */}
-                  <div className="pt-2 border-t border-black/5 space-y-2.5 text-[11px] text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
-                      <span>100% Genuine Architectural Hardware Guaranteed</span>
+                  {/* Helpline / WhatsApp Quick Assist */}
+                  <div className="rounded-2xl border border-black/10 bg-white p-4 text-xs flex items-center justify-between shadow-xs">
+                    <div>
+                      <p className="font-bold text-foreground">Need help ordering?</p>
+                      <p className="text-[11px] text-muted-foreground">Call or WhatsApp our team 24/7</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Truck className="h-4 w-4 text-primary shrink-0" />
-                      <span>Safe Multi-Layer Shockproof Delivery Packaging</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Lock className="h-4 w-4 text-muted-foreground shrink-0" />
-                      <span>Encrypted SSL Secure Checkout Transmission</span>
-                    </div>
+                    <a
+                      href="https://wa.me/923000421772"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition-colors"
+                    >
+                      <MessageCircle className="h-3.5 w-3.5 text-emerald-600" />
+                      <span>WhatsApp</span>
+                    </a>
                   </div>
-                </div>
-
-                {/* Helpline / WhatsApp Quick Assist */}
-                <div className="rounded-2xl border border-black/10 bg-white p-4 text-xs flex items-center justify-between shadow-xs">
-                  <div>
-                    <p className="font-bold text-foreground">Need help ordering?</p>
-                    <p className="text-[11px] text-muted-foreground">Call or WhatsApp our team 24/7</p>
-                  </div>
-                  <a
-                    href="https://wa.me/923000421772"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition-colors"
-                  >
-                    <MessageCircle className="h-3.5 w-3.5 text-emerald-600" />
-                    <span>WhatsApp</span>
-                  </a>
                 </div>
               </div>
             </div>
