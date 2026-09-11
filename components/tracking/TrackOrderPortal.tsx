@@ -811,7 +811,6 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                       onClick={() => {
                         setActiveOrder(null);
                         setOrderIdInput("");
-                        setPhoneInput("");
                         router.push("/track-order");
                       }}
                       className="flex w-full items-center justify-center gap-2 rounded-2xl bg-black/5 px-6 py-3.5 text-xs sm:text-sm font-bold text-muted-foreground transition-all hover:bg-black/10 hover:text-foreground cursor-pointer"
