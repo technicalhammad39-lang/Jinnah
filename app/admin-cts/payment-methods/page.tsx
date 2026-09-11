@@ -41,11 +41,28 @@ export default function PaymentMethodsAdmin() {
 
   const fetchMethods = async () => {
     try {
-      const snap = await getDocs(collection(db, "payment-methods"));
+      let snap = await getDocs(collection(db, "payment-methods"));
+      if (snap.empty) {
+        try {
+          const snapAlt = await getDocs(collection(db, "payment_methods"));
+          if (!snapAlt.empty) {
+            snap = snapAlt;
+          }
+        } catch {
+          // Ignore
+        }
+      }
       const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
       setMethods(data);
     } catch (error) {
-      toast.error("Failed to load payment methods");
+      console.error("Error fetching payment methods:", error);
+      try {
+        const snapAlt = await getDocs(collection(db, "payment_methods"));
+        const data = snapAlt.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+        setMethods(data);
+      } catch (err) {
+        toast.error("Failed to load payment methods");
+      }
     } finally {
       setLoading(false);
     }

@@ -142,8 +142,13 @@ export async function getProductBySlug(slug: string) {
 
 export async function getGallery() {
   try {
-    const q = query(collection(db, "gallery"), orderBy("createdAt", "desc"));
-    const snapshot = await getDocs(q);
+    let snapshot;
+    try {
+      const q = query(collection(db, "gallery"), orderBy("createdAt", "desc"));
+      snapshot = await getDocs(q);
+    } catch {
+      snapshot = await getDocs(collection(db, "gallery"));
+    }
     return snapshot.docs.map(doc => ({ id: doc.id, ...serializeData(doc.data()) })) as any[];
   } catch (error) {
     console.error("Error fetching gallery:", error);
@@ -153,9 +158,35 @@ export async function getGallery() {
 
 export async function getPaymentMethods() {
   try {
-    const q = query(collection(db, "payment-methods"), where("active", "==", true));
-    const snapshot = await getDocs(q);
-    const data = snapshot.docs.map(doc => ({ id: doc.id, ...serializeData(doc.data()) })) as any[];
+    let snapshot;
+    try {
+      const q = query(collection(db, "payment-methods"), where("active", "==", true));
+      snapshot = await getDocs(q);
+    } catch {
+      snapshot = await getDocs(collection(db, "payment-methods"));
+    }
+
+    // If empty, check payment_methods (underscore variation)
+    if (snapshot.empty) {
+      try {
+        const qAlt = query(collection(db, "payment_methods"), where("active", "==", true));
+        const snapAlt = await getDocs(qAlt);
+        if (!snapAlt.empty) {
+          snapshot = snapAlt;
+        } else {
+          const snapAllAlt = await getDocs(collection(db, "payment_methods"));
+          if (!snapAllAlt.empty) {
+            snapshot = snapAllAlt;
+          }
+        }
+      } catch {
+        // Ignore fallback error
+      }
+    }
+
+    const data = snapshot.docs
+      .map(doc => ({ id: doc.id, ...serializeData(doc.data()) }))
+      .filter((m: any) => m.active !== false) as any[];
     return data.sort((a, b) => (a.order || 0) - (b.order || 0));
   } catch (error) {
     console.error("Error fetching payment methods:", error);
@@ -177,9 +208,15 @@ export async function getReviews() {
 
 export async function getLeadership() {
   try {
-    const q = query(collection(db, "leadership"), orderBy("order", "asc"));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...serializeData(doc.data()) })) as any[];
+    let snapshot;
+    try {
+      const q = query(collection(db, "leadership"), orderBy("order", "asc"));
+      snapshot = await getDocs(q);
+    } catch {
+      snapshot = await getDocs(collection(db, "leadership"));
+    }
+    const data = snapshot.docs.map(doc => ({ id: doc.id, ...serializeData(doc.data()) })) as any[];
+    return data.sort((a, b) => (a.order || 0) - (b.order || 0));
   } catch (error) {
     console.error("Error fetching leadership:", error);
     return [];

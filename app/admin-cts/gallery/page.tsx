@@ -15,8 +15,13 @@ export default function AdminGallery() {
 
   const fetchImages = async () => {
     try {
-      const q = query(collection(db, "gallery"), orderBy("createdAt", "desc"));
-      const querySnapshot = await getDocs(q);
+      let querySnapshot;
+      try {
+        const q = query(collection(db, "gallery"), orderBy("createdAt", "desc"));
+        querySnapshot = await getDocs(q);
+      } catch {
+        querySnapshot = await getDocs(collection(db, "gallery"));
+      }
       const data = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()

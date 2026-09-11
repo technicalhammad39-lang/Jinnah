@@ -20,7 +20,9 @@ import {
   MessageCircle, 
   AlertCircle, 
   Navigation, 
-  RotateCcw
+  RotateCcw,
+  Phone,
+  ShieldCheck
 } from "lucide-react";
 import { getPublicUploadUrl } from "@/lib/utils";
 import { toast } from "sonner";
@@ -72,9 +74,11 @@ interface TrackOrderPortalProps {
 export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPortalProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const queryParam = searchParams.get("id") || searchParams.get("query") || initialReference;
+  const idParam = searchParams.get("id") || searchParams.get("query") || initialReference || "";
+  const phoneParam = searchParams.get("phone") || "";
 
-  const [searchInput, setSearchInput] = useState(queryParam || "");
+  const [orderIdInput, setOrderIdInput] = useState(idParam);
+  const [phoneInput, setPhoneInput] = useState(phoneParam);
   const [activeOrder, setActiveOrder] = useState<OrderTrackingData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -82,47 +86,67 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
   const [copiedCourierCn, setCopiedCourierCn] = useState(false);
 
   // Fetch order tracking from API
-  const fetchTracking = async (term: string) => {
-    if (!term || !term.trim()) return;
+  const fetchTracking = async (idToFetch?: string, phoneToFetch?: string) => {
+    const id = (idToFetch ?? orderIdInput).trim();
+    const phone = (phoneToFetch ?? phoneInput).trim();
+
+    if (!id) {
+      toast.error("Please enter your Order ID (#JH-XXXX-XXXX)");
+      return;
+    }
+    if (!phone) {
+      toast.error("Please enter the contact phone number used during checkout");
+      return;
+    }
     setIsLoading(true);
     setErrorMessage("");
 
     try {
-      const res = await fetch(`/api/orders/track?query=${encodeURIComponent(term.trim())}`);
+      const res = await fetch(
+        `/api/orders/track?id=${encodeURIComponent(id)}&phone=${encodeURIComponent(phone)}`
+      );
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Order not found with provided tracking reference.");
+        throw new Error(data.error || "Order not found or verification details did not match.");
       }
 
       setActiveOrder(data.order);
       setErrorMessage("");
     } catch (err: any) {
       setActiveOrder(null);
-      setErrorMessage(err.message || "Unable to retrieve order details. Please double-check your ID.");
+      setErrorMessage(err.message || "Unable to retrieve order details. Please verify your Order ID and phone number.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Initial fetch on queryParam change
+  // Initial fetch if both parameters exist in URL query params
   useEffect(() => {
-    if (queryParam && queryParam.trim()) {
-      setSearchInput(queryParam.trim());
-      fetchTracking(queryParam.trim());
+    if (idParam) setOrderIdInput(idParam);
+    if (phoneParam) setPhoneInput(phoneParam);
+    if (idParam && phoneParam) {
+      fetchTracking(idParam, phoneParam);
     }
-  }, [queryParam]);
+  }, [idParam, phoneParam]);
 
   // Handle Search Submission
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!searchInput.trim()) {
-      toast.error("Please enter an Order ID or Courier CN to track");
+    const cleanId = orderIdInput.trim();
+    const cleanPhone = phoneInput.trim();
+
+    if (!cleanId) {
+      toast.error("Please enter your Order ID (#JH-XXXX-XXXX)");
+      return;
+    }
+    if (!cleanPhone) {
+      toast.error("Please enter the contact phone number used during checkout");
       return;
     }
 
-    router.push(`/track-order?id=${encodeURIComponent(searchInput.trim())}`);
-    fetchTracking(searchInput.trim());
+    router.push(`/track-order?id=${encodeURIComponent(cleanId)}&phone=${encodeURIComponent(cleanPhone)}`);
+    fetchTracking(cleanId, cleanPhone);
   };
 
   // Copy tracking helper
@@ -275,26 +299,45 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                 Real-time consignment status, warehouse processing, and courier milestones across Pakistan.
               </p>
 
-              {/* Logistics Search Input */}
+              {/* Dual-Factor Order Verification Form */}
               <form onSubmit={handleSearchSubmit} className="relative mx-auto max-w-3xl w-full">
-                <div className="relative flex flex-col sm:flex-row items-stretch sm:items-center rounded-2xl sm:rounded-3xl bg-white p-2 sm:p-2.5 shadow-2xl shadow-black/60 gap-2 sm:gap-0">
-                  <Search className="h-6 w-6 text-muted-foreground ml-4 hidden sm:block shrink-0" />
-                  <input
-                    type="text"
-                    placeholder="Enter Order ID (e.g. #JH-XXXX-XXXX), Courier CN, or Phone"
-                    value={searchInput}
-                    onChange={(e) => setSearchInput(e.target.value)}
-                    className="w-full bg-transparent px-4 py-3.5 sm:py-5 text-base sm:text-lg font-bold text-[#11100e] outline-none placeholder:text-muted-foreground/60 placeholder:font-normal"
-                  />
+                <div className="flex flex-col sm:flex-row items-stretch rounded-2xl sm:rounded-3xl bg-white p-2 sm:p-2.5 shadow-2xl shadow-black/60 gap-2 sm:gap-2">
+                  {/* Order ID Input */}
+                  <div className="flex-1 flex items-center bg-gray-50/90 rounded-xl sm:rounded-2xl px-3 py-1 border border-black/5 focus-within:border-primary focus-within:bg-white transition-all">
+                    <Search className="h-5 w-5 text-muted-foreground ml-1 shrink-0" />
+                    <input
+                      type="text"
+                      placeholder="Order ID (#JH-XXXX-XXXX)"
+                      value={orderIdInput}
+                      onChange={(e) => setOrderIdInput(e.target.value)}
+                      className="w-full bg-transparent px-3 py-3 text-sm sm:text-base font-bold text-[#11100e] outline-none placeholder:text-muted-foreground/60 placeholder:font-normal font-mono"
+                      required
+                    />
+                  </div>
+
+                  {/* Phone Verification Input */}
+                  <div className="flex-1 flex items-center bg-gray-50/90 rounded-xl sm:rounded-2xl px-3 py-1 border border-black/5 focus-within:border-primary focus-within:bg-white transition-all">
+                    <Phone className="h-5 w-5 text-muted-foreground ml-1 shrink-0" />
+                    <input
+                      type="tel"
+                      placeholder="Billing Phone (03001234567)"
+                      value={phoneInput}
+                      onChange={(e) => setPhoneInput(e.target.value)}
+                      className="w-full bg-transparent px-3 py-3 text-sm sm:text-base font-bold text-[#11100e] outline-none placeholder:text-muted-foreground/60 placeholder:font-normal font-mono"
+                      required
+                    />
+                  </div>
+
+                  {/* Submit Button */}
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-primary px-8 sm:px-12 py-3.5 sm:py-5 text-sm sm:text-base md:text-lg font-black uppercase tracking-wider text-white shadow-xl transition-all hover:bg-primary/95 disabled:opacity-70 shrink-0"
+                    className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-primary px-7 sm:px-9 py-3.5 sm:py-4 text-sm sm:text-base font-black uppercase tracking-wider text-white shadow-xl transition-all hover:bg-primary/95 disabled:opacity-70 shrink-0"
                   >
                     {isLoading ? (
                       <span className="inline-flex items-center gap-2">
-                        <span className="h-5 w-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                        Searching...
+                        <span className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                        Verifying...
                       </span>
                     ) : (
                       <span>Track Order</span>
@@ -303,22 +346,14 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                 </div>
               </form>
 
-              {/* Quick helper chips */}
-              <div className="mt-6 flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm text-white/70">
-                <span className="font-semibold">Examples:</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchInput("JH-");
-                  }}
-                  className="rounded-full bg-white/10 px-3.5 py-1 font-mono text-xs sm:text-sm text-white hover:bg-white/20 transition-colors border border-white/15 cursor-pointer font-bold"
-                >
-                  #JH-XXXX-XXXX
-                </button>
-                <span className="text-white/40">•</span>
-                <span>Courier CN (TCS / PostEx / Trax)</span>
-                <span className="text-white/40">•</span>
-                <span>Customer Phone Number</span>
+              {/* Security & Privacy Callout */}
+              <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm text-white/80">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1 text-xs font-semibold text-white/90 backdrop-blur-sm border border-white/15">
+                  <ShieldCheck className="h-3.5 w-3.5 text-amber-400" />
+                  <span>Secure Dual Verification</span>
+                </div>
+                <span className="text-white/40 hidden sm:inline">•</span>
+                <span className="text-white/70 text-xs">Requires Order ID and Phone used at checkout to protect customer privacy.</span>
               </div>
             </div>
           </div>
@@ -343,7 +378,7 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                 <div className="mt-5">
                   <a
                     href={`https://wa.me/923000421772?text=${encodeURIComponent(
-                      `Salam Jinnah Hardware Store! I need help tracking my order with reference: "${searchInput}".`
+                      `Salam Jinnah Hardware Store! I need help tracking my order (${orderIdInput || "Order ID"}).`
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -799,7 +834,8 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                     <button
                       onClick={() => {
                         setActiveOrder(null);
-                        setSearchInput("");
+                        setOrderIdInput("");
+                        setPhoneInput("");
                         router.push("/track-order");
                       }}
                       className="flex w-full items-center justify-center gap-2 rounded-2xl bg-black/5 px-6 py-3.5 text-xs sm:text-sm font-bold text-muted-foreground transition-all hover:bg-black/10 hover:text-foreground cursor-pointer"

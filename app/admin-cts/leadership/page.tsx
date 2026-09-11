@@ -15,12 +15,17 @@ export default function LeadershipAdmin() {
 
   async function fetchMembers() {
     try {
-      const q = query(collection(db, "leadership"), orderBy("order", "asc"));
-      const querySnapshot = await getDocs(q);
+      let querySnapshot;
+      try {
+        const q = query(collection(db, "leadership"), orderBy("order", "asc"));
+        querySnapshot = await getDocs(q);
+      } catch {
+        querySnapshot = await getDocs(collection(db, "leadership"));
+      }
       const data = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
-      }));
+      })).sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
       setMembers(data);
     } catch (error) {
       console.error("Error fetching leadership members:", error);

@@ -125,9 +125,29 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
+    match /inventory_logs/{logId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /payment-methods/{methodId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     match /payment_methods/{methodId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /leadership/{memberId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /gallery/{imageId} {
       allow read: if true;
       allow write: if isAdmin();
     }
   }
 }
+
