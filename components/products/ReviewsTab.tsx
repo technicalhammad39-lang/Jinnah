@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Product, Review } from '@/data/products';
 import { Star, CheckCircle, ThumbsUp, MessageSquare, Image as ImageIcon, X, Loader2 } from 'lucide-react';
@@ -147,9 +147,21 @@ export default function ReviewsTab({ product, onReviewsLoaded }: ReviewsTabProps
       const newReviews = [{ id: docRef.id, ...newReview } as Review, ...reviews];
       setReviews(newReviews);
       
+      const avg = newReviews.length > 0 ? newReviews.reduce((acc, r) => acc + r.rating, 0) / newReviews.length : 0;
+
       if (onReviewsLoaded) {
-        const avg = newReviews.length > 0 ? newReviews.reduce((acc, r) => acc + r.rating, 0) / newReviews.length : 0;
         onReviewsLoaded(newReviews.length, avg);
+      }
+
+      // Sync reviewCount and rating to product document in Firestore
+      try {
+        updateDoc(doc(db, 'products', product.id), {
+          reviewCount: newReviews.length,
+          rating: Number(avg.toFixed(1)),
+          averageRating: Number(avg.toFixed(1))
+        }).catch((err) => console.warn("Failed to sync product review count:", err));
+      } catch (syncErr) {
+        console.warn("Product review sync error:", syncErr);
       }
 
       alert("Review submitted successfully!");

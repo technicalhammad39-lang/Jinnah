@@ -140,9 +140,16 @@ export default function ProductDetailClient({
   useEffect(() => {
     if (initialProduct) {
       if (availableColors.length > 0) {
-        const firstColor = availableColors[0];
-        setSelectedColor(firstColor);
-        const opt = colorOptions.find((o: ColorOption) => o.name.toLowerCase() === firstColor.toLowerCase());
+        // Prefer an in-stock color option if available
+        const inStockColor = availableColors.find((c: string) => {
+          const v = initialProduct.variants?.find(
+            (varItem: any) => varItem.color?.trim().toLowerCase() === c.trim().toLowerCase()
+          );
+          return v ? (Number(v.stockQuantity) || 0) > 0 : true;
+        }) || availableColors[0];
+
+        setSelectedColor(inStockColor);
+        const opt = colorOptions.find((o: ColorOption) => o.name.toLowerCase() === inStockColor.toLowerCase());
         setSelectedColorImage(opt?.image || null);
       } else {
         setSelectedColor("");
@@ -513,6 +520,12 @@ export default function ProductDetailClient({
                     <div className="flex flex-wrap gap-2.5">
                       {colorOptions.map((opt: ColorOption) => {
                         const isSelected = selectedColor?.toLowerCase() === opt.name.toLowerCase();
+                        const isColorOutOfStock = initialProduct.variants && initialProduct.variants.length > 0
+                          ? selectedSize
+                            ? (initialProduct.variants.find((v: any) => v.color?.trim().toLowerCase() === opt.name.toLowerCase() && v.size?.trim().toLowerCase() === selectedSize.trim().toLowerCase())?.stockQuantity ?? 0) <= 0
+                            : !initialProduct.variants.some((v: any) => v.color?.trim().toLowerCase() === opt.name.toLowerCase() && (Number(v.stockQuantity) || 0) > 0)
+                          : false;
+
                         return (
                           <button
                             key={opt.name}
@@ -521,6 +534,8 @@ export default function ProductDetailClient({
                             className={`group relative flex items-center gap-2.5 px-3 py-2 rounded-xl border-2 transition-all text-left ${
                               isSelected
                                 ? "border-[#1a1917] bg-[#1a1917]/5 text-[#1a1917] shadow-sm ring-1 ring-[#1a1917]"
+                                : isColorOutOfStock
+                                ? "border-gray-200 bg-gray-50/60 text-gray-400 hover:border-gray-300"
                                 : "border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50/80"
                             }`}
                           >
@@ -531,7 +546,7 @@ export default function ProductDetailClient({
                                   alt={opt.name}
                                   fill
                                   sizes="36px"
-                                  className="object-cover"
+                                  className={`object-cover ${isColorOutOfStock ? "opacity-50 grayscale" : ""}`}
                                 />
                               </div>
                             ) : (
@@ -539,9 +554,16 @@ export default function ProductDetailClient({
                                 {opt.name.slice(0, 2)}
                               </div>
                             )}
-                            <span className="text-xs sm:text-sm font-bold capitalize whitespace-nowrap">
-                              {opt.name}
-                            </span>
+                            <div className="flex flex-col">
+                              <span className={`text-xs sm:text-sm font-bold capitalize whitespace-nowrap ${isColorOutOfStock ? "line-through text-gray-400" : ""}`}>
+                                {opt.name}
+                              </span>
+                              {isColorOutOfStock && (
+                                <span className="text-[9px] font-bold text-rose-500 uppercase tracking-tight">
+                                  Out of stock
+                                </span>
+                              )}
+                            </div>
                           </button>
                         );
                       })}
@@ -562,6 +584,12 @@ export default function ProductDetailClient({
                     <div className="flex flex-wrap gap-2">
                       {availableSizes.map((size: string) => {
                         const isSelected = selectedSize === size;
+                        const isSizeOutOfStock = initialProduct.variants && initialProduct.variants.length > 0
+                          ? selectedColor
+                            ? (initialProduct.variants.find((v: any) => v.size?.trim().toLowerCase() === size.trim().toLowerCase() && v.color?.trim().toLowerCase() === selectedColor.trim().toLowerCase())?.stockQuantity ?? 0) <= 0
+                            : !initialProduct.variants.some((v: any) => v.size?.trim().toLowerCase() === size.trim().toLowerCase() && (Number(v.stockQuantity) || 0) > 0)
+                          : false;
+
                         return (
                           <button
                             key={size}
@@ -570,13 +598,20 @@ export default function ProductDetailClient({
                               setSelectedSize(size);
                               setValidationError(null);
                             }}
-                            className={`px-4 py-2 text-sm font-bold rounded-lg border-2 transition-all ${
+                            className={`px-4 py-2 text-sm font-bold rounded-lg border-2 transition-all flex items-center gap-1.5 ${
                               isSelected
                                 ? "border-[#1a1917] bg-[#1a1917] text-white shadow-sm"
+                                : isSizeOutOfStock
+                                ? "border-gray-200 bg-gray-50 text-gray-400 hover:border-gray-300"
                                 : "border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50"
                             }`}
                           >
-                            {size}
+                            <span className={isSizeOutOfStock ? "line-through" : ""}>{size}</span>
+                            {isSizeOutOfStock && (
+                              <span className={`text-[10px] font-bold ${isSelected ? "text-rose-300" : "text-rose-500"}`}>
+                                (Out)
+                              </span>
+                            )}
                           </button>
                         );
                       })}

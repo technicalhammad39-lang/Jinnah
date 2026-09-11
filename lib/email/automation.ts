@@ -64,7 +64,7 @@ export async function handleContactFormSubmission(data: {
         const replyHtml = renderEmailTemplate(template.bodyHtml, {
           customer_name: data.name,
           custom_message:
-            "Aapka inquiry message humein mil chuka hai. Hamari team jald az jald aapke sawalat ka jawab provide karegi.",
+            "Thank you for contacting us. We have received your inquiry and our customer support team will get back to you shortly.",
           support_phone: "0300-0421772",
         });
 

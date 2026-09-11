@@ -25,7 +25,7 @@ import { Product } from "@/data/products";
 import { getPublicUploadUrl } from "@/lib/utils";
 import { calculateProductPrice } from "@/lib/discount-engine";
 import { useCartState } from "@/context/AppContext";
-import { getStockInfo } from "@/lib/inventory-engine";
+import { getProductCardStock, getVariantStock } from "@/lib/inventory-engine";
 
 interface ProductCardProps {
   product: Product;
@@ -36,7 +36,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
   const { wishlist } = useWishlistState();
   const { discounts } = useCartState();
   const { toggleWishlist } = useWishlistActions();
-  const { setQuickViewProduct, setCartOpen } = useOverlayActions();
+  const { setQuickViewProduct } = useOverlayActions();
   const router = useRouter();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>((product.sizes && product.sizes.length > 0) ? product.sizes[0] : null);
@@ -68,7 +68,26 @@ function ProductCardComponent({ product }: ProductCardProps) {
 
   const isWishlisted = wishlist.includes(product.id);
   const pricing = calculateProductPrice(product.price, product.id, discounts);
-  const stockInfo = getStockInfo(product, undefined, selectedSize || undefined);
+
+  // Overall card availability (only out of stock if ALL variants are out of stock)
+  const stockInfo = getProductCardStock(product);
+
+  // Review count and star rating calculation (never outputs empty brackets or null/NaN)
+  const reviewCount =
+    typeof product.reviewCount === "number"
+      ? product.reviewCount
+      : typeof (product as any).reviewsCount === "number"
+      ? (product as any).reviewsCount
+      : Array.isArray((product as any).reviews)
+      ? (product as any).reviews.length
+      : 0;
+
+  const rating =
+    typeof product.rating === "number" && product.rating > 0
+      ? product.rating
+      : typeof product.averageRating === "number" && product.averageRating > 0
+      ? product.averageRating
+      : 5.0;
 
   const nextImage = (event: React.MouseEvent) => {
     event.stopPropagation();
@@ -82,6 +101,20 @@ function ProductCardComponent({ product }: ProductCardProps) {
     setCurrentImageIndex((prev) => (prev - 1 + product.images.length) % product.images.length);
   };
 
+  const getInStockVariantDefaults = () => {
+    let targetColor = product.colors?.[0] || "";
+    let targetSize = selectedSize || undefined;
+
+    if (product.variants && product.variants.length > 0) {
+      const inStockVariant = product.variants.find((v) => getVariantStock(v) > 0);
+      if (inStockVariant) {
+        if (inStockVariant.color) targetColor = inStockVariant.color;
+        if (inStockVariant.size) targetSize = inStockVariant.size;
+      }
+    }
+    return { targetColor, targetSize };
+  };
+
   const handleAddToCart = (event: React.MouseEvent) => {
     event.stopPropagation();
     event.preventDefault();
@@ -90,10 +123,12 @@ function ProductCardComponent({ product }: ProductCardProps) {
     if (addTimerRef.current !== null) window.clearTimeout(addTimerRef.current);
     if (successTimerRef.current !== null) window.clearTimeout(successTimerRef.current);
 
+    const { targetColor, targetSize } = getInStockVariantDefaults();
+
     setIsAdding(true);
     addTimerRef.current = window.setTimeout(() => {
       setIsAdding(false);
-      const added = addToCart(product, 1, product.colors?.[0] || "", selectedSize || undefined);
+      const added = addToCart(product, 1, targetColor, targetSize);
       if (added) {
         setIsSuccess(true);
         successTimerRef.current = window.setTimeout(() => {
@@ -113,7 +148,9 @@ function ProductCardComponent({ product }: ProductCardProps) {
     event.stopPropagation();
     event.preventDefault();
     if (!stockInfo.isAvailable) return;
-    const added = addToCart(product, 1, product.colors?.[0] || "", selectedSize || undefined);
+
+    const { targetColor, targetSize } = getInStockVariantDefaults();
+    const added = addToCart(product, 1, targetColor, targetSize);
     if (added) {
       router.push('/checkout');
     }
@@ -229,10 +266,13 @@ function ProductCardComponent({ product }: ProductCardProps) {
             <span className="text-[10px] font-semibold text-gray-500 tracking-wide uppercase line-clamp-1 pr-2">
               {product.category || product.brand}
             </span>
-            <div className="flex items-center gap-1 shrink-0">
+            <div
+              className="flex items-center gap-1 shrink-0"
+              title={reviewCount > 0 ? `${rating.toFixed(1)} rating (${reviewCount} review${reviewCount === 1 ? "" : "s"})` : "New Product"}
+            >
               <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-              <span className="text-xs font-semibold text-gray-700">{product.rating}</span>
-              <span className="text-[10px] text-gray-400">({product.reviewCount})</span>
+              <span className="text-xs font-semibold text-gray-700">{rating.toFixed(1)}</span>
+              <span className="text-[10px] text-gray-400 font-medium">({reviewCount})</span>
             </div>
           </div>
 

@@ -5,6 +5,7 @@ import { collection, getDocs, doc, deleteDoc, updateDoc, orderBy, query } from "
 import { db } from "@/lib/firebase";
 import { Search, Trash2, Loader2, CheckCircle2, Circle, Mail, ArrowLeft, Phone, User, Clock, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
+import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 
 export default function AdminMessages() {
   const [messages, setMessages] = useState<any[]>([]);
@@ -296,9 +297,9 @@ export default function AdminMessages() {
                       href={`https://wa.me/${selectedMessage.phone.replace(/[^0-9]/g, "")}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 sm:py-3 px-5 sm:px-6 rounded-xl text-xs sm:text-sm transition-all shadow-md active:scale-95"
+                      className="inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold py-2.5 sm:py-3 px-5 sm:px-6 rounded-xl text-xs sm:text-sm transition-all shadow-md active:scale-95"
                     >
-                      <Phone className="w-4 h-4" />
+                      <WhatsAppIcon className="w-4 h-4 fill-white" />
                       <span>WhatsApp Customer</span>
                     </a>
                   )}

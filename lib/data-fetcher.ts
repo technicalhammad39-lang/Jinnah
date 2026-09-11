@@ -14,11 +14,62 @@ function serializeData(data: any) {
   return serialized;
 }
 
+/**
+ * Aggregates approved review statistics (count and average rating) from the
+ * Firestore 'reviews' collection and maps them onto product objects.
+ */
+async function attachReviewsToProducts(products: any[]): Promise<any[]> {
+  if (!products || products.length === 0) return products;
+  try {
+    const reviewsSnap = await getDocs(collection(db, "reviews"));
+    const stats: Record<string, { count: number; total: number }> = {};
+
+    reviewsSnap.docs.forEach((d) => {
+      const r = d.data();
+      const pId = r.productId || (r as any).product_id;
+      if (pId && (r.status === "approved" || !r.status)) {
+        if (!stats[pId]) stats[pId] = { count: 0, total: 0 };
+        stats[pId].count++;
+        stats[pId].total += Number(r.rating) || 5;
+      }
+    });
+
+    return products.map((p) => {
+      const pStats = stats[p.id];
+      const count = pStats?.count ?? (typeof p.reviewCount === "number" ? p.reviewCount : 0);
+      const rating =
+        pStats && pStats.count > 0
+          ? Number((pStats.total / pStats.count).toFixed(1))
+          : typeof p.rating === "number" && p.rating > 0
+          ? p.rating
+          : typeof p.averageRating === "number" && p.averageRating > 0
+          ? p.averageRating
+          : 5.0;
+
+      return {
+        ...p,
+        reviewCount: count,
+        rating: rating,
+        averageRating: rating,
+      };
+    });
+  } catch (err) {
+    console.warn("Error attaching reviews to products:", err);
+    return products.map((p) => ({
+      ...p,
+      reviewCount: typeof p.reviewCount === "number" ? p.reviewCount : 0,
+      rating: typeof p.rating === "number" && p.rating > 0 ? p.rating : 5.0,
+      averageRating: typeof p.averageRating === "number" && p.averageRating > 0 ? p.averageRating : 5.0,
+    }));
+  }
+}
+
 export async function getProducts() {
   try {
     const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...serializeData(doc.data()) })) as any[];
+    const raw = snapshot.docs.map(doc => ({ id: doc.id, ...serializeData(doc.data()) })) as any[];
+    return await attachReviewsToProducts(raw);
   } catch (error) {
     console.error("Error fetching products:", error);
     return [];
@@ -34,7 +85,7 @@ export async function getFeaturedProducts() {
       limit(6)
     );
     const snapshot = await getDocs(q);
-    const data = snapshot.docs.map(doc => ({ id: doc.id, ...serializeData(doc.data()) })) as any[];
+    let data = snapshot.docs.map(doc => ({ id: doc.id, ...serializeData(doc.data()) })) as any[];
     
     // Ensure we return exactly 6 products (fill with latest if needed)
     if (data.length < 6) {
@@ -48,10 +99,10 @@ export async function getFeaturedProducts() {
       const existingIds = new Set(data.map(p => p.id));
       const newProducts = latestData.filter(p => !existingIds.has(p.id)).slice(0, remainingNeeded);
       
-      return [...data, ...newProducts];
+      data = [...data, ...newProducts];
     }
     
-    return data;
+    return await attachReviewsToProducts(data);
   } catch (error) {
     console.error("Error fetching featured products:", error);
     return [];
@@ -123,14 +174,18 @@ export async function getProductBySlug(slug: string) {
     const snapshot = await getDocs(q);
     if (!snapshot.empty) {
       const docSnap = snapshot.docs[0];
-      return { id: docSnap.id, ...serializeData(docSnap.data()) };
+      const raw = { id: docSnap.id, ...serializeData(docSnap.data()) };
+      const [enriched] = await attachReviewsToProducts([raw]);
+      return enriched || raw;
     }
     
     // Fallback to fetch by ID
     const docRef = doc(db, "products", slug);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      return { id: docSnap.id, ...serializeData(docSnap.data()) };
+      const raw = { id: docSnap.id, ...serializeData(docSnap.data()) };
+      const [enriched] = await attachReviewsToProducts([raw]);
+      return enriched || raw;
     }
     
     return null;

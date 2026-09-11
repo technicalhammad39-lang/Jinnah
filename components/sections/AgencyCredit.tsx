@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import { Globe, MessageCircle, Mail, Search } from "lucide-react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 
 export function AgencyCredit() {
   const pathname = usePathname();
@@ -80,7 +81,7 @@ export function AgencyCredit() {
               rel="noopener noreferrer"
               className="group flex items-center gap-2 text-sm font-bold text-white/70 hover:text-[#25D366] transition-colors"
             >
-              <MessageCircle className="h-4 w-4 group-hover:text-[#25D366]" />
+              <WhatsAppIcon className="h-4 w-4 fill-white/70 group-hover:fill-[#25D366] transition-colors" />
               <span>WhatsApp</span>
             </a>
             <a 

@@ -89,9 +89,9 @@ export const DEFAULT_TEMPLATES: EmailTemplate[] = [
       `
       <div style="text-align:center; margin-bottom:24px;">
         <span style="background-color:rgba(224,90,43,0.12); color:#E05A2B; font-weight:800; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; padding:6px 14px; border-radius:999px;">Order Received</span>
-        <h2 style="margin:16px 0 8px 0; color:#11100e; font-size:24px; font-weight:900;">Shukriya, {{customer_name}}!</h2>
+        <h2 style="margin:16px 0 8px 0; color:#11100e; font-size:24px; font-weight:900;">Thank You, {{customer_name}}!</h2>
         <p style="font-size:14px; color:#5c5852; max-width:440px; margin:0 auto;">
-          Aapka order kamyabi se receive ho gaya hai. Hum aapke items pack karke jald az jald dispatch kareinge.
+          Your order has been successfully placed. Our team is preparing your items for packaging and courier dispatch.
         </p>
       </div>
 
@@ -119,13 +119,13 @@ export const DEFAULT_TEMPLATES: EmailTemplate[] = [
       {{items_html}}
 
       <div style="text-align:center; margin:32px 0 24px 0;">
-        <a href="{{tracking_url}}" class="btn" style="box-shadow: 0 4px 14px rgba(224,90,43,0.35);">Track Order Live Status &rarr;</a>
-        <p style="font-size:12px; color:#9c9993; margin-top:8px;">Live portal par order status aur delivery live check karein.</p>
+        <a href="{{tracking_url}}" class="btn" style="box-shadow: 0 4px 14px rgba(224,90,43,0.35);">Track Live Order Status &rarr;</a>
+        <p style="font-size:12px; color:#9c9993; margin-top:8px;">Check live tracking updates and dispatch status anytime.</p>
       </div>
 
       <div style="background-color:#fff; border:1px dashed #d6d2cb; border-radius:10px; padding:14px 18px; margin-top:20px;">
         <p style="margin:0; font-size:12px; color:#787570; text-align:center;">
-          Kisi bhi tabdeeli ya sawal ke liye helpline par WhatsApp karein: <strong style="color:#11100e;">0300-0421772</strong>
+          Need assistance or changes to your order? Contact WhatsApp support: <strong style="color:#11100e;">0300-0421772</strong>
         </p>
       </div>
       `,
@@ -146,9 +146,9 @@ export const DEFAULT_TEMPLATES: EmailTemplate[] = [
       `
       <div style="text-align:center; margin-bottom:24px;">
         <span style="background-color:rgba(59,130,246,0.12); color:#2563eb; font-weight:800; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; padding:6px 14px; border-radius:999px;">Processing</span>
-        <h2 style="margin:16px 0 8px 0; color:#11100e; font-size:24px; font-weight:900;">Order Processing Shuru Ho Chuki Hai</h2>
+        <h2 style="margin:16px 0 8px 0; color:#11100e; font-size:24px; font-weight:900;">Order Verification in Progress</h2>
         <p style="font-size:14px; color:#5c5852; max-width:440px; margin:0 auto;">
-          Mohtaram {{customer_name}}, aapke order items inventory se nikal kar quality check aur packaging ke marhale me hain.
+          Dear {{customer_name}}, your order items have been verified from inventory and are currently undergoing quality inspection and packaging.
         </p>
       </div>
 
@@ -173,9 +173,9 @@ export const DEFAULT_TEMPLATES: EmailTemplate[] = [
       `
       <div style="text-align:center; margin-bottom:24px;">
         <span style="background-color:rgba(16,185,129,0.12); color:#059669; font-weight:800; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; padding:6px 14px; border-radius:999px;">Dispatched</span>
-        <h2 style="margin:16px 0 8px 0; color:#11100e; font-size:24px; font-weight:900;">Aapka Parcel Dispatch Ho Gaya Hai!</h2>
+        <h2 style="margin:16px 0 8px 0; color:#11100e; font-size:24px; font-weight:900;">Your Package Has Been Dispatched!</h2>
         <p style="font-size:14px; color:#5c5852; max-width:440px; margin:0 auto;">
-          Mohtaram {{customer_name}}, aapka order courier partner ke hawale kar diya gaya hai aur raste me hai.
+          Dear {{customer_name}}, your order has been handed over to our courier logistics partner and is en route to your delivery address.
         </p>
       </div>
 
@@ -202,12 +202,12 @@ export const DEFAULT_TEMPLATES: EmailTemplate[] = [
 
       <div style="text-align:center; margin:32px 0 24px 0;">
         <a href="{{tracking_url}}" class="btn" style="box-shadow: 0 4px 14px rgba(224,90,43,0.35);">Live Courier Tracking &rarr;</a>
-        <p style="font-size:12px; color:#9c9993; margin-top:8px;">Live tracking portal se courier updates check karein.</p>
+        <p style="font-size:12px; color:#9c9993; margin-top:8px;">Track courier movement and real-time transit status.</p>
       </div>
 
       <div style="background-color:#fff7ed; border:1px solid #fed7aa; border-radius:10px; padding:14px 18px;">
         <p style="margin:0; font-size:12px; color:#9a3412;">
-          <strong>Tip:</strong> Baraye meharbani rider ki delivery call attend karein aur Cash on Delivery ki raqam tayar rakhein.
+          <strong>Helpful Tip:</strong> Please keep your phone available for the delivery courier rider call and have the exact payable amount ready if paying via Cash on Delivery.
         </p>
       </div>
       `,
@@ -228,9 +228,9 @@ export const DEFAULT_TEMPLATES: EmailTemplate[] = [
       `
       <div style="text-align:center; margin-bottom:24px;">
         <span style="background-color:rgba(234,179,8,0.15); color:#ca8a04; font-weight:800; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; padding:6px 14px; border-radius:999px;">Rider En Route</span>
-        <h2 style="margin:16px 0 8px 0; color:#11100e; font-size:24px; font-weight:900;">Parcel Aaj Deliver Ho Raha Hai!</h2>
+        <h2 style="margin:16px 0 8px 0; color:#11100e; font-size:24px; font-weight:900;">Your Package is Out for Delivery Today!</h2>
         <p style="font-size:14px; color:#5c5852; max-width:440px; margin:0 auto;">
-          Mohtaram {{customer_name}}, courier rider aapka order #{{order_number}} le kar delivery ke liye nikal chuka hai.
+          Dear {{customer_name}}, our courier rider has departed with your order #{{order_number}} and will arrive at your address today.
         </p>
       </div>
 
@@ -255,9 +255,9 @@ export const DEFAULT_TEMPLATES: EmailTemplate[] = [
       `
       <div style="text-align:center; margin-bottom:24px;">
         <span style="background-color:rgba(16,185,129,0.12); color:#059669; font-weight:800; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; padding:6px 14px; border-radius:999px;">Delivered</span>
-        <h2 style="margin:16px 0 8px 0; color:#11100e; font-size:24px; font-weight:900;">Order Kamyabi Se Deliver Ho Gaya!</h2>
+        <h2 style="margin:16px 0 8px 0; color:#11100e; font-size:24px; font-weight:900;">Order Delivered Successfully!</h2>
         <p style="font-size:14px; color:#5c5852; max-width:440px; margin:0 auto;">
-          Mohtaram {{customer_name}}, aapka order #{{order_number}} deliver ho chuka hai. Jinnah Hardware Store par aitebar karne ka bohot shukriya.
+          Dear {{customer_name}}, your order #{{order_number}} has been delivered. Thank you for choosing Jinnah Hardware Store for your architectural hardware needs.
         </p>
       </div>
 
@@ -266,7 +266,7 @@ export const DEFAULT_TEMPLATES: EmailTemplate[] = [
       </div>
 
       <p style="font-size:13px; color:#787570; text-align:center; margin-top:20px;">
-        Aapka feedback hamare liye bohot ahem hai. Kisi bhi product warranty ya enquiry ke liye hamara support desk hazir hai.
+        Your feedback is valuable to us. For any product warranty inquiries or support, our team is always here to help.
       </p>
       `,
       "Your order has been delivered successfully."
@@ -286,14 +286,14 @@ export const DEFAULT_TEMPLATES: EmailTemplate[] = [
       `
       <div style="text-align:center; margin-bottom:24px;">
         <span style="background-color:rgba(239,68,68,0.12); color:#dc2626; font-weight:800; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; padding:6px 14px; border-radius:999px;">Cancelled</span>
-        <h2 style="margin:16px 0 8px 0; color:#11100e; font-size:24px; font-weight:900;">Order Cancel Ho Chuka Hai</h2>
+        <h2 style="margin:16px 0 8px 0; color:#11100e; font-size:24px; font-weight:900;">Order Cancellation Notice</h2>
         <p style="font-size:14px; color:#5c5852; max-width:440px; margin:0 auto;">
-          Mohtaram {{customer_name}}, aapka order #{{order_number}} cancel kar diya gaya hai.
+          Dear {{customer_name}}, your order #{{order_number}} has been cancelled.
         </p>
       </div>
 
       <p style="font-size:13px; color:#787570; text-align:center; margin-top:20px;">
-        Agar yeh ghalati se hua hai ya aap dobara order karna chahte hain to hamari helpline <strong>0300-0421772</strong> par rabta karein.
+        If you did not request this cancellation or would like to re-order, please contact our helpline at <strong>0300-0421772</strong>.
       </p>
       `,
       "Order cancellation notice."
@@ -311,9 +311,9 @@ export const DEFAULT_TEMPLATES: EmailTemplate[] = [
     createdAt: new Date().toISOString(),
     bodyHtml: getBaseEmailLayout(
       `
-      <h2 style="margin-top:0; color:#11100e; font-size:20px; font-weight:800;">Salam {{customer_name}},</h2>
+      <h2 style="margin-top:0; color:#11100e; font-size:20px; font-weight:800;">Dear {{customer_name}},</h2>
       <p style="font-size:14px; color:#5c5852;">
-        Jinnah Hardware Store se rabta karne ka shukriya. Aapki inquiry ke hawale se hamara jawab darj zail hai:
+        Thank you for contacting Jinnah Hardware Store. In response to your inquiry:
       </p>
 
       <div style="background-color:#faf9f6; border-left:4px solid #E05A2B; padding:18px 20px; margin:22px 0; border-radius:0 8px 8px 0;">
@@ -323,7 +323,7 @@ export const DEFAULT_TEMPLATES: EmailTemplate[] = [
       </div>
 
       <p style="font-size:13px; color:#787570;">
-        Mazeed tafseelat ya live rate quotes ke liye aap humse <strong>0300-0421772</strong> par direct contact kar sakte hain.
+        For further details, instant product rates, or bulk inquiries, you can also reach us directly at <strong>0300-0421772</strong>.
       </p>
       `,
       "Response from Jinnah Hardware Support Desk"

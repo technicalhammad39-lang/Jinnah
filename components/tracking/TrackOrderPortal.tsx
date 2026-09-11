@@ -17,17 +17,16 @@ import {
   Check, 
   ExternalLink, 
   Printer, 
-  MessageCircle, 
   AlertCircle, 
   Navigation, 
   RotateCcw,
-  Phone,
-  ShieldCheck
+  Phone
 } from "lucide-react";
 import { getPublicUploadUrl } from "@/lib/utils";
 import { toast } from "sonner";
 import { Navbar } from "@/components/navigation/Navbar";
 import { Footer } from "@/components/navigation/Footer";
+import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 
 interface OrderTrackingData {
   id: string;
@@ -323,13 +322,8 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
               </form>
 
               {/* Security & Verification Callout */}
-              <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm text-white/80">
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1 text-xs font-semibold text-white/90 backdrop-blur-sm border border-white/15">
-                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-                  <span>Instant Status Verification</span>
-                </div>
-                <span className="text-white/40 hidden sm:inline">•</span>
-                <span className="text-white/70 text-xs">Enter your 8-character public Tracking ID to view real-time delivery status.</span>
+              <div className="mt-5 flex items-center justify-center text-xs sm:text-sm text-white/80">
+                <span className="text-white/80 text-xs sm:text-sm font-medium">Enter your 8-character public Tracking ID to view real-time delivery status.</span>
               </div>
             </div>
           </div>
@@ -354,13 +348,13 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                 <div className="mt-5">
                   <a
                     href={`https://wa.me/923000421772?text=${encodeURIComponent(
-                      `Salam Jinnah Hardware Store! I need help tracking my order (${orderIdInput || "Order ID"}).`
+                      `Hello Jinnah Hardware Store! I need help tracking my order (${orderIdInput || "Order ID"}).`
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-full bg-rose-600 px-6 py-2.5 text-sm font-bold text-white shadow-md hover:bg-rose-700 transition-colors"
+                    className="inline-flex items-center gap-2 rounded-full bg-[#25D366] hover:bg-[#20ba59] px-6 py-2.5 text-sm font-bold text-white shadow-md transition-colors"
                   >
-                    <MessageCircle className="h-4 w-4" />
+                    <WhatsAppIcon className="h-4 w-4 fill-white" />
                     <span>WhatsApp Support</span>
                   </a>
                 </div>
@@ -423,8 +417,8 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                         <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5" /> Order Cancelled
                       </span>
                     )}
-                    {/* Estimated Delivery Highlight Banner (Orange & Black styling, full width on mobile) */}
-                    <div className="w-full md:w-auto inline-flex items-center justify-between md:justify-end gap-3 px-4 sm:px-6 py-3 sm:py-3.5 rounded-2xl bg-[#11100e] border-2 border-primary text-white shadow-lg">
+                    {/* Estimated Delivery Highlight Banner (Subtle orange gradient dark box, no orange border) */}
+                    <div className="w-full md:w-auto inline-flex items-center justify-between md:justify-end gap-3 px-4 sm:px-6 py-3 sm:py-3.5 rounded-2xl bg-gradient-to-r from-[#11100e] via-[#1a120b] to-[#26150a] border border-white/10 text-white shadow-xl">
                       <div className="flex items-center gap-2.5">
                         <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0 animate-pulse" />
                         <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-white/80">
@@ -447,31 +441,15 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                     </p>
                   </div>
                 ) : (
-                  /* Multi-Stage Visual Stepper - Enlarged & Mobile Responsive */
+                  /* Multi-Stage Visual Stepper - Enlarged & Mobile Responsive with Edge Fade */
                   <div className="mt-8">
-                    {/* Mobile Instant Active Status Spotlight Card */}
-                    <div className="sm:hidden mb-4 p-4 rounded-2xl bg-gradient-to-r from-primary/[0.05] via-white to-primary/[0.02] border border-primary/20 shadow-xs flex items-center gap-3.5">
-                      <div className="h-11 w-11 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 shadow-xs">
-                        <activeStep.icon className="h-5 w-5 animate-pulse" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-primary">Current Status</span>
-                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
-                        </div>
-                        <p className="text-sm font-black text-gray-900 leading-tight truncate">{activeStep.label}</p>
-                        <p className="text-[11px] text-gray-500 leading-tight truncate">{activeStep.desc}</p>
-                      </div>
-                    </div>
-
                     <div 
                       ref={stepperContainerRef}
-                      className="py-6 sm:py-12 md:py-16 px-1 sm:px-8 bg-transparent sm:bg-[#faf9f6] rounded-none sm:rounded-3xl border-0 sm:border sm:border-black/5 overflow-x-auto custom-scrollbar scroll-smooth snap-x snap-mandatory touch-pan-x"
+                      className="py-6 sm:py-12 md:py-16 px-1 sm:px-8 bg-transparent sm:bg-[#faf9f6] rounded-none sm:rounded-3xl border-0 sm:border sm:border-black/5 overflow-x-auto custom-scrollbar scroll-smooth snap-x snap-mandatory touch-pan-x [mask-image:linear-gradient(to_right,transparent,black_28px,black_calc(100%-28px),transparent)] [-webkit-mask-image:linear-gradient(to_right,transparent,black_28px,black_calc(100%-28px),transparent)] sm:[mask-image:none] sm:[-webkit-mask-image:none]"
                     >
                       <div className="min-w-[580px] sm:min-w-0 px-6 sm:px-0 py-3">
                         <div className="relative">
                           {/* Background Track Line & Dynamic Auto-Animated Progress Fill */}
-                          {/* Placed at top-7 (28px on mobile), sm:top-9 (36px), md:top-11 (44px) to be EQUAL CENTER in the icon circles */}
                           <div className="absolute left-0 right-0 top-7 sm:top-9 md:top-11 -translate-y-1/2 px-7 sm:px-9 md:px-11 z-0 pointer-events-none">
                             <div className="relative w-full h-2 sm:h-2.5 md:h-3 rounded-full bg-black/10 overflow-hidden shadow-inner">
                               {/* Dynamic animated active progress beam */}
@@ -502,30 +480,41 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                                 <div
                                   key={step.id}
                                   ref={isCurrent ? activeStepRef : null}
-                                  className={`flex flex-col items-center text-center max-w-[120px] sm:max-w-[150px] snap-center shrink-0 sm:shrink transition-all duration-300 ${
+                                  className={`flex flex-col items-center text-center max-w-[125px] sm:max-w-[155px] snap-center shrink-0 sm:shrink py-2 transition-all duration-300 ${
                                     isCurrent ? "scale-105" : isPast ? "opacity-95" : "opacity-60"
                                   }`}
                                 >
                                   {/* Icon circle wrapper */}
                                   <div className="relative flex items-center justify-center">
-                                    {/* Active step: rotating loader spinner rings */}
+                                    {/* Active step: Minimal rotating 3-line animated ring */}
                                     {isCurrent && (
-                                      <>
-                                        <span className="absolute -inset-2 sm:-inset-3 rounded-full border-2 sm:border-3 border-dashed border-primary animate-[spin_4s_linear_infinite] pointer-events-none" />
-                                        <span className="absolute -inset-3.5 sm:-inset-4.5 rounded-full border border-primary/25 animate-pulse pointer-events-none" />
-                                      </>
+                                      <svg
+                                        className="absolute -inset-2.5 sm:-inset-3.5 h-[calc(100%+20px)] w-[calc(100%+20px)] sm:h-[calc(100%+28px)] sm:w-[calc(100%+28px)] animate-[spin_6s_linear_infinite] pointer-events-none"
+                                        viewBox="0 0 100 100"
+                                      >
+                                        <circle
+                                          cx="50"
+                                          cy="50"
+                                          r="46"
+                                          fill="none"
+                                          stroke="#E05A2B"
+                                          strokeWidth="2.5"
+                                          strokeDasharray="60 36.33"
+                                          strokeLinecap="round"
+                                        />
+                                      </svg>
                                     )}
 
                                     <div
-                                      className={`relative flex h-14 w-14 sm:h-18 sm:w-18 md:h-22 md:w-22 items-center justify-center rounded-full border-4 sm:border-[6px] border-white transition-all duration-500 shadow-xl ${
+                                      className={`relative flex h-14 w-14 sm:h-18 sm:w-18 md:h-22 md:w-22 items-center justify-center rounded-full border-4 sm:border-[6px] border-white transition-all duration-500 shadow-md ${
                                         isCurrent
-                                          ? "bg-primary text-white shadow-primary/50 ring-4 ring-primary/20 scale-105"
+                                          ? "bg-primary text-white"
                                           : isPast
                                           ? "bg-emerald-500 text-white shadow-emerald-500/30"
                                           : "bg-black/10 text-muted-foreground"
                                       }`}
                                     >
-                                      <Icon className={`h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 ${isCurrent ? "animate-pulse" : ""}`} />
+                                      <Icon className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10" />
 
                                       {/* Completed step: green checkmark tick */}
                                       {isPast && (
@@ -536,18 +525,19 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                                     </div>
                                   </div>
 
+                                  {/* Milestone label with generous breathing room */}
                                   <p
                                     className={`text-xs sm:text-sm md:text-base font-black uppercase tracking-wider leading-tight ${
                                       isCurrent
-                                        ? "mt-3 sm:mt-4 text-primary"
+                                        ? "mt-4 sm:mt-6 md:mt-7 text-primary"
                                         : isPast
-                                        ? "mt-3.5 sm:mt-4 text-foreground"
-                                        : "mt-3.5 sm:mt-4 text-muted-foreground"
+                                        ? "mt-4 sm:mt-6 md:mt-7 text-foreground"
+                                        : "mt-4 sm:mt-6 md:mt-7 text-muted-foreground"
                                     }`}
                                   >
                                     {step.label}
                                   </p>
-                                  <p className="mt-1 text-[11px] sm:text-xs text-muted-foreground leading-tight">
+                                  <p className="mt-1.5 text-[11px] sm:text-xs text-muted-foreground leading-tight">
                                     {step.desc}
                                   </p>
                                 </div>
@@ -557,9 +547,9 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                         </div>
                       </div>
 
-                      {/* Subtle slide hint on mobile */}
-                      <div className="sm:hidden flex items-center justify-center gap-1 text-[11px] font-bold text-muted-foreground/80 mt-1">
-                        <span className="text-primary/70 animate-pulse">← Swipe milestones to view all →</span>
+                      {/* Subtle swipe hint on mobile */}
+                      <div className="sm:hidden flex items-center justify-center gap-1 text-[11px] font-bold text-muted-foreground/80 mt-2">
+                        <span className="text-primary/70">← Swipe milestones to view all →</span>
                       </div>
                     </div>
                   </div>
@@ -567,66 +557,71 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
 
                 {/* Courier Partner & Consignment Box (If Dispatched) */}
                 {(activeOrder.courierName || activeOrder.trackingNumber) && (
-                  <div className="mt-8 rounded-2xl sm:rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/[0.04] via-white to-amber-500/[0.03] p-4 sm:p-7 shadow-sm">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
-                      <div className="flex items-center gap-3.5 sm:gap-5 min-w-0">
-                        {/* Courier Logo Box */}
-                        <div className="flex h-16 w-20 sm:h-20 sm:w-28 items-center justify-center rounded-2xl bg-white shadow-xs border border-black/10 p-2.5 shrink-0 overflow-hidden">
-                          {getCourierLogo(activeOrder.courierName) ? (
-                            <Image
-                              src={getCourierLogo(activeOrder.courierName)!}
-                              alt={activeOrder.courierName || "Courier Logo"}
-                              width={90}
-                              height={60}
-                              className="max-h-full max-w-full object-contain"
-                            />
-                          ) : (
-                            <Truck className="h-8 w-8 text-primary shrink-0" />
-                          )}
-                        </div>
-
-                        {/* Courier Details */}
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-primary">
-                              Logistics Partner
-                            </span>
-                            <span className="rounded-md bg-primary/10 text-primary border border-primary/20 px-2.5 py-0.5 text-[11px] sm:text-xs font-black uppercase">
-                              {activeOrder.courierName || "Express Courier"}
-                            </span>
-                          </div>
-                          
-                          {/* CN Number & Compact Copy Icon in Highlighted Box */}
-                          <div className="mt-2 flex items-center gap-2 flex-wrap">
-                            <div className="inline-flex items-center gap-2 sm:gap-2.5 px-3.5 py-1.5 rounded-xl bg-white border-2 border-primary/30 shadow-xs hover:border-primary/60 transition-all">
-                              <span className="text-[11px] font-black uppercase text-muted-foreground tracking-wider">
-                                CN
-                              </span>
-                              <span className="text-base sm:text-lg md:text-xl font-mono font-black text-gray-950 tracking-tight select-all">
-                                #{activeOrder.trackingNumber || "Assigned"}
-                              </span>
-                              {activeOrder.trackingNumber && (
-                                <button
-                                  type="button"
-                                  onClick={() => handleCopy(activeOrder.trackingNumber!, "courier")}
-                                  title="Copy CN"
-                                  className="ml-1 p-1 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-all cursor-pointer shrink-0"
-                                >
-                                  {copiedCourierCn ? (
-                                    <Check className="h-4 w-4 text-emerald-600 stroke-[2.5]" />
-                                  ) : (
-                                    <Copy className="h-4 w-4 stroke-[2.5]" />
-                                  )}
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                        </div>
+                  <div className="mt-8 rounded-2xl sm:rounded-3xl border border-black/10 bg-white p-5 sm:p-7 shadow-sm">
+                    {/* Top Row: Left Logo, Right Logistics Partner Name */}
+                    <div className="flex items-center justify-between gap-4 pb-4 border-b border-black/5">
+                      {/* Top Left: Logo */}
+                      <div className="flex h-14 w-20 sm:h-16 sm:w-28 items-center justify-center rounded-xl sm:rounded-2xl bg-gray-50 border border-black/10 p-2 shrink-0 overflow-hidden shadow-xs">
+                        {getCourierLogo(activeOrder.courierName) ? (
+                          <Image
+                            src={getCourierLogo(activeOrder.courierName)!}
+                            alt={activeOrder.courierName || "Courier Logo"}
+                            width={90}
+                            height={60}
+                            className="max-h-full max-w-full object-contain"
+                          />
+                        ) : (
+                          <Truck className="h-7 w-7 text-primary shrink-0" />
+                        )}
                       </div>
 
-                      {/* External Link to Courier Website */}
-                      {activeOrder.trackingNumber &&
-                        getCourierTrackingUrl(activeOrder.courierName, activeOrder.trackingNumber) && (
+                      {/* Top Right: Big Logistics Partner Name */}
+                      <div className="text-right">
+                        <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-muted-foreground block">
+                          Logistics Partner
+                        </span>
+                        <h3 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight text-gray-950 mt-0.5">
+                          {activeOrder.courierName || "Express Courier"}
+                        </h3>
+                      </div>
+                    </div>
+
+                    {/* Full-Width CN Bar */}
+                    <div className="mt-4 w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-[#faf9f6] border border-black/10 hover:border-black/20 transition-all">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-muted-foreground shrink-0">
+                          CN#
+                        </span>
+                        <span className="text-base sm:text-lg md:text-xl font-mono font-black text-gray-950 tracking-wide select-all truncate">
+                          {activeOrder.trackingNumber || "Assigned"}
+                        </span>
+                      </div>
+                      {activeOrder.trackingNumber && (
+                        <button
+                          type="button"
+                          onClick={() => handleCopy(activeOrder.trackingNumber!, "courier")}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-black/10 hover:border-primary text-xs font-bold text-gray-800 hover:text-primary transition-all shadow-2xs cursor-pointer shrink-0"
+                          title="Copy CN"
+                        >
+                          {copiedCourierCn ? (
+                            <>
+                              <Check className="h-3.5 w-3.5 text-emerald-600 stroke-[2.5]" />
+                              <span className="text-emerald-700">Copied</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="h-3.5 w-3.5 stroke-[2]" />
+                              <span>Copy</span>
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Full-Width Orange Portal Button */}
+                    {activeOrder.trackingNumber &&
+                      getCourierTrackingUrl(activeOrder.courierName, activeOrder.trackingNumber) && (
+                        <div className="mt-4">
                           <a
                             href={getCourierTrackingUrl(
                               activeOrder.courierName,
@@ -634,24 +629,28 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                             )!}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-white border border-black/10 px-5 sm:px-7 py-3 text-xs sm:text-sm font-black text-gray-900 shadow-sm hover:border-primary hover:text-primary hover:shadow-md transition-all shrink-0 cursor-pointer"
+                            className="w-full inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-primary hover:bg-primary/95 px-6 py-3.5 sm:py-4 text-sm sm:text-base font-black uppercase tracking-wider text-white shadow-md shadow-primary/20 hover:shadow-lg transition-all cursor-pointer"
                           >
                             <span>Track on {activeOrder.courierName} Portal</span>
-                            <ExternalLink className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                            <ExternalLink className="h-4 w-4 stroke-[2.5]" />
                           </a>
-                        )}
-                    </div>
+                        </div>
+                      )}
 
                     {/* Special Delivery Note Callout */}
                     {activeOrder.adminNotes && (
-                      <div className="mt-4 pt-3.5 border-t border-primary/15 flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2.5 text-xs sm:text-sm bg-white/70 p-3 rounded-xl border border-black/5">
-                        <span className="font-extrabold text-[#1a1917] shrink-0 flex items-center gap-1.5">
-                          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                          Special Delivery Note:
-                        </span>
-                        <span className="text-gray-700 leading-relaxed font-medium">
-                          {activeOrder.adminNotes}
-                        </span>
+                      <div className="mt-4 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-amber-500/[0.06] border border-amber-500/20 text-xs sm:text-sm">
+                        <div className="flex items-start gap-2.5">
+                          <span className="h-2 w-2 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+                          <div>
+                            <span className="font-extrabold text-amber-950 uppercase tracking-wide block text-[11px] sm:text-xs">
+                              Special Delivery Note
+                            </span>
+                            <p className="text-stone-800 font-medium leading-relaxed mt-0.5">
+                              {activeOrder.adminNotes}
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -732,9 +731,16 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
                             : "Free Delivery"}
                         </span>
                       </div>
-                      <div className="flex justify-between text-lg sm:text-2xl font-black text-foreground pt-4 border-t border-black/10">
-                        <span>Total Amount Payable</span>
-                        <span className="text-primary font-mono">
+                      <div className="mt-5 rounded-2xl bg-gradient-to-r from-[#11100e] via-[#1c130c] to-[#2b1509] p-4 sm:p-5 text-white border border-white/10 shadow-lg flex items-center justify-between">
+                        <div>
+                          <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-white/70 block">
+                            Final Due
+                          </span>
+                          <span className="text-base sm:text-lg md:text-xl font-black text-white">
+                            Total Amount Payable
+                          </span>
+                        </div>
+                        <span className="text-xl sm:text-2xl md:text-3xl font-black text-primary font-mono tracking-tight">
                           Rs. {activeOrder.total?.toLocaleString()}
                         </span>
                       </div>
@@ -789,13 +795,13 @@ export default function TrackOrderPortal({ initialReference = "" }: TrackOrderPo
 
                     <a
                       href={`https://wa.me/923000421772?text=${encodeURIComponent(
-                        `Salam Jinnah Hardware Store! I am tracking Order #${activeOrder.id}. Please give me an update on delivery schedule.`
+                        `Hello Jinnah Hardware Store! I am tracking Order #${activeOrder.id}. Please provide an update on the delivery schedule.`
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 px-6 py-4 text-sm sm:text-base font-black text-white shadow-md transition-all cursor-pointer"
+                      className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-[#25D366] hover:bg-[#20ba59] px-6 py-4 text-sm sm:text-base font-black text-white shadow-md shadow-[#25D366]/20 transition-all cursor-pointer"
                     >
-                      <MessageCircle className="h-5 w-5" />
+                      <WhatsAppIcon className="h-5 w-5 fill-white" />
                       <span>Inquire on WhatsApp</span>
                     </a>
 
