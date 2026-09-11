@@ -31,64 +31,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
-    // Fetch global settings, active discounts, and configured payment methods outside transaction for fast computation
-    const [globalSettingsDoc, discountsSnap, paymentMethodsSnap] = await Promise.all([
+    // Fetch global settings and active discounts outside transaction for fast computation
+    const [globalSettingsDoc, discountsSnap] = await Promise.all([
       adminDb.collection('settings').doc('global').get(),
-      adminDb.collection('discounts').where('isActive', '==', true).get(),
-      adminDb.collection('payment-methods').get().catch(() => ({ empty: true, docs: [] }))
+      adminDb.collection('discounts').where('isActive', '==', true).get()
     ]);
-
-    let pmDocs = paymentMethodsSnap.docs || [];
-    if (pmDocs.length === 0) {
-      const pmAltSnap = await adminDb.collection('payment_methods').get().catch(() => ({ empty: true, docs: [] }));
-      if (pmAltSnap.docs && pmAltSnap.docs.length > 0) {
-        pmDocs = pmAltSnap.docs;
-      }
-    }
-
-    const availableMethodsList = pmDocs.map((d: any) => ({
-      id: d.id,
-      ...(typeof d.data === 'function' ? d.data() : {})
-    }));
-
-    const rawMethodInput = String(body.paymentMethod || paymentMethod || "").trim();
-    const rawMethodTypeInput = String(body.paymentMethodType || "").trim();
-    const rawMethodTitleInput = String(body.paymentMethodTitle || "").trim();
-
-    const matchedMethodDoc = availableMethodsList.find((m: any) =>
-      m.id === rawMethodInput ||
-      m.id === body.paymentMethodId ||
-      String(m.type || "").toLowerCase() === rawMethodInput.toLowerCase() ||
-      String(m.title || "").toLowerCase() === rawMethodInput.toLowerCase()
-    );
-
-    const isCod = 
-      rawMethodInput.toLowerCase() === 'cod' ||
-      rawMethodTypeInput.toLowerCase() === 'cod' ||
-      rawMethodTitleInput.toLowerCase().includes('cash on delivery') ||
-      rawMethodTitleInput.toLowerCase() === 'cod' ||
-      matchedMethodDoc?.type?.toLowerCase() === 'cod' ||
-      matchedMethodDoc?.title?.toLowerCase().includes('cash on delivery');
-
-    const isBank = 
-      rawMethodInput.toLowerCase() === 'bank' ||
-      rawMethodTypeInput.toLowerCase() === 'bank' ||
-      rawMethodTitleInput.toLowerCase().includes('bank') ||
-      matchedMethodDoc?.type?.toLowerCase() === 'bank' ||
-      matchedMethodDoc?.title?.toLowerCase().includes('bank');
-
-    const selectedTokens = new Set<string>([
-      rawMethodInput.toLowerCase(),
-      rawMethodTypeInput.toLowerCase(),
-      rawMethodTitleInput.toLowerCase(),
-      matchedMethodDoc?.id?.toLowerCase(),
-      matchedMethodDoc?.type?.toLowerCase(),
-      matchedMethodDoc?.title?.toLowerCase(),
-      isCod ? 'cod' : '',
-      isCod ? 'cash on delivery' : '',
-      isBank ? 'bank' : '',
-      isBank ? 'direct bank transfer' : ''
-    ].filter(Boolean) as string[]);
 
     const globalSettingsData = globalSettingsDoc.exists ? globalSettingsDoc.data() : {};
     const lowStockThreshold = typeof globalSettingsData?.lowStockThreshold === 'number' ? globalSettingsData.lowStockThreshold : 5;
@@ -142,80 +89,10 @@ export async function POST(req: Request) {
         const currentStock = typeof p.stockQuantity === 'number' ? p.stockQuantity : Number(p.stockQuantity || 0);
 
         // Check payment method constraints
-        let isPaymentAllowed = true;
-        const allowedMethods = p.allowedPaymentMethods;
-
-        if (Array.isArray(allowedMethods) && allowedMethods.length > 0) {
-          const hasAll = allowedMethods.some((m: any) => {
-            const s = String(m).trim().toUpperCase();
-            return s === "ALL" || s === "*";
-          });
-
-          if (!hasAll) {
-            const matchesSelected = allowedMethods.some((allowedItem: any) => {
-              const cleanAllowed = String(allowedItem).trim().toLowerCase();
-              if (cleanAllowed === 'all' || cleanAllowed === '*') return true;
-
-              // Direct match with any token of the selected payment method
-              if (selectedTokens.has(cleanAllowed)) return true;
-
-              // Check if customer selected COD and product allows COD
-              if (isCod && (cleanAllowed === 'cod' || cleanAllowed.includes('cash') || cleanAllowed.includes('delivery'))) {
-                return true;
-              }
-
-              // Check if customer selected Bank and product allows Bank
-              if (isBank && (cleanAllowed === 'bank' || cleanAllowed.includes('transfer') || cleanAllowed.includes('bank'))) {
-                return true;
-              }
-
-              // If allowedItem is a document ID, check the doc in availableMethodsList
-              const refDoc = availableMethodsList.find((m: any) => m.id?.toLowerCase() === cleanAllowed);
-              if (refDoc) {
-                if (isCod && (refDoc.type?.toLowerCase() === 'cod' || refDoc.title?.toLowerCase().includes('cash on delivery'))) {
-                  return true;
-                }
-                if (isBank && (refDoc.type?.toLowerCase() === 'bank' || refDoc.title?.toLowerCase().includes('bank'))) {
-                  return true;
-                }
-                if (matchedMethodDoc && refDoc.type && refDoc.type === matchedMethodDoc.type) {
-                  return true;
-                }
-              }
-
-              return false;
-            });
-
-            if (matchesSelected) {
-              isPaymentAllowed = true;
-            } else {
-              // Check if all entries in allowedMethods are stale/orphaned IDs that don't exist in DB
-              const anyValidInDb = allowedMethods.some((allowedItem: any) => {
-                const clean = String(allowedItem).trim().toLowerCase();
-                return clean === 'all' || clean === 'cod' || clean === 'bank' || availableMethodsList.some((m: any) => m.id?.toLowerCase() === clean);
-              });
-
-              if (!anyValidInDb) {
-                // Stale / orphaned config — gracefully allow order to proceed
-                isPaymentAllowed = true;
-              } else if (isCod) {
-                // If customer is paying with Cash on Delivery, check if product is strictly bank-only
-                const isExplicitlyBankOnly = allowedMethods.length > 0 && allowedMethods.every((allowedItem: any) => {
-                  const clean = String(allowedItem).trim().toLowerCase();
-                  const refDoc = availableMethodsList.find((m: any) => m.id?.toLowerCase() === clean);
-                  return clean === 'bank' || refDoc?.type?.toLowerCase() === 'bank';
-                });
-
-                isPaymentAllowed = !isExplicitlyBankOnly;
-              } else {
-                isPaymentAllowed = false;
-              }
-            }
+        if (p.allowedPaymentMethods && p.allowedPaymentMethods.length > 0 && !p.allowedPaymentMethods.includes("ALL")) {
+          if (!p.allowedPaymentMethods.includes(paymentMethod)) {
+            throw new Error(`Product "${p.name}" cannot be purchased with the selected payment method.`);
           }
-        }
-
-        if (!isPaymentAllowed) {
-          throw new Error(`Product "${p.name?.trim() || item.product?.name}" cannot be purchased with the selected payment method.`);
         }
 
         // Check variant-level stock if product has variants
@@ -259,7 +136,6 @@ export async function POST(req: Request) {
               variants: updatedVariants,
               stockQuantity: newTotalStock,
               availability: newAvailability,
-              allowedPaymentMethods: ["ALL"],
               updatedAt: admin.firestore.FieldValue.serverTimestamp()
             },
             logData: {
@@ -295,7 +171,6 @@ export async function POST(req: Request) {
             updates: {
               stockQuantity: newStock,
               availability: newAvailability,
-              allowedPaymentMethods: ["ALL"],
               updatedAt: admin.firestore.FieldValue.serverTimestamp()
             },
             logData: {
@@ -381,7 +256,7 @@ export async function POST(req: Request) {
         trackingId,
         customerInfo,
         customerType,
-        paymentMethod: isCod ? 'cod' : (matchedMethodDoc?.id || paymentMethod),
+        paymentMethod,
         paymentProof: paymentProof || null,
         transactionId: transactionId || null,
         items: processedItems,

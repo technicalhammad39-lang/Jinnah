@@ -423,15 +423,10 @@ export default function CheckoutClient() {
         notes: formData.notes.trim(),
       };
 
-      const isCodSelected = isCodMethod(selectedPaymentMethodObj) || paymentMethod.toLowerCase() === "cod";
-
       const orderPayload = {
         customerInfo: customerPayload,
         customerType: user ? "account" : "guest",
-        paymentMethod: isCodSelected ? "cod" : (selectedPaymentMethodObj?.id || paymentMethod),
-        paymentMethodId: selectedPaymentMethodObj?.id || paymentMethod,
-        paymentMethodType: selectedPaymentMethodObj?.type || (isCodSelected ? "cod" : "bank"),
-        paymentMethodTitle: selectedPaymentMethodObj?.title || (isCodSelected ? "Cash on Delivery (COD)" : paymentMethod),
+        paymentMethod,
         paymentProof: paymentProofUrl || null,
         transactionId: transactionId.trim() || null,
         items: cart,
